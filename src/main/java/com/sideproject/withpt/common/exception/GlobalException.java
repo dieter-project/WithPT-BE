@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 public class GlobalException extends RuntimeException {
 
     public static final GlobalException TEST_ERROR = new GlobalException(ErrorCode.TEST_ERROR);
+    public static final GlobalException DUPLICATE_NICKNAME = new GlobalException(ErrorCode.DUPLICATE_NICKNAME);
+    public static final GlobalException INVALID_PARAMETER = new GlobalException(ErrorCode.INVALID_PARAMETER);
 
     private final ErrorCode errorCode;
 
