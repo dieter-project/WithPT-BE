@@ -1,9 +1,9 @@
 package com.sideproject.withpt.application.member.controller;
 
 import com.sideproject.withpt.application.member.dto.request.MemberSignUpRequest;
-import com.sideproject.withpt.application.member.dto.response.MemberSignUpResponse;
 import com.sideproject.withpt.application.member.dto.response.NicknameCheckResponse;
 import com.sideproject.withpt.application.member.service.MemberService;
+import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/sign-up")
-    public ApiSuccessResponse<MemberSignUpResponse> signUp(@Valid @RequestBody MemberSignUpRequest request) {
+    public ApiSuccessResponse<TokenSetDto> signUp(@Valid @RequestBody MemberSignUpRequest request) {
         return ApiSuccessResponse.from(memberService.signUpMember(request));
     }
 

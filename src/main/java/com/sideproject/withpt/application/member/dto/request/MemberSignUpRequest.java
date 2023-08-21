@@ -1,16 +1,17 @@
 package com.sideproject.withpt.application.member.dto.request;
 
 import com.sideproject.withpt.application.type.DietType;
-import com.sideproject.withpt.application.type.Gender;
+import com.sideproject.withpt.application.type.LoginType;
 import com.sideproject.withpt.application.type.OAuthProvider;
-import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.application.type.Sex;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
-import com.sideproject.withpt.domain.Member;
+import com.sideproject.withpt.domain.member.Authentication;
+import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.member.SocialLogin;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,8 +34,8 @@ public class MemberSignUpRequest {
 
     private LocalDate birth;
 
-    @ValidEnum(regexp = "MAN|WOMAN", enumClass = Gender.class)
-    private Gender gender;
+    @ValidEnum(regexp = "MAN|WOMAN", enumClass = Sex.class)
+    private Sex sex;
 
     @NotBlank(message = "닉네임은 필수 입력입니다.")
     private String nickname;
@@ -53,20 +54,34 @@ public class MemberSignUpRequest {
     @ValidEnum(regexp = "KAKAO|GOOGLE", enumClass = OAuthProvider.class)
     private OAuthProvider oauthProvider;
 
-    public Member toEntity() {
+    public Member toMemberEntity() {
         return Member.builder()
             .email(this.email)
             .name(this.name)
-            .birth(this.birth)
-            .gender(this.gender)
             .nickname(this.nickname)
             .height(this.height)
             .weight(this.weight)
+            .imageUrl(null)
             .dietType(this.dietType)
             .targetExerciseTimes(this.targetExerciseTimes)
             .targetWeight(this.targetWeight)
+            .authentication(toAuthenticationEntity())
+            .socialLogin(toSocialLoginEntity())
+            .build();
+    }
+
+    private Authentication toAuthenticationEntity() {
+        return Authentication.builder()
+            .birth(this.birth)
+            .sex(this.sex)
+            .loginType(LoginType.SOCIAL)
+            .joinDate(LocalDateTime.now())
+            .build();
+    }
+
+    private SocialLogin toSocialLoginEntity() {
+        return SocialLogin.builder()
             .oauthProvider(this.oauthProvider)
-            .role(Role.USER)
             .build();
     }
 }

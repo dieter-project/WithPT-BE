@@ -1,0 +1,10 @@
+spring:
+  jwt:
+    secret: ZGF5b25lLXNwcmluZy1ib290LWRpdmlkZW5kLXByb2plY3QtdHV0b3JpYWwtand0LXNlY3JldC1rZXkKfdieJFKElfjdows3mfn
+
+oauth:
+  kakao:
+    client-id: e207c7b2bb2c175cfa7b36713d5fd29a
+    url:
+      auth: https://kauth.kakao.com
+      api: https://kapi.kakao.com
