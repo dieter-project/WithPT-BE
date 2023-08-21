@@ -4,6 +4,7 @@ import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.ACC
 import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.ACCESS_TOKEN_VALID_TIME;
 import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.REFRESH_TOKEN_VALID_TIME;
 
+import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
@@ -15,15 +16,15 @@ public class AuthTokenGenerator {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    public TokenSetDto generateTokenSet(Long memberId) {
+    public TokenSetDto generateTokenSet(Long memberId, Role role) {
         long now = (new Date()).getTime();
 
         Date accessTokenExpiredAt = new Date(now + ACCESS_TOKEN_VALID_TIME);
         Date refreshTokenExpiredAt = new Date(now + REFRESH_TOKEN_VALID_TIME);
 
         String subject = memberId.toString();
-        String accessToken = jwtTokenProvider.generate(subject, accessTokenExpiredAt);
-        String refreshToken = jwtTokenProvider.generate(subject, refreshTokenExpiredAt);
+        String accessToken = jwtTokenProvider.generate(subject, role, accessTokenExpiredAt);
+        String refreshToken = jwtTokenProvider.generate(subject, role, refreshTokenExpiredAt);
 
         return TokenSetDto.of(
             accessToken,
@@ -33,13 +34,13 @@ public class AuthTokenGenerator {
             REFRESH_TOKEN_VALID_TIME / 1000L);
     }
 
-    public TokenSetDto generateAccessToken(Long memberId){
-          long now = (new Date()).getTime();
+    public TokenSetDto generateAccessToken(Long memberId, Role role) {
+        long now = (new Date()).getTime();
 
         Date accessTokenExpiredAt = new Date(now + ACCESS_TOKEN_VALID_TIME);
 
         String subject = memberId.toString();
-        String accessToken = jwtTokenProvider.generate(subject, accessTokenExpiredAt);
+        String accessToken = jwtTokenProvider.generate(subject, role, accessTokenExpiredAt);
 
         return TokenSetDto.of(
             accessToken,
@@ -47,13 +48,13 @@ public class AuthTokenGenerator {
             ACCESS_TOKEN_VALID_TIME / 1000L);
     }
 
-    public TokenSetDto generateRefreshToken(Long memberId){
+    public TokenSetDto generateRefreshToken(Long memberId, Role role) {
         long now = (new Date()).getTime();
 
         Date accessTokenExpiredAt = new Date(now + ACCESS_TOKEN_VALID_TIME);
 
         String subject = memberId.toString();
-        String accessToken = jwtTokenProvider.generate(subject, accessTokenExpiredAt);
+        String accessToken = jwtTokenProvider.generate(subject, role, accessTokenExpiredAt);
 
         return TokenSetDto.of(
             accessToken,

@@ -1,0 +1,5 @@
+package com.sideproject.withpt.application.type;
+
+public enum LoginType {
+    SOCIAL, GENERAL
+}

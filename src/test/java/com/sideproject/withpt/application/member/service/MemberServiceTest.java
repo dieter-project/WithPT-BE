@@ -7,11 +7,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 import com.sideproject.withpt.application.member.dto.request.MemberSignUpRequest;
-import com.sideproject.withpt.application.member.dto.response.MemberSignUpResponse;
 import com.sideproject.withpt.application.member.dto.response.NicknameCheckResponse;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
-import com.sideproject.withpt.domain.Member;
+import com.sideproject.withpt.common.jwt.AuthTokenGenerator;
+import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
+import com.sideproject.withpt.domain.member.Member;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,9 +27,11 @@ class MemberServiceTest {
     @Mock
     private MemberRepository memberRepository;
 
+    @Mock
+    private AuthTokenGenerator authTokenGenerator;
+
     @InjectMocks
     private MemberService memberService;
-
 
     @Test
     @DisplayName("닉네임 중복")
@@ -76,18 +79,30 @@ class MemberServiceTest {
             .name("test")
             .build();
 
+        Member member = Member.builder()
+            .id(1L)
+            .email("test@naver.com")
+            .name("test")
+            .build();
+
         given(memberRepository.findByEmail(request.getEmail()))
             .willReturn(Optional.empty());
 
         given(memberRepository.save(any()))
-            .willReturn(request.toEntity());
+            .willReturn(member);
+
+        given(authTokenGenerator.generateTokenSet(any(), any()))
+            .willReturn(
+                TokenSetDto.of("access", "refresh", "Bearer ", 1800L, 604800L)
+            );
 
         //when
-        MemberSignUpResponse response = memberService.signUpMember(request);
+        TokenSetDto tokenSetDto = memberService.signUpMember(request);
+        System.out.println(tokenSetDto);
 
         //then
-        assertThat(response.getEmail()).isEqualTo(request.getEmail());
-        assertThat(response.getName()).isEqualTo(request.getName());
+        assertThat(tokenSetDto.getAccessToken()).isEqualTo("access");
+        assertThat(tokenSetDto.getRefreshToken()).isEqualTo("refresh");
     }
 
     @Test
