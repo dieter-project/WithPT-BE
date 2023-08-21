@@ -1,5 +1,6 @@
 package com.sideproject.withpt.common.jwt;
 
+import com.sideproject.withpt.application.type.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -35,6 +36,15 @@ public class JwtTokenProvider {
     public String generate(String subject, Date expireAt) {
         return Jwts.builder()
             .setSubject(subject)
+            .setExpiration(expireAt)
+            .signWith(key, SignatureAlgorithm.HS512)
+            .compact();
+    }
+
+    public String generate(String subject, Role role, Date expireAt) {
+        return Jwts.builder()
+            .setSubject(subject)
+            .claim("role", role)
             .setExpiration(expireAt)
             .signWith(key, SignatureAlgorithm.HS512)
             .compact();
