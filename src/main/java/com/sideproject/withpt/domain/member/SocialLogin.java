@@ -1,10 +1,8 @@
-package com.sideproject.withpt.domain;
+package com.sideproject.withpt.domain.member;
 
-import com.sideproject.withpt.application.type.DietType;
-import com.sideproject.withpt.application.type.Gender;
 import com.sideproject.withpt.application.type.OAuthProvider;
-import com.sideproject.withpt.application.type.Role;
-import java.time.LocalDate;
+import com.sideproject.withpt.domain.BaseEntity;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -22,37 +20,14 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member {
+public class SocialLogin extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "social_login_id")
     private Long id;
-
-    private String email;
-
-    private String name;
-
-    private LocalDate birth;
-
-    private Gender gender;
-
-    private String nickname;
-
-    private Double height;
-
-    private Double weight;
-
-    @Enumerated(EnumType.STRING)
-    private DietType dietType;
-
-    private int targetExerciseTimes;
-
-    private Double targetWeight;
 
     @Enumerated(EnumType.STRING)
     private OAuthProvider oauthProvider;
-
-    @Enumerated(EnumType.STRING)
-    private Role role;
 
 }
