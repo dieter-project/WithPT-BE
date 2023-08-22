@@ -1,20 +1,19 @@
-package com.sideproject.withpt.domain;
+package com.sideproject.withpt.domain.record;
 
 import com.sideproject.withpt.application.type.BodyPart;
 import com.sideproject.withpt.application.type.ExerciseType;
+import com.sideproject.withpt.domain.BaseEntity;
+import com.sideproject.withpt.domain.member.Member;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Exercise {
+public class Exercise extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "exercise_id")
     private Long id;
@@ -27,20 +26,11 @@ public class Exercise {
     private int weight;
     private int set;
     private int time;
-    @Column(name = "bookmark_yn")
-    private String yn;
+    private String bookmarkYn;
 
     @Enumerated(EnumType.STRING)
-    private ExerciseType type;
+    private ExerciseType exerciseType;
 
     @Enumerated(EnumType.STRING)
-    private BodyPart part;
-
-    @CreatedDate
-    @Column(name = "create_at")
-    private LocalDateTime createDate;
-
-    @LastModifiedDate
-    @Column(name = "update_at")
-    private LocalDateTime updateDate;
+    private BodyPart bodyPart;
 }
