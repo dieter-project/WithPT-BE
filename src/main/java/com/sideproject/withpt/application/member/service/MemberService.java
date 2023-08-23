@@ -2,6 +2,7 @@ package com.sideproject.withpt.application.member.service;
 
 import com.sideproject.withpt.application.member.dto.request.MemberSignUpRequest;
 import com.sideproject.withpt.application.member.dto.response.NicknameCheckResponse;
+import com.sideproject.withpt.application.member.exception.MemberException;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.common.exception.GlobalException;
@@ -22,7 +23,7 @@ public class MemberService {
 
     public NicknameCheckResponse checkNickname(String nickname) {
         memberRepository.findByNickname(nickname).ifPresent(member -> {
-            throw GlobalException.DUPLICATE_NICKNAME;
+            throw MemberException.DUPLICATE_NICKNAME;
         });
 
         // 사용 가능 시 : true
