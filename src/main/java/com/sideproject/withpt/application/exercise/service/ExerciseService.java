@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.plaf.PanelUI;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -31,6 +32,16 @@ public class ExerciseService {
     @Transactional
     public void saveExercise(ExerciseCreateRequest request) {
         exerciseRepository.save(request.toEntity());
+    }
+
+    @Transactional
+    public void modifyExercise(Long exerciseId, ExerciseCreateRequest request) {
+
+    }
+
+    @Transactional
+    public void deleteExercise(Long exerciseId) {
+        exerciseRepository.deleteById(exerciseId);
     }
 
 }

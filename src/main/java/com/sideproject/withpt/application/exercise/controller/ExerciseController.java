@@ -20,6 +20,7 @@ public class ExerciseController {
     private final ExerciseService exerciseService;
 
     // 운동 기록 조회
+    // 일단 경로변수로 memberId 임시로 받아오게 하고 추후 수정 필요
     @GetMapping("/{memberId}")
     public ApiSuccessResponse<List<ExerciseListResponse>> findAllExerciseList(@PathVariable Long memberId) {
         return ApiSuccessResponse.from(exerciseService.findAllExerciseList(memberId));
@@ -27,9 +28,23 @@ public class ExerciseController {
 
     // 운동 기록 입력
     @PostMapping
-    public ApiSuccessResponse<Void> saveExercise(@Valid @RequestBody ExerciseCreateRequest request) {
+    public ApiSuccessResponse saveExercise(@Valid @RequestBody ExerciseCreateRequest request) {
         exerciseService.saveExercise(request);
-        return ApiSuccessResponse.from(null);
+        return ApiSuccessResponse.NO_DATA_RESPONSE;
     }
+
+    // 운동 기록 수정
+    @PatchMapping("/{exerciseId}")
+    public ApiSuccessResponse modifyExercise(@Valid @RequestBody ExerciseCreateRequest request, @PathVariable Long exerciseId) {
+        return ApiSuccessResponse.NO_DATA_RESPONSE;
+    }
+
+    // 운동 기록 삭제
+    @DeleteMapping("/{exerciseId}")
+    public ApiSuccessResponse deleteExercise(@PathVariable Long exerciseId) {
+        exerciseService.deleteExercise(exerciseId);
+        return ApiSuccessResponse.NO_DATA_RESPONSE;
+    }
+
 
 }
