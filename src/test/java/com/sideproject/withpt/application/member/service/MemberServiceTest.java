@@ -8,6 +8,7 @@ import static org.mockito.BDDMockito.given;
 
 import com.sideproject.withpt.application.member.dto.request.MemberSignUpRequest;
 import com.sideproject.withpt.application.member.dto.response.NicknameCheckResponse;
+import com.sideproject.withpt.application.member.exception.MemberException;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.jwt.AuthTokenGenerator;
@@ -51,7 +52,7 @@ class MemberServiceTest {
         )
             .isExactlyInstanceOf(GlobalException.class)
             .isInstanceOf(RuntimeException.class)
-            .hasMessage(GlobalException.DUPLICATE_NICKNAME.getMessage());
+            .hasMessage(MemberException.DUPLICATE_NICKNAME.getMessage());
     }
 
     @Test
