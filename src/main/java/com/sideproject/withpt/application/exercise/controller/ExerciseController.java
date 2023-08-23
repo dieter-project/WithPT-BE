@@ -19,15 +19,17 @@ public class ExerciseController {
 
     private final ExerciseService exerciseService;
 
-    @GetMapping
-    public ApiSuccessResponse<List<ExerciseListResponse>> findAllExerciseList(Long memberId) {
+    // 운동 기록 조회
+    @GetMapping("/{memberId}")
+    public ApiSuccessResponse<List<ExerciseListResponse>> findAllExerciseList(@PathVariable Long memberId) {
         return ApiSuccessResponse.from(exerciseService.findAllExerciseList(memberId));
     }
 
+    // 운동 기록 입력
     @PostMapping
-    public ExerciseListResponse saveExercise(@Valid @RequestBody ExerciseCreateRequest request) {
+    public ApiSuccessResponse<Void> saveExercise(@Valid @RequestBody ExerciseCreateRequest request) {
         exerciseService.saveExercise(request);
-        return null;
+        return ApiSuccessResponse.from(null);
     }
 
 }
