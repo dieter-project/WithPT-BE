@@ -8,3 +8,11 @@ oauth:
     url:
       auth: https://kauth.kakao.com
       api: https://kapi.kakao.com
+  google:
+    client-id: 786993775110-2ovjaiidekvcocqolmpij3rn2nnobjj5.apps.googleusercontent.com
+    secret: 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
+    url:
+      redirect: http://localhost:8080/login/oauth2/code/google
+      auth: https://oauth2.googleapis.com/token
+      api: https://www.googleapis.com
+
