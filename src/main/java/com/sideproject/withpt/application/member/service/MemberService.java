@@ -34,7 +34,7 @@ public class MemberService {
     public TokenSetDto signUpMember(MemberSignUpRequest params) {
         memberRepository.findByEmail(params.getEmail())
             .ifPresent(member -> {
-                throw GlobalException.ALREADY_REGISTERED_MEMBER;
+                throw GlobalException.ALREADY_REGISTERED_USER;
             });
 
         Member savedMember = memberRepository.save(params.toMemberEntity());
