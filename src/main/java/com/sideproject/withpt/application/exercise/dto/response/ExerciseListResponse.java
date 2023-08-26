@@ -2,10 +2,8 @@ package com.sideproject.withpt.application.exercise.dto.response;
 
 import com.sideproject.withpt.application.type.BodyPart;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
+import com.sideproject.withpt.domain.record.Exercise;
 import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @Getter
 @Builder
@@ -22,6 +20,14 @@ public class ExerciseListResponse {
     @ValidEnum(enumClass = BodyPart.class)
     private BodyPart bodyPart;
 
-    private List<MultipartFile> images;
+    public static ExerciseListResponse from(Exercise exercise) {
+        return ExerciseListResponse.builder()
+                .title(exercise.getTitle())
+                .weight(exercise.getWeight())
+                .set(exercise.getSet())
+                .time(exercise.getTime())
+                .bodyPart(exercise.getBodyPart())
+                .build();
+    }
 
 }

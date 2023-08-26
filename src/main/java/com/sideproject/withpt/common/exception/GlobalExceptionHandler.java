@@ -19,14 +19,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(GlobalException.class)
     protected ResponseEntity<Object> handleGlobalException(GlobalException e, HttpServletRequest request) {
-        log.warn("handleGlobalException", e);
+        log.warn("handleGlobalException {}", e.getMessage());
         return handleExceptionInternal(e.getErrorCode(), request);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgument(IllegalArgumentException e, HttpServletRequest request) {
-        log.warn("handleIllegalArgument", e);
-        ErrorCode errorCode = ErrorCode.INVALID_PARAMETER;
+        log.warn("handleIllegalArgument {}", e.getMessage());
+        ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
         return handleExceptionInternal(errorCode, e.getMessage(), request);
     }
 
@@ -35,10 +35,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         MethodArgumentNotValidException ex,
         HttpHeaders headers,
         HttpStatus status,
-        WebRequest request)
-    {
-        log.warn("handleMethodArgumentNotValid", ex);
-        ErrorCode errorCode = ErrorCode.INVALID_PARAMETER;
+        WebRequest request) {
+        log.warn("handleMethodArgumentNotValid {}", ex.getMessage());
+        ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
         return handleExceptionInternal(ex, errorCode, request);
     }
 
@@ -54,12 +53,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             .body(ApiErrorResponse.from(e, errorCode, request));
     }
 
-    private ResponseEntity<Object> handleExceptionInternal(ErrorCode errorCode, String message, HttpServletRequest request) {
+    private ResponseEntity<Object> handleExceptionInternal(ErrorCode errorCode, String message,
+        HttpServletRequest request) {
         return ResponseEntity
             .status(errorCode.getHttpStatus())
             .body(ApiErrorResponse.from(errorCode, message, request));
     }
-
 
 
 }

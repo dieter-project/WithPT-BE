@@ -20,6 +20,8 @@ public class ExerciseCreateRequest {
     private int set;
     private int time;
 
+    private String bookmarkYn;
+
     @ValidEnum(enumClass = BodyPart.class)
     private BodyPart bodyPart;
 
