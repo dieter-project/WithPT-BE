@@ -127,6 +127,6 @@ class MemberServiceTest {
             () -> memberService.signUpMember(request)
         )
             .isExactlyInstanceOf(GlobalException.class)
-            .hasMessage(GlobalException.ALREADY_REGISTERED_MEMBER.getMessage());
+            .hasMessage(GlobalException.ALREADY_REGISTERED_USER.getMessage());
     }
 }
