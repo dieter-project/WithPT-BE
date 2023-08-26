@@ -30,7 +30,7 @@ class EnumValidatorTest {
             .email("test@nave.com")
             .name("test")
             .nickname("testNick")
-            .gender(null) // gender에는 null이 들어갈 수 없음
+            .sex(null) // gender에는 null이 들어갈 수 없음
             .dietType(DietType.BULK_UP)
             .oauthProvider(OAuthProvider.KAKAO)
             .build();

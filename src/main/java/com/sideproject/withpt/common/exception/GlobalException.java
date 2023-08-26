@@ -7,7 +7,7 @@ import lombok.Getter;
 public class GlobalException extends RuntimeException {
 
     public static final GlobalException TEST_ERROR = new GlobalException(CommonErrorCode.TEST_ERROR);
-    public static final GlobalException ALREADY_REGISTERED_MEMBER = new GlobalException(CommonErrorCode.ALREADY_REGISTERED_MEMBER);
+    public static final GlobalException ALREADY_REGISTERED_USER = new GlobalException(CommonErrorCode.ALREADY_REGISTERED_USER);
     public static final GlobalException INVALID_PARAMETER = new GlobalException(CommonErrorCode.INVALID_PARAMETER);
 
     private final ErrorCode errorCode;

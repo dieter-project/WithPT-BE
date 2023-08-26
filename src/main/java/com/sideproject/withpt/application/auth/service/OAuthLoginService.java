@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class OAuthLoginService {
 
@@ -22,6 +24,7 @@ public class OAuthLoginService {
 
     public OAuthLoginResponse login(OAuthLoginParams params) {
         OAuthLoginClient oAuthLoginClient = loginClients.get(params.registerRole());
+        log.info(oAuthLoginClient.toString());
         return oAuthLoginClient.login(params);
     }
 

@@ -1,6 +1,6 @@
 spring:
   profiles:
-    include: oauth
+    include: oauth, swagger
   datasource:
     url: jdbc:h2:tcp://localhost/~/test
     username: sa
@@ -16,5 +16,5 @@ spring:
       ddl-auto: create
     properties:
       hibernate:
-        #        show_sql: true
+        show_sql: true
         format_sql: true
