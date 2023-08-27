@@ -1,6 +1,7 @@
 package com.sideproject.withpt.domain.member;
 
 import com.sideproject.withpt.application.type.DietType;
+import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.domain.BaseEntity;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -47,6 +48,9 @@ public class Member extends BaseEntity {
     private int targetExerciseTimes;
 
     private Double targetWeight;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "authentication_id")

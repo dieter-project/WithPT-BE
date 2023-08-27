@@ -2,6 +2,7 @@ package com.sideproject.withpt.domain.trainer;
 
 import com.sideproject.withpt.application.type.LoginType;
 import com.sideproject.withpt.application.type.OAuthProvider;
+import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.application.type.Sex;
 import com.sideproject.withpt.domain.BaseEntity;
 import java.time.LocalDate;
@@ -54,6 +55,9 @@ public class Trainer extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private OAuthProvider oauthProvider;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     private LocalDateTime joinDate;
 

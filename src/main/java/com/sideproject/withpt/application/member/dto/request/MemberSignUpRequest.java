@@ -3,6 +3,7 @@ package com.sideproject.withpt.application.member.dto.request;
 import com.sideproject.withpt.application.type.DietType;
 import com.sideproject.withpt.application.type.LoginType;
 import com.sideproject.withpt.application.type.OAuthProvider;
+import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.application.type.Sex;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.domain.member.Authentication;
@@ -65,6 +66,7 @@ public class MemberSignUpRequest {
             .dietType(this.dietType)
             .targetExerciseTimes(this.targetExerciseTimes)
             .targetWeight(this.targetWeight)
+            .role(Role.MEMBER)
             .authentication(toAuthenticationEntity())
             .socialLogin(toSocialLoginEntity())
             .build();
