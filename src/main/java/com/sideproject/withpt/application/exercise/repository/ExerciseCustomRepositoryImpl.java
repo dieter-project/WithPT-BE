@@ -8,8 +8,4 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class ExerciseCustomRepositoryImpl implements ExerciseCustomRepository {
 
-    @Override
-    public void modifyExercise(Long exerciseId, ExerciseCreateRequest request) {
-
-    }
 }

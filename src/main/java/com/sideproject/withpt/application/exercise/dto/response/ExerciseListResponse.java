@@ -15,7 +15,8 @@ public class ExerciseListResponse {
     private String title;
     private int weight;
     private int set;
-    private int time;
+    private int times;
+    private int hour;
 
     @ValidEnum(enumClass = BodyPart.class)
     private BodyPart bodyPart;
@@ -25,7 +26,8 @@ public class ExerciseListResponse {
                 .title(exercise.getTitle())
                 .weight(exercise.getWeight())
                 .set(exercise.getSet())
-                .time(exercise.getTime())
+                .times(exercise.getTimes())
+                .hour(exercise.getHour())
                 .bodyPart(exercise.getBodyPart())
                 .build();
     }

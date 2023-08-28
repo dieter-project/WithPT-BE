@@ -1,5 +1,6 @@
 package com.sideproject.withpt.domain.record;
 
+import com.sideproject.withpt.application.exercise.dto.request.ExerciseCreateRequest;
 import com.sideproject.withpt.application.type.BodyPart;
 import com.sideproject.withpt.application.type.ExerciseType;
 import com.sideproject.withpt.domain.BaseEntity;
@@ -25,7 +26,8 @@ public class Exercise extends BaseEntity {
     private String title;
     private int weight;
     private int set;
-    private int time;
+    private int times;
+    private int hour;
     private String bookmarkYn;
 
     @Enumerated(EnumType.STRING)
@@ -33,4 +35,16 @@ public class Exercise extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private BodyPart bodyPart;
+
+    public void update(ExerciseCreateRequest request) {
+        this.title = request.getTitle();
+        this.weight = request.getWeight();
+        this.set = request.getSet();
+        this.times = request.getTimes();
+        this.hour = request.getHour();
+        this.bookmarkYn = request.getBookmarkYn();
+        this.exerciseType = request.getExerciseType();
+        this.bodyPart = request.getBodyPart();
+    }
+
 }
