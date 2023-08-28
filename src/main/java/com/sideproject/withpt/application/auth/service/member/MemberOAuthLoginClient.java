@@ -1,5 +1,7 @@
 package com.sideproject.withpt.application.auth.service.member;
 
+import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.MEMBER_REFRESH_TOKEN_PREFIX;
+
 import com.sideproject.withpt.application.auth.controller.dto.OAuthLoginResponse;
 import com.sideproject.withpt.application.auth.infra.OAuthInfoResponse;
 import com.sideproject.withpt.application.auth.infra.OAuthLoginParams;
@@ -8,7 +10,10 @@ import com.sideproject.withpt.application.auth.service.RequestOAuthInfoService;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.common.jwt.AuthTokenGenerator;
+import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
+import com.sideproject.withpt.common.redis.RedisClient;
 import com.sideproject.withpt.domain.member.Member;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,9 +21,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MemberOAuthLoginClient implements OAuthLoginClient {
 
-    private final MemberRepository memberRepository;
     private final AuthTokenGenerator authTokenGenerator;
     private final RequestOAuthInfoService requestOAuthInfoService;
+    private final RedisClient redisClient;
+
+    private final MemberRepository memberRepository;
+
 
     @Override
     public Role role() {
@@ -49,6 +57,14 @@ public class MemberOAuthLoginClient implements OAuthLoginClient {
             .map(Member::getId)
             .get();
 
-        return OAuthLoginResponse.of(authTokenGenerator.generateTokenSet(userId, role));
+        TokenSetDto tokenSetDto = authTokenGenerator.generateTokenSet(userId, role);
+
+        redisClient.put(
+            MEMBER_REFRESH_TOKEN_PREFIX + userId,
+            tokenSetDto.getRefreshToken(),
+            TimeUnit.SECONDS,
+            tokenSetDto.getRefreshExpiredAt());
+
+        return OAuthLoginResponse.of(tokenSetDto);
     }
 }
