@@ -1,13 +1,12 @@
 package com.sideproject.withpt.application.exercise.dto.response;
 
 import com.sideproject.withpt.application.type.BodyPart;
-import com.sideproject.withpt.common.exception.validator.ValidEnum;
+import com.sideproject.withpt.application.type.ExerciseType;
 import com.sideproject.withpt.domain.record.Exercise;
 import lombok.*;
 
 @Getter
 @Builder
-@ToString
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ExerciseListResponse {
@@ -17,9 +16,10 @@ public class ExerciseListResponse {
     private int set;
     private int times;
     private int hour;
+    private String bookmarkYn;
 
-    @ValidEnum(enumClass = BodyPart.class)
     private BodyPart bodyPart;
+    private ExerciseType exerciseType;
 
     public static ExerciseListResponse from(Exercise exercise) {
         return ExerciseListResponse.builder()
@@ -28,7 +28,9 @@ public class ExerciseListResponse {
                 .set(exercise.getSet())
                 .times(exercise.getTimes())
                 .hour(exercise.getHour())
+                .bookmarkYn(exercise.getBookmarkYn())
                 .bodyPart(exercise.getBodyPart())
+                .exerciseType(exercise.getExerciseType())
                 .build();
     }
 

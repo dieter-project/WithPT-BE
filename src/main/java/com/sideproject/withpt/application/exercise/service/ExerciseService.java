@@ -41,6 +41,11 @@ public class ExerciseService {
         return exerciseList;
     }
 
+    public ExerciseListResponse findOneExercise(Long memberId, Long exerciseId) {
+        Exercise exercise = validateExerciseId(exerciseId, memberId);
+        return ExerciseListResponse.from(exercise);
+    }
+
     @Transactional
     public void saveExercise(Long memberId, ExerciseCreateRequest request) {
         Member member = validateMemberId(memberId);
