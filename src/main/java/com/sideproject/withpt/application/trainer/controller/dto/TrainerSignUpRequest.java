@@ -3,6 +3,7 @@ package com.sideproject.withpt.application.trainer.controller.dto;
 import com.sideproject.withpt.application.trainer.service.TrainerService;
 import com.sideproject.withpt.application.type.LoginType;
 import com.sideproject.withpt.application.type.OAuthProvider;
+import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.application.type.Sex;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.domain.trainer.Career;
@@ -74,6 +75,7 @@ public class TrainerSignUpRequest {
             .sex(this.sex)
             .loginType(LoginType.SOCIAL)
             .careers(new ArrayList<>())
+            .role(Role.TRAINER)
             .oauthProvider(this.oauthProvider)
             .joinDate(LocalDateTime.now())
             .build();
