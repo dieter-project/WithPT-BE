@@ -12,6 +12,8 @@ public class GlobalException extends RuntimeException {
     public static final GlobalException USER_NOT_FOUND = new GlobalException(CommonErrorCode.USER_NOT_FOUND);
     public static final GlobalException INVALID_HEADER = new GlobalException(CommonErrorCode.INVALID_HEADER);
     public static final GlobalException CREDENTIALS_DO_NOT_EXIST = new GlobalException(CommonErrorCode.CREDENTIALS_DO_NOT_EXIST);
+    public static final GlobalException REDIS_PUT_EMPTY_KEY = new GlobalException(CommonErrorCode.REDIS_PUT_EMPTY_KEY);
+    public static final GlobalException REDIS_PUT_FAIL = new GlobalException(CommonErrorCode.REDIS_PUT_FAIL);
 
     private final ErrorCode errorCode;
 

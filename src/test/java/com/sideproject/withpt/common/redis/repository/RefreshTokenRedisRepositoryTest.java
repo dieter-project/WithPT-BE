@@ -2,8 +2,8 @@ package com.sideproject.withpt.common.redis.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.sideproject.withpt.common.redis.domain.RefreshToken;
-import java.util.Optional;
+import com.sideproject.withpt.common.redis.RedisClient;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,24 +15,22 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 class RefreshTokenRedisRepositoryTest {
 
     @Autowired
-    RefreshTokenRedisRepository refreshTokenRedisRepository;
+    RedisClient redisClient;
 
     @Test
-    public void save () {
+    public void save() {
         //given
-        Long userId = 2L;
+        Long userId = 3L;
         String token = "testtesttest";
-        Long expiration = 100000L;
-
-        RefreshToken refreshToken = RefreshToken.createRefreshToken(userId, token, expiration);
+        Long expiration = 10L;
 
         //when
-        refreshTokenRedisRepository.save(refreshToken);
+        redisClient.put(String.valueOf(userId), token, TimeUnit.SECONDS, expiration);
 
         //then
-        Optional<RefreshToken> optionalRefreshToken = refreshTokenRedisRepository.findById(2L);
+        String refreshToken = redisClient.getRefreshToken(String.valueOf(userId));
 
-        assertThat(optionalRefreshToken.isPresent()).isTrue();
-        assertThat(optionalRefreshToken.get().getRefreshToken()).isEqualTo(token);
+        assertThat(redisClient.hasKey(String.valueOf(userId))).isTrue();
+        assertThat(refreshToken).isEqualTo(token);
     }
 }
