@@ -8,5 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TrainerRepository extends JpaRepository<Trainer, Long> {
     Optional<Trainer> findByEmail(String email);
+    boolean existsByEmail(String email);
     Optional<Trainer> findById(Long id);
 }

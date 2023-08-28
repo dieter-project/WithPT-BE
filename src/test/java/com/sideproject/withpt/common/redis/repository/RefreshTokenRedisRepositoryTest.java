@@ -1,7 +1,10 @@
 package com.sideproject.withpt.common.redis.repository;
 
+import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.MEMBER_REFRESH_TOKEN_PREFIX;
+import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.REFRESH_TOKEN_PREFIX;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.common.redis.RedisClient;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
@@ -25,12 +28,12 @@ class RefreshTokenRedisRepositoryTest {
         Long expiration = 10L;
 
         //when
-        redisClient.put(String.valueOf(userId), token, TimeUnit.SECONDS, expiration);
+        redisClient.put(MEMBER_REFRESH_TOKEN_PREFIX+ userId, token, TimeUnit.SECONDS, expiration);
 
         //then
         String refreshToken = redisClient.getRefreshToken(String.valueOf(userId));
 
-        assertThat(redisClient.hasKey(String.valueOf(userId))).isTrue();
+        assertThat(redisClient.hasKey(MEMBER_REFRESH_TOKEN_PREFIX+ userId)).isTrue();
         assertThat(refreshToken).isEqualTo(token);
     }
 }
