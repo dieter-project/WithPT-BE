@@ -42,7 +42,7 @@ public class RedisClient {
         }
     }
 
-    public String getRefreshToken(String key) {
+    public String get(String key) {
         if (StringUtil.isNullOrEmpty(key)) {
             return null;
         }
