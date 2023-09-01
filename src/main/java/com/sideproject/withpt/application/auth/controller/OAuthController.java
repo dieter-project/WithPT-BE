@@ -2,6 +2,8 @@ package com.sideproject.withpt.application.auth.controller;
 
 import com.sideproject.withpt.application.auth.controller.dto.LogoutResponse;
 import com.sideproject.withpt.application.auth.controller.dto.OAuthLoginResponse;
+import com.sideproject.withpt.application.auth.controller.dto.ReissueReqeust;
+import com.sideproject.withpt.application.auth.controller.dto.ReissueResponse;
 import com.sideproject.withpt.application.auth.infra.google.GoogleLoginParams;
 import com.sideproject.withpt.application.auth.infra.kakao.KakaoLoginParams;
 import com.sideproject.withpt.application.auth.service.OAuthLoginService;
@@ -40,5 +42,13 @@ public class OAuthController {
         @RequestHeader(name = "Authorization") String accessToken) {
 
         return ApiSuccessResponse.from(oAuthLoginService.logout(userId, accessToken));
+    }
+
+    @PostMapping("/reissue")
+    public ApiSuccessResponse<ReissueResponse> reissue(
+        @RequestHeader(name = "Authorization") String accessToken,
+        @RequestBody ReissueReqeust request
+    ) {
+        return ApiSuccessResponse.from(oAuthLoginService.reissue(accessToken, request.getRefresh()));
     }
 }
