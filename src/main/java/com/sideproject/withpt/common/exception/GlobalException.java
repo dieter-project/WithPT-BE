@@ -14,6 +14,8 @@ public class GlobalException extends RuntimeException {
     public static final GlobalException CREDENTIALS_DO_NOT_EXIST = new GlobalException(CommonErrorCode.CREDENTIALS_DO_NOT_EXIST);
     public static final GlobalException REDIS_PUT_EMPTY_KEY = new GlobalException(CommonErrorCode.REDIS_PUT_EMPTY_KEY);
     public static final GlobalException REDIS_PUT_FAIL = new GlobalException(CommonErrorCode.REDIS_PUT_FAIL);
+    public static final GlobalException EXPIRED_REFRESH_TOKEN = new GlobalException(CommonErrorCode.EXPIRED_REFRESH_TOKEN);
+    public static final GlobalException INVALID_TOKEN = new GlobalException(CommonErrorCode.INVALID_TOKEN);
 
     private final ErrorCode errorCode;
 

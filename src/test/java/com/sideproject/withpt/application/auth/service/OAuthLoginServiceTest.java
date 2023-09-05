@@ -3,7 +3,9 @@ package com.sideproject.withpt.application.auth.service;
 import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.ACCESS_TOKEN_BLACK_LIST_PREFIX;
 import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.ACCESS_TOKEN_PREFIX;
 import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.MEMBER_REFRESH_TOKEN_PREFIX;
+import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.REFRESH_TOKEN_VALID_TIME;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatObject;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -22,8 +24,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.sideproject.withpt.application.auth.controller.dto.LogoutResponse;
+import com.sideproject.withpt.application.auth.controller.dto.ReissueResponse;
+import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.common.exception.GlobalException;
+import com.sideproject.withpt.common.jwt.AuthTokenGenerator;
 import com.sideproject.withpt.common.jwt.JwtTokenProvider;
+import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
 import com.sideproject.withpt.common.redis.RedisClient;
 import java.util.Date;
 import java.util.List;
@@ -44,6 +50,9 @@ class OAuthLoginServiceTest {
 
     @Mock
     JwtTokenProvider jwtTokenProvider;
+
+    @Mock
+    AuthTokenGenerator authTokenGenerator;
 
     @Mock
     RedisClient redisClient;
@@ -106,5 +115,117 @@ class OAuthLoginServiceTest {
         )
             .isExactlyInstanceOf(GlobalException.class)
             .hasMessage(GlobalException.INVALID_HEADER.getMessage());
+    }
+
+    @Test
+    public void reissue_only_accessToken () {
+        //given
+        String accessToken ="test_access_token";
+        String refreshToken = "test_refresh_token";
+        Role role = Role.MEMBER;
+        long userId = 123L;
+
+        given(jwtTokenProvider.extractRole(accessToken))
+            .willReturn(String.valueOf(role));
+        given(jwtTokenProvider.extractSubject(accessToken))
+            .willReturn(String.valueOf(userId));
+        given(redisClient.validationRefreshToken(MEMBER_REFRESH_TOKEN_PREFIX + userId, refreshToken))
+            .willReturn(true);
+        given(authTokenGenerator.generateAccessToken(userId, role))
+            .willReturn(TokenSetDto.builder()
+                .accessToken(accessToken)
+                .accessExpiredAt(1800L)
+                .build());
+        given(jwtTokenProvider.getExpiredDate(refreshToken))
+            .willReturn(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALID_TIME) );
+
+        //when
+        ReissueResponse reissueResponse = oAuthLoginService.reissue(ACCESS_TOKEN_PREFIX + accessToken, refreshToken);
+
+        //then
+        assertThat(reissueResponse.getAccessToken()).isEqualTo(accessToken);
+        assertThat(reissueResponse.getAccessExpiredAt()).isEqualTo(1800L);
+    }
+
+    @Test
+    public void reissue_refresh_and_accessToken () {
+        //given
+        String accessToken ="test_access_token";
+        String refreshToken = "test_refresh_token";
+        Role role = Role.MEMBER;
+        long userId = 123L;
+
+        given(jwtTokenProvider.isExpiredToken(refreshToken))
+            .willReturn(false);
+        given(jwtTokenProvider.extractRole(accessToken))
+            .willReturn(String.valueOf(role));
+        given(jwtTokenProvider.extractSubject(accessToken))
+            .willReturn(String.valueOf(userId));
+        given(redisClient.validationRefreshToken(MEMBER_REFRESH_TOKEN_PREFIX + userId, refreshToken))
+            .willReturn(true);
+        given(authTokenGenerator.generateAccessToken(userId, role))
+            .willReturn(TokenSetDto.builder()
+                .accessToken(accessToken)
+                .accessExpiredAt(1800L)
+                .build());
+        given(jwtTokenProvider.getExpiredDate(refreshToken))
+            .willReturn(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALID_TIME / 3));
+        given(authTokenGenerator.generateTokenSet(userId, role))
+            .willReturn(TokenSetDto.builder()
+                .accessToken(accessToken)
+                .accessExpiredAt(1800L)
+                .refreshToken(refreshToken)
+                .refreshExpiredAt(7600L)
+                .build());
+
+        //when
+        ReissueResponse reissueResponse = oAuthLoginService.reissue(ACCESS_TOKEN_PREFIX + accessToken, refreshToken);
+
+        //then
+        assertThat(reissueResponse.getAccessToken()).isEqualTo(accessToken);
+        assertThat(reissueResponse.getAccessExpiredAt()).isEqualTo(1800L);
+        assertThat(reissueResponse.getRefreshToken()).isEqualTo(refreshToken);
+        assertThat(reissueResponse.getRefreshExpiredAt()).isEqualTo(7600L);
+    }
+
+    @Test
+    public void refresh_expired () {
+        //given
+        String accessToken = "Bearer test_access";
+        String refreshToken = "test_refresh";
+
+        given(jwtTokenProvider.isExpiredToken(refreshToken))
+            .willReturn(true);
+
+        assertThatThrownBy(
+            () -> oAuthLoginService.reissue(accessToken, refreshToken)
+        )
+            .isExactlyInstanceOf(GlobalException.class)
+            .hasMessage(GlobalException.EXPIRED_REFRESH_TOKEN.getMessage());
+    }
+
+    @Test
+    public void redis_validation_refresh () {
+        //given
+        String accessToken = "Bearer test_access";
+        String refreshToken = "test_refresh";
+        Role role = Role.MEMBER;
+        long userId = 123L;
+
+        given(jwtTokenProvider.isExpiredToken(refreshToken))
+            .willReturn(false);
+        given(jwtTokenProvider.extractRole(accessToken.substring(ACCESS_TOKEN_PREFIX.length())))
+            .willReturn(String.valueOf(role));
+        given(jwtTokenProvider.extractSubject(accessToken.substring(ACCESS_TOKEN_PREFIX.length())))
+            .willReturn(String.valueOf(userId));
+
+        given(redisClient.validationRefreshToken(MEMBER_REFRESH_TOKEN_PREFIX + userId, refreshToken))
+            .willReturn(false);
+
+        assertThatThrownBy(
+            () -> oAuthLoginService.reissue(accessToken, refreshToken)
+        )
+            .isExactlyInstanceOf(GlobalException.class)
+            .hasMessage(GlobalException.INVALID_TOKEN.getMessage());
     }
 }

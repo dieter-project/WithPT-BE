@@ -50,7 +50,7 @@ public class SecurityConfig {
             .antMatchers("/api/v1/trainers/**").hasRole("TRAINER")
             // /members 로 시작하는 요청은 MEMBER 권한이 있는 유저에게만 허용
             .antMatchers("/api/v1/members/**").hasRole("MEMBER")
-            .antMatchers("/api/v1/oauth/logout").hasAnyRole("TRAINER", "MEMBER")
+            .antMatchers("/api/v1/oauth/logout", "/api/v1/oauth/reissue").hasAnyRole("TRAINER", "MEMBER")
             .anyRequest().denyAll()
             .and()
             // JWT 인증 필터 적용
