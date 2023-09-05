@@ -1,5 +1,6 @@
 package com.sideproject.withpt.application.member.service;
 
+import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.MEMBER_REFRESH_TOKEN_PREFIX;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -13,6 +14,8 @@ import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.jwt.AuthTokenGenerator;
 import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
+import com.sideproject.withpt.common.redis.RedisClient;
+import com.sideproject.withpt.config.TestEmbeddedRedisConfig;
 import com.sideproject.withpt.domain.member.Member;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -21,8 +24,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.autoconfigure.data.redis.DataRedisTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(MockitoExtension.class)
+@Import(TestEmbeddedRedisConfig.class)
 class MemberServiceTest {
 
     @Mock
@@ -30,6 +38,9 @@ class MemberServiceTest {
 
     @Mock
     private AuthTokenGenerator authTokenGenerator;
+
+    @Mock
+    RedisClient redisClient;
 
     @InjectMocks
     private MemberService memberService;
@@ -50,7 +61,7 @@ class MemberServiceTest {
         assertThatThrownBy(
             () -> memberService.checkNickname(paramNickname)
         )
-            .isExactlyInstanceOf(GlobalException.class)
+            .isExactlyInstanceOf(MemberException.class)
             .isInstanceOf(RuntimeException.class)
             .hasMessage(MemberException.DUPLICATE_NICKNAME.getMessage());
     }
@@ -104,6 +115,7 @@ class MemberServiceTest {
         //then
         assertThat(tokenSetDto.getAccessToken()).isEqualTo("access");
         assertThat(tokenSetDto.getRefreshToken()).isEqualTo("refresh");
+
     }
 
     @Test
