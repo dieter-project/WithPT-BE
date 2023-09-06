@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -23,6 +24,15 @@ public class SecurityConfig {
     private final RedisClient redisClient;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedEntryPoint jwtAccessDeniedEntryPoint;
+
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().antMatchers("/h2-console/**",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-resources/**");
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -51,7 +61,6 @@ public class SecurityConfig {
             // /members 로 시작하는 요청은 MEMBER 권한이 있는 유저에게만 허용
             .antMatchers("/api/v1/members/**").hasRole("MEMBER")
             .antMatchers("/api/v1/oauth/logout", "/api/v1/oauth/reissue").hasAnyRole("TRAINER", "MEMBER")
-            .anyRequest().denyAll()
             .and()
             // JWT 인증 필터 적용
             .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisClient),
