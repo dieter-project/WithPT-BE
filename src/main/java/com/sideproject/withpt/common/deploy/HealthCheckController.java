@@ -24,4 +24,9 @@ public class HealthCheckController {
             .findAny()
             .orElse(defaultProfile);
     }
+
+    @GetMapping("/hello")
+    public String hello() {
+        return "hello~~~";
+    }
 }

@@ -44,6 +44,8 @@ public class SecurityConfig {
             .httpBasic().disable()
             // form login 안함
             .formLogin().disable()
+            .cors()
+            .and()
             // Spring Security 세션 정책 : 세션을 생성 및 사용하지 않음
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
@@ -51,6 +53,7 @@ public class SecurityConfig {
             .authorizeRequests()
             // 회원가입과 로그인은 모두 승인
             .antMatchers(
+                "/hello",
                 "/index.html",
                 "/api/v1/members/sign-up",
                 "/api/v1/members/nickname/check",
