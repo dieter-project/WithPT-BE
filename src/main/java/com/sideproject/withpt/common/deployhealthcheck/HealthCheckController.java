@@ -1,4 +1,4 @@
-package com.sideproject.withpt.common.deploy;
+package com.sideproject.withpt.common.deployhealthcheck;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +27,6 @@ public class HealthCheckController {
 
     @GetMapping("/hello")
     public String hello() {
-        return "hello~~~";
+        return "배포 테스트";
     }
 }
