@@ -51,6 +51,7 @@ public class SecurityConfig {
             .authorizeRequests()
             // 회원가입과 로그인은 모두 승인
             .antMatchers(
+                "/index.html",
                 "/api/v1/members/sign-up",
                 "/api/v1/members/nickname/check",
                 "/api/v1/trainers/sign-up",
