@@ -1,4 +1,4 @@
-package com.sideproject.withpt.common.deployhealthcheck;
+package com.sideproject.withpt.common.deploy;
 
 import java.util.Arrays;
 import java.util.List;
@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class HealthCheckController {
+public class ProfileController {
 
     private final Environment env;
 
-    @GetMapping("/")
-    public String gyunny() {
+    @GetMapping("/profile")
+    public String profile() {
         List<String> profile = Arrays.asList(env.getActiveProfiles());
         List<String> realProfiles = Arrays.asList("real1", "real2");
         String defaultProfile = profile.isEmpty() ? "default" : profile.get(0);
@@ -23,10 +23,5 @@ public class HealthCheckController {
             .filter(realProfiles::contains)
             .findAny()
             .orElse(defaultProfile);
-    }
-
-    @GetMapping("/hello")
-    public String hello() {
-        return "배포 테스트";
     }
 }
