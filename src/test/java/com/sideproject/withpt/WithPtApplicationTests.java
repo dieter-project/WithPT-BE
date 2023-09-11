@@ -6,8 +6,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(properties = "spring.config.location="
 	+ "classpath:/application.yml,"
-	+ "classpath:/application-oauth.yml,"
-	+ "classpath:/application-swagger.yml")
+	+ "classpath:/application-oauth.yml")
 
 class WithPtApplicationTests {
 

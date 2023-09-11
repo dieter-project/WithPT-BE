@@ -1,38 +1,92 @@
-# workflow의 이름
+# Workflow의 이름을 지정합니다.
 name: WithPT CI with Gradle
 
-# 해당 workflow가 언제 실행될 것인지에 대한 트리거를 지정
 on:
-  # main branch에 대한 push 나 pull request 이벤트를 트리거로 지정
   push:
-    branches: [ main ]
+    # main branch에 push(merge)될 경우 실행됩니다.
+    branches: ["main"]
 
   # 수동으로 해당 workflow 실행 지정
   workflow_dispatch:
 
-# workflow는 한개 이상의 job을 가지며, 각 job은 여러 step에 따라 단계를 나눌 수 있습니다.
+permissions:
+  contents: read
+
+env:
+  S3_BUCKET_NAME: withpt-s3
+  PROJECT_NAME: spring-deploy
+
 jobs:
   build:
-    # 해당 workflow를 어떤 OS 환경에서 실행할 것인지 지정
+    # build를 진행할 운영체제를 선택합니다.
     runs-on: ubuntu-latest
 
-    # step은 작업의 일부로 실행될 일련의 작업을 나타냅니다.
     steps:
       # 작업에서 액세스할 수 있도록 $GITHUB_WORKSPACE에서 저장소를 체크아웃합니다.
       - name: Checkout
         uses: actions/checkout@v3
 
-# (2) JDK 11세팅
+      # JDK를 11 버전으로 셋팅합니다.
       - name: Set up JDK 11
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
           java-version: '11'
+          distribution: 'temurin'
+
+      # Gradle을 캐싱해둡니다 -> 빌드 속도가 증가하는 효과가 있습니다.
+      - name: Gradle 캐싱
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      ## create application-prod.properties
+      - name: make application-db.yml and oauth.yml
+        if: contains(github.ref, 'main') # branch가 main 일 때
+        run: |
+          cd ./src/main/resources  
+          touch ./application-db.yml
+          echo "${{ secrets.PROPERTIES_DB }}" > ./application-db.yml
           
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
+          touch ./application-oauth.yml
+          echo "${{ secrets.PROPERTIES_OAUTH }}" > ./application-oauth.yml
         shell: bash
+
+
+      - name: Gradle 권한 부여
+        run: chmod +x gradlew
+
+      - name: Gradle로 빌드 실행
+        run: ./gradlew bootjar
+
+
+      # 배포에 필요한 여러 설정 파일과 프로젝트 빌드파일을 zip 파일로 모아줍니다.
+      - name: zip file 생성
+        run: |
+          mkdir deploy
+          cp ./appspec.yml ./deploy/
+          cp ./docker/Dockerfile ./deploy/
+          cp ./docker/docker-compose.yml ./deploy/
+          cp ./scripts/*.sh ./deploy/
+          cp ./build/libs/*.jar ./deploy/
+          zip -r -qq -j ./spring-build.zip ./deploy
       
-      - name: Build with Gradle
-        run: ./gradlew build
-        shell: bash
+
+      # AWS에 연결해줍니다.
+      - name: AWS 연결
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # S3에 프로젝트를 업로드 합니다.
+      - name: Upload to S3
+        run: aws s3 cp --region ap-northeast-2 ./spring-build.zip s3://$S3_BUCKET_NAME/$PROJECT_NAME/spring-build.zip
+
+      - name: Code Deploy
+        run: aws deploy create-deployment --application-name WithPT-CodeDeploy --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name WithPT-Deploy-Group --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$PROJECT_NAME/spring-build.zip

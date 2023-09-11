@@ -15,8 +15,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(properties = "spring.config.location="
     + "classpath:/application.yml,"
-    + "classpath:/application-oauth.yml,"
-    + "classpath:/application-swagger.yml",
+    + "classpath:/application-oauth.yml",
     classes = TestEmbeddedRedisConfig.class)
 class RefreshTokenRedisRepositoryTest {
 
