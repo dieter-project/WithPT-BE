@@ -4,7 +4,7 @@ name: WithPT CI with Gradle
 on:
   push:
     # main branch에 push(merge)될 경우 실행됩니다.
-    branches: ["#35-AWS-Nginx-Docker"]
+    branches: ["main"]
 
   # 수동으로 해당 workflow 실행 지정
   workflow_dispatch:
@@ -46,7 +46,7 @@ jobs:
 
       ## create application-prod.properties
       - name: make application-db.yml and oauth.yml
-        if: contains(github.ref, '#35-AWS-Nginx-Docker') # branch가 main 일 때
+        if: contains(github.ref, 'main') # branch가 main 일 때
         run: |
           cd ./src/main/resources  
           touch ./application-db.yml
