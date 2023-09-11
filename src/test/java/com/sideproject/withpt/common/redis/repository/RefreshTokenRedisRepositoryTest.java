@@ -10,13 +10,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.annotation.Transactional;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(properties = "spring.config.location="
-    + "classpath:/application.yml,"
-    + "classpath:/application-oauth.yml",
+    + "classpath:/application-test.yml",
     classes = TestEmbeddedRedisConfig.class)
+@Transactional
 class RefreshTokenRedisRepositoryTest {
 
     @Autowired
