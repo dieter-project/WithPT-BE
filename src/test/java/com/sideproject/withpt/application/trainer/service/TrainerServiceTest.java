@@ -12,6 +12,8 @@ import com.sideproject.withpt.application.type.Sex;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.jwt.AuthTokenGenerator;
 import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
+import com.sideproject.withpt.common.redis.RedisClient;
+import com.sideproject.withpt.config.TestEmbeddedRedisConfig;
 import com.sideproject.withpt.domain.trainer.Career;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
@@ -25,8 +27,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.annotation.Import;
 
 @ExtendWith(MockitoExtension.class)
+@Import(TestEmbeddedRedisConfig.class)
 class TrainerServiceTest {
 
 
@@ -35,6 +39,9 @@ class TrainerServiceTest {
 
     @Mock
     AuthTokenGenerator authTokenGenerator;
+
+    @Mock
+    RedisClient redisClient;
 
     @InjectMocks
     TrainerService trainerService;

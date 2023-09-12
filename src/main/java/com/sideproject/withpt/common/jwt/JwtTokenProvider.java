@@ -79,6 +79,11 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(extractMemberId(token), "", userDetails.getAuthorities());
     }
 
+    // Jwt 토큰 만료 기간 얻기
+    public Date getExpiredDate(String token) {
+        return this.parseClaims(token).getExpiration();
+    }
+
     public boolean isExpiredToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);

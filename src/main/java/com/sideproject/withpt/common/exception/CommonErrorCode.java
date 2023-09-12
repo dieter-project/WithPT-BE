@@ -14,6 +14,9 @@ public enum CommonErrorCode implements ErrorCode {
     INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "Invalid parameter included"),
     INVALID_TOKEN(HttpStatus.BAD_REQUEST, "유효하지 않은 토큰입니다."),
     INVALID_HEADER(HttpStatus.BAD_REQUEST, "유효한 header가 아닙니다."),
+    REDIS_PUT_EMPTY_KEY(HttpStatus.BAD_REQUEST, "Empty Key를 입력하였습니다."),
+    REDIS_PUT_FAIL(HttpStatus.BAD_REQUEST, "잘못된 Key를 입력하였습니다."),
+    EMPTY_FILE(HttpStatus.BAD_REQUEST, "업로드하려는 파일이 없습니다."),
 
     /* 401 UNAUTHORIZED : 인증되지 않은 사용자 */
     CREDENTIALS_DO_NOT_EXIST(HttpStatus.UNAUTHORIZED, "인증 정보가 존재하지 않습니다."),
@@ -26,8 +29,11 @@ public enum CommonErrorCode implements ErrorCode {
     NOT_VERIFICATION_LOGOUT(HttpStatus.UNAUTHORIZED, "로그아웃 된 Token으로 접근하셨습니다. 재로그인 부탁드립니다."),
 
     /* 403 forbidden : 권한이 없는 사용자 */
-    ACCESS_DENIED(HttpStatus.FORBIDDEN, "권한이 없는 사용자입니다.");
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "권한이 없는 사용자입니다."),
 
+    /* 500 Internal Server Error : 서버가 처리 방법을 모르는 상황이 발생. 서버는 아직 처리 방법을 알 수 없음.*/
+    FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 전송에 실패하였습니다."),
+    FILE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 삭제에 실패하였습니다.");
     private final HttpStatus httpStatus;
     private final String message;
 }

@@ -36,7 +36,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         } else if (exception.equals(INVALID_HEADER.getMessage())) {
             log.info("JwtAuthenticationEntryPoint : " + INVALID_HEADER);
             setResponse(response, INVALID_HEADER);
-        } else if (exception.equals(NOT_VERIFICATION_LOGOUT.getMessage())) {
+        } else if (exception.equals(NOT_VERIFICATION_LOGOUT.getMessage())) { // 로그아웃된 토큰
             log.info("JwtAuthenticationEntryPoint : " + NOT_VERIFICATION_LOGOUT);
             setResponse(response, NOT_VERIFICATION_LOGOUT);
         } else if (exception.equals(EXPIRED_ACCESS_TOKEN.getMessage())) { // 만료된 JWT 토큰입니다."
