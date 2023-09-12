@@ -50,6 +50,10 @@ dependencies {
 	// mysql
 	implementation 'mysql:mysql-connector-java:8.0.33'
 
+	// s3
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+	testImplementation 'io.findify:s3mock_2.13:0.2.6'
+
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 

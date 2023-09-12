@@ -16,6 +16,9 @@ public class GlobalException extends RuntimeException {
     public static final GlobalException REDIS_PUT_FAIL = new GlobalException(CommonErrorCode.REDIS_PUT_FAIL);
     public static final GlobalException EXPIRED_REFRESH_TOKEN = new GlobalException(CommonErrorCode.EXPIRED_REFRESH_TOKEN);
     public static final GlobalException INVALID_TOKEN = new GlobalException(CommonErrorCode.INVALID_TOKEN);
+    public static final GlobalException EMPTY_FILE = new GlobalException(CommonErrorCode.EMPTY_FILE);
+    public static final GlobalException FILE_UPLOAD_FAILED = new GlobalException(CommonErrorCode.FILE_UPLOAD_FAILED);
+    public static final GlobalException FILE_DELETE_FAILED = new GlobalException(CommonErrorCode.FILE_DELETE_FAILED);
 
     private final ErrorCode errorCode;
 
