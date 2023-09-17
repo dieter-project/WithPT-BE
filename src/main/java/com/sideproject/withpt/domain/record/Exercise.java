@@ -1,6 +1,6 @@
 package com.sideproject.withpt.domain.record;
 
-import com.sideproject.withpt.application.exercise.dto.request.ExerciseCreateRequest;
+import com.sideproject.withpt.application.exercise.dto.request.ExerciseRequest;
 import com.sideproject.withpt.application.type.BodyPart;
 import com.sideproject.withpt.application.type.ExerciseType;
 import com.sideproject.withpt.domain.BaseEntity;
@@ -8,6 +8,7 @@ import com.sideproject.withpt.domain.member.Member;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -23,6 +24,7 @@ public class Exercise extends BaseEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    private LocalDateTime exerciseDate;
     private String title;
     private int weight;
     private int set;
@@ -36,7 +38,8 @@ public class Exercise extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private BodyPart bodyPart;
 
-    public void update(ExerciseCreateRequest request) {
+    public void update(ExerciseRequest request) {
+        this.exerciseDate = request.getExerciseDate();
         this.title = request.getTitle();
         this.weight = request.getWeight();
         this.set = request.getSet();

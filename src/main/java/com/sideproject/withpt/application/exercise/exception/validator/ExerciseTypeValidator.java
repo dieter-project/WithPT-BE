@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.exercise.exception.validator;
 
-import com.sideproject.withpt.application.exercise.dto.request.ExerciseCreateRequest;
+import com.sideproject.withpt.application.exercise.dto.request.ExerciseRequest;
 import com.sideproject.withpt.application.type.ExerciseType;
 import lombok.extern.slf4j.Slf4j;
 
@@ -8,10 +8,10 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 @Slf4j
-public class ExerciseTypeValidator implements ConstraintValidator<ValidExerciseType, ExerciseCreateRequest> {
+public class ExerciseTypeValidator implements ConstraintValidator<ValidExerciseType, ExerciseRequest> {
 
     @Override
-    public boolean isValid(ExerciseCreateRequest request, ConstraintValidatorContext context) {
+    public boolean isValid(ExerciseRequest request, ConstraintValidatorContext context) {
 
         if(request.getExerciseType().equals(ExerciseType.AEROBIC)) {    // 유산소
             return request.getHour() > 0;

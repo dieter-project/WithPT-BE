@@ -9,12 +9,17 @@ import com.sideproject.withpt.domain.record.Exercise;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ValidExerciseType
-public class ExerciseCreateRequest {
+public class ExerciseRequest {
+
+    @NotBlank(message = "운동 일자를 입력해주세요.")
+    private LocalDateTime exerciseDate;
 
     @NotBlank(message = "운동명을 입력해주세요.")
     private String title;

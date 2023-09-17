@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.exercise.service;
 
-import com.sideproject.withpt.application.exercise.dto.request.ExerciseCreateRequest;
+import com.sideproject.withpt.application.exercise.dto.request.ExerciseRequest;
 import com.sideproject.withpt.application.exercise.dto.response.ExerciseListResponse;
 import com.sideproject.withpt.application.exercise.exception.ExerciseException;
 import com.sideproject.withpt.application.exercise.repository.ExerciseRepository;
@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,7 +33,7 @@ public class ExerciseService {
 
         List<ExerciseListResponse> exerciseList =
                 exerciseRepository
-                        .findByMemberIdAndCreatedDateBetween(memberId, startOfDay, endOfDay).stream()
+                        .findByMemberIdAndExerciseDateBetween(memberId, startOfDay, endOfDay).stream()
                         .map(ExerciseListResponse::from)
                         .collect(Collectors.toList());
 
@@ -47,13 +46,16 @@ public class ExerciseService {
     }
 
     @Transactional
-    public void saveExercise(Long memberId, ExerciseCreateRequest request) {
+    public void saveExercise(Long memberId, List<ExerciseRequest> request) {
         Member member = validateMemberId(memberId);
-        exerciseRepository.save(request.toEntity(member));
+
+        for(ExerciseRequest req : request) {
+            exerciseRepository.save(req.toEntity(member));
+        }
     }
 
     @Transactional
-    public void modifyExercise(Long memberId, Long exerciseId, ExerciseCreateRequest request) {
+    public void modifyExercise(Long memberId, Long exerciseId, ExerciseRequest request) {
         Exercise exercise = validateExerciseId(exerciseId, memberId);
         exercise.update(request);
     }
@@ -75,7 +77,8 @@ public class ExerciseService {
                 .orElseThrow(() -> ExerciseException.EXERCISE_NOT_EXIST);
 
         Member member = validateMemberId(memberId);
-        if (!exercise.getMember().equals(member)) {
+
+        if (!member.equals(exercise.getMember())) {
             throw ExerciseException.EXERCISE_NOT_BELONG_TO_MEMBER;
         }
 

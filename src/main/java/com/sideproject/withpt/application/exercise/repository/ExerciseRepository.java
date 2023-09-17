@@ -7,5 +7,5 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
-        List<Exercise> findByMemberIdAndCreatedDateBetween(Long memberId, LocalDateTime startOfDay, LocalDateTime endOfDay);
+        List<Exercise> findByMemberIdAndExerciseDateBetween(Long memberId, LocalDateTime startOfDay, LocalDateTime endOfDay);
 }
