@@ -16,6 +16,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import java.io.IOException;
+import java.util.Arrays;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -25,12 +26,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
-@Component
+//@Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -42,12 +42,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         throws ServletException, IOException {
         log.info("1. 권한이나 인증이 필요한 요청");
         log.info("CHECK JWT : JwtAuthenticationFilter.doFilterInternal");
+        String token = this.resolveTokenFromRequest(request);
+
         try {
-            String token = this.resolveTokenFromRequest(request);
 
             if (StringUtils.hasText(token) && this.jwtTokenProvider.isValidationToken(token)) {
 
-                if(ObjectUtils.isEmpty(redisClient.get(ACCESS_TOKEN_BLACK_LIST_PREFIX + token))) {
+                if (ObjectUtils.isEmpty(redisClient.get(ACCESS_TOKEN_BLACK_LIST_PREFIX + token))) {
 
                     // 토큰이 유효하면 토큰으로부터 유저 정보를 받아온다
                     Authentication authentication = jwtTokenProvider.getAuthentication(token);
@@ -58,9 +59,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         String.format("[%s] -> %s", this.jwtTokenProvider.extractSubject(token),
                             request.getRequestURI())
                     );
-                }else {
+                } else {
                     log.error("Access Black-List Token: {}", NOT_VERIFICATION_LOGOUT.getMessage());
-                    request.setAttribute("exception", NOT_VERIFICATION_LOGOUT.getMessage() );
+                    request.setAttribute("exception", NOT_VERIFICATION_LOGOUT.getMessage());
                 }
             }// 에러가 발생했을 때, request에 attribute를 세팅하고 RestAuthenticationEntryPoint로 request를 넘겨준다.
         } catch (GlobalException e) { // 유효한 헤더가 입력되지 않았음. Bearer
@@ -84,6 +85,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String[] excludePath = {"/profile",
+            "/index.html",
+            "/api/v1/members/sign-up",
+            "/api/v1/trainers/sign-up",
+            "/api/v1/members/nickname/check",
+            "/api/v1/oauth/google",
+            "/api/v1/oauth/kakao"};
+        
+        return Arrays.stream(excludePath).anyMatch(request.getRequestURI()::startsWith);
     }
 
     // request에 있는 header로부터 token 얻기
