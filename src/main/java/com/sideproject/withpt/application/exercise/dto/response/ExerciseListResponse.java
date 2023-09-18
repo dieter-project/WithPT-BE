@@ -28,7 +28,6 @@ public class ExerciseListResponse {
                 .set(exercise.getSet())
                 .times(exercise.getTimes())
                 .hour(exercise.getHour())
-                .bookmarkYn(exercise.getBookmarkYn())
                 .bodyPart(exercise.getBodyPart())
                 .exerciseType(exercise.getExerciseType())
                 .build();

@@ -7,6 +7,7 @@ import lombok.Getter;
 public class ExerciseException extends GlobalException {
 
     public static final ExerciseException EXERCISE_NOT_EXIST = new ExerciseException(ExerciseErrorCode.EXERCISE_NOT_EXIST);
+    public static final ExerciseException BOOKMARK_NOT_EXIST = new ExerciseException(ExerciseErrorCode.BOOKMARK_NOT_EXIST);
     public static final ExerciseException EXERCISE_NOT_BELONG_TO_MEMBER = new ExerciseException(ExerciseErrorCode.EXERCISE_NOT_BELONG_TO_MEMBER);
 
     private final ExerciseErrorCode errorCode;

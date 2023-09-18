@@ -64,7 +64,7 @@ class ExerciseServiceTest {
     void findOneExercise() {
         // given
         given(memberRepository.findById(anyLong())).willReturn(Optional.of(MEMBER));
-        given(exerciseRepository.findById(anyLong())).willReturn(Optional.of(EXERCISE));
+        given(exerciseRepository.findById(anyLong())).willReturn(Optional.of(EXERCISE_REQUEST.toEntity(MEMBER)));
 
         // when
         ExerciseListResponse exercise = exerciseService.findOneExercise(MEMBER.getId(), EXERCISE.getId());
