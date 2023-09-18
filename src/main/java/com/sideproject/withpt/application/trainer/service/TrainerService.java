@@ -18,10 +18,9 @@ import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
 import com.sideproject.withpt.common.redis.RedisClient;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
-import com.sideproject.withpt.domain.gym.WorkSchedule;
 import com.sideproject.withpt.domain.trainer.Trainer;
+import com.sideproject.withpt.domain.trainer.WorkSchedule;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -55,26 +54,23 @@ public class TrainerService {
                     .orElseGet(() -> gymRepository.save(trainerGymScheduleDto.toGymEntity())))
             .collect(Collectors.toList());
 
-        Map<Gym, List<WorkSchedule>> mappedGymSchedule = savedGym.stream()
-            .collect(Collectors.toMap(
-                gym -> gym,
-                gym -> signUpDto.getGyms().stream()
-                    .filter(trainerGymScheduleDto -> trainerGymScheduleDto.getName().equals(gym.getName()))
-                    .flatMap(trainerGymScheduleDto -> trainerGymScheduleDto.getWorkSchedules().stream()
-                        .map(WorkScheduleDto::toEntity))
-                    .collect(Collectors.toList())
-                , (workSchedules1, workSchedules2) -> workSchedules2
-            ));
+        List<WorkSchedule> workSchedules = signUpDto.getGyms().stream()
+            .flatMap(trainerGymScheduleDto -> savedGym.stream()
+                .filter(gym -> gym.getName().equals(trainerGymScheduleDto.getName()))
+                .flatMap(gym -> trainerGymScheduleDto.getWorkSchedules().stream()
+                    .map(WorkScheduleDto::toEntity)
+                    .map(workScheduleDto -> WorkSchedule.createWorkSchedule(gym, workScheduleDto))))
+            .collect(Collectors.toList());
 
-        
-        List<GymTrainer> GymTrainers = mappedGymSchedule.keySet().stream()
-            .map(gym -> GymTrainer.createGymTrainer(gym, mappedGymSchedule.get(gym)))
+        List<GymTrainer> gymTrainers = savedGym.stream()
+            .map(GymTrainer::createGymTrainer)
             .collect(Collectors.toList());
 
         Long userId = trainerRepository.save(
             Trainer.createSignUpTrainer(
                 signUpDto.toTrainerBasicEntity(),
-                GymTrainers,
+                workSchedules,
+                gymTrainers,
                 CareerDto.toEntities(signUpDto.getCareers()),
                 AcademicDto.toEntities(signUpDto.getAcademics()),
                 CertificateDto.toEntities(signUpDto.getCertificates()),

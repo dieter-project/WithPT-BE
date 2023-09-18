@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.trainer.service.dto.single;
 
 import com.sideproject.withpt.application.type.Day;
-import com.sideproject.withpt.domain.gym.WorkSchedule;
+import com.sideproject.withpt.domain.trainer.WorkSchedule;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
