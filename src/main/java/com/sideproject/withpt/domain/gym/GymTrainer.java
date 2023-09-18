@@ -38,13 +38,14 @@ public class GymTrainer extends BaseEntity {
     private Trainer trainer;
 
     @OneToMany(mappedBy = "gymTrainer", cascade = CascadeType.ALL)
+    @Builder.Default
     List<WorkSchedule> workSchedules = new ArrayList<>();
 
     private LocalDate hireDate;
 
     private LocalDate retirementDate;
 
-    public void addWorkSchedules(WorkSchedule workSchedule) {
+    public void addWorkSchedule(WorkSchedule workSchedule) {
         this.workSchedules.add(workSchedule);
         workSchedule.addGymTrainer(this);
     }
@@ -59,7 +60,7 @@ public class GymTrainer extends BaseEntity {
             .hireDate(LocalDate.now())
             .build();
 
-        workSchedules.forEach(gymTrainer::addWorkSchedules);
+        workSchedules.forEach(gymTrainer::addWorkSchedule);
 
         return gymTrainer;
     }

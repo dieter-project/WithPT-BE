@@ -28,7 +28,6 @@ import lombok.ToString;
 
 @Entity
 @Getter
-@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Trainer extends BaseEntity {
 
@@ -135,8 +134,10 @@ public class Trainer extends BaseEntity {
     }
 
 
-    public static Trainer createSignUpTrainer(Trainer trainer, List<GymTrainer> gymTrainers, List<Career> careers, List<Academic> academics,
-        List<Certificate> certificates, List<Award> awards, List<Education> educations) {
+    public static Trainer createSignUpTrainer(Trainer trainer,
+        List<GymTrainer> gymTrainers, List<Career> careers,
+        List<Academic> academics, List<Certificate> certificates,
+        List<Award> awards, List<Education> educations) {
 
         gymTrainers.forEach(trainer::addGymTrainer);
         careers.forEach(trainer::addCareer);

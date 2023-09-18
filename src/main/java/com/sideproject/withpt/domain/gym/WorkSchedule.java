@@ -33,7 +33,8 @@ public class WorkSchedule extends BaseEntity {
     private GymTrainer gymTrainer;
 
     @Enumerated(EnumType.STRING)
-    private Day day;
+    @Column(name = "\"DAY\"")
+    private Day weekday;
 
     @Column(name = "IN_TIME", columnDefinition = "TIME")
     private LocalTime inTime;
