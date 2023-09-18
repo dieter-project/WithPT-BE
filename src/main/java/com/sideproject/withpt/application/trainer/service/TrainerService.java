@@ -63,8 +63,10 @@ public class TrainerService {
                     .flatMap(trainerGymScheduleDto -> trainerGymScheduleDto.getWorkSchedules().stream()
                         .map(WorkScheduleDto::toEntity))
                     .collect(Collectors.toList())
+                , (workSchedules1, workSchedules2) -> workSchedules2
             ));
 
+        
         List<GymTrainer> GymTrainers = mappedGymSchedule.keySet().stream()
             .map(gym -> GymTrainer.createGymTrainer(gym, mappedGymSchedule.get(gym)))
             .collect(Collectors.toList());
