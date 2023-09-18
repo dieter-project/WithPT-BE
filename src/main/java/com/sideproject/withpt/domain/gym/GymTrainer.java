@@ -3,9 +3,6 @@ package com.sideproject.withpt.domain.gym;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -13,7 +10,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,31 +33,18 @@ public class GymTrainer extends BaseEntity {
     @JoinColumn(name = "trainer_id")
     private Trainer trainer;
 
-    @OneToMany(mappedBy = "gymTrainer", cascade = CascadeType.ALL)
-    @Builder.Default
-    List<WorkSchedule> workSchedules = new ArrayList<>();
-
     private LocalDate hireDate;
 
     private LocalDate retirementDate;
-
-    public void addWorkSchedule(WorkSchedule workSchedule) {
-        this.workSchedules.add(workSchedule);
-        workSchedule.addGymTrainer(this);
-    }
 
     public void addTrainer(Trainer trainer) {
         this.trainer = trainer;
     }
 
-    public static GymTrainer createGymTrainer(Gym gym, List<WorkSchedule> workSchedules) {
-        GymTrainer gymTrainer = GymTrainer.builder()
+    public static GymTrainer createGymTrainer(Gym gym) {
+        return GymTrainer.builder()
             .gym(gym)
             .hireDate(LocalDate.now())
             .build();
-
-        workSchedules.forEach(gymTrainer::addWorkSchedule);
-
-        return gymTrainer;
     }
 }

@@ -58,8 +58,11 @@ public class Trainer extends BaseEntity {
 
     private LocalDateTime joinDate;
 
-    @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GymTrainer> gymTrainers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WorkSchedule> workSchedules = new ArrayList<>();
 
     @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Career> careers = new ArrayList<>();
@@ -109,6 +112,10 @@ public class Trainer extends BaseEntity {
         this.gymTrainers.add(gymTrainer);
     }
 
+    public void addWorkSchedule(WorkSchedule workSchedule) {
+        workSchedule.setTrainer(this);
+        this.workSchedules.add(workSchedule);
+    }
     public void addCareer(Career career) {
         career.setTrainer(this);
         this.careers.add(career);
@@ -136,10 +143,11 @@ public class Trainer extends BaseEntity {
 
 
     public static Trainer createSignUpTrainer(Trainer trainer,
-        List<GymTrainer> gymTrainers, List<Career> careers,
+        List<WorkSchedule> workSchedules, List<GymTrainer> gymTrainers, List<Career> careers,
         List<Academic> academics, List<Certificate> certificates,
         List<Award> awards, List<Education> educations) {
 
+        workSchedules.forEach(trainer::addWorkSchedule);
         gymTrainers.forEach(trainer::addGymTrainer);
         careers.forEach(trainer::addCareer);
         academics.forEach(trainer::addAcademic);

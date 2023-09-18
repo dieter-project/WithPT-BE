@@ -1,7 +1,8 @@
-package com.sideproject.withpt.domain.gym;
+package com.sideproject.withpt.domain.trainer;
 
 import com.sideproject.withpt.application.type.Day;
 import com.sideproject.withpt.domain.BaseEntity;
+import com.sideproject.withpt.domain.gym.Gym;
 import java.time.LocalTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,9 +18,11 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Builder
+@Setter(AccessLevel.PACKAGE)
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class WorkSchedule extends BaseEntity {
@@ -29,8 +32,12 @@ public class WorkSchedule extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gym_trainer_id")
-    private GymTrainer gymTrainer;
+    @JoinColumn(name = "trainer_id")
+    private Trainer trainer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gym_id")
+    private Gym gym;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "\"DAY\"")
@@ -42,7 +49,8 @@ public class WorkSchedule extends BaseEntity {
     @Column(name = "OUT_TIME", columnDefinition = "TIME")
     private LocalTime outTime;
 
-    public void addGymTrainer(GymTrainer gymTrainer) {
-        this.gymTrainer = gymTrainer;
+    public static WorkSchedule createWorkSchedule(Gym gym, WorkSchedule workSchedule) {
+        workSchedule.setGym(gym);
+        return workSchedule;
     }
 }
