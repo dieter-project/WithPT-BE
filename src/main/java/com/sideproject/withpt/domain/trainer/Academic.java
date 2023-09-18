@@ -1,9 +1,9 @@
 package com.sideproject.withpt.domain.trainer;
 
 import com.sideproject.withpt.domain.BaseEntity;
-import com.sideproject.withpt.domain.trainer.convertor.YearMonthToDateConverter;
+import com.sideproject.withpt.domain.trainer.convertor.YearToShortConverter;
 import java.time.LocalDate;
-import java.time.YearMonth;
+import java.time.Year;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -18,14 +18,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Entity
 @Builder
 @Setter(AccessLevel.PACKAGE)
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Career extends BaseEntity {
+public class Academic extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,14 +34,14 @@ public class Career extends BaseEntity {
     @JoinColumn(name = "trainer_id")
     private Trainer trainer;
 
-    private String centerName;
+    private String name;
 
-    @Column(name = "START_OF_WORK_YEAR_MONTH", columnDefinition = "date")
-    @Convert(converter = YearMonthToDateConverter.class)
-    private YearMonth startOfWorkYearMonth;
+    private String major;
 
-    @Column(name = "END_OF_WORK_YEAR_MONTH", columnDefinition = "date")
-    @Convert(converter = YearMonthToDateConverter.class)
-    private YearMonth endOfWorkYearMonth;
+    @Convert(converter = YearToShortConverter.class)
+    private Year enrollmentYear;
+
+    @Convert(converter = YearToShortConverter.class)
+    private Year graduationYear;
 
 }
