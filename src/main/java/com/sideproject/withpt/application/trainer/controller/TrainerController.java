@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.trainer.controller;
 
-import com.sideproject.withpt.application.trainer.controller.dto.TrainerSignUpRequest;
+import com.sideproject.withpt.application.trainer.controller.request.TrainerSignUpRequest;
 import com.sideproject.withpt.application.trainer.service.TrainerService;
 import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
@@ -22,6 +22,8 @@ public class TrainerController {
 
     @PostMapping("/sign-up")
     public ApiSuccessResponse<TokenSetDto> signUp(@Valid @RequestBody TrainerSignUpRequest request) {
-        return ApiSuccessResponse.from(trainerService.signUp(request));
+        return ApiSuccessResponse.from(
+            trainerService.signUp(request.toServiceTrainerSignUpDto())
+        );
     }
 }
