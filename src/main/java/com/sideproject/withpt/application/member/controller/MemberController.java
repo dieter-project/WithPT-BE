@@ -1,16 +1,14 @@
 package com.sideproject.withpt.application.member.controller;
 
-import com.sideproject.withpt.application.member.dto.request.MemberSignUpRequest;
-import com.sideproject.withpt.application.member.dto.response.NicknameCheckResponse;
-import com.sideproject.withpt.application.member.service.MemberService;
-import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
+import com.sideproject.withpt.application.member.dto.response.MemberSearchResponse;
+import com.sideproject.withpt.application.member.service.MemberQueryService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,15 +19,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/members")
 public class MemberController {
 
-    private final MemberService memberService;
+    private final MemberQueryService memberQueryService;
 
-    @PostMapping("/sign-up")
-    public ApiSuccessResponse<TokenSetDto> signUp(@Valid @RequestBody MemberSignUpRequest request) {
-        return ApiSuccessResponse.from(memberService.signUpMember(request));
-    }
+    @GetMapping("/search")
+    public ApiSuccessResponse<Page<MemberSearchResponse>> searchMembers(Pageable pageable,
+        @RequestParam(defaultValue = "WithPT") String name,
+        @RequestParam(required = false) String nickname) {
 
-    @GetMapping("/nickname/check")
-    public ApiSuccessResponse<NicknameCheckResponse> nicknameCheck(@RequestParam String nickname) {
-        return ApiSuccessResponse.from(memberService.checkNickname(nickname));
+        return ApiSuccessResponse.from(
+            memberQueryService.searchMembers(pageable, name, nickname)
+        );
     }
 }

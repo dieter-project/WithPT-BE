@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.trainer.controller;
 
 import com.sideproject.withpt.application.trainer.controller.request.TrainerSignUpRequest;
-import com.sideproject.withpt.application.trainer.service.TrainerService;
+import com.sideproject.withpt.application.trainer.service.TrainerAuthenticationService;
 import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import javax.validation.Valid;
@@ -16,14 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/trainers")
-public class TrainerController {
+public class TrainerAuthenticationController {
 
-    private final TrainerService trainerService;
+    private final TrainerAuthenticationService trainerAuthenticationService;
 
     @PostMapping("/sign-up")
     public ApiSuccessResponse<TokenSetDto> signUp(@Valid @RequestBody TrainerSignUpRequest request) {
         return ApiSuccessResponse.from(
-            trainerService.signUp(request.toServiceTrainerSignUpDto())
+            trainerAuthenticationService.signUp(request.toServiceTrainerSignUpDto())
         );
     }
 }
