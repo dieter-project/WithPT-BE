@@ -2,7 +2,7 @@ package com.sideproject.withpt.application.member.controller;
 
 import com.sideproject.withpt.application.member.dto.request.MemberSignUpRequest;
 import com.sideproject.withpt.application.member.dto.response.NicknameCheckResponse;
-import com.sideproject.withpt.application.member.service.MemberService;
+import com.sideproject.withpt.application.member.service.MemberAuthenticationService;
 import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import javax.validation.Valid;
@@ -19,17 +19,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/members")
-public class MemberController {
+public class MemberAuthenticationController {
 
-    private final MemberService memberService;
+    private final MemberAuthenticationService memberAuthenticationService;
 
     @PostMapping("/sign-up")
     public ApiSuccessResponse<TokenSetDto> signUp(@Valid @RequestBody MemberSignUpRequest request) {
-        return ApiSuccessResponse.from(memberService.signUpMember(request));
+        return ApiSuccessResponse.from(memberAuthenticationService.signUpMember(request));
     }
 
     @GetMapping("/nickname/check")
     public ApiSuccessResponse<NicknameCheckResponse> nicknameCheck(@RequestParam String nickname) {
-        return ApiSuccessResponse.from(memberService.checkNickname(nickname));
+        return ApiSuccessResponse.from(memberAuthenticationService.checkNickname(nickname));
     }
 }

@@ -42,7 +42,7 @@ import org.springframework.context.annotation.Import;
 
 @ExtendWith(MockitoExtension.class)
 @Import(TestEmbeddedRedisConfig.class)
-class TrainerServiceTest {
+class TrainerAuthenticationServiceTest {
 
 
     @Mock
@@ -58,7 +58,7 @@ class TrainerServiceTest {
     RedisClient redisClient;
 
     @InjectMocks
-    TrainerService trainerService;
+    TrainerAuthenticationService trainerAuthenticationService;
 
     @Test
     @DisplayName("트레이너 가입 성공")
@@ -112,7 +112,7 @@ class TrainerServiceTest {
             );
 
         //when
-        TokenSetDto tokenSetDto = trainerService.signUp(trainerSignUpDto);
+        TokenSetDto tokenSetDto = trainerAuthenticationService.signUp(trainerSignUpDto);
 
         //then
         assertThat(tokenSetDto.getAccessToken()).isEqualTo("access");
@@ -149,7 +149,7 @@ class TrainerServiceTest {
             .willReturn(Optional.of(registeredTrainer));
 
         assertThatThrownBy(
-            () -> trainerService.signUp(trainerSignUpDto)
+            () -> trainerAuthenticationService.signUp(trainerSignUpDto)
         )
             .isExactlyInstanceOf(GlobalException.class)
             .hasMessage(GlobalException.ALREADY_REGISTERED_USER.getMessage());

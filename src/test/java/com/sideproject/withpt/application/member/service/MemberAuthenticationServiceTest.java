@@ -1,6 +1,5 @@
 package com.sideproject.withpt.application.member.service;
 
-import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.MEMBER_REFRESH_TOKEN_PREFIX;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -24,14 +23,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.autoconfigure.data.redis.DataRedisTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(MockitoExtension.class)
 @Import(TestEmbeddedRedisConfig.class)
-class MemberServiceTest {
+class MemberAuthenticationServiceTest {
 
     @Mock
     private MemberRepository memberRepository;
@@ -43,7 +39,7 @@ class MemberServiceTest {
     RedisClient redisClient;
 
     @InjectMocks
-    private MemberService memberService;
+    private MemberAuthenticationService memberAuthenticationService;
 
     @Test
     @DisplayName("닉네임 중복")
@@ -59,7 +55,7 @@ class MemberServiceTest {
             .willReturn(Optional.of(member));
 
         assertThatThrownBy(
-            () -> memberService.checkNickname(paramNickname)
+            () -> memberAuthenticationService.checkNickname(paramNickname)
         )
             .isExactlyInstanceOf(MemberException.class)
             .isInstanceOf(RuntimeException.class)
@@ -76,7 +72,7 @@ class MemberServiceTest {
             .willReturn(Optional.empty());
 
         //when
-        NicknameCheckResponse response = memberService.checkNickname(paramNickname);
+        NicknameCheckResponse response = memberAuthenticationService.checkNickname(paramNickname);
 
         //then
         assertTrue(response.isDuplicateNickname());
@@ -109,7 +105,7 @@ class MemberServiceTest {
             );
 
         //when
-        TokenSetDto tokenSetDto = memberService.signUpMember(request);
+        TokenSetDto tokenSetDto = memberAuthenticationService.signUpMember(request);
         System.out.println(tokenSetDto);
 
         //then
@@ -136,7 +132,7 @@ class MemberServiceTest {
             .willReturn(Optional.of(registeredMember));
 
         assertThatThrownBy(
-            () -> memberService.signUpMember(request)
+            () -> memberAuthenticationService.signUpMember(request)
         )
             .isExactlyInstanceOf(GlobalException.class)
             .hasMessage(GlobalException.ALREADY_REGISTERED_USER.getMessage());
