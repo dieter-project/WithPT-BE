@@ -9,6 +9,7 @@ import com.sideproject.withpt.domain.record.Exercise;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter
@@ -18,7 +19,7 @@ import java.time.LocalDateTime;
 @ValidExerciseType
 public class ExerciseRequest {
 
-    @NotBlank(message = "운동 일자를 입력해주세요.")
+    @NotNull(message = "운동 일자를 입력해주세요.")
     private LocalDateTime exerciseDate;
 
     @NotBlank(message = "운동명을 입력해주세요.")
@@ -29,6 +30,7 @@ public class ExerciseRequest {
     private int times;
     private int hour;
 
+    @NotBlank(message = "북마크 여부를 입력해주세요.")
     private String bookmarkYn;
 
     @ValidEnum(enumClass = BodyPart.class)
@@ -47,6 +49,7 @@ public class ExerciseRequest {
                 .hour(hour)
                 .bodyPart(bodyPart)
                 .exerciseType(exerciseType)
+                .exerciseDate(exerciseDate)
                 .build();
     }
 

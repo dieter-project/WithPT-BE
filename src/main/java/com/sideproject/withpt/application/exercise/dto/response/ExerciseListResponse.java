@@ -16,7 +16,6 @@ public class ExerciseListResponse {
     private int set;
     private int times;
     private int hour;
-    private String bookmarkYn;
 
     private BodyPart bodyPart;
     private ExerciseType exerciseType;

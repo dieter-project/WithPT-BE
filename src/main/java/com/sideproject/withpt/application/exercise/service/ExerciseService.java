@@ -75,13 +75,11 @@ public class ExerciseService {
     private Exercise validateExerciseId(Long exerciseId, Long memberId) {
         Exercise exercise = exerciseRepository.findById(exerciseId)
                 .orElseThrow(() -> ExerciseException.EXERCISE_NOT_EXIST);
-
         Member member = validateMemberId(memberId);
 
-        if (!member.equals(exercise.getMember())) {
+        if (!exercise.getMember().equals(member)) {
             throw ExerciseException.EXERCISE_NOT_BELONG_TO_MEMBER;
         }
-
         return exercise;
     }
 

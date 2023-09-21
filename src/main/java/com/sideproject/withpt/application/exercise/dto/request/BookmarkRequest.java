@@ -18,9 +18,6 @@ import java.time.LocalDateTime;
 @ValidExerciseType
 public class BookmarkRequest {
 
-    @NotBlank(message = "운동 일자를 입력해주세요.")
-    private LocalDateTime exerciseDate;
-
     @NotBlank(message = "운동명을 입력해주세요.")
     private String title;
 
