@@ -52,7 +52,7 @@ class ExerciseServiceTest {
         // given
         given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
         given(exerciseRepository.findByMemberIdAndExerciseDateBetween(anyLong(), any(), any()))
-                .willReturn(List.of(createExercise(createAddExerciseRequest())));
+                .willReturn(List.of(createAddExerciseRequest().toExerciseEntity(createMember())));
 
         // when
         List<ExerciseListResponse> response = exerciseService.findAllExerciseList(1L);
@@ -70,7 +70,7 @@ class ExerciseServiceTest {
     void findOneExercise() {
         // given
         given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
-        given(exerciseRepository.findById(anyLong())).willReturn(Optional.of(createExercise(createAddExerciseRequest())));
+        given(exerciseRepository.findById(anyLong())).willReturn(Optional.of(createAddExerciseRequest().toExerciseEntity(createMember())));
 
         // when
         ExerciseListResponse exercise = exerciseService.findOneExercise(1L, 1L);
@@ -85,7 +85,7 @@ class ExerciseServiceTest {
     void saveExerciseList() {
         // given
         given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
-        given(exerciseRepository.save(any(Exercise.class))).willReturn(createExercise(createAddExerciseRequest()));
+        given(exerciseRepository.save(any(Exercise.class))).willReturn(createAddExerciseRequest().toExerciseEntity(createMember()));
 
         // when
         exerciseService.saveExercise(1L, List.of(createAddExerciseRequest()));
@@ -101,7 +101,7 @@ class ExerciseServiceTest {
         ExerciseRequest exerciseRequest = ExerciseRequest.builder().title("수정 운동명").build();
 
         given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
-        given(exerciseRepository.findById(anyLong())).willReturn(Optional.of(createExercise(createAddExerciseRequest())));
+        given(exerciseRepository.findById(anyLong())).willReturn(Optional.of(createAddExerciseRequest().toExerciseEntity(createMember())));
 
         // when
         exerciseService.modifyExercise(1L, 1L, exerciseRequest);
@@ -116,7 +116,7 @@ class ExerciseServiceTest {
     void deleteExercise() {
         // given
         given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
-        given(exerciseRepository.findById(anyLong())).willReturn(Optional.of(createExercise(createAddExerciseRequest())));
+        given(exerciseRepository.findById(anyLong())).willReturn(Optional.of(createAddExerciseRequest().toExerciseEntity(createMember())));
 
         // when
         exerciseService.deleteExercise(1L, 1L);
@@ -130,7 +130,7 @@ class ExerciseServiceTest {
     void saveExerciseBookmark() {
         // given
         given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
-        given(exerciseRepository.save(any(Exercise.class))).willReturn(createExercise(createAddExerciseRequest()));
+        given(exerciseRepository.save(any(Exercise.class))).willReturn(createAddExerciseRequest().toExerciseEntity(createMember()));
 
         // when
         exerciseService.saveExercise(1L, List.of(createAddExerciseRequest()));
@@ -149,21 +149,6 @@ class ExerciseServiceTest {
                 .exerciseType(ExerciseType.ANAEROBIC)
                 .exerciseDate(LocalDateTime.now())
                 .bookmarkYn("Y")
-                .build();
-    }
-
-    private Exercise createExercise(ExerciseRequest request) {
-        return Exercise
-                .builder()
-                .id(1L)
-                .title(request.getTitle())
-                .weight(request.getWeight())
-                .set(request.getSet())
-                .hour(request.getHour())
-                .bodyPart(request.getBodyPart())
-                .exerciseType(request.getExerciseType())
-                .exerciseDate(request.getExerciseDate())
-                .member(createMember())
                 .build();
     }
 

@@ -45,7 +45,7 @@ public class BookmarkServiceTest {
     void findBookmarkList() {
         // given
         given(memberRepository.findById(any(Long.class))).willReturn(Optional.of(createMember()));
-        given(bookmarkRepository.findByMemberId(any(Long.class))).willReturn(List.of(createBookmark(createAddBookmarkRequest())));
+        given(bookmarkRepository.findByMemberId(any(Long.class))).willReturn(List.of(createAddBookmarkRequest().toEntity(createMember())));
 
         // when
         List<BookmarkResponse> allBookmark = bookmarkService.findAllBookmark(1L);
@@ -61,7 +61,7 @@ public class BookmarkServiceTest {
     void findBookmark() {
         // given
         given(memberRepository.findById(any(Long.class))).willReturn(Optional.of(createMember()));
-        given(bookmarkRepository.findById(any(Long.class))).willReturn(Optional.of(createBookmark(createAddBookmarkRequest())));
+        given(bookmarkRepository.findById(any(Long.class))).willReturn(Optional.of(createAddBookmarkRequest().toEntity(createMember())));
 
         // when
         BookmarkResponse bookmark = bookmarkService.findOneBookmark(1L, 1L);
@@ -76,7 +76,7 @@ public class BookmarkServiceTest {
     void saveBookmark() {
         // given
         given(memberRepository.findById(any(Long.class))).willReturn(Optional.of(createMember()));
-        given(bookmarkRepository.save(any(Bookmark.class))).willReturn(createBookmark(createAddBookmarkRequest()));
+        given(bookmarkRepository.save(any(Bookmark.class))).willReturn(createAddBookmarkRequest().toEntity(createMember()));
 
         // when
         bookmarkService.saveBookmark(1L, createAddBookmarkRequest());
@@ -92,7 +92,7 @@ public class BookmarkServiceTest {
         BookmarkRequest bookmarkRequest = BookmarkRequest.builder().title("수정 북마크명").build();
 
         given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
-        given(bookmarkRepository.findById(anyLong())).willReturn(Optional.of(createBookmark(createAddBookmarkRequest())));
+        given(bookmarkRepository.findById(anyLong())).willReturn(Optional.of(createAddBookmarkRequest().toEntity(createMember())));
 
         // when
         bookmarkService.modifyBookmark(1L, 1L, bookmarkRequest);
@@ -107,7 +107,7 @@ public class BookmarkServiceTest {
     void deleteBookmark() {
         // given
         given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
-        given(bookmarkRepository.findById(anyLong())).willReturn(Optional.of(createBookmark(createAddBookmarkRequest())));
+        given(bookmarkRepository.findById(anyLong())).willReturn(Optional.of(createAddBookmarkRequest().toEntity(createMember())));
 
         // when
         bookmarkService.deleteBookmark(1L, 1L);
@@ -124,20 +124,6 @@ public class BookmarkServiceTest {
                 .hour(3)
                 .bodyPart(BodyPart.LOWER_BODY)
                 .exerciseType(ExerciseType.ANAEROBIC)
-                .build();
-    }
-
-    private Bookmark createBookmark(BookmarkRequest request) {
-        return Bookmark
-                .builder()
-                .id(1L)
-                .title(request.getTitle())
-                .weight(request.getWeight())
-                .set(request.getSet())
-                .hour(request.getHour())
-                .bodyPart(request.getBodyPart())
-                .exerciseType(request.getExerciseType())
-                .member(createMember())
                 .build();
     }
 
