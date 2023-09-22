@@ -7,6 +7,7 @@ import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -35,6 +36,7 @@ public class ExerciseController {
     }
 
     // 운동 기록 입력
+    @Validated
     @PostMapping
     public ApiSuccessResponse saveExercise(@Valid @RequestBody List<ExerciseRequest> request, @AuthenticationPrincipal Long memberId) {
         exerciseService.saveExercise(memberId, request);

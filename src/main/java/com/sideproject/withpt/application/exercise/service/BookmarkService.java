@@ -25,11 +25,10 @@ public class BookmarkService {
 
     public List<BookmarkResponse> findAllBookmark(Long memberId) {
         validateMemberId(memberId);
-        List<BookmarkResponse> bookmarkList = bookmarkRepository.findByMemberId(memberId).stream()
+
+        return bookmarkRepository.findByMemberId(memberId).stream()
                 .map(BookmarkResponse::from)
                 .collect(Collectors.toList());
-
-        return bookmarkList;
     }
 
     public BookmarkResponse findOneBookmark(Long memberId, Long bookmarkId) {
@@ -56,9 +55,8 @@ public class BookmarkService {
     }
 
     private Member validateMemberId(Long memberId) {
-        Member member = memberRepository.findById(memberId)
+        return memberRepository.findById(memberId)
                 .orElseThrow(() -> GlobalException.TEST_ERROR);
-        return member;
     }
 
     private Bookmark validateBookmarkId(Long bookmarkId, Long memberId) {
@@ -67,7 +65,7 @@ public class BookmarkService {
 
         Member member = validateMemberId(memberId);
 
-        if (!member.equals(bookmark.getMember())) {
+        if (!member.getId().equals(bookmark.getMember().getId())) {
             throw ExerciseException.EXERCISE_NOT_BELONG_TO_MEMBER;
         }
 

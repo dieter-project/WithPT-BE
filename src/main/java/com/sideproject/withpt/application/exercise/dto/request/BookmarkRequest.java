@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.exercise.dto.request;
 
-import com.sideproject.withpt.application.exercise.exception.validator.ValidExerciseType;
+import com.sideproject.withpt.application.exercise.exception.validator.ValidBookmarkType;
 import com.sideproject.withpt.application.type.BodyPart;
 import com.sideproject.withpt.application.type.ExerciseType;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
@@ -9,13 +9,12 @@ import com.sideproject.withpt.domain.record.Bookmark;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
-import java.time.LocalDateTime;
 
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ValidExerciseType
+@ValidBookmarkType
 public class BookmarkRequest {
 
     @NotBlank(message = "운동명을 입력해주세요.")

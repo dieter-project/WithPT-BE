@@ -5,6 +5,7 @@ import com.sideproject.withpt.application.type.BodyPart;
 import com.sideproject.withpt.application.type.ExerciseType;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.record.Bookmark;
 import com.sideproject.withpt.domain.record.Exercise;
 import lombok.*;
 
@@ -39,7 +40,7 @@ public class ExerciseRequest {
     @ValidEnum(enumClass = ExerciseType.class)
     private ExerciseType exerciseType;
 
-    public Exercise toEntity(Member member) {
+    public Exercise toExerciseEntity(Member member) {
         return Exercise.builder()
                 .member(member)
                 .title(title)
@@ -50,6 +51,19 @@ public class ExerciseRequest {
                 .bodyPart(bodyPart)
                 .exerciseType(exerciseType)
                 .exerciseDate(exerciseDate)
+                .build();
+    }
+
+    public Bookmark toBookmarkEntity(Member member) {
+        return Bookmark.builder()
+                .member(member)
+                .title(title)
+                .weight(weight)
+                .set(set)
+                .times(times)
+                .hour(hour)
+                .bodyPart(bodyPart)
+                .exerciseType(exerciseType)
                 .build();
     }
 
