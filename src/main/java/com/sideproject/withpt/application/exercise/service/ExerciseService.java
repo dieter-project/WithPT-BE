@@ -3,6 +3,7 @@ package com.sideproject.withpt.application.exercise.service;
 import com.sideproject.withpt.application.exercise.dto.request.ExerciseRequest;
 import com.sideproject.withpt.application.exercise.dto.response.ExerciseListResponse;
 import com.sideproject.withpt.application.exercise.exception.ExerciseException;
+import com.sideproject.withpt.application.exercise.repository.BookmarkRepository;
 import com.sideproject.withpt.application.exercise.repository.ExerciseRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
@@ -24,6 +25,7 @@ public class ExerciseService {
 
     private final ExerciseRepository exerciseRepository;
     private final MemberRepository memberRepository;
+    private final BookmarkRepository bookmarkRepository;
 
     public List<ExerciseListResponse> findAllExerciseList(Long memberId) {
         LocalDateTime startOfDay = LocalDateTime.now().with(LocalTime.MIN);
@@ -31,13 +33,10 @@ public class ExerciseService {
 
         validateMemberId(memberId);
 
-        List<ExerciseListResponse> exerciseList =
-                exerciseRepository
-                        .findByMemberIdAndExerciseDateBetween(memberId, startOfDay, endOfDay).stream()
-                        .map(ExerciseListResponse::from)
-                        .collect(Collectors.toList());
-
-        return exerciseList;
+        return exerciseRepository
+                .findByMemberIdAndExerciseDateBetween(memberId, startOfDay, endOfDay).stream()
+                .map(ExerciseListResponse::from)
+                .collect(Collectors.toList());
     }
 
     public ExerciseListResponse findOneExercise(Long memberId, Long exerciseId) {
@@ -46,11 +45,14 @@ public class ExerciseService {
     }
 
     @Transactional
-    public void saveExercise(Long memberId, List<ExerciseRequest> request) {
+    public void saveExercise(Long memberId, List<ExerciseRequest> requestList) {
         Member member = validateMemberId(memberId);
 
-        for(ExerciseRequest req : request) {
-            exerciseRepository.save(req.toEntity(member));
+        for(ExerciseRequest request : requestList) {
+            if("Y".equals(request.getBookmarkYn())) {
+                bookmarkRepository.save(request.toBookmarkEntity(member));
+            }
+            exerciseRepository.save(request.toExerciseEntity(member));
         }
     }
 
@@ -67,21 +69,18 @@ public class ExerciseService {
     }
 
     private Member validateMemberId(Long memberId) {
-        Member member = memberRepository.findById(memberId)
+        return memberRepository.findById(memberId)
                 .orElseThrow(() -> GlobalException.TEST_ERROR);
-        return member;
     }
 
     private Exercise validateExerciseId(Long exerciseId, Long memberId) {
         Exercise exercise = exerciseRepository.findById(exerciseId)
                 .orElseThrow(() -> ExerciseException.EXERCISE_NOT_EXIST);
-
         Member member = validateMemberId(memberId);
 
-        if (!member.equals(exercise.getMember())) {
+        if (!exercise.getMember().getId().equals(member.getId())) {
             throw ExerciseException.EXERCISE_NOT_BELONG_TO_MEMBER;
         }
-
         return exercise;
     }
 

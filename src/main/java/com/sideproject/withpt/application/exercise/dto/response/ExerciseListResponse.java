@@ -16,7 +16,6 @@ public class ExerciseListResponse {
     private int set;
     private int times;
     private int hour;
-    private String bookmarkYn;
 
     private BodyPart bodyPart;
     private ExerciseType exerciseType;
@@ -28,7 +27,6 @@ public class ExerciseListResponse {
                 .set(exercise.getSet())
                 .times(exercise.getTimes())
                 .hour(exercise.getHour())
-                .bookmarkYn(exercise.getBookmarkYn())
                 .bodyPart(exercise.getBodyPart())
                 .exerciseType(exercise.getExerciseType())
                 .build();
