@@ -36,7 +36,6 @@ public class ExerciseController {
     }
 
     // 운동 기록 입력
-    @Validated
     @PostMapping
     public ApiSuccessResponse saveExercise(@Valid @RequestBody List<ExerciseRequest> request, @AuthenticationPrincipal Long memberId) {
         exerciseService.saveExercise(memberId, request);

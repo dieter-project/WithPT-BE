@@ -9,7 +9,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 @Slf4j
-public class BookmarkTypeValidator implements ConstraintValidator<ValidExerciseType, BookmarkRequest> {
+public class BookmarkTypeValidator implements ConstraintValidator<ValidBookmarkType, BookmarkRequest> {
 
     @Override
     public boolean isValid(BookmarkRequest request, ConstraintValidatorContext context) {
