@@ -1,5 +1,6 @@
 package com.sideproject.withpt.domain.record;
 
+import com.sideproject.withpt.application.body.dto.request.BodyInfoRequest;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.domain.member.Member;
 import lombok.*;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Weight extends BaseEntity {
+public class Body extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,5 +30,15 @@ public class Weight extends BaseEntity {
     private double bmi;
 
     private LocalDateTime weightRecordDate;
+
+    public void changeWeight(double weight) {
+        this.weight = weight;
+    }
+
+    public void updateBodyInfo(BodyInfoRequest request) {
+        this.skeletalMuscle = request.getSkeletalMuscle();
+        this.bodyFatPercentage = request.getBodyFatPercentage();
+        this.bmi = request.getBmi();
+    }
 
 }

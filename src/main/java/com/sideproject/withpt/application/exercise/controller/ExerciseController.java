@@ -21,7 +21,7 @@ public class ExerciseController {
 
     private final ExerciseService exerciseService;
 
-    // 운동 기록 리스트 조회 (
+    // 운동 기록 리스트 조회
     @GetMapping
     public ApiSuccessResponse<List<ExerciseListResponse>> findAllExerciseList(@AuthenticationPrincipal Long memberId) {
         List<ExerciseListResponse> exerciseList = exerciseService.findAllExerciseList(memberId);

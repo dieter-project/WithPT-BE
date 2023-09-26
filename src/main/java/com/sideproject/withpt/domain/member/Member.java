@@ -60,4 +60,8 @@ public class Member extends BaseEntity {
     @JoinColumn(name = "social_login_id")
     private SocialLogin socialLogin;
 
+    public void changeWeight(double weight) {
+        this.weight = weight;
+    }
+
 }

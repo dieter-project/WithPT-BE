@@ -1,8 +1,8 @@
-package com.sideproject.withpt.application.weight.dto.request;
+package com.sideproject.withpt.application.body.dto.request;
 
 import com.sideproject.withpt.application.exercise.exception.validator.ValidExerciseType;
 import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.record.Weight;
+import com.sideproject.withpt.domain.record.Body;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
@@ -27,9 +27,10 @@ public class BodyInfoRequest {
     @NotBlank(message = "측정일을 입력해 주세요")
     private LocalDateTime weightRecordDate;
 
-    public Weight toEntity(Member member) {
-        return Weight.builder()
+    public Body toEntity(Member member) {
+        return Body.builder()
                 .member(member)
+                .weight(member.getWeight())
                 .skeletalMuscle(skeletalMuscle)
                 .bodyFatPercentage(bodyFatPercentage)
                 .bmi(bmi)
