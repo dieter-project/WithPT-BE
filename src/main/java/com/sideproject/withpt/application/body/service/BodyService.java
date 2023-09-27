@@ -24,9 +24,10 @@ public class BodyService {
 
     public WeightInfoResponse findWeightInfo(Long memberId, LocalDateTime dateTime) {
         validateMemberId(memberId);
+
         Body body = bodyRepository
-                .findTop1ByMemberIdAndWeightRecordDateBeforeOrderByWeightRecordDateDesc(memberId, dateTime)
-                .orElseThrow(() -> BodyException.WEIGHT_NOT_EXIST);
+                .findRecentBodyInfo(memberId, dateTime)
+                .orElseThrow(() -> BodyException.BODY_NOT_EXIST);
 
         return WeightInfoResponse.from(body);
     }
@@ -36,36 +37,45 @@ public class BodyService {
         Member member = validateMemberId(memberId);
 
         bodyRepository
-                .findTop1ByMemberIdAndWeightRecordDateBeforeOrderByWeightRecordDateDesc(memberId, dateTime)
+                .findTodayBodyInfo(memberId, dateTime)
                 .ifPresentOrElse(
                         value -> {
                             // 오늘 날짜 기록이 존재한다면 기록 수정하기
-
+                            value.changeWeight(weight);
                         },
                         () -> {
                             // 오늘 날짜 기록이 없다면 새로 기록 저장하기
+                            Body body = bodyRepository
+                                    .findRecentBodyInfo(memberId, dateTime)
+                                    .orElseThrow(() -> BodyException.BODY_NOT_EXIST);
 
+                            body.changeWeight(weight);
+                            bodyRepository.save(body);
                         });
 
         member.changeWeight(weight);
     }
 
     @Transactional
-    public void saveBodyInfo(Long memberId, BodyInfoRequest request, LocalDateTime dateTime) {
+    public void saveBodyInfo(Long memberId, BodyInfoRequest request) {
         validateMemberId(memberId);
 
         bodyRepository
-                .findTop1ByMemberIdAndWeightRecordDateBeforeOrderByWeightRecordDateDesc(memberId, dateTime)
+                .findTodayBodyInfo(memberId, request.getBodyRecordDate())
                 .ifPresentOrElse(
                         value -> {
                             // 오늘 날짜 기록이 존재한다면 기록 수정하기
-
+                            value.updateBodyInfo(request);
                         },
                         () -> {
                             // 오늘 날짜 기록이 없다면 새로 기록 저장하기
+                            Body body = bodyRepository
+                                    .findRecentBodyInfo(memberId, request.getBodyRecordDate())
+                                    .orElseThrow(() -> BodyException.BODY_NOT_EXIST);
 
+                            body.updateBodyInfo(request);
+                            bodyRepository.save(body);
                         });
-
     }
 
     private Member validateMemberId(Long memberId) {

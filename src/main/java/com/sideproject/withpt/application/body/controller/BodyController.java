@@ -36,10 +36,8 @@ public class BodyController {
 
     // 신체 정보 입력하기
     @PostMapping
-    public ApiSuccessResponse saveBodyInfo(@Valid @RequestBody BodyInfoRequest request,
-                                           @AuthenticationPrincipal Long memberId,
-                                           LocalDateTime dateTime) {
-        bodyService.saveBodyInfo(memberId, request, dateTime);
+    public ApiSuccessResponse saveBodyInfo(@AuthenticationPrincipal Long memberId, @Valid @RequestBody BodyInfoRequest request) {
+        bodyService.saveBodyInfo(memberId, request);
         return ApiSuccessResponse.NO_DATA_RESPONSE;
     }
 

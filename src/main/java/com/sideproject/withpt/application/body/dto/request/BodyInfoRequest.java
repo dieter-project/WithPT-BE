@@ -25,7 +25,7 @@ public class BodyInfoRequest {
     private double bmi;
 
     @NotBlank(message = "측정일을 입력해 주세요")
-    private LocalDateTime weightRecordDate;
+    private LocalDateTime bodyRecordDate;
 
     public Body toEntity(Member member) {
         return Body.builder()
@@ -34,7 +34,7 @@ public class BodyInfoRequest {
                 .skeletalMuscle(skeletalMuscle)
                 .bodyFatPercentage(bodyFatPercentage)
                 .bmi(bmi)
-                .weightRecordDate(weightRecordDate)
+                .bodyRecordDate(bodyRecordDate)
                 .build();
     }
 

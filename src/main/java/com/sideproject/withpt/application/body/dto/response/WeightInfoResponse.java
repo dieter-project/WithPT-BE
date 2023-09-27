@@ -24,7 +24,7 @@ public class WeightInfoResponse {
                 .skeletalMuscle(body.getSkeletalMuscle())
                 .bodyFatPercentage(body.getBodyFatPercentage())
                 .bmi(body.getBmi())
-                .weightRecordDate(body.getWeightRecordDate())
+                .weightRecordDate(body.getBodyRecordDate())
                 .build();
     }
 

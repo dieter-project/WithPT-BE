@@ -29,7 +29,7 @@ public class Body extends BaseEntity {
     private double bodyFatPercentage;
     private double bmi;
 
-    private LocalDateTime weightRecordDate;
+    private LocalDateTime bodyRecordDate;
 
     public void changeWeight(double weight) {
         this.weight = weight;
