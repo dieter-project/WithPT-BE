@@ -40,11 +40,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws ServletException, IOException {
-        log.info("1. 권한이나 인증이 필요한 요청");
+        log.info("1. 권한이나 인증이 필요한 요청 {}", request.getRequestURI());
         log.info("CHECK JWT : JwtAuthenticationFilter.doFilterInternal");
-        String token = this.resolveTokenFromRequest(request);
 
         try {
+            String token = this.resolveTokenFromRequest(request);
 
             if (StringUtils.hasText(token) && this.jwtTokenProvider.isValidationToken(token)) {
 
@@ -96,7 +96,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/v1/members/nickname/check",
             "/api/v1/oauth/google",
             "/api/v1/oauth/kakao"};
-        
+
         return Arrays.stream(excludePath).anyMatch(request.getRequestURI()::startsWith);
     }
 
