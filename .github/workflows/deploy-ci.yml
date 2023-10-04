@@ -52,7 +52,6 @@ jobs:
           touch ./application-db.yml
           echo "${{ secrets.PROPERTIES_DB }}" > ./application-db.yml
           
-          cd ./src/main/resources
           touch ./application-oauth.yml
           echo "${{ secrets.PROPERTIES_OAUTH }}" > ./application-oauth.yml
         shell: bash
