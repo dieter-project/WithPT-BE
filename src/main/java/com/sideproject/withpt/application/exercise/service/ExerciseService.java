@@ -5,13 +5,20 @@ import com.sideproject.withpt.application.exercise.dto.response.ExerciseListResp
 import com.sideproject.withpt.application.exercise.exception.ExerciseException;
 import com.sideproject.withpt.application.exercise.repository.BookmarkRepository;
 import com.sideproject.withpt.application.exercise.repository.ExerciseRepository;
+import com.sideproject.withpt.application.image.ImageUploader;
+import com.sideproject.withpt.application.image.repository.ImageRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
+import com.sideproject.withpt.application.type.Usages;
 import com.sideproject.withpt.common.exception.GlobalException;
+import com.sideproject.withpt.common.utils.AwsS3Uploader;
 import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.record.Bookmark;
 import com.sideproject.withpt.domain.record.Exercise;
+import com.sideproject.withpt.domain.record.Image;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -26,6 +33,8 @@ public class ExerciseService {
     private final ExerciseRepository exerciseRepository;
     private final MemberRepository memberRepository;
     private final BookmarkRepository bookmarkRepository;
+
+    private final ImageUploader imageUploader;
 
     public List<ExerciseListResponse> findAllExerciseList(Long memberId) {
         LocalDateTime startOfDay = LocalDateTime.now().with(LocalTime.MIN);
@@ -48,11 +57,25 @@ public class ExerciseService {
     public void saveExercise(Long memberId, List<ExerciseRequest> requestList) {
         Member member = validateMemberId(memberId);
 
-        for(ExerciseRequest request : requestList) {
-            if("Y".equals(request.getBookmarkYn())) {
-                bookmarkRepository.save(request.toBookmarkEntity(member));
+        for (ExerciseRequest request : requestList) {
+            if ("Y".equals(request.getBookmarkYn())) {
+                bookmarkRepository.findByMemberIdAndTitle(memberId, request.getTitle())
+                         // 동일한 북마크명이 존재하면 에러
+                        .ifPresentOrElse(
+                                existingBookmark -> {
+                                    throw ExerciseException.BOOKMARK_ALREADY_EXISTS;
+                                },
+                                () -> {
+                                    bookmarkRepository.save(request.toBookmarkEntity(member));
+                                }
+                        );
             }
-            exerciseRepository.save(request.toExerciseEntity(member));
+
+            Exercise savedExercise = exerciseRepository.save(request.toExerciseEntity(member));
+
+            if(request.getFile() != null && !request.getFile().isEmpty()) {
+                imageUploader.uploadAndSaveImages(request.getFile(), savedExercise.getId(), Usages.EXERCISE);
+            }
         }
     }
 
@@ -74,8 +97,7 @@ public class ExerciseService {
     }
 
     private Exercise validateExerciseId(Long exerciseId, Long memberId) {
-        Exercise exercise = exerciseRepository.findById(exerciseId)
-                .orElseThrow(() -> ExerciseException.EXERCISE_NOT_EXIST);
+        Exercise exercise = exerciseRepository.findById(exerciseId).orElseThrow(() -> ExerciseException.EXERCISE_NOT_EXIST);
         Member member = validateMemberId(memberId);
 
         if (!exercise.getMember().getId().equals(member.getId())) {

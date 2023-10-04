@@ -39,7 +39,15 @@ public class BookmarkService {
     @Transactional
     public void saveBookmark(Long memberId, BookmarkRequest request) {
         Member member = validateMemberId(memberId);
-        bookmarkRepository.save(request.toEntity(member));
+
+        bookmarkRepository.findByMemberIdAndTitle(memberId, request.getTitle())
+                .ifPresentOrElse(
+                        existingBookmark -> {
+                            throw ExerciseException.BOOKMARK_ALREADY_EXISTS;
+                        },
+                        () -> {
+                            bookmarkRepository.save(request.toEntity(member));
+                        });
     }
 
     @Transactional
@@ -49,9 +57,12 @@ public class BookmarkService {
     }
 
     @Transactional
-    public void deleteBookmark(Long memberId, Long bookmarkId) {
-        validateBookmarkId(bookmarkId, memberId);
-        bookmarkRepository.deleteById(bookmarkId);
+    public void deleteBookmark(Long memberId, List<Long> bookmarkIds) {
+        for (Long bookmarkId : bookmarkIds) {
+            validateBookmarkId(bookmarkId, memberId);
+        }
+
+        bookmarkRepository.deleteAllByIds(bookmarkIds);
     }
 
     private Member validateMemberId(Long memberId) {

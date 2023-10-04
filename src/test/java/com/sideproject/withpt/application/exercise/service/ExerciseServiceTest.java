@@ -1,16 +1,20 @@
 package com.sideproject.withpt.application.exercise.service;
 
+import com.sideproject.withpt.application.exercise.dto.request.BookmarkRequest;
 import com.sideproject.withpt.application.exercise.dto.request.ExerciseRequest;
 import com.sideproject.withpt.application.exercise.dto.response.ExerciseListResponse;
+import com.sideproject.withpt.application.exercise.exception.ExerciseException;
 import com.sideproject.withpt.application.exercise.repository.BookmarkRepository;
 import com.sideproject.withpt.application.exercise.repository.ExerciseRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.type.BodyPart;
 import com.sideproject.withpt.application.type.ExerciseType;
+import com.sideproject.withpt.application.type.Usages;
 import com.sideproject.withpt.config.TestEmbeddedRedisConfig;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.Bookmark;
 import com.sideproject.withpt.domain.record.Exercise;
+import com.sideproject.withpt.domain.record.Image;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -130,13 +135,33 @@ class ExerciseServiceTest {
     void saveExerciseBookmark() {
         // given
         given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
-        given(exerciseRepository.save(any(Exercise.class))).willReturn(createAddExerciseRequest().toExerciseEntity(createMember()));
+        given(exerciseRepository.save(any(Exercise.class)))
+                .willReturn(createAddExerciseRequest().toExerciseEntity(createMember()));
 
         // when
         exerciseService.saveExercise(1L, List.of(createAddExerciseRequest()));
 
         // then
         then(bookmarkRepository).should(times(1)).save(any(Bookmark.class));
+    }
+
+    @Test
+    @DisplayName("북마크 저장할 때 이미 존재하는 북마크명이면 에러 던지기")
+    void alreadyExistsBookmarkSave() {
+        // given
+        BookmarkRequest bookmarkRequest = BookmarkRequest.builder().title("운동명").build();
+
+        given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
+        given(bookmarkRepository.findByMemberIdAndTitle(any(Long.class), any(String.class)))
+                .willReturn(Optional.of(bookmarkRequest.toEntity(createMember())));
+
+        // when
+        // then
+        assertThatThrownBy(
+                () -> exerciseService.saveExercise(1L, List.of(createAddExerciseRequest()))
+        )
+                .isExactlyInstanceOf(ExerciseException.class)
+                .hasMessage(ExerciseException.BOOKMARK_ALREADY_EXISTS.getMessage());
     }
 
     private ExerciseRequest createAddExerciseRequest() {
@@ -156,6 +181,16 @@ class ExerciseServiceTest {
         return Member.builder()
                 .id(1L)
                 .nickname("test")
+                .build();
+    }
+
+    private Image createImage() {
+        return Image.builder()
+                .id(1L)
+                .entity_id(1L)
+                .url("test")
+                .attach_type("jpg")
+                .usage(Usages.EXERCISE)
                 .build();
     }
 

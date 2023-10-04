@@ -2,6 +2,7 @@ package com.sideproject.withpt.application.exercise.service;
 
 import com.sideproject.withpt.application.exercise.dto.request.BookmarkRequest;
 import com.sideproject.withpt.application.exercise.dto.response.BookmarkResponse;
+import com.sideproject.withpt.application.exercise.exception.ExerciseException;
 import com.sideproject.withpt.application.exercise.repository.BookmarkRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.type.BodyPart;
@@ -21,8 +22,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
@@ -103,17 +104,34 @@ public class BookmarkServiceTest {
     }
 
     @Test
-    @DisplayName("북마크 삭제하기")
+    @DisplayName("북마크 다중 삭제하기")
     void deleteBookmark() {
         // given
         given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
         given(bookmarkRepository.findById(anyLong())).willReturn(Optional.of(createAddBookmarkRequest().toEntity(createMember())));
 
         // when
-        bookmarkService.deleteBookmark(1L, 1L);
+        bookmarkService.deleteBookmark(1L, List.of(1L));
 
         // then
-        then(bookmarkRepository).should(times(1)).deleteById(anyLong());
+        then(bookmarkRepository).should(times(1)).deleteAllByIds(anyList());
+    }
+
+    @Test
+    @DisplayName("저장할 때 이미 존재하는 북마크명이면 에러 던지기")
+    void alreadyExistsBookmarkSave() {
+        // given
+        given(memberRepository.findById(any(Long.class))).willReturn(Optional.of(createMember()));
+        given(bookmarkRepository.findByMemberIdAndTitle(any(Long.class), any(String.class)))
+                .willReturn(Optional.of(createAddBookmarkRequest().toEntity(createMember())));
+
+        // when
+        // then
+        assertThatThrownBy(
+                () -> bookmarkService.saveBookmark(1L, createAddBookmarkRequest())
+        )
+                .isExactlyInstanceOf(ExerciseException.class)
+                .hasMessage(ExerciseException.BOOKMARK_ALREADY_EXISTS.getMessage());
     }
 
     private BookmarkRequest createAddBookmarkRequest() {
