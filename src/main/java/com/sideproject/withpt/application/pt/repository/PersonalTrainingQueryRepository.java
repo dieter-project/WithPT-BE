@@ -14,7 +14,6 @@ import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -44,6 +43,17 @@ public class PersonalTrainingQueryRepository {
             .where(gymsIn(gyms), trainerEq(trainer))
             .groupBy(personalTraining.gym)
             .fetch();
+    }
+
+    public long deleteAllByMembersAndTrainerAndGym(List<Member> members, Trainer trainer, Gym gym) {
+        return jpaQueryFactory
+            .delete(personalTraining)
+            .where(
+                membersIn(members),
+                trainerEq(trainer),
+                gymEq(gym)
+            )
+            .execute();
     }
 
     public Long countByGymAndTrainer(Gym gym, Trainer trainer) {
@@ -91,6 +101,10 @@ public class PersonalTrainingQueryRepository {
             );
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
+
+    private BooleanExpression membersIn(List<Member> members) {
+        return CollectionUtils.isEmpty(members) ? null : personalTraining.member.in(members);
     }
 
     private BooleanExpression gymsIn(List<Gym> gyms) {
