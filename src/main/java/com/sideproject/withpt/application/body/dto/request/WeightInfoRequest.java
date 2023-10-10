@@ -4,7 +4,6 @@ import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.Body;
 import lombok.*;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
@@ -12,27 +11,18 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BodyInfoRequest {
-
-    @NotNull(message = "골격근량을 입력해주세요.")
-    private double skeletalMuscle;
-
-    @NotNull(message = "체지방률을 입력해주세요.")
-    private double bodyFatPercentage;
-
-    @NotNull(message = "BMI 지수를 입력해주세요.")
-    private double bmi;
+public class WeightInfoRequest {
 
     @NotNull(message = "측정일을 입력해 주세요")
     private LocalDateTime bodyRecordDate;
 
+    @NotNull(message = "체중을 입력해 주세요")
+    private double weight;
+
     public Body toEntity(Member member) {
         return Body.builder()
                 .member(member)
-                .weight(member.getWeight())
-                .skeletalMuscle(skeletalMuscle)
-                .bodyFatPercentage(bodyFatPercentage)
-                .bmi(bmi)
+                .weight(weight)
                 .bodyRecordDate(bodyRecordDate)
                 .build();
     }
@@ -40,11 +30,11 @@ public class BodyInfoRequest {
     public Body toBodyEntity(Member member, Body body) {
         return Body.builder()
                 .member(member)
-                .weight(body.getWeight())
+                .weight(weight)
                 .bodyRecordDate(bodyRecordDate)
-                .bmi(bmi)
-                .skeletalMuscle(skeletalMuscle)
-                .bodyFatPercentage(bodyFatPercentage)
+                .bmi(body.getBmi())
+                .skeletalMuscle(body.getSkeletalMuscle())
+                .bodyFatPercentage(body.getBodyFatPercentage())
                 .build();
     }
 

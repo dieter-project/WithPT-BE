@@ -1,6 +1,7 @@
 package com.sideproject.withpt.application.body.service;
 
 import com.sideproject.withpt.application.body.dto.request.BodyInfoRequest;
+import com.sideproject.withpt.application.body.dto.request.WeightInfoRequest;
 import com.sideproject.withpt.application.body.dto.response.WeightInfoResponse;
 import com.sideproject.withpt.application.body.exception.BodyException;
 import com.sideproject.withpt.application.body.repository.BodyRepository;
@@ -80,7 +81,7 @@ public class BodyServiceTest {
                 .willReturn(Optional.of(createAddWeightRequest().toEntity(createMember())));
 
         // when
-        bodyService.saveWeight(1L, 10.0, LocalDateTime.now());
+        bodyService.saveWeight(1L, createAddWeight());
 
         // then
         then(bodyRepository).should(times(1)).save(any(Body.class));
@@ -95,7 +96,7 @@ public class BodyServiceTest {
                 .willReturn(Optional.of(createAddWeightRequest().toEntity(createMember())));
 
         // when
-        bodyService.saveWeight(1L, 10.0, LocalDateTime.of(2023, 9, 27, 0, 0));
+        bodyService.saveWeight(1L, createAddWeight());
 
         // then
 
@@ -142,6 +143,13 @@ public class BodyServiceTest {
                 .skeletalMuscle(23.5)
                 .bodyFatPercentage(15.2)
                 .bmi(32.1)
+                .bodyRecordDate(LocalDateTime.of(2023, 9, 27, 0, 0))
+                .build();
+    }
+
+    private WeightInfoRequest createAddWeight() {
+        return WeightInfoRequest.builder()
+                .weight(10.0)
                 .bodyRecordDate(LocalDateTime.of(2023, 9, 27, 0, 0))
                 .build();
     }

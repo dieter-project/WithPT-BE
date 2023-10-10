@@ -1,6 +1,7 @@
 package com.sideproject.withpt.application.body.controller;
 
 import com.sideproject.withpt.application.body.dto.request.BodyInfoRequest;
+import com.sideproject.withpt.application.body.dto.request.WeightInfoRequest;
 import com.sideproject.withpt.application.body.dto.response.WeightInfoResponse;
 import com.sideproject.withpt.application.body.service.BodyService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
@@ -22,15 +23,15 @@ public class BodyController {
 
     // 해당 날짜의 체중 및 신체 정보 조회하기
     @GetMapping
-    public ApiSuccessResponse<WeightInfoResponse> findWeight(@AuthenticationPrincipal Long memberId, LocalDateTime dateTime) {
+    public ApiSuccessResponse<WeightInfoResponse> findWeight(@AuthenticationPrincipal Long memberId, @RequestBody LocalDateTime dateTime) {
         WeightInfoResponse weightInfo = bodyService.findWeightInfo(memberId, dateTime);
         return ApiSuccessResponse.from(weightInfo);
     }
 
     // 체중 입력하기
     @PostMapping("/weight")
-    public ApiSuccessResponse saveWeight(@AuthenticationPrincipal Long memberId, LocalDateTime dateTime, double weight) {
-        bodyService.saveWeight(memberId, weight, dateTime);
+    public ApiSuccessResponse saveWeight(@AuthenticationPrincipal Long memberId, @Valid @RequestBody WeightInfoRequest request) {
+        bodyService.saveWeight(memberId, request);
         return ApiSuccessResponse.NO_DATA_RESPONSE;
     }
 

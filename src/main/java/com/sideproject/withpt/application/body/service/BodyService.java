@@ -1,5 +1,6 @@
 package com.sideproject.withpt.application.body.service;
 
+import com.sideproject.withpt.application.body.dto.request.WeightInfoRequest;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.body.dto.request.BodyInfoRequest;
 import com.sideproject.withpt.application.body.dto.response.WeightInfoResponse;
@@ -33,32 +34,36 @@ public class BodyService {
     }
 
     @Transactional
-    public void saveWeight(Long memberId, double weight, LocalDateTime dateTime) {
+    public void saveWeight(Long memberId, WeightInfoRequest request) {
         Member member = validateMemberId(memberId);
 
         bodyRepository
-                .findTodayBodyInfo(memberId, dateTime)
+                .findTodayBodyInfo(memberId, request.getBodyRecordDate())
                 .ifPresentOrElse(
                         value -> {
                             // 오늘 날짜 기록이 존재한다면 기록 수정하기
-                            value.changeWeight(weight);
+                            value.changeWeight(request.getWeight());
                         },
                         () -> {
                             // 오늘 날짜 기록이 없다면 새로 기록 저장하기
-                            Body body = bodyRepository
-                                    .findRecentBodyInfo(memberId, dateTime)
-                                    .orElseThrow(() -> BodyException.BODY_NOT_EXIST);
-
-                            body.changeWeight(weight);
-                            bodyRepository.save(body);
+                            bodyRepository
+                                    .findRecentBodyInfo(memberId, request.getBodyRecordDate())
+                                    .ifPresentOrElse(
+                                            body -> {
+                                                body.changeWeight(request.getWeight());
+                                                bodyRepository.save(request.toBodyEntity(member, body));
+                                            },
+                                            () -> {
+                                                bodyRepository.save(request.toEntity(member));
+                                            });
                         });
 
-        member.changeWeight(weight);
+        member.changeWeight(request.getWeight());
     }
 
     @Transactional
     public void saveBodyInfo(Long memberId, BodyInfoRequest request) {
-        validateMemberId(memberId);
+        Member member = validateMemberId(memberId);
 
         bodyRepository
                 .findTodayBodyInfo(memberId, request.getBodyRecordDate())
@@ -69,12 +74,16 @@ public class BodyService {
                         },
                         () -> {
                             // 오늘 날짜 기록이 없다면 새로 기록 저장하기
-                            Body body = bodyRepository
+                            bodyRepository
                                     .findRecentBodyInfo(memberId, request.getBodyRecordDate())
-                                    .orElseThrow(() -> BodyException.BODY_NOT_EXIST);
-
-                            body.updateBodyInfo(request);
-                            bodyRepository.save(body);
+                                    .ifPresentOrElse(
+                                            body -> {
+                                                body.updateBodyInfo(request);
+                                                bodyRepository.save(request.toBodyEntity(member, body));
+                                            },
+                                            () -> {
+                                                bodyRepository.save(request.toEntity(member));
+                                            });
                         });
     }
 

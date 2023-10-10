@@ -5,6 +5,7 @@ import com.sideproject.withpt.domain.record.Body;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -29,14 +30,14 @@ public class BodyCustomRepositoryImpl implements BodyCustomRepository {
 
     @Override
     public Optional<Body> findTodayBodyInfo(Long memberId, LocalDateTime weightRecordDate) {
+        LocalDate localDate = weightRecordDate.toLocalDate();
+
         Body result = jpaQueryFactory.selectFrom(body)
                 .where(
                         body.member.id.eq(memberId),
-                        body.bodyRecordDate.year().eq(weightRecordDate.getYear()),
-                        body.bodyRecordDate.month().eq(weightRecordDate.getMonthValue()),
-                        body.bodyRecordDate.dayOfMonth().eq(weightRecordDate.getDayOfMonth())
+                        body.bodyRecordDate.between(localDate.atStartOfDay(), localDate.atTime(23, 59, 59))
                 )
-                .fetchOne();
+                .fetchFirst();
 
         return Optional.ofNullable(result);
     }
