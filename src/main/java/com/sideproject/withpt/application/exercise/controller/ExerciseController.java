@@ -1,6 +1,7 @@
 package com.sideproject.withpt.application.exercise.controller;
 
 import com.sideproject.withpt.application.exercise.dto.request.ExerciseRequest;
+import com.sideproject.withpt.application.exercise.dto.request.ExerciseRequestList;
 import com.sideproject.withpt.application.exercise.dto.response.ExerciseListResponse;
 import com.sideproject.withpt.application.exercise.service.ExerciseService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
@@ -37,8 +38,8 @@ public class ExerciseController {
 
     // 운동 기록 입력
     @PostMapping
-    public ApiSuccessResponse saveExercise(@Valid @RequestBody List<ExerciseRequest> request, @AuthenticationPrincipal Long memberId) {
-        exerciseService.saveExercise(memberId, request);
+    public ApiSuccessResponse saveExercise(@Valid @RequestBody ExerciseRequestList request, @AuthenticationPrincipal Long memberId) {
+        exerciseService.saveExercise(memberId, request.getExerciseRequest());
         return ApiSuccessResponse.NO_DATA_RESPONSE;
     }
 

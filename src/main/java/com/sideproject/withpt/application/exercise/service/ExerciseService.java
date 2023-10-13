@@ -1,6 +1,7 @@
 package com.sideproject.withpt.application.exercise.service;
 
 import com.sideproject.withpt.application.exercise.dto.request.ExerciseRequest;
+import com.sideproject.withpt.application.exercise.dto.request.ExerciseRequestList;
 import com.sideproject.withpt.application.exercise.dto.response.ExerciseListResponse;
 import com.sideproject.withpt.application.exercise.exception.ExerciseException;
 import com.sideproject.withpt.application.exercise.repository.BookmarkRepository;
@@ -54,10 +55,10 @@ public class ExerciseService {
     }
 
     @Transactional
-    public void saveExercise(Long memberId, List<ExerciseRequest> requestList) {
+    public void saveExercise(Long memberId, List<ExerciseRequestList.ExerciseRequest> requestList) {
         Member member = validateMemberId(memberId);
 
-        for (ExerciseRequest request : requestList) {
+        for (ExerciseRequestList.ExerciseRequest request : requestList) {
             if ("Y".equals(request.getBookmarkYn())) {
                 bookmarkRepository.findByMemberIdAndTitle(memberId, request.getTitle())
                          // 동일한 북마크명이 존재하면 에러

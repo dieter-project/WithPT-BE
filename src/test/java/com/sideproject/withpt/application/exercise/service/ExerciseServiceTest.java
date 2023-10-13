@@ -2,6 +2,7 @@ package com.sideproject.withpt.application.exercise.service;
 
 import com.sideproject.withpt.application.exercise.dto.request.BookmarkRequest;
 import com.sideproject.withpt.application.exercise.dto.request.ExerciseRequest;
+import com.sideproject.withpt.application.exercise.dto.request.ExerciseRequestList;
 import com.sideproject.withpt.application.exercise.dto.response.ExerciseListResponse;
 import com.sideproject.withpt.application.exercise.exception.ExerciseException;
 import com.sideproject.withpt.application.exercise.repository.BookmarkRepository;
@@ -93,7 +94,7 @@ class ExerciseServiceTest {
         given(exerciseRepository.save(any(Exercise.class))).willReturn(createAddExerciseRequest().toExerciseEntity(createMember()));
 
         // when
-        exerciseService.saveExercise(1L, List.of(createAddExerciseRequest()));
+        exerciseService.saveExercise(1L, createAddExerciseRequestList().getExerciseRequest());
 
         // then
         then(exerciseRepository).should(times(1)).save(any(Exercise.class));
@@ -139,7 +140,7 @@ class ExerciseServiceTest {
                 .willReturn(createAddExerciseRequest().toExerciseEntity(createMember()));
 
         // when
-        exerciseService.saveExercise(1L, List.of(createAddExerciseRequest()));
+        exerciseService.saveExercise(1L, createAddExerciseRequestList().getExerciseRequest());
 
         // then
         then(bookmarkRepository).should(times(1)).save(any(Bookmark.class));
@@ -158,7 +159,7 @@ class ExerciseServiceTest {
         // when
         // then
         assertThatThrownBy(
-                () -> exerciseService.saveExercise(1L, List.of(createAddExerciseRequest()))
+                () -> exerciseService.saveExercise(1L, createAddExerciseRequestList().getExerciseRequest())
         )
                 .isExactlyInstanceOf(ExerciseException.class)
                 .hasMessage(ExerciseException.BOOKMARK_ALREADY_EXISTS.getMessage());
@@ -175,6 +176,21 @@ class ExerciseServiceTest {
                 .exerciseDate(LocalDateTime.now())
                 .bookmarkYn("Y")
                 .build();
+    }
+
+    private ExerciseRequestList createAddExerciseRequestList() {
+        ExerciseRequestList.ExerciseRequest request = ExerciseRequestList.ExerciseRequest.builder()
+                .title("운동명")
+                .weight(300)
+                .set(3)
+                .hour(3)
+                .bodyPart(BodyPart.LOWER_BODY)
+                .exerciseType(ExerciseType.ANAEROBIC)
+                .exerciseDate(LocalDateTime.now())
+                .bookmarkYn("Y")
+                .build();
+
+        return ExerciseRequestList.builder().exerciseRequest(List.of(request)).build();
     }
 
     private Member createMember() {
