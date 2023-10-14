@@ -1,21 +1,35 @@
 package com.sideproject.withpt.application.trainer.controller.request;
 
 import com.sideproject.withpt.application.trainer.service.dto.single.EducationDto;
+import com.sideproject.withpt.common.exception.validator.YearMonthType;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.validation.constraints.NotBlank;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
+@Builder
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class EducationRequest {
 
+    @NotBlank(message = "교육명을 입력해주세요")
     private String name;
-    private YearMonth acquisitionYearMonth;
+
+    @YearMonthType
+    private String acquisitionYearMonth;
 
     public EducationDto toEducationDto() {
         return EducationDto.builder()
             .name(this.name)
-            .acquisitionYearMonth(this.acquisitionYearMonth)
+            .acquisitionYearMonth(YearMonth.parse(this.acquisitionYearMonth))
             .build();
     }
 
