@@ -37,6 +37,8 @@ public class Career extends BaseEntity {
 
     private String centerName;
 
+    private String jobPosition;
+
     @Column(name = "START_OF_WORK_YEAR_MONTH", columnDefinition = "date")
     @Convert(converter = YearMonthToDateConverter.class)
     private YearMonth startOfWorkYearMonth;

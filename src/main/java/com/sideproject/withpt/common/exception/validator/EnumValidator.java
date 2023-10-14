@@ -21,7 +21,6 @@ public class EnumValidator implements ConstraintValidator<ValidEnum, Enum<?>> {
 
     @Override
     public boolean isValid(Enum<?> value, ConstraintValidatorContext context) {
-        log.info("request value : {}", value);
         return isNotNull(value) && isContainsValue(value);
     }
 

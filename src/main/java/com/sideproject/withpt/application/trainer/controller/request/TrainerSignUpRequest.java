@@ -7,6 +7,7 @@ import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import lombok.AccessLevel;
@@ -14,9 +15,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
 @Builder
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TrainerSignUpRequest {
@@ -35,23 +38,23 @@ public class TrainerSignUpRequest {
     @ValidEnum(regexp = "KAKAO|GOOGLE", enumClass = OAuthProvider.class)
     private OAuthProvider oauthProvider;
 
-    @Builder.Default
-    private List<CareerRequest> careers = new ArrayList<>();
+    @Valid
+    private List<CareerRequest> careers;
 
-    @Builder.Default
-    private List<AcademicRequest> academics = new ArrayList<>();
+    @Valid
+    private List<AcademicRequest> academics;
 
-    @Builder.Default
-    private List<CertificateRequest> certificates = new ArrayList<>();
+    @Valid
+    private List<CertificateRequest> certificates;
 
-    @Builder.Default
-    private List<AwardRequest> awards = new ArrayList<>();
+    @Valid
+    private List<AwardRequest> awards;
 
-    @Builder.Default
-    private List<EducationRequest> educations = new ArrayList<>();
+    @Valid
+    private List<EducationRequest> educations;
 
-    @Builder.Default
-    private List<TrainerGymScheduleRequest> gyms = new ArrayList<>();
+    @Valid
+    private List<TrainerGymScheduleRequest> gyms;
     
     public TrainerSignUpDto toServiceTrainerSignUpDto() {
         return TrainerSignUpDto.builder()

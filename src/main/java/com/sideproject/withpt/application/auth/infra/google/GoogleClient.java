@@ -83,6 +83,7 @@ public class GoogleClient implements OAuthApiClient {
 
         JsonParser jsonParser = new BasicJsonParser();
         Map<String, Object> jsonArray = jsonParser.parseMap(payload);
+        log.info("정보 : {}", jsonArray);
 
         return GoogleInfoResponse.builder()
             .googleAccount(GoogleAccount.builder().email(jsonArray.get("email").toString()).build())

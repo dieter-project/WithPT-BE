@@ -6,15 +6,18 @@ import com.sideproject.withpt.common.jwt.entrypoint.JwtAccessDeniedEntryPoint;
 import com.sideproject.withpt.common.jwt.entrypoint.JwtAuthenticationEntryPoint;
 import com.sideproject.withpt.common.redis.RedisClient;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -28,10 +31,13 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().antMatchers("/h2-console/**",
+        return web -> web.ignoring().antMatchers(
+            "/h2-console/**",
             "/swagger-ui/**",
             "/v3/api-docs/**",
-            "/swagger-resources/**");
+            "/api-docs/**",
+            "/swagger-resources/**"
+        );
     }
 
     @Bean
@@ -65,6 +71,7 @@ public class SecurityConfig {
             // /members 로 시작하는 요청은 MEMBER 권한이 있는 유저에게만 허용
             .antMatchers("/api/v1/members/**").hasRole("MEMBER")
             .antMatchers("/api/v1/oauth/logout", "/api/v1/oauth/reissue").hasAnyRole("TRAINER", "MEMBER")
+            .anyRequest().authenticated()
             .and()
             // JWT 인증 필터 적용
             .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisClient),

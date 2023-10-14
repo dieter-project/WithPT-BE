@@ -7,9 +7,11 @@ import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+@Slf4j
 @Getter
 @NoArgsConstructor
 public class GoogleLoginParams implements OAuthLoginParams {
@@ -32,6 +34,7 @@ public class GoogleLoginParams implements OAuthLoginParams {
     @Override
     public MultiValueMap<String, String> makeBody() {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        log.info("code = {}", authorizationCode);
         body.add("code", authorizationCode);
         return body;
     }

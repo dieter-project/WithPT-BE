@@ -8,7 +8,7 @@ spring:
         - dev
       "real1": "real1_port, db, oauth"
       "real2": "real2_port, db, oauth"
-
+#    active: dev
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
