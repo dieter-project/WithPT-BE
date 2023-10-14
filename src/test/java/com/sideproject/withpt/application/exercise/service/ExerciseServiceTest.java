@@ -31,7 +31,6 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
-@Import(TestEmbeddedRedisConfig.class)
 class ExerciseServiceTest {
 
     @Mock
