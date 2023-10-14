@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Slf4j
 @RestController
@@ -23,8 +24,9 @@ public class BodyController {
 
     // 해당 날짜의 체중 및 신체 정보 조회하기
     @GetMapping
-    public ApiSuccessResponse<WeightInfoResponse> findWeight(@AuthenticationPrincipal Long memberId, @RequestBody LocalDateTime dateTime) {
-        WeightInfoResponse weightInfo = bodyService.findWeightInfo(memberId, dateTime);
+    public ApiSuccessResponse<WeightInfoResponse> findWeight(@AuthenticationPrincipal Long memberId, @RequestParam String dateTime) {
+        LocalDateTime date = LocalDateTime.parse(dateTime, DateTimeFormatter.ISO_DATE_TIME);
+        WeightInfoResponse weightInfo = bodyService.findWeightInfo(memberId, date);
         return ApiSuccessResponse.from(weightInfo);
     }
 

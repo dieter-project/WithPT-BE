@@ -91,25 +91,40 @@ public class BodyServiceTest {
     @DisplayName("체중 저장할 때 오늘 날짜 기록이 있으면 수정한다")
     void updateWeight() {
         // given
+        WeightInfoRequest weightRequest =
+                WeightInfoRequest.builder()
+                .weight(55.0)
+                .bodyRecordDate(LocalDateTime.now())
+                .build();
+
         given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
         given(bodyRepository.findTodayBodyInfo(anyLong(), any()))
                 .willReturn(Optional.of(createAddWeightRequest().toEntity(createMember())));
 
         // when
-        bodyService.saveWeight(1L, createAddWeight());
+        bodyService.saveWeight(1L, weightRequest);
+        Body body = bodyRepository.findTodayBodyInfo(1L, LocalDateTime.now()).get();
 
         // then
-
+        assertThat(body.getWeight()).isEqualTo(55.0);
     }
 
     @Test
     @DisplayName("체중 저장할 때 Member 테이블의 체중(weight) 컬럼도 함께 수정한다")
     void updateMemberWeight() {
         // given
+        given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
+        given(bodyRepository.findTodayBodyInfo(anyLong(), any())).willReturn(Optional.empty());
+        given(bodyRepository.findRecentBodyInfo(anyLong(), any()))
+                .willReturn(Optional.of(createAddWeightRequest().toEntity(createMember())));
 
         // when
+        bodyService.saveWeight(1L, createAddWeight());
+        Member member = memberRepository.findById(1L).get();
 
         // then
+        then(bodyRepository).should(times(1)).save(any(Body.class));
+        assertThat(member.getWeight()).isEqualTo(10.0);
     }
 
     @Test
@@ -132,10 +147,22 @@ public class BodyServiceTest {
     @DisplayName("신체 정보 저장할 때 오늘 날짜 기록이 있으면 수정한다")
     void updateBodyInfo() {
         // given
+        BodyInfoRequest bodyInfoRequest =
+                BodyInfoRequest.builder()
+                .bodyRecordDate(LocalDateTime.now())
+                .bmi(13.3)
+                .build();
+
+        given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
+        given(bodyRepository.findTodayBodyInfo(anyLong(), any()))
+                .willReturn(Optional.of(createAddWeightRequest().toEntity(createMember())));
 
         // when
+        bodyService.saveBodyInfo(1L, bodyInfoRequest);
+        Body body = bodyRepository.findTodayBodyInfo(1L, LocalDateTime.now()).get();
 
         // then
+        assertThat(body.getBmi()).isEqualTo(13.3);
     }
 
     private BodyInfoRequest createAddWeightRequest() {
