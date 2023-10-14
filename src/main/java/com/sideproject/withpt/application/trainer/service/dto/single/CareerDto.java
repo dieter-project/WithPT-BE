@@ -12,12 +12,14 @@ import lombok.Getter;
 public class CareerDto {
 
     private String centerName;
+    private String jobPosition;
     private YearMonth startOfWorkYearMonth;
     private YearMonth endOfWorkYearMonth;
 
     public Career toEntity() {
         return Career.builder()
             .centerName(this.centerName)
+            .jobPosition(this.jobPosition)
             .startOfWorkYearMonth(this.startOfWorkYearMonth)
             .endOfWorkYearMonth(this.endOfWorkYearMonth)
             .build();
