@@ -3,7 +3,8 @@ package com.sideproject.withpt.application.diet.dto.request;
 import com.sideproject.withpt.application.type.ExerciseType;
 import com.sideproject.withpt.application.type.MealCategory;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
-import com.sideproject.withpt.domain.record.Food;
+import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.record.Diets;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,7 +24,15 @@ public class DietRequest {
     @NotNull(message = "식사 시간을 입력해주세요.")
     private LocalDateTime mealTime;
 
-    private List<Food> foods;
+    private List<FoodItemRequest> foodItems;
     private List<MultipartFile> file;
+
+    public Diets toEntity(Member member) {
+        return Diets.builder()
+                .member(member)
+                .mealCategory(mealCategory)
+                .mealTime(mealTime)
+                .build();
+    }
 
 }

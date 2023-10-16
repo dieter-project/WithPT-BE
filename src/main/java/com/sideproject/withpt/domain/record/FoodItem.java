@@ -1,5 +1,6 @@
 package com.sideproject.withpt.domain.record;
 
+import com.sideproject.withpt.domain.BaseEntity;
 import lombok.*;
 
 import javax.persistence.*;
@@ -9,21 +10,22 @@ import javax.persistence.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Food {
+public class FoodItem extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "food_item_id")
     private Long id;
 
-    private String name;
-    private String foodGroup;   // 식품군
-    private int totalGram;  // 총내용량
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "diets_id")
+    private Diets diets;
 
-    private int calories;
-    private double carbohydrate;    // 탄수화물
-    private double protein;    // 단백질
-    private double province;    // 지방
-    private double sugars;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "food_id")
+    private Food food;
+
+    private String name;
+    private int gram;
 
 }
