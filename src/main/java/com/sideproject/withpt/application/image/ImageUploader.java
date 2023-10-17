@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -20,10 +21,24 @@ public class ImageUploader {
     public void uploadAndSaveImages(List<MultipartFile> files, Long entityId, Usages usage) {
         for (MultipartFile file : files) {
             Image image = Image.builder()
-                    .entity_id(entityId)
+                    .entityId(entityId)
                     .usage(usage)
                     .url(file.getOriginalFilename())
-                    .attach_type(file.getContentType())
+                    .attachType(file.getContentType())
+                    .build();
+
+            awsS3Uploader.upload(usage.toString(), "image", file);
+            imageRepository.save(image);
+        }
+    }
+
+    public void uploadAndSaveImages(List<MultipartFile> files, LocalDate uploadDate, Usages usage) {
+        for (MultipartFile file : files) {
+            Image image = Image.builder()
+                    .usage(usage)
+                    .url(file.getOriginalFilename())
+                    .uploadDate(uploadDate)
+                    .attachType(file.getContentType())
                     .build();
 
             awsS3Uploader.upload(usage.toString(), "image", file);

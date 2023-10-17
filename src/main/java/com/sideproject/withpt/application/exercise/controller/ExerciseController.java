@@ -1,7 +1,6 @@
 package com.sideproject.withpt.application.exercise.controller;
 
 import com.sideproject.withpt.application.exercise.dto.request.ExerciseRequest;
-import com.sideproject.withpt.application.exercise.dto.request.ExerciseRequestList;
 import com.sideproject.withpt.application.exercise.dto.response.ExerciseListResponse;
 import com.sideproject.withpt.application.exercise.service.ExerciseService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
@@ -10,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -24,8 +24,8 @@ public class ExerciseController {
 
     // 운동 기록 리스트 조회
     @GetMapping
-    public ApiSuccessResponse<List<ExerciseListResponse>> findAllExerciseList(@AuthenticationPrincipal Long memberId) {
-        List<ExerciseListResponse> exerciseList = exerciseService.findAllExerciseList(memberId);
+    public ApiSuccessResponse<List<ExerciseListResponse>> findAllExerciseList(@RequestParam String dateTime, @AuthenticationPrincipal Long memberId) {
+        List<ExerciseListResponse> exerciseList = exerciseService.findAllExerciseList(memberId, dateTime);
         return ApiSuccessResponse.from(exerciseList);
     }
 
@@ -38,8 +38,10 @@ public class ExerciseController {
 
     // 운동 기록 입력
     @PostMapping
-    public ApiSuccessResponse saveExercise(@Valid @RequestBody ExerciseRequestList request, @AuthenticationPrincipal Long memberId) {
-        exerciseService.saveExercise(memberId, request.getExerciseRequest());
+    public ApiSuccessResponse saveExercise(@RequestPart(value = "dto") List<ExerciseRequest> request,
+                                           @RequestPart(value = "files") List<MultipartFile> files,
+                                           @AuthenticationPrincipal Long memberId) {
+        exerciseService.saveExercise(memberId, request, files);
         return ApiSuccessResponse.NO_DATA_RESPONSE;
     }
 

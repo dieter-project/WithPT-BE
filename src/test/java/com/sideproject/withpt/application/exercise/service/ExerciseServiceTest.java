@@ -2,7 +2,6 @@ package com.sideproject.withpt.application.exercise.service;
 
 import com.sideproject.withpt.application.exercise.dto.request.BookmarkRequest;
 import com.sideproject.withpt.application.exercise.dto.request.ExerciseRequest;
-import com.sideproject.withpt.application.exercise.dto.request.ExerciseRequestList;
 import com.sideproject.withpt.application.exercise.dto.response.ExerciseListResponse;
 import com.sideproject.withpt.application.exercise.exception.ExerciseException;
 import com.sideproject.withpt.application.exercise.repository.BookmarkRepository;
@@ -23,8 +22,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.annotation.Import;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,21 +53,21 @@ class ExerciseServiceTest {
     @InjectMocks
     private ExerciseService exerciseService;
 
+    List<MultipartFile> multipartFiles = new ArrayList<>();
+
     @Test
     @DisplayName("오늘 날짜로 운동 리스트 조회하기")
     void findExerciseList() {
         // given
         given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
-        given(exerciseRepository.findByMemberIdAndExerciseDateBetween(anyLong(), any(), any()))
+        given(exerciseRepository.findByMemberIdAndExerciseDate(anyLong(), any()))
                 .willReturn(List.of(createAddExerciseRequest().toExerciseEntity(createMember())));
 
         // when
-        List<ExerciseListResponse> response = exerciseService.findAllExerciseList(1L);
+        List<ExerciseListResponse> response = exerciseService.findAllExerciseList(1L, "2023-09-21");
 
         // then
-        then(exerciseRepository).should(times(1))
-                .findByMemberIdAndExerciseDateBetween(anyLong(), any(), any());
-
+        then(exerciseRepository).should(times(1)).findByMemberIdAndExerciseDate(anyLong(), any());
         assertThat(response.size()).isEqualTo(1);
         assertThat(response.get(0).getTitle()).isEqualTo("운동명");
     }
@@ -94,7 +95,7 @@ class ExerciseServiceTest {
         given(exerciseRepository.save(any(Exercise.class))).willReturn(createAddExerciseRequest().toExerciseEntity(createMember()));
 
         // when
-        exerciseService.saveExercise(1L, createAddExerciseRequestList().getExerciseRequest());
+        exerciseService.saveExercise(1L, List.of(createAddExerciseRequest()), multipartFiles);
 
         // then
         then(exerciseRepository).should(times(1)).save(any(Exercise.class));
@@ -140,7 +141,7 @@ class ExerciseServiceTest {
                 .willReturn(createAddExerciseRequest().toExerciseEntity(createMember()));
 
         // when
-        exerciseService.saveExercise(1L, createAddExerciseRequestList().getExerciseRequest());
+        exerciseService.saveExercise(1L, List.of(createAddExerciseRequest()), multipartFiles);
 
         // then
         then(bookmarkRepository).should(times(1)).save(any(Bookmark.class));
@@ -159,7 +160,7 @@ class ExerciseServiceTest {
         // when
         // then
         assertThatThrownBy(
-                () -> exerciseService.saveExercise(1L, createAddExerciseRequestList().getExerciseRequest())
+                () -> exerciseService.saveExercise(1L, List.of(createAddExerciseRequest()), multipartFiles)
         )
                 .isExactlyInstanceOf(ExerciseException.class)
                 .hasMessage(ExerciseException.BOOKMARK_ALREADY_EXISTS.getMessage());
@@ -173,24 +174,9 @@ class ExerciseServiceTest {
                 .hour(3)
                 .bodyPart(BodyPart.LOWER_BODY)
                 .exerciseType(ExerciseType.ANAEROBIC)
-                .exerciseDate(LocalDateTime.now())
+                .exerciseDate(LocalDate.parse("2023-09-21"))
                 .bookmarkYn("Y")
                 .build();
-    }
-
-    private ExerciseRequestList createAddExerciseRequestList() {
-        ExerciseRequestList.ExerciseRequest request = ExerciseRequestList.ExerciseRequest.builder()
-                .title("운동명")
-                .weight(300)
-                .set(3)
-                .hour(3)
-                .bodyPart(BodyPart.LOWER_BODY)
-                .exerciseType(ExerciseType.ANAEROBIC)
-                .exerciseDate(LocalDateTime.now())
-                .bookmarkYn("Y")
-                .build();
-
-        return ExerciseRequestList.builder().exerciseRequest(List.of(request)).build();
     }
 
     private Member createMember() {
@@ -203,9 +189,9 @@ class ExerciseServiceTest {
     private Image createImage() {
         return Image.builder()
                 .id(1L)
-                .entity_id(1L)
+                .entityId(1L)
                 .url("test")
-                .attach_type("jpg")
+                .attachType("jpg")
                 .usage(Usages.EXERCISE)
                 .build();
     }

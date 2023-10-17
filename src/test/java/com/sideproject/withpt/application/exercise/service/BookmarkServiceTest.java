@@ -111,10 +111,10 @@ public class BookmarkServiceTest {
         given(bookmarkRepository.findById(anyLong())).willReturn(Optional.of(createAddBookmarkRequest().toEntity(createMember())));
 
         // when
-        bookmarkService.deleteBookmark(1L, List.of(1L));
+        bookmarkService.deleteBookmark(1L, "1");
 
         // then
-        then(bookmarkRepository).should(times(1)).deleteAllByIds(anyList());
+        then(bookmarkRepository).should(times(1)).deleteAllByIds(any());
     }
 
     @Test

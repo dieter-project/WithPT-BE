@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,12 +58,17 @@ public class BookmarkService {
     }
 
     @Transactional
-    public void deleteBookmark(Long memberId, List<Long> bookmarkIds) {
-        for (Long bookmarkId : bookmarkIds) {
+    public void deleteBookmark(Long memberId, String bookmarkIds) {
+        List<Long> longBookmarkIds =
+                Arrays.stream(bookmarkIds.split(","))
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+
+        for (Long bookmarkId : longBookmarkIds) {
             validateBookmarkId(bookmarkId, memberId);
         }
 
-        bookmarkRepository.deleteAllByIds(bookmarkIds);
+        bookmarkRepository.deleteAllByIds(longBookmarkIds);
     }
 
     private Member validateMemberId(Long memberId) {
