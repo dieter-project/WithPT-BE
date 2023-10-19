@@ -3,6 +3,7 @@ package com.sideproject.withpt.domain.trainer;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.domain.trainer.convertor.YearMonthToDateConverter;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -16,6 +17,7 @@ import javax.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
@@ -23,6 +25,7 @@ import lombok.ToString;
 @Entity
 @Builder
 @Setter(AccessLevel.PACKAGE)
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Career extends BaseEntity {
@@ -46,5 +49,12 @@ public class Career extends BaseEntity {
     @Column(name = "END_OF_WORK_YEAR_MONTH", columnDefinition = "date")
     @Convert(converter = YearMonthToDateConverter.class)
     private YearMonth endOfWorkYearMonth;
+
+    public void editCareer(String centerName, String jobPosition, YearMonth startOfWorkYearMonth, YearMonth endOfWorkYearMonth) {
+        this.centerName = centerName;
+        this.jobPosition = jobPosition;
+        this.startOfWorkYearMonth = startOfWorkYearMonth;
+        this.endOfWorkYearMonth = endOfWorkYearMonth;
+    }
 
 }
