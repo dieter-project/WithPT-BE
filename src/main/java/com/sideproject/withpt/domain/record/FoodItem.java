@@ -28,4 +28,8 @@ public class FoodItem extends BaseEntity {
     private String name;
     private int gram;
 
+    protected void setDiets(Diets diets) {
+        this.diets = diets;
+    }
+
 }

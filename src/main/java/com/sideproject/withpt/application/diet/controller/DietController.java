@@ -28,6 +28,7 @@ public class DietController {
     // 식단 입력하기
     @PostMapping
     public ApiSuccessResponse saveDiet(@Valid @RequestBody DietRequest request, @AuthenticationPrincipal Long memberId) {
+        dietService.saveDiet(memberId, request);
         return ApiSuccessResponse.NO_DATA_RESPONSE;
     }
 
@@ -40,6 +41,7 @@ public class DietController {
     // 식단 삭제하기
     @DeleteMapping("/{dietId}")
     public ApiSuccessResponse deleteDiet(@PathVariable Long dietId, @AuthenticationPrincipal Long memberId) {
+        dietService.deleteDiet(memberId, dietId);
         return ApiSuccessResponse.NO_DATA_RESPONSE;
     }
 

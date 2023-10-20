@@ -5,6 +5,7 @@ import com.sideproject.withpt.application.type.MealCategory;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.Diets;
+import com.sideproject.withpt.domain.record.FoodItem;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,11 +29,19 @@ public class DietRequest {
     private List<MultipartFile> file;
 
     public Diets toEntity(Member member) {
-        return Diets.builder()
+        Diets diet = Diets.builder()
                 .member(member)
                 .mealCategory(mealCategory)
                 .mealTime(mealTime)
                 .build();
+
+        // 식단 상세 추가하기
+        for (FoodItemRequest foodItemRequest : foodItems) {
+            FoodItem foodItem = foodItemRequest.toEntity(diet);
+            diet.addDietFood(foodItem);
+        }
+
+        return diet;
     }
 
 }
