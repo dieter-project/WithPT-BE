@@ -11,6 +11,7 @@ import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.jwt.AuthTokenGenerator;
 import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
 import com.sideproject.withpt.common.redis.RedisClient;
+import com.sideproject.withpt.domain.member.Member;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -52,5 +53,13 @@ public class MemberAuthenticationService {
         );
 
         return tokenSetDto;
+    }
+
+    @Transactional
+    public void deleteMember(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+
+        memberRepository.delete(member);
     }
 }

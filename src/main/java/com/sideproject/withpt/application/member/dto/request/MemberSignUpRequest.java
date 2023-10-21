@@ -38,9 +38,6 @@ public class MemberSignUpRequest {
     @ValidEnum(regexp = "MAN|WOMAN", enumClass = Sex.class)
     private Sex sex;
 
-    @NotBlank(message = "닉네임은 필수 입력입니다.")
-    private String nickname;
-
     private Double height;
 
     private Double weight;
@@ -59,7 +56,6 @@ public class MemberSignUpRequest {
         return Member.builder()
             .email(this.email)
             .name(this.name)
-            .nickname(this.nickname)
             .height(this.height)
             .weight(this.weight)
             .imageUrl(null)
