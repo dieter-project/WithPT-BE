@@ -6,7 +6,6 @@ import com.sideproject.withpt.domain.record.FoodItem;
 import lombok.*;
 
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
 
 @Getter
 @Builder
@@ -16,8 +15,6 @@ public class FoodItemRequest {
 
     private Food food;
 
-    @NotBlank(message = "식단 상세명을 입력해주세요.")
-    private String name;
     @Min(value = 0, message = "식사량을 0 이상 입력해주세요.")
     private int gram;
 

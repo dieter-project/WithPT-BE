@@ -33,8 +33,9 @@ public class DietController {
     }
 
     // 식단 수정하기
-    @PatchMapping("/{dietId}")
-    public ApiSuccessResponse modifyDiet(@Valid @RequestBody DietRequest request, @PathVariable Long dietId, @AuthenticationPrincipal Long memberId) {
+    @PatchMapping("/{dietsId}")
+    public ApiSuccessResponse modifyDiet(@Valid @RequestBody DietRequest request, @PathVariable Long dietsId, @AuthenticationPrincipal Long memberId) {
+        dietService.modifyDiet(memberId, dietsId, request);
         return ApiSuccessResponse.NO_DATA_RESPONSE;
     }
 

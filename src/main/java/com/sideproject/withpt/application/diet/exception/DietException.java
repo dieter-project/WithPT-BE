@@ -7,6 +7,7 @@ import lombok.Getter;
 public class DietException extends GlobalException {
 
     public static final DietException DIET_NOT_EXIST = new DietException(DietErrorCode.DIET_NOT_EXIST);
+    public static final DietException DIET_FOOD_NOT_EXIST = new DietException(DietErrorCode.DIET_FOOD_NOT_EXIST);
     public static final DietException DIET_NOT_BELONG_TO_MEMBER = new DietException(DietErrorCode.DIET_NOT_BELONG_TO_MEMBER);
 
     private final DietErrorCode errorCode;

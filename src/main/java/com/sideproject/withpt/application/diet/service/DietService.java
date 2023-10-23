@@ -15,8 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -29,17 +27,29 @@ public class DietService {
     @Transactional
     public void saveDiet(Long memberId, DietRequest request) {
         Member member = validateMemberId(memberId);
+
+        if (request.getFoodItems() == null || request.getFoodItems().isEmpty()) {
+            throw DietException.DIET_FOOD_NOT_EXIST;
+        }
+
         Diets diets = request.toEntity(member);
         dietRepository.save(diets);
     }
 
     @Transactional
-    public void modifyDiet(Long memberId, Long dietId, DietRequest request) {
-        Diets diets = validateDietId(dietId, memberId);
-        List<FoodItem> foodItems = foodItemRepository.findByDietsId(diets.getId());
+    public void modifyDiet(Long memberId, Long dietsId, DietRequest request) {
+        Diets diets = validateDietId(dietsId, memberId);
 
-        for (FoodItemRequest foodItem : request.getFoodItems()) {
+        foodItemRepository.deleteByDiets(dietsId);
 
+        // 식단 음식 데이터 재저장
+        if (request.getFoodItems() != null) {
+            for (FoodItemRequest foodItemRequest : request.getFoodItems()) {
+                FoodItem foodItem = foodItemRequest.toEntity(diets);
+
+                foodItemRepository.save(foodItem);
+                diets.addDietFood(foodItem);
+            }
         }
 
         diets.updateDiets(request);

@@ -25,7 +25,6 @@ public class FoodItem extends BaseEntity {
     @JoinColumn(name = "food_id")
     private Food food;
 
-    private String name;
     private int gram;
 
     protected void setDiets(Diets diets) {
