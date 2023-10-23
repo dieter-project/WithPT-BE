@@ -16,12 +16,14 @@ import javax.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Builder
 @Setter(AccessLevel.PACKAGE)
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Academic extends BaseEntity {
@@ -43,5 +45,12 @@ public class Academic extends BaseEntity {
 
     @Convert(converter = YearToShortConverter.class)
     private Year graduationYear;
+
+    public void editAcademic(String name, String major, Year enrollmentYear, Year graduationYear) {
+        this.name = name;
+        this.major = major;
+        this.enrollmentYear = enrollmentYear;
+        this.graduationYear = graduationYear;
+    }
 
 }
