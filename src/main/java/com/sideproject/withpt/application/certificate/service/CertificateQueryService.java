@@ -1,11 +1,11 @@
 package com.sideproject.withpt.application.certificate.service;
 
-import static com.sideproject.withpt.application.certificate.exception.CertificateErrorCode.*;
+import static com.sideproject.withpt.application.certificate.exception.CertificateErrorCode.CERTIFICATE_NOT_FOUND;
+import static com.sideproject.withpt.application.certificate.exception.CertificateErrorCode.DUPLICATE_CERTIFICATE;
 
 import com.sideproject.withpt.application.certificate.controller.reponse.CertificateResponse;
 import com.sideproject.withpt.application.certificate.controller.request.CertificateEditRequest;
 import com.sideproject.withpt.application.certificate.controller.request.CertificateSaveRequest;
-import com.sideproject.withpt.application.certificate.exception.CertificateErrorCode;
 import com.sideproject.withpt.application.certificate.exception.CertificateException;
 import com.sideproject.withpt.application.certificate.repository.CertificateQueryRepository;
 import com.sideproject.withpt.application.certificate.repository.CertificateRepository;
