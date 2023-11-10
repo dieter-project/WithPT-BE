@@ -1,6 +1,8 @@
 package com.sideproject.withpt.application.trainer.controller.request;
 
 import com.sideproject.withpt.application.trainer.service.dto.single.CareerDto;
+import com.sideproject.withpt.application.type.EmploymentStatus;
+import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.common.exception.validator.YearMonthType;
 import java.time.YearMonth;
 import java.util.List;
@@ -26,6 +28,9 @@ public class CareerRequest {
     @NotBlank(message = "직책을 입력해주세요")
     private String jobPosition;
 
+    @ValidEnum(regexp = "EMPLOYED|UNEMPLOYED", enumClass = EmploymentStatus.class)
+    private EmploymentStatus status;
+
     @YearMonthType
     private String startOfWorkYearMonth;
 
@@ -36,6 +41,7 @@ public class CareerRequest {
         return CareerDto.builder()
             .centerName(this.centerName)
             .jobPosition(this.jobPosition)
+            .status(this.status)
             .startOfWorkYearMonth(YearMonth.parse(this.startOfWorkYearMonth))
             .endOfWorkYearMonth(YearMonth.parse(this.endOfWorkYearMonth))
             .build();

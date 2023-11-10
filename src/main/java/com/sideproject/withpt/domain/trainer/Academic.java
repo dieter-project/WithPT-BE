@@ -1,5 +1,7 @@
 package com.sideproject.withpt.domain.trainer;
 
+import com.sideproject.withpt.application.type.AcademicInstitution;
+import com.sideproject.withpt.application.type.Degree;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.domain.trainer.convertor.YearToShortConverter;
 import java.time.LocalDate;
@@ -7,6 +9,8 @@ import java.time.Year;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -38,7 +42,15 @@ public class Academic extends BaseEntity {
 
     private String name;
 
+    @Enumerated(EnumType.STRING)
+    private AcademicInstitution institution;
+
     private String major;
+
+    @Enumerated(EnumType.STRING)
+    private Degree degree;
+
+    private String country;
 
     @Convert(converter = YearToShortConverter.class)
     private Year enrollmentYear;
