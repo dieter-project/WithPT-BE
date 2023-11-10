@@ -14,6 +14,7 @@ import com.sideproject.withpt.application.career.repository.CareerQueryRepositor
 import com.sideproject.withpt.application.career.repository.CareerRepository;
 import com.sideproject.withpt.application.trainer.service.TrainerService;
 import com.sideproject.withpt.application.trainer.service.dto.single.CareerDto;
+import com.sideproject.withpt.application.type.EmploymentStatus;
 import com.sideproject.withpt.domain.trainer.Career;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.YearMonth;
@@ -55,6 +56,7 @@ class CareerQueryServiceTest {
                     .id((long) i)
                     .centerName("test" + i)
                     .jobPosition("직책" + i)
+                    .status(EmploymentStatus.EMPLOYED)
                     .startOfWorkYearMonth(YearMonth.of(2022, i))
                     .endOfWorkYearMonth(YearMonth.of(2023, i))
                 .build());
@@ -98,6 +100,7 @@ class CareerQueryServiceTest {
         //then
         assertThat(careerResponse.getCenterName()).isEqualTo(career.getCenterName());
         assertThat(careerResponse.getJobPosition()).isEqualTo(career.getJobPosition());
+        assertThat(careerResponse.getStatus()).isEqualTo(career.getStatus());
         assertThat(careerResponse.getStartOfWorkYearMonth()).isEqualTo(career.getStartOfWorkYearMonth());
         assertThat(careerResponse.getEndOfWorkYearMonth()).isEqualTo(career.getEndOfWorkYearMonth());
     }
@@ -125,10 +128,11 @@ class CareerQueryServiceTest {
         given(careerRepository.save(any(Career.class))).willReturn(career);
 
         // when
-        CareerResponse careerResponse = careerQueryService.saveCareer(trainerId, careerDto);
+        CareerResponse careerResponse = careerQueryService.saveCareer(trainerId, career);
 
         assertThat(careerResponse.getCenterName()).isEqualTo(career.getCenterName());
         assertThat(careerResponse.getJobPosition()).isEqualTo(career.getJobPosition());
+        assertThat(careerResponse.getStatus()).isEqualTo(career.getStatus());
         assertThat(careerResponse.getStartOfWorkYearMonth()).isEqualTo(career.getStartOfWorkYearMonth());
         assertThat(careerResponse.getEndOfWorkYearMonth()).isEqualTo(career.getEndOfWorkYearMonth());
     }
@@ -137,6 +141,7 @@ class CareerQueryServiceTest {
     void saveDuplicateCareer() {
         // given
         Long trainerId = 100L;
+        Long careerId = 10L;
         CareerDto careerDto = CareerDto.builder()
             .centerName("test")
             .jobPosition("직책")
@@ -144,6 +149,7 @@ class CareerQueryServiceTest {
             .endOfWorkYearMonth(YearMonth.of(2023, 11))
             .build();
 
+        Career career = getCareerEntity(careerId);
         Trainer trainer = getTrainer(trainerId);
 
         given(trainerService.getTrainerById(trainerId))
@@ -153,7 +159,7 @@ class CareerQueryServiceTest {
 
         // when
         assertThatThrownBy(
-            () -> careerQueryService.saveCareer(trainerId, careerDto))
+            () -> careerQueryService.saveCareer(trainerId, career))
             .isExactlyInstanceOf(CareerException.class)
             .hasMessage(CareerErrorCode.DUPLICATE_CAREER.getMessage());
     }
@@ -181,6 +187,26 @@ class CareerQueryServiceTest {
 
     }
 
+    @Test
+    public void delete() {
+        //given
+        Long trainerId = 1L;
+        Long careerId = 11L;
+
+        Trainer trainer = getTrainer(trainerId);
+        Career career = getCareerEntity(careerId);
+
+        given(trainerService.getTrainerById(trainerId)).willReturn(trainer);
+        given(careerRepository.findByIdAndTrainer(careerId, trainer)).willReturn(Optional.of(career));
+
+        //when
+        careerQueryService.deleteCareer(trainerId, careerId);
+
+        //then
+        Optional<Career> optionalCareer = careerRepository.findById(careerId);
+        assertThat(optionalCareer.isEmpty()).isTrue();
+    }
+
     private static Trainer getTrainer(Long trainerId) {
         return Trainer.builder()
             .id(trainerId)
@@ -194,6 +220,7 @@ class CareerQueryServiceTest {
             .id(careerId)
             .centerName("test")
             .jobPosition("직책")
+            .status(EmploymentStatus.UNEMPLOYED)
             .startOfWorkYearMonth(YearMonth.of(2022, 10))
             .endOfWorkYearMonth(YearMonth.of(2023, 11))
             .build();
