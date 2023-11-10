@@ -23,12 +23,16 @@ public class CertificateRequest {
     @NotBlank(message = "자격증명을 입력해주세요")
     private String name;
 
+    @NotBlank(message = "기관명을 입력해주세요")
+    private String institution;
+
     @YearMonthType
     private String acquisitionYearMonth;
 
     public CertificateDto toCertificateDto() {
         return CertificateDto.builder()
             .name(this.name)
+            .institution(this.institution)
             .acquisitionYearMonth(YearMonth.parse(this.acquisitionYearMonth))
             .build();
     }

@@ -36,6 +36,8 @@ public class Education extends BaseEntity {
 
     private String name;
 
+    private String institution;
+
     @Column(name = "ACQUISITION_YEAR_MONTH", columnDefinition = "date")
     @Convert(converter = YearMonthToDateConverter.class)
     private YearMonth acquisitionYearMonth;
