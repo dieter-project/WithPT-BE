@@ -4,6 +4,7 @@ import static com.sideproject.withpt.application.career.exception.CareerErrorCod
 import static com.sideproject.withpt.application.career.exception.CareerErrorCode.DUPLICATE_CAREER;
 
 import com.sideproject.withpt.application.career.controller.request.CareerEditRequest;
+import com.sideproject.withpt.application.career.controller.request.CareerSaveRequest;
 import com.sideproject.withpt.application.career.controller.response.CareerResponse;
 import com.sideproject.withpt.application.career.exception.CareerException;
 import com.sideproject.withpt.application.career.repository.CareerQueryRepository;
@@ -44,10 +45,9 @@ public class CareerQueryService {
     }
 
     @Transactional
-    public CareerResponse saveCareer(Long trainerId, CareerDto careerDto) {
+    public CareerResponse saveCareer(Long trainerId, Career career) {
         Trainer trainer = trainerService.getTrainerById(trainerId);
 
-        Career career = careerDto.toEntity();
         validateDuplicationAllColumn(career, trainerId);
 
         trainer.addCareer(career);
@@ -67,8 +67,9 @@ public class CareerQueryService {
         career.editCareer(
             request.getCenterName(),
             request.getJobPosition(),
-            YearMonth.parse(request.getStartOfWorkYearMonth()),
-            YearMonth.parse(request.getEndOfWorkYearMonth())
+            request.getStatus(),
+            request.getStartOfWorkYearMonth(),
+            request.getEndOfWorkYearMonth()
         );
 
         return CareerResponse.of(career);

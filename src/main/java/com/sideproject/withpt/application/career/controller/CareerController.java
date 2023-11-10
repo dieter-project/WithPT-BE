@@ -1,6 +1,7 @@
 package com.sideproject.withpt.application.career.controller;
 
 import com.sideproject.withpt.application.career.controller.request.CareerEditRequest;
+import com.sideproject.withpt.application.career.controller.request.CareerSaveRequest;
 import com.sideproject.withpt.application.career.controller.response.CareerResponse;
 import com.sideproject.withpt.application.career.service.CareerQueryService;
 import com.sideproject.withpt.application.trainer.controller.request.CareerRequest;
@@ -48,9 +49,9 @@ public class CareerController {
 
     @Operation(summary = "트레이너 경력 추가")
     @PostMapping
-    public ApiSuccessResponse<CareerResponse> saveCareer(@AuthenticationPrincipal Long trainerId, @RequestBody CareerRequest request) {
+    public ApiSuccessResponse<CareerResponse> saveCareer(@AuthenticationPrincipal Long trainerId, @RequestBody CareerSaveRequest request) {
         return ApiSuccessResponse.from(
-            careerQueryService.saveCareer(trainerId, request.toCareerDto())
+            careerQueryService.saveCareer(trainerId, request.toEntity())
         );
     }
 
