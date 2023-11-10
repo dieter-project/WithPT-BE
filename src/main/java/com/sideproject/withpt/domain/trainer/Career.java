@@ -56,9 +56,10 @@ public class Career extends BaseEntity {
     @Convert(converter = YearMonthToDateConverter.class)
     private YearMonth endOfWorkYearMonth;
 
-    public void editCareer(String centerName, String jobPosition, YearMonth startOfWorkYearMonth, YearMonth endOfWorkYearMonth) {
+    public void editCareer(String centerName, String jobPosition, EmploymentStatus status, YearMonth startOfWorkYearMonth, YearMonth endOfWorkYearMonth) {
         this.centerName = centerName;
         this.jobPosition = jobPosition;
+        this.status = status;
         this.startOfWorkYearMonth = startOfWorkYearMonth;
         this.endOfWorkYearMonth = endOfWorkYearMonth;
     }

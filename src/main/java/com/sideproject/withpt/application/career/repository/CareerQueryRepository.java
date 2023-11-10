@@ -3,12 +3,14 @@ package com.sideproject.withpt.application.career.repository;
 import static com.sideproject.withpt.domain.trainer.QCareer.career;
 
 import com.querydsl.core.types.ConstantImpl;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.career.controller.response.CareerResponse;
 import com.sideproject.withpt.application.career.controller.response.QCareerResponse;
+import com.sideproject.withpt.application.type.EmploymentStatus;
 import com.sideproject.withpt.domain.trainer.Career;
 import com.sideproject.withpt.domain.trainer.convertor.YearMonthToDateConverter;
 import java.sql.Date;
@@ -39,6 +41,7 @@ public class CareerQueryRepository {
                     career.id,
                     career.centerName,
                     career.jobPosition,
+                    career.status,
                     career.startOfWorkYearMonth,
                     career.endOfWorkYearMonth
                 )
@@ -69,6 +72,7 @@ public class CareerQueryRepository {
                 career.trainer.id.eq(trainerId),
                 centerNameEq(careerEntity.getCenterName()),
                 jobPositionEq(careerEntity.getJobPosition()),
+                statusEq(careerEntity.getStatus()),
                 startOfWorkYearMonthEq(careerEntity.getStartOfWorkYearMonth()),
                 endOfWorkYearMonthEq(careerEntity.getEndOfWorkYearMonth())
             ).fetchFirst();
@@ -76,12 +80,17 @@ public class CareerQueryRepository {
         return fetchOne != null;
     }
 
+
     private BooleanExpression centerNameEq(String centerName) {
         return StringUtils.hasText(centerName) ? career.centerName.eq(centerName) : null;
     }
 
     private BooleanExpression jobPositionEq(String jobPosition) {
         return StringUtils.hasText(jobPosition) ? career.jobPosition.eq(jobPosition) : null;
+    }
+
+    private BooleanExpression statusEq(EmploymentStatus status) {
+        return ObjectUtils.isEmpty(status) ? null : career.status.eq(status);
     }
 
     private BooleanExpression startOfWorkYearMonthEq(YearMonth startOfWorkYearMonth) {
