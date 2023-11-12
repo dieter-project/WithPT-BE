@@ -112,7 +112,7 @@ class AcademicQueryServiceTest {
         given(academicRepository.save(any(Academic.class))).willReturn(academic);
 
         //when
-        AcademicResponse response = academicQueryService.saveAcademic(trainerId, request);
+        AcademicResponse response = academicQueryService.saveAcademic(trainerId, academic);
 
         //then
         assertThat(response.getName()).isEqualTo(request.getName());
@@ -142,7 +142,7 @@ class AcademicQueryServiceTest {
             .willReturn(true);
 
         assertThatThrownBy(
-            () -> academicQueryService.saveAcademic(trainerId, request))
+            () -> academicQueryService.saveAcademic(trainerId, academic))
             .isInstanceOf(AcademicException.class);
     }
 
