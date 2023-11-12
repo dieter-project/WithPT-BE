@@ -16,12 +16,14 @@ public class CertificateResponse {
 
     private Long id;
     private String name;
+    private String institution;
     private YearMonth acquisitionYearMonth;
 
     @QueryProjection
-    public CertificateResponse(Long id, String name, YearMonth acquisitionYearMonth) {
+    public CertificateResponse(Long id, String name, String institution, YearMonth acquisitionYearMonth) {
         this.id = id;
         this.name = name;
+        this.institution = institution;
         this.acquisitionYearMonth = acquisitionYearMonth;
     }
 
@@ -29,6 +31,7 @@ public class CertificateResponse {
         return CertificateResponse.builder()
             .id(certificate.getId())
             .name(certificate.getName())
+            .institution(certificate.getInstitution())
             .acquisitionYearMonth(certificate.getAcquisitionYearMonth())
             .build();
     }

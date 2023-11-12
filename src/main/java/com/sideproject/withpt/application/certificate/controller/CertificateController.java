@@ -50,9 +50,9 @@ public class CertificateController {
 
     @Operation(summary = "트레이너 자격증 추가")
     @PostMapping
-    public ApiSuccessResponse<CertificateResponse> saveCertificate(@AuthenticationPrincipal Long trainerId, @RequestBody CertificateSaveRequest request) {
+    public ApiSuccessResponse<CertificateResponse> saveCertificate(@AuthenticationPrincipal Long trainerId, @Valid @RequestBody CertificateSaveRequest request) {
         return ApiSuccessResponse.from(
-            certificateQueryService.saveCertificate(trainerId, request)
+            certificateQueryService.saveCertificate(trainerId, request.toEntity())
         );
     }
 

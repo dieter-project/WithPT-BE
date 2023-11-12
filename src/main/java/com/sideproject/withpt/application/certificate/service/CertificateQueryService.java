@@ -43,10 +43,9 @@ public class CertificateQueryService {
     }
 
     @Transactional
-    public CertificateResponse saveCertificate(Long trainerId, CertificateSaveRequest request) {
+    public CertificateResponse saveCertificate(Long trainerId, Certificate certificate) {
         Trainer trainer = trainerService.getTrainerById(trainerId);
 
-        Certificate certificate = request.toEntity();
         validateDuplicationAllColumn(certificate, trainerId);
 
         trainer.addCertificate(certificate);
@@ -65,6 +64,7 @@ public class CertificateQueryService {
 
         certificate.editCertificate(
             request.getName(),
+            request.getInstitution(),
             request.getAcquisitionYearMonth()
         );
 
