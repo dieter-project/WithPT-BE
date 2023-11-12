@@ -58,9 +58,12 @@ public class Academic extends BaseEntity {
     @Convert(converter = YearToShortConverter.class)
     private Year graduationYear;
 
-    public void editAcademic(String name, String major, Year enrollmentYear, Year graduationYear) {
+    public void editAcademic(String name, String major, AcademicInstitution institution, Degree degree, String country, Year enrollmentYear, Year graduationYear) {
         this.name = name;
         this.major = major;
+        this.institution = institution;
+        this.degree = degree;
+        this.country = country;
         this.enrollmentYear = enrollmentYear;
         this.graduationYear = graduationYear;
     }

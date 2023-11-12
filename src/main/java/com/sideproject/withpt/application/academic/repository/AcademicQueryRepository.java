@@ -7,6 +7,8 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.academic.controller.response.AcademicResponse;
 import com.sideproject.withpt.application.academic.controller.response.QAcademicResponse;
+import com.sideproject.withpt.application.type.AcademicInstitution;
+import com.sideproject.withpt.application.type.Degree;
 import com.sideproject.withpt.domain.trainer.Academic;
 import java.time.Year;
 import java.time.YearMonth;
@@ -37,6 +39,9 @@ public class AcademicQueryRepository {
                     academic.id,
                     academic.name,
                     academic.major,
+                    academic.institution,
+                    academic.degree,
+                    academic.country,
                     academic.enrollmentYear,
                     academic.graduationYear
                 )
@@ -69,6 +74,9 @@ public class AcademicQueryRepository {
                 academic.trainer.id.eq(trainerId),
                 nameEq(academicEntity.getName()),
                 majorEq(academicEntity.getMajor()),
+                institutionEq(academicEntity.getInstitution()),
+                degreeEq(academicEntity.getDegree()),
+                countryEq(academicEntity.getCountry()),
                 enrollmentYearEq(academicEntity.getEnrollmentYear()),
                 graduationYearEq(academicEntity.getGraduationYear())
             ).fetchFirst();
@@ -82,6 +90,18 @@ public class AcademicQueryRepository {
 
     private BooleanExpression majorEq(String major) {
         return StringUtils.hasText(major) ? academic.major.eq(major) : null;
+    }
+
+    private BooleanExpression institutionEq(AcademicInstitution institution) {
+        return ObjectUtils.isEmpty(institution) ? null : academic.institution.eq(institution);
+    }
+
+    private BooleanExpression degreeEq(Degree degree) {
+        return ObjectUtils.isEmpty(degree) ? null : academic.degree.eq(degree);
+    }
+
+    private BooleanExpression countryEq(String country) {
+        return StringUtils.hasText(country) ? academic.country.eq(country) : null;
     }
 
     private BooleanExpression enrollmentYearEq(Year enrollmentYear) {

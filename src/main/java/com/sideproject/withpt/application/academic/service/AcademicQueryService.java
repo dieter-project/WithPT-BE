@@ -45,10 +45,9 @@ public class AcademicQueryService {
     }
 
     @Transactional
-    public AcademicResponse saveAcademic(Long trainerId, AcademicSaveRequest request) {
+    public AcademicResponse saveAcademic(Long trainerId, Academic academic) {
         Trainer trainer = trainerService.getTrainerById(trainerId);
 
-        Academic academic = request.toEntity();
         validateDuplicationAllColumn(academic, trainerId);
 
         trainer.addAcademic(academic);
@@ -68,6 +67,9 @@ public class AcademicQueryService {
         academic.editAcademic(
             request.getName(),
             request.getMajor(),
+            request.getInstitution(),
+            request.getDegree(),
+            request.getCountry(),
             request.getEnrollmentYear(),
             request.getGraduationYear()
         );
