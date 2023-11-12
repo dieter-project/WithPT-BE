@@ -23,6 +23,9 @@ public class CertificateEditRequest {
     @NotBlank(message = "자격증명을 입력해주세요")
     private String name;
 
+    @NotBlank(message = "기관명을 입력해주세요")
+    private String institution;
+
     @YearMonthType
     private String acquisitionYearMonth;
 

@@ -21,6 +21,9 @@ public class CertificateSaveRequest {
     @NotBlank(message = "자격증명을 입력해주세요")
     private String name;
 
+    @NotBlank(message = "기관명을 입력해주세요")
+    private String institution;
+
     @YearMonthType
     private String acquisitionYearMonth;
 
@@ -31,6 +34,7 @@ public class CertificateSaveRequest {
     public Certificate toEntity() {
         return Certificate.builder()
             .name(this.name)
+            .institution(this.institution)
             .acquisitionYearMonth(this.getAcquisitionYearMonth())
             .build();
     }

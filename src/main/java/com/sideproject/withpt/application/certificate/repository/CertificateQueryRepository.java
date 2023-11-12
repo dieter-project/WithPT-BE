@@ -33,6 +33,7 @@ public class CertificateQueryRepository {
                 new QCertificateResponse(
                     certificate.id,
                     certificate.name,
+                    certificate.institution,
                     certificate.acquisitionYearMonth
                 )
             )
@@ -63,6 +64,7 @@ public class CertificateQueryRepository {
             .where(
                 certificate.trainer.id.eq(trainerId),
                 nameEq(certificateEntity.getName()),
+                institutionEq(certificateEntity.getInstitution()),
                 acquisitionYearMonthEq(certificateEntity.getAcquisitionYearMonth())
             ).fetchFirst();
 
@@ -71,6 +73,10 @@ public class CertificateQueryRepository {
 
     private BooleanExpression nameEq(String name) {
         return StringUtils.hasText(name) ? certificate.name.eq(name) : null;
+    }
+
+    private BooleanExpression institutionEq(String institution) {
+        return StringUtils.hasText(institution) ? certificate.institution.eq(institution) : null;
     }
 
     private BooleanExpression acquisitionYearMonthEq(YearMonth acquisitionYearMonth) {

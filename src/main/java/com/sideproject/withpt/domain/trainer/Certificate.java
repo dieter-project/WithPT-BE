@@ -44,8 +44,9 @@ public class Certificate extends BaseEntity {
     @Convert(converter = YearMonthToDateConverter.class)
     private YearMonth acquisitionYearMonth;
 
-    public void editCertificate(String name, YearMonth acquisitionYearMonth) {
+    public void editCertificate(String name, String institution, YearMonth acquisitionYearMonth) {
         this.name = name;
+        this.institution = institution;
         this.acquisitionYearMonth = acquisitionYearMonth;
     }
 }
