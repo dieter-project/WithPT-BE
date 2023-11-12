@@ -48,9 +48,9 @@ public class AcademicController {
 
     @Operation(summary = "트레이너 학력 추가")
     @PostMapping
-    public ApiSuccessResponse<AcademicResponse> saveAcademic(@AuthenticationPrincipal Long trainerId, @RequestBody AcademicSaveRequest request) {
+    public ApiSuccessResponse<AcademicResponse> saveAcademic(@AuthenticationPrincipal Long trainerId, @Valid @RequestBody AcademicSaveRequest request) {
         return ApiSuccessResponse.from(
-            academicQueryService.saveAcademic(trainerId, request)
+            academicQueryService.saveAcademic(trainerId, request.toEntity())
         );
     }
 
