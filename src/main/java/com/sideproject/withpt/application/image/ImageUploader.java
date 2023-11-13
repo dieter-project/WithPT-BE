@@ -1,8 +1,11 @@
 package com.sideproject.withpt.application.image;
 
+import com.sideproject.withpt.application.exercise.exception.ExerciseException;
 import com.sideproject.withpt.application.image.repository.ImageRepository;
 import com.sideproject.withpt.application.type.Usages;
+import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.utils.AwsS3Uploader;
+import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.Image;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -18,32 +21,43 @@ public class ImageUploader {
     private final AwsS3Uploader awsS3Uploader;
     private final ImageRepository imageRepository;
 
-    public void uploadAndSaveImages(List<MultipartFile> files, Long entityId, Usages usage) {
+    public void uploadAndSaveImages(List<MultipartFile> files, Long entityId, Usages usage, Member member) {
         for (MultipartFile file : files) {
+            String imageUrl = awsS3Uploader.upload(usage.toString(), "image", file);
+
             Image image = Image.builder()
+                    .member(member)
                     .entityId(entityId)
                     .usage(usage)
-                    .url(file.getOriginalFilename())
+                    .url(imageUrl)
                     .attachType(file.getContentType())
                     .build();
 
-            awsS3Uploader.upload(usage.toString(), "image", file);
             imageRepository.save(image);
         }
     }
 
-    public void uploadAndSaveImages(List<MultipartFile> files, LocalDate uploadDate, Usages usage) {
+    public void uploadAndSaveImages(List<MultipartFile> files, LocalDate uploadDate, Usages usage, Member member) {
         for (MultipartFile file : files) {
+            String imageUrl = awsS3Uploader.upload(usage.toString(), "image", file);
+
             Image image = Image.builder()
+                    .member(member)
                     .usage(usage)
-                    .url(file.getOriginalFilename())
+                    .url(imageUrl)
                     .uploadDate(uploadDate)
                     .attachType(file.getContentType())
                     .build();
 
-            awsS3Uploader.upload(usage.toString(), "image", file);
             imageRepository.save(image);
         }
+    }
+
+    public void deleteImage(Long imageId) {
+        Image image = imageRepository.findById(imageId).orElseThrow(() -> GlobalException.EMPTY_DELETE_FILE);
+
+        awsS3Uploader.delete(image.getUsage().toString(), image.getUrl());
+        imageRepository.deleteById(imageId);
     }
 
 }

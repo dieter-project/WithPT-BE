@@ -1,23 +1,29 @@
 package com.sideproject.withpt.application.exercise.service;
 
 import com.sideproject.withpt.application.exercise.dto.request.ExerciseRequest;
+import com.sideproject.withpt.application.exercise.dto.response.BookmarkCheckResponse;
 import com.sideproject.withpt.application.exercise.dto.response.ExerciseListResponse;
+import com.sideproject.withpt.application.exercise.dto.response.ExerciseResponse;
 import com.sideproject.withpt.application.exercise.exception.ExerciseException;
 import com.sideproject.withpt.application.exercise.repository.BookmarkRepository;
 import com.sideproject.withpt.application.exercise.repository.ExerciseRepository;
 import com.sideproject.withpt.application.image.ImageUploader;
+import com.sideproject.withpt.application.image.repository.ImageRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.type.Usages;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.Exercise;
+import com.sideproject.withpt.domain.record.Image;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,20 +34,42 @@ public class ExerciseService {
     private final ExerciseRepository exerciseRepository;
     private final MemberRepository memberRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final ImageRepository imageRepository;
+
     private final ImageUploader imageUploader;
 
-    public List<ExerciseListResponse> findAllExerciseList(Long memberId, String dateTime) {
+    public ExerciseListResponse findAllExerciseList(Long memberId, String dateTime) {
         validateMemberId(memberId);
 
-        return exerciseRepository
+        List<String> imageUrls = new ArrayList<>();
+
+        Optional.ofNullable(imageRepository.findByMemberIdAndUploadDate(memberId, LocalDate.parse(dateTime)))
+                .ifPresent(images -> {
+                    imageUrls.addAll(images.stream()
+                            .map(Image::getUrl)
+                            .collect(Collectors.toList()));
+                });
+
+        List<ExerciseResponse> exercise = exerciseRepository
                 .findByMemberIdAndExerciseDate(memberId, LocalDate.parse(dateTime)).stream()
-                .map(ExerciseListResponse::from)
+                .map(ExerciseResponse::from)
                 .collect(Collectors.toList());
+
+        return ExerciseListResponse.from(exercise, imageUrls);
     }
 
-    public ExerciseListResponse findOneExercise(Long memberId, Long exerciseId) {
+    public ExerciseResponse findOneExercise(Long memberId, Long exerciseId) {
         Exercise exercise = validateExerciseId(exerciseId, memberId);
-        return ExerciseListResponse.from(exercise);
+        return ExerciseResponse.from(exercise);
+    }
+
+    public BookmarkCheckResponse checkBookmark(String title, Long memberId) {
+        bookmarkRepository.findByMemberIdAndTitle(memberId, title)
+                .ifPresent(exercise -> {
+                    throw ExerciseException.BOOKMARK_ALREADY_EXISTS;
+                });
+
+        return BookmarkCheckResponse.from(true);
     }
 
     @Transactional
@@ -51,22 +79,13 @@ public class ExerciseService {
 
         for (ExerciseRequest request : requestList) {
             if ("Y".equals(request.getBookmarkYn())) {
-                bookmarkRepository.findByMemberIdAndTitle(memberId, request.getTitle())
-                         // 동일한 북마크명이 존재하면 에러
-                        .ifPresentOrElse(
-                                existingBookmark -> {
-                                    throw ExerciseException.BOOKMARK_ALREADY_EXISTS;
-                                },
-                                () -> {
-                                    bookmarkRepository.save(request.toBookmarkEntity(member));
-                                }
-                        );
+                bookmarkRepository.save(request.toBookmarkEntity(member));
             }
             exerciseRepository.save(request.toExerciseEntity(member));
         }
 
-        if(file.size() > 0) {
-            imageUploader.uploadAndSaveImages(file, todayDate, Usages.EXERCISE);
+        if(file != null && file.size() > 0) {
+            imageUploader.uploadAndSaveImages(file, todayDate, Usages.EXERCISE, member);
         }
     }
 
@@ -80,6 +99,11 @@ public class ExerciseService {
     public void deleteExercise(Long memberId, Long exerciseId) {
         validateExerciseId(exerciseId, memberId);
         exerciseRepository.deleteById(exerciseId);
+    }
+
+    @Transactional
+    public void deleteExerciseImage(Long imageId) {
+        imageUploader.deleteImage(imageId);
     }
 
     private Member validateMemberId(Long memberId) {

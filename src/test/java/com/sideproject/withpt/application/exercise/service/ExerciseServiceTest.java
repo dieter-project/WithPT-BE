@@ -1,11 +1,11 @@
 package com.sideproject.withpt.application.exercise.service;
 
-import com.sideproject.withpt.application.exercise.dto.request.BookmarkRequest;
 import com.sideproject.withpt.application.exercise.dto.request.ExerciseRequest;
 import com.sideproject.withpt.application.exercise.dto.response.ExerciseListResponse;
-import com.sideproject.withpt.application.exercise.exception.ExerciseException;
+import com.sideproject.withpt.application.exercise.dto.response.ExerciseResponse;
 import com.sideproject.withpt.application.exercise.repository.BookmarkRepository;
 import com.sideproject.withpt.application.exercise.repository.ExerciseRepository;
+import com.sideproject.withpt.application.image.repository.ImageRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.type.BodyPart;
 import com.sideproject.withpt.application.type.ExerciseType;
@@ -48,6 +48,9 @@ class ExerciseServiceTest {
     private MemberRepository memberRepository;
 
     @Mock
+    private ImageRepository imageRepository;
+
+    @Mock
     private BookmarkRepository bookmarkRepository;
 
     @InjectMocks
@@ -62,14 +65,16 @@ class ExerciseServiceTest {
         given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
         given(exerciseRepository.findByMemberIdAndExerciseDate(anyLong(), any()))
                 .willReturn(List.of(createAddExerciseRequest().toExerciseEntity(createMember())));
+        given(imageRepository.findByMemberIdAndUploadDate(anyLong(), any()))
+                .willReturn(List.of(createImage()));
 
         // when
-        List<ExerciseListResponse> response = exerciseService.findAllExerciseList(1L, "2023-09-21");
+        ExerciseListResponse exerciseList = exerciseService.findAllExerciseList(1L, "2023-09-21");
 
         // then
         then(exerciseRepository).should(times(1)).findByMemberIdAndExerciseDate(anyLong(), any());
-        assertThat(response.size()).isEqualTo(1);
-        assertThat(response.get(0).getTitle()).isEqualTo("운동명");
+        assertThat(exerciseList.getExercise().size()).isEqualTo(1);
+        assertThat(exerciseList.getExercise().get(0).getTitle()).isEqualTo("운동명");
     }
 
     @Test
@@ -80,7 +85,7 @@ class ExerciseServiceTest {
         given(exerciseRepository.findById(anyLong())).willReturn(Optional.of(createAddExerciseRequest().toExerciseEntity(createMember())));
 
         // when
-        ExerciseListResponse exercise = exerciseService.findOneExercise(1L, 1L);
+        ExerciseResponse exercise = exerciseService.findOneExercise(1L, 1L);
 
         // then
         then(exerciseRepository).should(times(1)).findById(anyLong());
@@ -112,7 +117,7 @@ class ExerciseServiceTest {
 
         // when
         exerciseService.modifyExercise(1L, 1L, exerciseRequest);
-        ExerciseListResponse oneExercise = exerciseService.findOneExercise(1L, 1L);
+        ExerciseResponse oneExercise = exerciseService.findOneExercise(1L, 1L);
 
         // then
         assertThat(oneExercise.getTitle()).isEqualTo("수정 운동명");
@@ -145,25 +150,6 @@ class ExerciseServiceTest {
 
         // then
         then(bookmarkRepository).should(times(1)).save(any(Bookmark.class));
-    }
-
-    @Test
-    @DisplayName("북마크 저장할 때 이미 존재하는 북마크명이면 에러 던지기")
-    void alreadyExistsBookmarkSave() {
-        // given
-        BookmarkRequest bookmarkRequest = BookmarkRequest.builder().title("운동명").build();
-
-        given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
-        given(bookmarkRepository.findByMemberIdAndTitle(any(Long.class), any(String.class)))
-                .willReturn(Optional.of(bookmarkRequest.toEntity(createMember())));
-
-        // when
-        // then
-        assertThatThrownBy(
-                () -> exerciseService.saveExercise(1L, List.of(createAddExerciseRequest()), multipartFiles)
-        )
-                .isExactlyInstanceOf(ExerciseException.class)
-                .hasMessage(ExerciseException.BOOKMARK_ALREADY_EXISTS.getMessage());
     }
 
     private ExerciseRequest createAddExerciseRequest() {
