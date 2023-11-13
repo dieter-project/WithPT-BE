@@ -1,6 +1,7 @@
 package com.sideproject.withpt.application.member.dto.request;
 
 import com.sideproject.withpt.application.type.DietType;
+import com.sideproject.withpt.application.type.ExerciseFrequency;
 import com.sideproject.withpt.application.type.LoginType;
 import com.sideproject.withpt.application.type.OAuthProvider;
 import com.sideproject.withpt.application.type.Role;
@@ -11,14 +12,17 @@ import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.member.SocialLogin;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import javax.annotation.PostConstruct;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.beans.factory.annotation.Value;
 
 @Getter
 @Builder
@@ -45,9 +49,10 @@ public class MemberSignUpRequest {
     @ValidEnum(enumClass = DietType.class)
     private DietType dietType;
 
-    private int targetExerciseTimes;
-
     private Double targetWeight;
+
+    @ValidEnum(enumClass = ExerciseFrequency.class)
+    private ExerciseFrequency exerciseFrequency;
 
     @ValidEnum(regexp = "KAKAO|GOOGLE", enumClass = OAuthProvider.class)
     private OAuthProvider oauthProvider;
@@ -58,10 +63,9 @@ public class MemberSignUpRequest {
             .name(this.name)
             .height(this.height)
             .weight(this.weight)
-            .imageUrl(null)
             .dietType(this.dietType)
-            .targetExerciseTimes(this.targetExerciseTimes)
             .targetWeight(this.targetWeight)
+            .exerciseFrequency(this.exerciseFrequency)
             .role(Role.MEMBER)
             .authentication(toAuthenticationEntity())
             .socialLogin(toSocialLoginEntity())

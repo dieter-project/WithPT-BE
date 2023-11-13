@@ -14,6 +14,7 @@ import com.sideproject.withpt.common.redis.RedisClient;
 import com.sideproject.withpt.domain.member.Member;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,9 @@ public class MemberAuthenticationService {
     private final MemberRepository memberRepository;
     private final AuthTokenGenerator authTokenGenerator;
     private final RedisClient redisClient;
+
+    @Value("${default.profile.url}")
+    private String imageUrl;
 
     public NicknameCheckResponse checkNickname(String nickname) {
         memberRepository.findByNickname(nickname).ifPresent(member -> {
@@ -42,7 +46,10 @@ public class MemberAuthenticationService {
                 throw GlobalException.ALREADY_REGISTERED_USER;
             });
 
-        Long userId = memberRepository.save(params.toMemberEntity()).getId();
+        Member member = params.toMemberEntity();
+        member.addDefaultImageUrl(imageUrl);
+
+        Long userId = memberRepository.save(member).getId();
 
         TokenSetDto tokenSetDto = authTokenGenerator.generateTokenSet(userId, Role.MEMBER);
         redisClient.put(
