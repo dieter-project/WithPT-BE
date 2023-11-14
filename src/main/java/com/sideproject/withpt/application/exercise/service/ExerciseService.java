@@ -1,21 +1,29 @@
 package com.sideproject.withpt.application.exercise.service;
 
 import com.sideproject.withpt.application.exercise.dto.request.ExerciseRequest;
+import com.sideproject.withpt.application.exercise.dto.response.BookmarkCheckResponse;
 import com.sideproject.withpt.application.exercise.dto.response.ExerciseListResponse;
+import com.sideproject.withpt.application.exercise.dto.response.ExerciseResponse;
 import com.sideproject.withpt.application.exercise.exception.ExerciseException;
 import com.sideproject.withpt.application.exercise.repository.BookmarkRepository;
 import com.sideproject.withpt.application.exercise.repository.ExerciseRepository;
+import com.sideproject.withpt.application.image.ImageUploader;
+import com.sideproject.withpt.application.image.repository.ImageRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
+import com.sideproject.withpt.application.type.Usages;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.Exercise;
+import com.sideproject.withpt.domain.record.Image;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,33 +34,58 @@ public class ExerciseService {
     private final ExerciseRepository exerciseRepository;
     private final MemberRepository memberRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final ImageRepository imageRepository;
 
-    public List<ExerciseListResponse> findAllExerciseList(Long memberId) {
-        LocalDateTime startOfDay = LocalDateTime.now().with(LocalTime.MIN);
-        LocalDateTime endOfDay = LocalDateTime.now().with(LocalTime.MAX);
+    private final ImageUploader imageUploader;
 
+    public ExerciseListResponse findAllExerciseList(Long memberId, String dateTime) {
         validateMemberId(memberId);
 
-        return exerciseRepository
-                .findByMemberIdAndExerciseDateBetween(memberId, startOfDay, endOfDay).stream()
-                .map(ExerciseListResponse::from)
+        List<String> imageUrls = new ArrayList<>();
+
+        Optional.ofNullable(imageRepository.findByMemberIdAndUploadDate(memberId, LocalDate.parse(dateTime)))
+                .ifPresent(images -> {
+                    imageUrls.addAll(images.stream()
+                            .map(Image::getUrl)
+                            .collect(Collectors.toList()));
+                });
+
+        List<ExerciseResponse> exercise = exerciseRepository
+                .findByMemberIdAndExerciseDate(memberId, LocalDate.parse(dateTime)).stream()
+                .map(ExerciseResponse::from)
                 .collect(Collectors.toList());
+
+        return ExerciseListResponse.from(exercise, imageUrls);
     }
 
-    public ExerciseListResponse findOneExercise(Long memberId, Long exerciseId) {
+    public ExerciseResponse findOneExercise(Long memberId, Long exerciseId) {
         Exercise exercise = validateExerciseId(exerciseId, memberId);
-        return ExerciseListResponse.from(exercise);
+        return ExerciseResponse.from(exercise);
+    }
+
+    public BookmarkCheckResponse checkBookmark(String title, Long memberId) {
+        bookmarkRepository.findByMemberIdAndTitle(memberId, title)
+                .ifPresent(exercise -> {
+                    throw ExerciseException.BOOKMARK_ALREADY_EXISTS;
+                });
+
+        return BookmarkCheckResponse.from(true);
     }
 
     @Transactional
-    public void saveExercise(Long memberId, List<ExerciseRequest> requestList) {
+    public void saveExercise(Long memberId, List<ExerciseRequest> requestList, List<MultipartFile> file) {
+        LocalDate todayDate = requestList.get(0).getExerciseDate();
         Member member = validateMemberId(memberId);
 
-        for(ExerciseRequest request : requestList) {
-            if("Y".equals(request.getBookmarkYn())) {
+        for (ExerciseRequest request : requestList) {
+            if ("Y".equals(request.getBookmarkYn())) {
                 bookmarkRepository.save(request.toBookmarkEntity(member));
             }
             exerciseRepository.save(request.toExerciseEntity(member));
+        }
+
+        if(file != null && file.size() > 0) {
+            imageUploader.uploadAndSaveImages(file, todayDate, Usages.EXERCISE, member);
         }
     }
 
@@ -68,14 +101,18 @@ public class ExerciseService {
         exerciseRepository.deleteById(exerciseId);
     }
 
+    @Transactional
+    public void deleteExerciseImage(Long imageId) {
+        imageUploader.deleteImage(imageId);
+    }
+
     private Member validateMemberId(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> GlobalException.TEST_ERROR);
     }
 
     private Exercise validateExerciseId(Long exerciseId, Long memberId) {
-        Exercise exercise = exerciseRepository.findById(exerciseId)
-                .orElseThrow(() -> ExerciseException.EXERCISE_NOT_EXIST);
+        Exercise exercise = exerciseRepository.findById(exerciseId).orElseThrow(() -> ExerciseException.EXERCISE_NOT_EXIST);
         Member member = validateMemberId(memberId);
 
         if (!exercise.getMember().getId().equals(member.getId())) {

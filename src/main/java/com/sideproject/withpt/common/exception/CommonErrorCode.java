@@ -17,6 +17,7 @@ public enum CommonErrorCode implements ErrorCode {
     REDIS_PUT_EMPTY_KEY(HttpStatus.BAD_REQUEST, "Empty Key를 입력하였습니다."),
     REDIS_PUT_FAIL(HttpStatus.BAD_REQUEST, "잘못된 Key를 입력하였습니다."),
     EMPTY_FILE(HttpStatus.BAD_REQUEST, "업로드하려는 파일이 없습니다."),
+    EMPTY_DELETE_FILE(HttpStatus.BAD_REQUEST, "삭제하려는 파일이 없습니다."),
 
     /* 401 UNAUTHORIZED : 인증되지 않은 사용자 */
     CREDENTIALS_DO_NOT_EXIST(HttpStatus.UNAUTHORIZED, "인증 정보가 존재하지 않습니다."),

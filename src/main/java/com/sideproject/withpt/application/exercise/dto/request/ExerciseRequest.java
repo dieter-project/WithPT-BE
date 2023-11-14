@@ -1,5 +1,6 @@
 package com.sideproject.withpt.application.exercise.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sideproject.withpt.application.exercise.exception.validator.ValidExerciseType;
 import com.sideproject.withpt.application.type.BodyPart;
 import com.sideproject.withpt.application.type.ExerciseType;
@@ -11,7 +12,7 @@ import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Builder
@@ -21,7 +22,8 @@ import java.time.LocalDateTime;
 public class ExerciseRequest {
 
     @NotNull(message = "운동 일자를 입력해주세요.")
-    private LocalDateTime exerciseDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
+    private LocalDate exerciseDate;
 
     @NotBlank(message = "운동명을 입력해주세요.")
     private String title;

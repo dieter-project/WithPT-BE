@@ -2,15 +2,19 @@ package com.sideproject.withpt.application.exercise.service;
 
 import com.sideproject.withpt.application.exercise.dto.request.ExerciseRequest;
 import com.sideproject.withpt.application.exercise.dto.response.ExerciseListResponse;
+import com.sideproject.withpt.application.exercise.dto.response.ExerciseResponse;
 import com.sideproject.withpt.application.exercise.repository.BookmarkRepository;
 import com.sideproject.withpt.application.exercise.repository.ExerciseRepository;
+import com.sideproject.withpt.application.image.repository.ImageRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.type.BodyPart;
 import com.sideproject.withpt.application.type.ExerciseType;
+import com.sideproject.withpt.application.type.Usages;
 import com.sideproject.withpt.config.TestEmbeddedRedisConfig;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.Bookmark;
 import com.sideproject.withpt.domain.record.Exercise;
+import com.sideproject.withpt.domain.record.Image;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,12 +22,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.annotation.Import;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -40,28 +47,33 @@ class ExerciseServiceTest {
     private MemberRepository memberRepository;
 
     @Mock
+    private ImageRepository imageRepository;
+
+    @Mock
     private BookmarkRepository bookmarkRepository;
 
     @InjectMocks
     private ExerciseService exerciseService;
+
+    List<MultipartFile> multipartFiles = new ArrayList<>();
 
     @Test
     @DisplayName("오늘 날짜로 운동 리스트 조회하기")
     void findExerciseList() {
         // given
         given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
-        given(exerciseRepository.findByMemberIdAndExerciseDateBetween(anyLong(), any(), any()))
+        given(exerciseRepository.findByMemberIdAndExerciseDate(anyLong(), any()))
                 .willReturn(List.of(createAddExerciseRequest().toExerciseEntity(createMember())));
+        given(imageRepository.findByMemberIdAndUploadDate(anyLong(), any()))
+                .willReturn(List.of(createImage()));
 
         // when
-        List<ExerciseListResponse> response = exerciseService.findAllExerciseList(1L);
+        ExerciseListResponse exerciseList = exerciseService.findAllExerciseList(1L, "2023-09-21");
 
         // then
-        then(exerciseRepository).should(times(1))
-                .findByMemberIdAndExerciseDateBetween(anyLong(), any(), any());
-
-        assertThat(response.size()).isEqualTo(1);
-        assertThat(response.get(0).getTitle()).isEqualTo("운동명");
+        then(exerciseRepository).should(times(1)).findByMemberIdAndExerciseDate(anyLong(), any());
+        assertThat(exerciseList.getExercise().size()).isEqualTo(1);
+        assertThat(exerciseList.getExercise().get(0).getTitle()).isEqualTo("운동명");
     }
 
     @Test
@@ -72,7 +84,7 @@ class ExerciseServiceTest {
         given(exerciseRepository.findById(anyLong())).willReturn(Optional.of(createAddExerciseRequest().toExerciseEntity(createMember())));
 
         // when
-        ExerciseListResponse exercise = exerciseService.findOneExercise(1L, 1L);
+        ExerciseResponse exercise = exerciseService.findOneExercise(1L, 1L);
 
         // then
         then(exerciseRepository).should(times(1)).findById(anyLong());
@@ -87,7 +99,7 @@ class ExerciseServiceTest {
         given(exerciseRepository.save(any(Exercise.class))).willReturn(createAddExerciseRequest().toExerciseEntity(createMember()));
 
         // when
-        exerciseService.saveExercise(1L, List.of(createAddExerciseRequest()));
+        exerciseService.saveExercise(1L, List.of(createAddExerciseRequest()), multipartFiles);
 
         // then
         then(exerciseRepository).should(times(1)).save(any(Exercise.class));
@@ -104,7 +116,7 @@ class ExerciseServiceTest {
 
         // when
         exerciseService.modifyExercise(1L, 1L, exerciseRequest);
-        ExerciseListResponse oneExercise = exerciseService.findOneExercise(1L, 1L);
+        ExerciseResponse oneExercise = exerciseService.findOneExercise(1L, 1L);
 
         // then
         assertThat(oneExercise.getTitle()).isEqualTo("수정 운동명");
@@ -129,10 +141,11 @@ class ExerciseServiceTest {
     void saveExerciseBookmark() {
         // given
         given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
-        given(exerciseRepository.save(any(Exercise.class))).willReturn(createAddExerciseRequest().toExerciseEntity(createMember()));
+        given(exerciseRepository.save(any(Exercise.class)))
+                .willReturn(createAddExerciseRequest().toExerciseEntity(createMember()));
 
         // when
-        exerciseService.saveExercise(1L, List.of(createAddExerciseRequest()));
+        exerciseService.saveExercise(1L, List.of(createAddExerciseRequest()), multipartFiles);
 
         // then
         then(bookmarkRepository).should(times(1)).save(any(Bookmark.class));
@@ -146,7 +159,7 @@ class ExerciseServiceTest {
                 .hour(3)
                 .bodyPart(BodyPart.LOWER_BODY)
                 .exerciseType(ExerciseType.ANAEROBIC)
-                .exerciseDate(LocalDateTime.now())
+                .exerciseDate(LocalDate.parse("2023-09-21"))
                 .bookmarkYn("Y")
                 .build();
     }
@@ -155,6 +168,16 @@ class ExerciseServiceTest {
         return Member.builder()
                 .id(1L)
                 .nickname("test")
+                .build();
+    }
+
+    private Image createImage() {
+        return Image.builder()
+                .id(1L)
+                .entityId(1L)
+                .url("test")
+                .attachType("jpg")
+                .usage(Usages.EXERCISE)
                 .build();
     }
 

@@ -50,9 +50,9 @@ public class BookmarkController {
     }
 
     // 북마크 삭제하기
-    @DeleteMapping("/{bookmarkId}")
-    public ApiSuccessResponse deleteExercise(@PathVariable Long bookmarkId, @AuthenticationPrincipal Long memberId) {
-        bookmarkService.deleteBookmark(memberId, bookmarkId);
+    @DeleteMapping
+    public ApiSuccessResponse deleteExercise(@RequestParam String bookmarkIds, @AuthenticationPrincipal Long memberId) {
+        bookmarkService.deleteBookmark(memberId, bookmarkIds);
         return ApiSuccessResponse.NO_DATA_RESPONSE;
     }
 
