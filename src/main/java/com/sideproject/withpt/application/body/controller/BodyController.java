@@ -9,11 +9,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -44,6 +45,26 @@ public class BodyController {
     public ApiSuccessResponse saveBodyInfo(@AuthenticationPrincipal Long memberId, @Valid @RequestBody BodyInfoRequest request) {
         System.out.println("테스트" + request.getBodyRecordDate());
         bodyService.saveBodyInfo(memberId, request);
+        return ApiSuccessResponse.NO_DATA_RESPONSE;
+    }
+
+    // 회원의 전체 눈바디 이미지 조회
+
+    // 오늘자 눈바디 이미지 조회
+
+    // 눈바디 이미지 업로드
+    @PostMapping("/image")
+    public ApiSuccessResponse saveBodyImage(@RequestParam String dateTime,
+                                            @RequestPart(value = "files") List<MultipartFile> files,
+                                            @AuthenticationPrincipal Long memberId) {
+        bodyService.saveBodyImage(files, dateTime, memberId);
+        return ApiSuccessResponse.NO_DATA_RESPONSE;
+    }
+
+    // 눈바디 이미지 삭제
+    @DeleteMapping("/image/{imageId}")
+    public ApiSuccessResponse deleteBodyImage(@PathVariable Long imageId) {
+        bodyService.deleteBodyImage(imageId);
         return ApiSuccessResponse.NO_DATA_RESPONSE;
     }
 
