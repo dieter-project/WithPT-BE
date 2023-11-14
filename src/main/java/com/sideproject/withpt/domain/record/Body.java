@@ -1,12 +1,13 @@
 package com.sideproject.withpt.domain.record;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sideproject.withpt.application.body.dto.request.BodyInfoRequest;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.domain.member.Member;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -29,7 +30,8 @@ public class Body extends BaseEntity {
     private double bodyFatPercentage;
     private double bmi;
 
-    private LocalDateTime bodyRecordDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
+    private LocalDate bodyRecordDate;
 
     public void changeWeight(double weight) {
         this.weight = weight;

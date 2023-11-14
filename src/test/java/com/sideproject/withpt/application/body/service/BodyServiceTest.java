@@ -15,7 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +47,7 @@ public class BodyServiceTest {
                 .willReturn(Optional.of(createAddWeightRequest().toEntity(createMember())));
 
         // when
-        WeightInfoResponse weightInfo = bodyService.findWeightInfo(1L, LocalDateTime.now());
+        WeightInfoResponse weightInfo = bodyService.findWeightInfo(1L, LocalDate.now());
 
         // then
         then(bodyRepository).should(times(1)).findRecentBodyInfo(anyLong(), any());
@@ -65,7 +65,7 @@ public class BodyServiceTest {
         // when & then
         assertThatThrownBy(
                 () -> {
-                    bodyService.findWeightInfo(1L, LocalDateTime.of(2013, 12, 12, 0, 0));
+                    bodyService.findWeightInfo(1L, LocalDate.of(2013, 12, 12));
                 })
                 .isExactlyInstanceOf(BodyException.class)
                 .hasMessage(BodyException.BODY_NOT_EXIST.getMessage());
@@ -94,7 +94,7 @@ public class BodyServiceTest {
         WeightInfoRequest weightRequest =
                 WeightInfoRequest.builder()
                 .weight(55.0)
-                .bodyRecordDate(LocalDateTime.now())
+                .bodyRecordDate(LocalDate.now())
                 .build();
 
         given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
@@ -103,7 +103,7 @@ public class BodyServiceTest {
 
         // when
         bodyService.saveWeight(1L, weightRequest);
-        Body body = bodyRepository.findTodayBodyInfo(1L, LocalDateTime.now()).get();
+        Body body = bodyRepository.findTodayBodyInfo(1L, LocalDate.now()).get();
 
         // then
         assertThat(body.getWeight()).isEqualTo(55.0);
@@ -149,7 +149,7 @@ public class BodyServiceTest {
         // given
         BodyInfoRequest bodyInfoRequest =
                 BodyInfoRequest.builder()
-                .bodyRecordDate(LocalDateTime.now())
+                .bodyRecordDate(LocalDate.now())
                 .bmi(13.3)
                 .build();
 
@@ -159,7 +159,7 @@ public class BodyServiceTest {
 
         // when
         bodyService.saveBodyInfo(1L, bodyInfoRequest);
-        Body body = bodyRepository.findTodayBodyInfo(1L, LocalDateTime.now()).get();
+        Body body = bodyRepository.findTodayBodyInfo(1L, LocalDate.now()).get();
 
         // then
         assertThat(body.getBmi()).isEqualTo(13.3);
@@ -170,14 +170,14 @@ public class BodyServiceTest {
                 .skeletalMuscle(23.5)
                 .bodyFatPercentage(15.2)
                 .bmi(32.1)
-                .bodyRecordDate(LocalDateTime.of(2023, 9, 27, 0, 0))
+                .bodyRecordDate(LocalDate.of(2023, 9, 27))
                 .build();
     }
 
     private WeightInfoRequest createAddWeight() {
         return WeightInfoRequest.builder()
                 .weight(10.0)
-                .bodyRecordDate(LocalDateTime.of(2023, 9, 27, 0, 0))
+                .bodyRecordDate(LocalDate.of(2023, 9, 27))
                 .build();
     }
 

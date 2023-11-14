@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Service
 @Transactional(readOnly = true)
@@ -23,7 +23,7 @@ public class BodyService {
     private final BodyRepository bodyRepository;
     private final MemberRepository memberRepository;
 
-    public WeightInfoResponse findWeightInfo(Long memberId, LocalDateTime dateTime) {
+    public WeightInfoResponse findWeightInfo(Long memberId, LocalDate dateTime) {
         validateMemberId(memberId);
 
         Body body = bodyRepository

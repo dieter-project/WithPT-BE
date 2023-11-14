@@ -3,7 +3,7 @@ package com.sideproject.withpt.application.body.dto.response;
 import com.sideproject.withpt.domain.record.Body;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Builder
@@ -16,7 +16,7 @@ public class WeightInfoResponse {
     private double bodyFatPercentage;
     private double bmi;
 
-    private LocalDateTime weightRecordDate;
+    private LocalDate weightRecordDate;
 
     public static WeightInfoResponse from(Body body) {
         return WeightInfoResponse.builder()
