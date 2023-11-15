@@ -16,7 +16,7 @@ public enum CommonErrorCode implements ErrorCode {
     INVALID_HEADER(HttpStatus.BAD_REQUEST, "유효한 header가 아닙니다."),
     REDIS_PUT_EMPTY_KEY(HttpStatus.BAD_REQUEST, "Empty Key를 입력하였습니다."),
     REDIS_PUT_FAIL(HttpStatus.BAD_REQUEST, "잘못된 Key를 입력하였습니다."),
-    EMPTY_FILE(HttpStatus.BAD_REQUEST, "업로드하려는 파일이 없습니다."),
+    EMPTY_FILE(HttpStatus.BAD_REQUEST, "파일이 존재하지 않습니다."),
     EMPTY_DELETE_FILE(HttpStatus.BAD_REQUEST, "삭제하려는 파일이 없습니다."),
 
     /* 401 UNAUTHORIZED : 인증되지 않은 사용자 */

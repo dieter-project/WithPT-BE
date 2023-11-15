@@ -64,7 +64,7 @@ class ExerciseServiceTest {
         given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
         given(exerciseRepository.findByMemberIdAndExerciseDate(anyLong(), any()))
                 .willReturn(List.of(createAddExerciseRequest().toExerciseEntity(createMember())));
-        given(imageRepository.findByMemberIdAndUploadDate(anyLong(), any()))
+        given(imageRepository.findByMemberIdAndUploadDateAndUsage(anyLong(), any(), any()))
                 .willReturn(List.of(createImage()));
 
         // when

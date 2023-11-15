@@ -43,7 +43,8 @@ public class ExerciseService {
 
         List<String> imageUrls = new ArrayList<>();
 
-        Optional.ofNullable(imageRepository.findByMemberIdAndUploadDate(memberId, LocalDate.parse(dateTime)))
+        // 현재 예외처리 되어있는지 확인하기
+        Optional.ofNullable(imageRepository.findByMemberIdAndUploadDateAndUsage(memberId, LocalDate.parse(dateTime), Usages.EXERCISE))
                 .ifPresent(images -> {
                     imageUrls.addAll(images.stream()
                             .map(Image::getUrl)
@@ -102,8 +103,8 @@ public class ExerciseService {
     }
 
     @Transactional
-    public void deleteExerciseImage(Long imageId) {
-        imageUploader.deleteImage(imageId);
+    public void deleteExerciseImage(String url) {
+        imageUploader.deleteImage(url);
     }
 
     private Member validateMemberId(Long memberId) {

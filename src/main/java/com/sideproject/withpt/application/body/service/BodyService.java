@@ -1,6 +1,7 @@
 package com.sideproject.withpt.application.body.service;
 
 import com.sideproject.withpt.application.body.dto.request.WeightInfoRequest;
+import com.sideproject.withpt.application.body.dto.response.BodyImageResponse;
 import com.sideproject.withpt.application.image.ImageUploader;
 import com.sideproject.withpt.application.image.repository.ImageRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
@@ -13,6 +14,8 @@ import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.Body;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -95,12 +98,16 @@ public class BodyService {
                         });
     }
 
-    public void findAllBodyImage(Long memberId) {
-
+    public Slice<BodyImageResponse> findAllBodyImage(Long memberId, Pageable pageable) {
+        return imageRepository.findAllBodyImage(pageable, memberId, Usages.BODY);
     }
 
-    public void findTodayBodyImage(Long memberId, String dateTime) {
-
+    public BodyImageResponse findTodayBodyImage(Long memberId, String dateTime) {
+        try {
+            return BodyImageResponse.from(imageRepository.findByMemberIdAndUploadDateAndUsage(memberId, LocalDate.parse(dateTime), Usages.BODY));
+        } catch (Exception e) {
+            throw GlobalException.EMPTY_FILE;
+        }
     }
 
     @Transactional
@@ -113,8 +120,8 @@ public class BodyService {
     }
 
     @Transactional
-    public void deleteBodyImage(Long imageId) {
-        imageUploader.deleteImage(imageId);
+    public void deleteBodyImage(String url) {
+        imageUploader.deleteImage(url);
     }
 
     private Member validateMemberId(Long memberId) {

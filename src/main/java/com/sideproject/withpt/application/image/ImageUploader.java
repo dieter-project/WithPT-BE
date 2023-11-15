@@ -1,6 +1,5 @@
 package com.sideproject.withpt.application.image;
 
-import com.sideproject.withpt.application.exercise.exception.ExerciseException;
 import com.sideproject.withpt.application.image.repository.ImageRepository;
 import com.sideproject.withpt.application.type.Usages;
 import com.sideproject.withpt.common.exception.GlobalException;
@@ -53,11 +52,11 @@ public class ImageUploader {
         }
     }
 
-    public void deleteImage(Long imageId) {
-        Image image = imageRepository.findById(imageId).orElseThrow(() -> GlobalException.EMPTY_DELETE_FILE);
+    public void deleteImage(String url) {
+        Image image = imageRepository.findByUrl(url).orElseThrow(() -> GlobalException.EMPTY_DELETE_FILE);
 
         awsS3Uploader.delete(image.getUsage().toString(), image.getUrl());
-        imageRepository.deleteById(imageId);
+        imageRepository.deleteByUrl(url);
     }
 
 }

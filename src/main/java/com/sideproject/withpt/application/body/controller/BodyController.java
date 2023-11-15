@@ -2,11 +2,15 @@ package com.sideproject.withpt.application.body.controller;
 
 import com.sideproject.withpt.application.body.dto.request.BodyInfoRequest;
 import com.sideproject.withpt.application.body.dto.request.WeightInfoRequest;
+import com.sideproject.withpt.application.body.dto.response.BodyImageResponse;
 import com.sideproject.withpt.application.body.dto.response.WeightInfoResponse;
 import com.sideproject.withpt.application.body.service.BodyService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,7 +28,7 @@ public class BodyController {
 
     private final BodyService bodyService;
 
-    // 해당 날짜의 체중 및 신체 정보 조회하기
+    @Operation(summary = "해당 날짜의 체중 및 신체 정보 조회하기")
     @GetMapping
     public ApiSuccessResponse<WeightInfoResponse> findWeight(@AuthenticationPrincipal Long memberId, @RequestParam String dateTime) {
         LocalDate localDate = LocalDate.parse(dateTime, DateTimeFormatter.ISO_DATE);
@@ -32,40 +36,43 @@ public class BodyController {
         return ApiSuccessResponse.from(weightInfo);
     }
 
-    // 체중 입력하기
+    @Operation(summary = "체중 입력하기")
     @PostMapping("/weight")
-    public ApiSuccessResponse saveWeight(@AuthenticationPrincipal Long memberId, @Valid @RequestBody WeightInfoRequest request) {
-        System.out.println(request.getBodyRecordDate());
+    public void saveWeight(@AuthenticationPrincipal Long memberId, @Valid @RequestBody WeightInfoRequest request) {
         bodyService.saveWeight(memberId, request);
-        return ApiSuccessResponse.NO_DATA_RESPONSE;
     }
 
-    // 신체 정보 입력하기
+    @Operation(summary = "신체 정보 입력하기")
     @PostMapping
-    public ApiSuccessResponse saveBodyInfo(@AuthenticationPrincipal Long memberId, @Valid @RequestBody BodyInfoRequest request) {
-        System.out.println("테스트" + request.getBodyRecordDate());
+    public void saveBodyInfo(@AuthenticationPrincipal Long memberId, @Valid @RequestBody BodyInfoRequest request) {
         bodyService.saveBodyInfo(memberId, request);
-        return ApiSuccessResponse.NO_DATA_RESPONSE;
     }
 
-    // 회원의 전체 눈바디 이미지 조회
+    @Operation(summary = "회원의 전체 눈바디 이미지 조회")
+    @GetMapping("/images")
+    public ApiSuccessResponse<Slice<BodyImageResponse>> findAllBodyImage(@AuthenticationPrincipal Long memberId, Pageable pageable) {
+        return ApiSuccessResponse.from(bodyService.findAllBodyImage(memberId, pageable));
+    }
 
-    // 오늘자 눈바디 이미지 조회
+    @Operation(summary = "해당하는 날짜의 눈바디 이미지 조회")
+    @GetMapping("/image")
+    public ApiSuccessResponse<BodyImageResponse> findTodayBodyImage(@RequestParam String dateTime,
+                                                                    @AuthenticationPrincipal Long memberId) {
+        return ApiSuccessResponse.from(bodyService.findTodayBodyImage(memberId, dateTime));
+    }
 
-    // 눈바디 이미지 업로드
+    @Operation(summary = "눈바디 이미지 업로드")
     @PostMapping("/image")
-    public ApiSuccessResponse saveBodyImage(@RequestParam String dateTime,
+    public void saveBodyImage(@RequestParam String dateTime,
                                             @RequestPart(value = "files") List<MultipartFile> files,
                                             @AuthenticationPrincipal Long memberId) {
         bodyService.saveBodyImage(files, dateTime, memberId);
-        return ApiSuccessResponse.NO_DATA_RESPONSE;
     }
 
-    // 눈바디 이미지 삭제
-    @DeleteMapping("/image/{imageId}")
-    public ApiSuccessResponse deleteBodyImage(@PathVariable Long imageId) {
-        bodyService.deleteBodyImage(imageId);
-        return ApiSuccessResponse.NO_DATA_RESPONSE;
+    @Operation(summary = "눈바디 이미지 삭제")
+    @DeleteMapping("/image")
+    public void deleteBodyImage(@RequestParam String url) {
+        bodyService.deleteBodyImage(url);
     }
 
 }
