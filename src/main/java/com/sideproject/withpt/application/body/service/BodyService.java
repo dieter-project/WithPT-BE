@@ -1,19 +1,27 @@
 package com.sideproject.withpt.application.body.service;
 
 import com.sideproject.withpt.application.body.dto.request.WeightInfoRequest;
+import com.sideproject.withpt.application.body.dto.response.BodyImageResponse;
+import com.sideproject.withpt.application.image.ImageUploader;
+import com.sideproject.withpt.application.image.repository.ImageRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.body.dto.request.BodyInfoRequest;
 import com.sideproject.withpt.application.body.dto.response.WeightInfoResponse;
 import com.sideproject.withpt.application.body.exception.BodyException;
 import com.sideproject.withpt.application.body.repository.BodyRepository;
+import com.sideproject.withpt.application.type.Usages;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.Body;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -22,8 +30,11 @@ public class BodyService {
 
     private final BodyRepository bodyRepository;
     private final MemberRepository memberRepository;
+    private final ImageRepository imageRepository;
 
-    public WeightInfoResponse findWeightInfo(Long memberId, LocalDateTime dateTime) {
+    private final ImageUploader imageUploader;
+
+    public WeightInfoResponse findWeightInfo(Long memberId, LocalDate dateTime) {
         validateMemberId(memberId);
 
         Body body = bodyRepository
@@ -85,6 +96,32 @@ public class BodyService {
                                                 bodyRepository.save(request.toEntity(member));
                                             });
                         });
+    }
+
+    public Slice<BodyImageResponse> findAllBodyImage(Long memberId, Pageable pageable) {
+        return imageRepository.findAllBodyImage(pageable, memberId, Usages.BODY);
+    }
+
+    public BodyImageResponse findTodayBodyImage(Long memberId, String dateTime) {
+        try {
+            return BodyImageResponse.from(imageRepository.findByMemberIdAndUploadDateAndUsage(memberId, LocalDate.parse(dateTime), Usages.BODY));
+        } catch (Exception e) {
+            throw GlobalException.EMPTY_FILE;
+        }
+    }
+
+    @Transactional
+    public void saveBodyImage(List<MultipartFile> file, String dateTime, Long memberId) {
+        Member member = validateMemberId(memberId);
+
+        if(file != null && file.size() > 0) {
+            imageUploader.uploadAndSaveImages(file, LocalDate.parse(dateTime), Usages.BODY, member);
+        }
+    }
+
+    @Transactional
+    public void deleteBodyImage(String url) {
+        imageUploader.deleteImage(url);
     }
 
     private Member validateMemberId(Long memberId) {
