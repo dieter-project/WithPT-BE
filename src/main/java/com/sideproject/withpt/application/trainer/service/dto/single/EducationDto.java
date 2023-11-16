@@ -12,11 +12,13 @@ import lombok.Getter;
 public class EducationDto {
 
     private String name;
+    private String institution;
     private YearMonth acquisitionYearMonth;
 
     public Education toEntity() {
         return Education.builder()
             .name(this.name)
+            .institution(this.institution)
             .acquisitionYearMonth(this.acquisitionYearMonth)
             .build();
     }

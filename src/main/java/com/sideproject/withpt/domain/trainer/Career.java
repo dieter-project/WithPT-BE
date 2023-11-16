@@ -1,12 +1,16 @@
 package com.sideproject.withpt.domain.trainer;
 
+import com.sideproject.withpt.application.type.EmploymentStatus;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.domain.trainer.convertor.YearMonthToDateConverter;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,6 +20,7 @@ import javax.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
@@ -23,6 +28,7 @@ import lombok.ToString;
 @Entity
 @Builder
 @Setter(AccessLevel.PACKAGE)
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Career extends BaseEntity {
@@ -37,6 +43,11 @@ public class Career extends BaseEntity {
 
     private String centerName;
 
+    private String jobPosition;
+
+    @Enumerated(EnumType.STRING)
+    private EmploymentStatus status;
+
     @Column(name = "START_OF_WORK_YEAR_MONTH", columnDefinition = "date")
     @Convert(converter = YearMonthToDateConverter.class)
     private YearMonth startOfWorkYearMonth;
@@ -44,5 +55,13 @@ public class Career extends BaseEntity {
     @Column(name = "END_OF_WORK_YEAR_MONTH", columnDefinition = "date")
     @Convert(converter = YearMonthToDateConverter.class)
     private YearMonth endOfWorkYearMonth;
+
+    public void editCareer(String centerName, String jobPosition, EmploymentStatus status, YearMonth startOfWorkYearMonth, YearMonth endOfWorkYearMonth) {
+        this.centerName = centerName;
+        this.jobPosition = jobPosition;
+        this.status = status;
+        this.startOfWorkYearMonth = startOfWorkYearMonth;
+        this.endOfWorkYearMonth = endOfWorkYearMonth;
+    }
 
 }

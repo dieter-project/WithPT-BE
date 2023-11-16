@@ -1,5 +1,6 @@
 package com.sideproject.withpt.domain.record;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sideproject.withpt.application.exercise.dto.request.ExerciseRequest;
 import com.sideproject.withpt.application.type.BodyPart;
 import com.sideproject.withpt.application.type.ExerciseType;
@@ -8,7 +9,7 @@ import com.sideproject.withpt.domain.member.Member;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -24,7 +25,9 @@ public class Exercise extends BaseEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    private LocalDateTime exerciseDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
+    private LocalDate exerciseDate;
+
     private String title;
     private int weight;
     private int set;

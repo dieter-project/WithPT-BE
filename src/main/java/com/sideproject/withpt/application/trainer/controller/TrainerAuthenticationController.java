@@ -22,6 +22,8 @@ public class TrainerAuthenticationController {
 
     @PostMapping("/sign-up")
     public ApiSuccessResponse<TokenSetDto> signUp(@Valid @RequestBody TrainerSignUpRequest request) {
+
+        log.info("가입 정보 : {}", request);
         return ApiSuccessResponse.from(
             trainerAuthenticationService.signUp(request.toServiceTrainerSignUpDto())
         );

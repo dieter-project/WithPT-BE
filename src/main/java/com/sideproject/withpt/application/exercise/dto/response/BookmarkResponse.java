@@ -11,6 +11,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BookmarkResponse {
 
+    private Long id;
     private String title;
     private int weight;
     private int set;
@@ -22,6 +23,7 @@ public class BookmarkResponse {
 
     public static BookmarkResponse from(Bookmark bookmark) {
         return BookmarkResponse.builder()
+                .id(bookmark.getId())
                 .title(bookmark.getTitle())
                 .weight(bookmark.getWeight())
                 .set(bookmark.getSet())

@@ -26,7 +26,6 @@ public class MemberQueryRepositoryImpl implements MemberQueryRepository {
                 MemberSearchResponse.class,
                 member.id,
                 member.name,
-                member.nickname,
                 member.imageUrl,
                 member.authentication.birth,
                 member.authentication.sex

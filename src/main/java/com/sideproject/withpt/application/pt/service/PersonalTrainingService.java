@@ -1,8 +1,10 @@
 package com.sideproject.withpt.application.pt.service;
 
-import com.sideproject.withpt.application.gym.service.GymService;
+import static com.sideproject.withpt.application.pt.exception.PTErrorCode.PT_NOT_FOUND;
+
 import com.sideproject.withpt.application.gym.exception.GymException;
 import com.sideproject.withpt.application.gym.repositoy.GymQueryRepository;
+import com.sideproject.withpt.application.gym.service.GymService;
 import com.sideproject.withpt.application.member.service.MemberService;
 import com.sideproject.withpt.application.pt.controller.response.GymsAndNumberOfMembersResponse;
 import com.sideproject.withpt.application.pt.controller.response.GymsAndNumberOfMembersResponse.GymResponse;
@@ -50,13 +52,22 @@ public class PersonalTrainingService {
         Gym gym = gymService.getGymById(gymId);
 
         // TODO : 이미 등록된 회원입니다 예외 추가
-        if(trainingRepository.existsByMemberAndTrainerAndGym(member, trainer, gym)) {
+        if (trainingRepository.existsByMemberAndTrainerAndGym(member, trainer, gym)) {
             throw PTException.AlREADY_REGISTERED_PT_MEMBER;
         }
 
         trainingRepository.save(PersonalTraining.registerPersonalTraining(member, trainer, gym));
 
         return PersonalTrainingMemberResponse.from(member.getName(), trainer.getName(), gym.getName());
+    }
+
+    @Transactional
+    public long deletePersonalTrainingMembers(Long gymId, Long trainerId, List<Long> memberIds) {
+        Gym gym = gymService.getGymById(gymId);
+        Trainer trainer = trainerService.getTrainerById(trainerId);
+        List<Member> members = memberService.getAllMemberById(memberIds);
+
+        return trainingQueryRepository.deleteAllByMembersAndTrainerAndGym(members, trainer, gym);
     }
 
     public GymsAndNumberOfMembersResponse listOfGymsAndNumberOfMembers(Long trainerId) {
@@ -98,11 +109,13 @@ public class PersonalTrainingService {
             .build();
     }
 
-    public Page<PtMemberListDto> listOfPtMembersByRegistrationAllowedStatus(Long gymId, Long trainerId, PtRegistrationAllowedStatus registrationAllowedStatus, Pageable pageable) {
+    public Page<PtMemberListDto> listOfPtMembersByRegistrationAllowedStatus(Long gymId, Long trainerId,
+        PtRegistrationAllowedStatus registrationAllowedStatus, Pageable pageable) {
         Trainer trainer = trainerService.getTrainerById(trainerId);
         Gym gym = gymService.getGymById(gymId);
 
-        return trainingQueryRepository.findAllPtMembersByRegistrationAllowedStatus(gym, trainer, registrationAllowedStatus, pageable);
+        return trainingQueryRepository.findAllPtMembersByRegistrationAllowedStatus(gym, trainer,
+            registrationAllowedStatus, pageable);
     }
 
 }

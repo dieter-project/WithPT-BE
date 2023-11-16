@@ -24,10 +24,6 @@ public class Bookmark {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "exercise_id")
-    private Exercise exercise;
-
     private String title;
     private int weight;
     private int set;

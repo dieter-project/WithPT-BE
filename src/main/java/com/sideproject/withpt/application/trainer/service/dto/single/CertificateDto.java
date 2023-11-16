@@ -12,11 +12,13 @@ import lombok.Getter;
 public class CertificateDto {
 
     private String name;
+    private String institution;
     private YearMonth acquisitionYearMonth;
 
     public Certificate toEntity() {
         return Certificate.builder()
             .name(this.name)
+            .institution(this.institution)
             .acquisitionYearMonth(this.acquisitionYearMonth)
             .build();
     }

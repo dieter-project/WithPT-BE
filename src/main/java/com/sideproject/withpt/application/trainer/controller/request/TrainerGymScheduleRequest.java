@@ -4,19 +4,33 @@ import com.sideproject.withpt.application.trainer.service.dto.complex.TrainerGym
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
+@Builder
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TrainerGymScheduleRequest {
 
+    @NotBlank(message = "체육관 명을 입력해주세요")
     private String name;
+
+    @NotBlank(message = "체육관 주소를 입력해주세요")
     private String address;
+
     private double latitude;
     private double longitude;
 
-    @Builder.Default
-    private List<WorkScheduleRequest> workSchedules = new ArrayList<>();
+    @Valid
+    private List<WorkScheduleRequest> workSchedules;
 
     public TrainerGymScheduleDto toGymScheduleSDto() {
         return TrainerGymScheduleDto.builder()

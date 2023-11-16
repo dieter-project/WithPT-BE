@@ -16,12 +16,14 @@ import javax.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Builder
 @Setter(AccessLevel.PACKAGE)
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Certificate extends BaseEntity {
@@ -36,8 +38,15 @@ public class Certificate extends BaseEntity {
 
     private String name;
 
+    private String institution;
+
     @Column(name = "ACQUISITION_YEAR_MONTH", columnDefinition = "date")
     @Convert(converter = YearMonthToDateConverter.class)
     private YearMonth acquisitionYearMonth;
 
+    public void editCertificate(String name, String institution, YearMonth acquisitionYearMonth) {
+        this.name = name;
+        this.institution = institution;
+        this.acquisitionYearMonth = acquisitionYearMonth;
+    }
 }

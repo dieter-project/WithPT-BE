@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,7 +40,15 @@ public class BookmarkService {
     @Transactional
     public void saveBookmark(Long memberId, BookmarkRequest request) {
         Member member = validateMemberId(memberId);
-        bookmarkRepository.save(request.toEntity(member));
+
+        bookmarkRepository.findByMemberIdAndTitle(memberId, request.getTitle())
+                .ifPresentOrElse(
+                        existingBookmark -> {
+                            throw ExerciseException.BOOKMARK_ALREADY_EXISTS;
+                        },
+                        () -> {
+                            bookmarkRepository.save(request.toEntity(member));
+                        });
     }
 
     @Transactional
@@ -49,9 +58,17 @@ public class BookmarkService {
     }
 
     @Transactional
-    public void deleteBookmark(Long memberId, Long bookmarkId) {
-        validateBookmarkId(bookmarkId, memberId);
-        bookmarkRepository.deleteById(bookmarkId);
+    public void deleteBookmark(Long memberId, String bookmarkIds) {
+        List<Long> longBookmarkIds =
+                Arrays.stream(bookmarkIds.split(","))
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+
+        for (Long bookmarkId : longBookmarkIds) {
+            validateBookmarkId(bookmarkId, memberId);
+        }
+
+        bookmarkRepository.deleteAllByIds(longBookmarkIds);
     }
 
     private Member validateMemberId(Long memberId) {
