@@ -13,17 +13,16 @@ public class Food {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "food_item_id")
+    @Column(name = "food_id")
     private Long id;
 
     private String name;
-    private String foodGroup;   // 식품군
-    private int totalGram;  // 총내용량
+    private String totalGram;  // 영양성분함량기준량
 
-    private int calories;
-    private double carbohydrate;    // 탄수화물
-    private double protein;    // 단백질
-    private double province;    // 지방
-    private double sugars;
+    private String calories;
+    private String carbohydrate;    // 탄수화물
+    private String protein;    // 단백질
+    private String province;    // 지방
+    private String sugars;  // 당류
 
 }
