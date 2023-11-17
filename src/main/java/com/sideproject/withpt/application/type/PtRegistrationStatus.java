@@ -1,5 +1,5 @@
 package com.sideproject.withpt.application.type;
 
 public enum PtRegistrationStatus {
-    NEW_REGISTRATION, RE_REGISTRATION
+    ALLOWED_BEFORE, NEW_REGISTRATION, RE_REGISTRATION
 }

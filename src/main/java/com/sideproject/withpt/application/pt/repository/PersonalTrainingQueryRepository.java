@@ -5,6 +5,7 @@ import static com.sideproject.withpt.domain.pt.QPersonalTraining.personalTrainin
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.sideproject.withpt.application.pt.controller.response.EachGymMemberListResponse;
 import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
 import com.sideproject.withpt.application.pt.repository.dto.PtMemberListDto;
 import com.sideproject.withpt.application.pt.repository.dto.QGymMemberCountDto;
@@ -13,12 +14,13 @@ import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.trainer.Trainer;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -68,8 +70,8 @@ public class PersonalTrainingQueryRepository {
                 .fetchOne();
     }
 
-    public Page<PtMemberListDto> findAllPtMembersByRegistrationAllowedStatus(Gym gym, Trainer trainer, PtRegistrationAllowedStatus registrationAllowedStatus, Pageable pageable) {
-        List<PtMemberListDto> content = jpaQueryFactory
+    public EachGymMemberListResponse findAllPtMembersByRegistrationAllowedStatus(Gym gym, Trainer trainer, PtRegistrationAllowedStatus registrationAllowedStatus, Pageable pageable) {
+        List<PtMemberListDto> ptMemberListDtos = jpaQueryFactory
             .select(
                 new QPtMemberListDto(
                     personalTraining.member.id,
@@ -86,21 +88,34 @@ public class PersonalTrainingQueryRepository {
             .where(
                 gymEq(gym),
                 trainerEq(trainer),
-                personalTraining.registrationAllowedStatus.eq(registrationAllowedStatus)
+                registrationAllowedStatusEq(registrationAllowedStatus)
             )
             .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
+            .limit(pageable.getPageSize() + 1)
             .fetch();
 
-        JPAQuery<Long> countQuery = jpaQueryFactory
+        List<PtMemberListDto> content = new ArrayList<>(ptMemberListDtos);
+
+        boolean hasNext = false;
+
+        if(content.size() > pageable.getPageSize()) {
+            content.remove(pageable.getPageSize());
+            hasNext = true;
+        }
+
+        Long totalMembers = jpaQueryFactory
             .select(personalTraining.count())
             .from(personalTraining)
             .where(
                 gymEq(gym),
-                trainerEq(trainer)
-            );
+                trainerEq(trainer),
+                registrationAllowedStatusEq(registrationAllowedStatus)
+            ).fetchOne();
 
-        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+        return EachGymMemberListResponse.builder()
+            .totalMembers(totalMembers)
+            .memberList(new SliceImpl<>(content, pageable, hasNext))
+            .build();
     }
 
     private BooleanExpression membersIn(List<Member> members) {
@@ -117,5 +132,9 @@ public class PersonalTrainingQueryRepository {
 
     private BooleanExpression trainerEq(Trainer trainer) {
         return ObjectUtils.isEmpty(trainer) ? null : personalTraining.trainer.eq(trainer);
+    }
+
+    private BooleanExpression registrationAllowedStatusEq(PtRegistrationAllowedStatus registrationAllowedStatus) {
+        return ObjectUtils.isEmpty(registrationAllowedStatus) ? null : personalTraining.registrationAllowedStatus.eq(registrationAllowedStatus);
     }
 }
