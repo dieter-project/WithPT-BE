@@ -87,6 +87,7 @@ public class PersonalTraining extends BaseEntity {
             .remainingPtCount(0)
             .registrationRequestDate(LocalDateTime.now())
             .infoInputStatus(PTInfoInputStatus.INFO_EMPTY)
+            .registrationStatus(PtRegistrationStatus.ALLOWED_BEFORE)
             .registrationAllowedStatus(PtRegistrationAllowedStatus.WAITING)
             .build();
     }
