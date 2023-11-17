@@ -18,14 +18,15 @@ public class CsvWriter implements ItemWriter<FoodDto> {
 
     @Override
     public void write(List<? extends FoodDto> items) throws Exception {
-        List<Food> foodList = new ArrayList<>();
+        List<Food> scheduleList = new ArrayList<>();
 
-        items.forEach(getFoodDto -> {
-            Food food = getFoodDto.toEntity();
-            foodList.add(food);
+        items.forEach(getScheduleDto -> {
+            Food food = getScheduleDto.toEntity();
+            scheduleList.add(food);
         });
 
-        foodRepository.saveAll(foodList);
+        foodRepository.saveAll(scheduleList);
+
     }
 
 }

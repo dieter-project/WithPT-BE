@@ -7,32 +7,22 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FoodDto {  // 49개
+@Builder
+public class FoodDto {
 
     private String foodCode;
     private String foodName;
-    private String dataCategoryCode;
-    private String dataCategoryName;
-    private String originCode;
-    private String originName;
-    private String categoryCode;
-    private String categoryName;
-    private String representativeFoodCode;
-    private String representativeFoodName;
-    private String subCategoryCode;
-    private String subCategoryName;
-    private String subSubCategoryCode;
-    private String subSubCategoryName;
-    private String nutrientStandardAmount;
+    private String dataClassificationCode;
+    private String dataClassificationName;
     private String energyKcal;
+    private String nutrientStandardAmount;
     private String moisture;
     private String protein;
-    private String province;
+    private String fat;
     private String ash;
     private String carbohydrates;
     private String sugars;
@@ -53,29 +43,30 @@ public class FoodDto {  // 49개
     private String cholesterol;
     private String saturatedFattyAcids;
     private String transFattyAcids;
+    private String disposalRate;
     private String sourceCode;
     private String sourceName;
     private String foodWeight;
+    private String importStatus;
+    private String countryOfOriginCode;
+    private String countryOfOriginName;
     private String companyName;
-    private String dataCreationMethodCode;
-    private String dataCreationMethodName;
-    private String dataCreationDate;
+    private String dataGenerationMethodCode;
+    private String dataGenerationMethodName;
+    private String dataGenerationDate;
     private String dataStandardDate;
-    private String providerCode;
-    private String providerName;
+    private String providingOrganizationCode;
+    private String providingOrganizationName;
 
     public Food toEntity() {
         return Food.builder()
-                .name(foodName)
-                .foodGroup(categoryName)
-                .totalGram(nutrientStandardAmount)
+                .name(foodName.replaceAll("_", " "))
+                .totalGram(nutrientStandardAmount.replace("g", ""))
                 .calories(energyKcal)
                 .carbohydrate(carbohydrates)
                 .protein(protein)
-                .province(province)
+                .province(fat)
                 .sugars(sugars)
                 .build();
     }
-
 }
-

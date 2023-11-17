@@ -17,7 +17,6 @@ public class Food {
     private Long id;
 
     private String name;
-    private String foodGroup;   // 식품군
     private String totalGram;  // 영양성분함량기준량
 
     private String calories;

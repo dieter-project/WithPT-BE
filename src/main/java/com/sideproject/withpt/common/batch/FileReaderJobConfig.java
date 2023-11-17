@@ -16,23 +16,26 @@ public class FileReaderJobConfig {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
     private final CsvReader csvReader;
-    private final CsvWriter csvWriter;
+    private  final CsvWriter csvScheduleWriter;
 
-    private static final int chunkSize = 1000;
+    private static final int chunkSize = 100000; // 데이터 처리할 row size
+
 
     @Bean
-    public Job csvFileItemReaderJob() {
-        return jobBuilderFactory.get("csvFileItemReaderJob")
-                .start(csvFileItemReaderStep())
+    public Job csvFoodJob(){
+        return jobBuilderFactory.get("csvFoodJob")
+                .start(csvFoodReaderStep())
                 .build();
     }
 
+
     @Bean
-    public Step csvFileItemReaderStep() {
-        return stepBuilderFactory.get("csvFileItemReaderStep")
+    public Step csvFoodReaderStep(){
+        return stepBuilderFactory.get("csvFoodReaderStep")
                 .<FoodDto, FoodDto>chunk(chunkSize)
                 .reader(csvReader.csvFoodReader())
-                .writer(csvWriter)
+                .writer(csvScheduleWriter)
+                .allowStartIfComplete(true)
                 .build();
     }
 
