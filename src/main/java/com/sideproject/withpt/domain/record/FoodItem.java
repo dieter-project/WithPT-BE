@@ -18,17 +18,13 @@ public class FoodItem extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "diets_id")
-    private Diets diets;
+    @JoinColumn(name = "diet_id")
+    private Diet diet;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "food_id")
     private Food food;
 
     private int gram;
-
-    protected void setDiets(Diets diets) {
-        this.diets = diets;
-    }
 
 }

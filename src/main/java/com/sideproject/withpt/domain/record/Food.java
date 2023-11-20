@@ -22,7 +22,7 @@ public class Food {
     private String calories;
     private String carbohydrate;    // 탄수화물
     private String protein;    // 단백질
-    private String province;    // 지방
+    private String fat;    // 지방
     private String sugars;  // 당류
 
 }

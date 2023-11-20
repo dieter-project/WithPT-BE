@@ -33,9 +33,9 @@ public class DietController {
     }
 
     @Operation(summary = "식단 수정하기")
-    @PatchMapping("/{dietsId}")
-    public void modifyDiet(@Valid @RequestBody DietRequest request, @PathVariable Long dietsId, @AuthenticationPrincipal Long memberId) {
-        dietService.modifyDiet(memberId, dietsId, request);
+    @PatchMapping("/{dietId}")
+    public void modifyDiet(@Valid @RequestBody DietRequest request, @PathVariable Long dietId, @AuthenticationPrincipal Long memberId) {
+        dietService.modifyDiet(memberId, dietId, request);
     }
 
     @Operation(summary = "식단 삭제하기")

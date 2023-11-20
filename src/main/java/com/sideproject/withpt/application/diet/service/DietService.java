@@ -1,5 +1,6 @@
 package com.sideproject.withpt.application.diet.service;
 
+import com.sideproject.withpt.application.Food.repository.FoodRepository;
 import com.sideproject.withpt.application.diet.dto.request.DietRequest;
 import com.sideproject.withpt.application.diet.dto.request.FoodItemRequest;
 import com.sideproject.withpt.application.diet.exception.DietException;
@@ -9,7 +10,8 @@ import com.sideproject.withpt.application.exercise.exception.ExerciseException;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.record.Diets;
+import com.sideproject.withpt.domain.record.Diet;
+import com.sideproject.withpt.domain.record.Food;
 import com.sideproject.withpt.domain.record.FoodItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ public class DietService {
 
     private final DietRepository dietRepository;
     private final MemberRepository memberRepository;
+    private final FoodRepository foodRepository;
     private final FoodItemRepository foodItemRepository;
 
     @Transactional
@@ -32,27 +35,29 @@ public class DietService {
             throw DietException.DIET_FOOD_NOT_EXIST;
         }
 
-        Diets diets = request.toEntity(member);
-        dietRepository.save(diets);
+        Diet diet = dietRepository.save(request.toEntity(member));
+
+        for (FoodItemRequest foodItemRequest : request.getFoodItems()) {
+            Food food = foodRepository.findById(foodItemRequest.getId()).orElseThrow(() -> DietException.DIET_FOOD_NOT_EXIST);
+            foodItemRepository.save(foodItemRequest.toEntity(diet, food));
+        }
     }
 
     @Transactional
     public void modifyDiet(Long memberId, Long dietsId, DietRequest request) {
-        Diets diets = validateDietId(dietsId, memberId);
+        Diet diet = validateDietId(dietsId, memberId);
 
-        foodItemRepository.deleteByDiets(dietsId);
+        foodItemRepository.deleteByDietId(dietsId);
 
         // 식단 음식 데이터 재저장
         if (request.getFoodItems() != null) {
             for (FoodItemRequest foodItemRequest : request.getFoodItems()) {
-                FoodItem foodItem = foodItemRequest.toEntity(diets);
-
-                foodItemRepository.save(foodItem);
-                diets.addDietFood(foodItem);
+                Food food = foodRepository.findById(foodItemRequest.getId()).orElseThrow(() -> DietException.DIET_FOOD_NOT_EXIST);
+                foodItemRepository.save(foodItemRequest.toEntity(diet, food));
             }
         }
 
-        diets.updateDiets(request);
+        diet.updateDiets(request);
     }
 
     @Transactional
@@ -65,16 +70,16 @@ public class DietService {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> GlobalException.TEST_ERROR);
     }
-
-    private Diets validateDietId(Long exerciseId, Long memberId) {
-        Diets diets = dietRepository.findById(exerciseId)
+    
+    private Diet validateDietId(Long exerciseId, Long memberId) {
+        Diet diet = dietRepository.findById(exerciseId)
                 .orElseThrow(() -> DietException.DIET_NOT_EXIST);
         Member member = validateMemberId(memberId);
 
-        if (!diets.getMember().getId().equals(member.getId())) {
+        if (!diet.getMember().getId().equals(member.getId())) {
             throw ExerciseException.EXERCISE_NOT_BELONG_TO_MEMBER;
         }
-        return diets;
+        return diet;
     }
 
 }

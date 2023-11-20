@@ -65,7 +65,7 @@ public class FoodDto {
                 .calories(energyKcal)
                 .carbohydrate(carbohydrates)
                 .protein(protein)
-                .province(fat)
+                .fat(fat)
                 .sugars(sugars)
                 .build();
     }

@@ -9,9 +9,7 @@ import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.type.MealCategory;
 import com.sideproject.withpt.config.TestEmbeddedRedisConfig;
 import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.record.Diets;
-import com.sideproject.withpt.domain.record.Food;
-import com.sideproject.withpt.domain.record.FoodItem;
+import com.sideproject.withpt.domain.record.Diet;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,13 +48,13 @@ public class DietServiceTest {
     void saveDiet() {
         // given
         given(memberRepository.findById(any(Long.class))).willReturn(Optional.of(createMember()));
-        given(dietRepository.save(any(Diets.class))).willReturn(createAddDietRequest().toEntity(createMember()));
+        given(dietRepository.save(any(Diet.class))).willReturn(createAddDietRequest().toEntity(createMember()));
 
         // when
         dietService.saveDiet(1L, createAddDietRequest());
 
         // then
-        then(dietRepository).should(times(1)).save(any(Diets.class));
+        then(dietRepository).should(times(1)).save(any(Diet.class));
     }
 
     @Test
@@ -81,7 +79,7 @@ public class DietServiceTest {
 
     private DietRequest createAddDietRequest() {
         FoodItemRequest foodItem = FoodItemRequest.builder()
-                .food(createFood())
+                .id(1L)
                 .gram(100)
                 .build();
 
@@ -89,19 +87,6 @@ public class DietServiceTest {
                 .mealCategory(MealCategory.BREAKFAST)
                 .mealTime(LocalDateTime.now())
                 .foodItems(List.of(foodItem))
-                .build();
-    }
-
-    private Food createFood() {
-        return Food.builder()
-                .name("요거트")
-                .foodGroup("유산균")
-                .totalGram(100)
-                .calories(150)
-                .carbohydrate(35.0)
-                .protein(12.5)
-                .province(7.2)
-                .sugars(5.0)
                 .build();
     }
 

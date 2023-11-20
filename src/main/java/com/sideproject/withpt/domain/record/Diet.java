@@ -16,27 +16,22 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Diets extends BaseEntity {
+public class Diet extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "diets_id")
+    @Column(name = "diet_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "diets", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "diet", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FoodItem> foodItemList = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private MealCategory mealCategory;
     private LocalDateTime mealTime;
-
-    public void addDietFood(FoodItem foodItem) {
-        foodItemList.add(foodItem);
-        foodItem.setDiets(this);
-    }
 
     public void updateDiets(DietRequest request) {
         this.mealCategory = request.getMealCategory();
