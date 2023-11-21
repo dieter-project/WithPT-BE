@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ImageRepository extends JpaRepository<Image, Long>, ImageCustomRepository {
+    List<Image> findByMemberIdAndUploadDateAndUsage(Long memberId, LocalDate uploadDate, Usages usages);
     Optional<Image> findByUrl(String url);
     void deleteByUrl(String url);
-    List<Image> findByMemberIdAndUploadDateAndUsage(Long memberId, LocalDate uploadDate, Usages usages);
+    void deleteByEntityId(Long entityId);
 }

@@ -7,7 +7,10 @@ import com.sideproject.withpt.application.diet.exception.DietException;
 import com.sideproject.withpt.application.diet.repository.DietRepository;
 import com.sideproject.withpt.application.diet.repository.FoodItemRepository;
 import com.sideproject.withpt.application.exercise.exception.ExerciseException;
+import com.sideproject.withpt.application.image.ImageUploader;
+import com.sideproject.withpt.application.image.repository.ImageRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
+import com.sideproject.withpt.application.type.Usages;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.Diet;
@@ -16,6 +19,9 @@ import com.sideproject.withpt.domain.record.FoodItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -26,9 +32,12 @@ public class DietService {
     private final MemberRepository memberRepository;
     private final FoodRepository foodRepository;
     private final FoodItemRepository foodItemRepository;
+    private final ImageRepository imageRepository;
+
+    private final ImageUploader imageUploader;
 
     @Transactional
-    public void saveDiet(Long memberId, DietRequest request) {
+    public void saveDiet(Long memberId, DietRequest request, List<MultipartFile> file) {
         Member member = validateMemberId(memberId);
 
         if (request.getFoodItems() == null || request.getFoodItems().isEmpty()) {
@@ -36,7 +45,31 @@ public class DietService {
         }
 
         Diet diet = dietRepository.save(request.toEntity(member));
+        saveFoodItem(request, diet);
+        saveDietImage(file, member, diet);
+    }
 
+    @Transactional
+    public void modifyDiet(Long memberId, Long dietsId, DietRequest request, List<MultipartFile> file) {
+        Diet diet = validateDietId(dietsId, memberId);
+
+        foodItemRepository.deleteByDietId(dietsId);
+        imageRepository.deleteByEntityId(dietsId);
+
+        // 식단 상세 & 이미지 삭제하고 재저장
+        if (request.getFoodItems() != null) saveFoodItem(request, diet);
+        saveDietImage(file, validateMemberId(memberId), diet);
+
+        diet.updateDiets(request);
+    }
+
+    @Transactional
+    public void deleteDiet(Long memberId, Long dietId) {
+        validateDietId(dietId, memberId);
+        dietRepository.deleteById(dietId);
+    }
+
+    private void saveFoodItem(DietRequest request, Diet diet) {
         for (FoodItemRequest foodItemRequest : request.getFoodItems()) {
             Food food = foodRepository.findById(foodItemRequest.getId()).orElseThrow(() -> DietException.DIET_FOOD_NOT_EXIST);
             int gramRatio = foodItemRequest.getGram() / food.getTotalGram();
@@ -54,27 +87,10 @@ public class DietService {
         }
     }
 
-    @Transactional
-    public void modifyDiet(Long memberId, Long dietsId, DietRequest request) {
-        Diet diet = validateDietId(dietsId, memberId);
-
-        foodItemRepository.deleteByDietId(dietsId);
-
-        // 식단 음식 데이터 재저장
-        if (request.getFoodItems() != null) {
-            for (FoodItemRequest foodItemRequest : request.getFoodItems()) {
-                Food food = foodRepository.findById(foodItemRequest.getId()).orElseThrow(() -> DietException.DIET_FOOD_NOT_EXIST);
-                foodItemRepository.save(foodItemRequest.toEntity(diet, food));
-            }
+    private void saveDietImage(List<MultipartFile> file, Member member, Diet diet) {
+        if(file != null && file.size() > 0) {
+            imageUploader.uploadAndSaveImages(file, diet.getId(), Usages.MEAL, member);
         }
-
-        diet.updateDiets(request);
-    }
-
-    @Transactional
-    public void deleteDiet(Long memberId, Long dietId) {
-        validateDietId(dietId, memberId);
-        dietRepository.deleteById(dietId);
     }
 
     private Member validateMemberId(Long memberId) {

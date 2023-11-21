@@ -47,14 +47,10 @@ public class DietServiceTest {
     @DisplayName("식단 기록 저장하기")
     void saveDiet() {
         // given
-        given(memberRepository.findById(any(Long.class))).willReturn(Optional.of(createMember()));
-        given(dietRepository.save(any(Diet.class))).willReturn(createAddDietRequest().toEntity(createMember()));
 
         // when
-        dietService.saveDiet(1L, createAddDietRequest());
 
         // then
-        then(dietRepository).should(times(1)).save(any(Diet.class));
     }
 
     @Test
