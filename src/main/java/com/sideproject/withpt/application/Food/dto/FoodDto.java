@@ -61,12 +61,20 @@ public class FoodDto {
     public Food toEntity() {
         return Food.builder()
                 .name(foodName.replaceAll("_", " "))
-                .totalGram(nutrientStandardAmount.replace("g", ""))
-                .calories(energyKcal)
-                .carbohydrate(carbohydrates)
-                .protein(protein)
-                .fat(fat)
-                .sugars(sugars)
+                .totalGram(Integer.parseInt(nutrientStandardAmount.replaceAll("[^0-9]", "")))
+                .calories(Integer.parseInt(energyKcal))
+                .carbohydrate(parseAndGetIntValue(carbohydrates))
+                .protein(parseAndGetIntValue(protein))
+                .fat(parseAndGetIntValue(fat))
                 .build();
+    }
+
+    // null 값 검증
+    private int parseAndGetIntValue(String value) {
+        if (value != null && !value.isEmpty()) {
+            return (int) Double.parseDouble(value);
+        } else {
+            return 0;
+        }
     }
 }

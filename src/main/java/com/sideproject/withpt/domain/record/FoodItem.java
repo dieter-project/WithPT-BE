@@ -27,4 +27,9 @@ public class FoodItem extends BaseEntity {
 
     private int gram;
 
+    private int calories;
+    private int carbohydrate;
+    private int protein;
+    private int fat;
+
 }

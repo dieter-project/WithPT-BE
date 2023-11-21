@@ -39,7 +39,18 @@ public class DietService {
 
         for (FoodItemRequest foodItemRequest : request.getFoodItems()) {
             Food food = foodRepository.findById(foodItemRequest.getId()).orElseThrow(() -> DietException.DIET_FOOD_NOT_EXIST);
-            foodItemRepository.save(foodItemRequest.toEntity(diet, food));
+            int gramRatio = foodItemRequest.getGram() / food.getTotalGram();
+
+            foodItemRepository.save(
+                    FoodItem.builder()
+                            .food(food)
+                            .diet(diet)
+                            .gram(foodItemRequest.getGram())
+                            .calories(gramRatio * food.getCalories())
+                            .carbohydrate(gramRatio * food.getCarbohydrate())
+                            .protein(gramRatio * food.getProtein())
+                            .fat(gramRatio * food.getFat())
+                            .build());
         }
     }
 
@@ -70,7 +81,7 @@ public class DietService {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> GlobalException.TEST_ERROR);
     }
-    
+
     private Diet validateDietId(Long exerciseId, Long memberId) {
         Diet diet = dietRepository.findById(exerciseId)
                 .orElseThrow(() -> DietException.DIET_NOT_EXIST);
