@@ -1,11 +1,12 @@
 package com.sideproject.withpt.application.body.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.Body;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Builder
@@ -14,7 +15,8 @@ import java.time.LocalDateTime;
 public class WeightInfoRequest {
 
     @NotNull(message = "측정일을 입력해 주세요")
-    private LocalDateTime bodyRecordDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
+    private LocalDate bodyRecordDate;
 
     @NotNull(message = "체중을 입력해 주세요")
     private double weight;

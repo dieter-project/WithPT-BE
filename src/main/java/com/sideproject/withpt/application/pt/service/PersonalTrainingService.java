@@ -1,11 +1,10 @@
 package com.sideproject.withpt.application.pt.service;
 
-import static com.sideproject.withpt.application.pt.exception.PTErrorCode.PT_NOT_FOUND;
-
 import com.sideproject.withpt.application.gym.exception.GymException;
 import com.sideproject.withpt.application.gym.repositoy.GymQueryRepository;
 import com.sideproject.withpt.application.gym.service.GymService;
 import com.sideproject.withpt.application.member.service.MemberService;
+import com.sideproject.withpt.application.pt.controller.response.EachGymMemberListResponse;
 import com.sideproject.withpt.application.pt.controller.response.GymsAndNumberOfMembersResponse;
 import com.sideproject.withpt.application.pt.controller.response.GymsAndNumberOfMembersResponse.GymResponse;
 import com.sideproject.withpt.application.pt.controller.response.PersonalTrainingMemberResponse;
@@ -25,8 +24,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,6 +57,7 @@ public class PersonalTrainingService {
 
         trainingRepository.save(PersonalTraining.registerPersonalTraining(member, trainer, gym));
 
+        // TODO : PUSH 알림 전송
         return PersonalTrainingMemberResponse.from(member.getName(), trainer.getName(), gym.getName());
     }
 
@@ -109,7 +109,7 @@ public class PersonalTrainingService {
             .build();
     }
 
-    public Page<PtMemberListDto> listOfPtMembersByRegistrationAllowedStatus(Long gymId, Long trainerId,
+    public EachGymMemberListResponse listOfPtMembersByRegistrationAllowedStatus(Long gymId, Long trainerId,
         PtRegistrationAllowedStatus registrationAllowedStatus, Pageable pageable) {
         Trainer trainer = trainerService.getTrainerById(trainerId);
         Gym gym = gymService.getGymById(gymId);

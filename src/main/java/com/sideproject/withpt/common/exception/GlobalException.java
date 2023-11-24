@@ -19,6 +19,7 @@ public class GlobalException extends RuntimeException {
     public static final GlobalException EMPTY_FILE = new GlobalException(CommonErrorCode.EMPTY_FILE);
     public static final GlobalException FILE_UPLOAD_FAILED = new GlobalException(CommonErrorCode.FILE_UPLOAD_FAILED);
     public static final GlobalException FILE_DELETE_FAILED = new GlobalException(CommonErrorCode.FILE_DELETE_FAILED);
+    public static final GlobalException EMPTY_DELETE_FILE = new GlobalException(CommonErrorCode.EMPTY_DELETE_FILE);
 
     private final ErrorCode errorCode;
 
