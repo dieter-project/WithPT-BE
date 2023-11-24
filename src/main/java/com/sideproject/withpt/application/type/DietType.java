@@ -5,5 +5,5 @@ import com.sideproject.withpt.common.exception.validator.CustomEnumDeserializer;
 
 @JsonDeserialize(using = CustomEnumDeserializer.class)
 public enum DietType {
-    GENERAL, FAT_LOSS, BULK_UP;
+    Carb_Protein_Fat, PROTEIN, DIET, KETO
 }
