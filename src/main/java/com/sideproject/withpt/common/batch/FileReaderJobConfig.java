@@ -35,7 +35,6 @@ public class FileReaderJobConfig {
                 .<FoodDto, FoodDto>chunk(chunkSize)
                 .reader(csvReader.csvFoodReader())
                 .writer(csvScheduleWriter)
-                .allowStartIfComplete(true)
                 .build();
     }
 
