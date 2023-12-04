@@ -1,22 +1,19 @@
 package com.sideproject.withpt.application.pt.service;
 
-import com.sideproject.withpt.application.gym.exception.GymException;
 import com.sideproject.withpt.application.gym.repositoy.GymQueryRepository;
 import com.sideproject.withpt.application.gym.service.GymService;
 import com.sideproject.withpt.application.member.service.MemberService;
+import com.sideproject.withpt.application.pt.controller.response.CountOfMembersAndGymsResponse;
 import com.sideproject.withpt.application.pt.controller.response.EachGymMemberListResponse;
-import com.sideproject.withpt.application.pt.controller.response.GymsAndNumberOfMembersResponse;
-import com.sideproject.withpt.application.pt.controller.response.GymsAndNumberOfMembersResponse.GymResponse;
 import com.sideproject.withpt.application.pt.controller.response.PersonalTrainingMemberResponse;
+import com.sideproject.withpt.application.pt.controller.response.TotalPtsCountResponse;
 import com.sideproject.withpt.application.pt.exception.PTException;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingQueryRepository;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
 import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
-import com.sideproject.withpt.application.pt.repository.dto.PtMemberListDto;
 import com.sideproject.withpt.application.trainer.service.TrainerService;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.domain.gym.Gym;
-import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
@@ -26,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,33 +68,30 @@ public class PersonalTrainingService {
         return trainingQueryRepository.deleteAllByMembersAndTrainerAndGym(members, trainer, gym);
     }
 
-    public GymsAndNumberOfMembersResponse listOfGymsAndNumberOfMembers(Long trainerId) {
+    public Slice<CountOfMembersAndGymsResponse> listOfGymsAndNumberOfMembers(Long trainerId, Pageable pageable) {
         Trainer trainer = trainerService.getTrainerById(trainerId);
 
-        List<GymTrainer> gymTrainers = gymQueryRepository.findAllGymsByTrainer(trainer);
-        if (gymTrainers == null || gymTrainers.isEmpty()) {
-            throw GymException.GYM_TRAINER_NOT_MAPPING;
-        }
+        Slice<Gym> gyms = gymQueryRepository.findAllTrainerGymsByPageable(trainer, pageable);
+        List<GymMemberCountDto> gymMemberCountDtos = trainingQueryRepository.findAllPTsPageableByGymAndTrainer(gyms, trainer);
 
-        List<Gym> gyms = gymTrainers.stream().map(GymTrainer::getGym).collect(Collectors.toList());
-        List<GymMemberCountDto> gymMemberCountDtos = trainingQueryRepository.findAllPTsByGymAndTrainer(gyms, trainer);
-
-        Long totalCount = gymMemberCountDtos.stream()
-            .mapToLong(GymMemberCountDto::getMemberCount)
-            .sum();
-
-        List<GymResponse> gymResponses = gyms.stream()
+        List<CountOfMembersAndGymsResponse> contents = gyms.stream()
             .map(gym -> {
                 Long memberCount = gymMemberCountDtos.stream()
                     .filter(dto -> gym.getName().equals(dto.getGymName()))
                     .findFirst()
                     .map(GymMemberCountDto::getMemberCount)
                     .orElse(0L);
-                return GymResponse.from(gym, memberCount);
+                return CountOfMembersAndGymsResponse.from(gym, memberCount);
             })
             .collect(Collectors.toList());
 
-        return GymsAndNumberOfMembersResponse.from(gymResponses, totalCount);
+        return new SliceImpl<>(contents, pageable, gyms.hasNext());
+    }
+
+    public TotalPtsCountResponse countOfAllPtMembers(Long trainerId) {
+        return TotalPtsCountResponse.from(
+             trainingQueryRepository.countOfAllPtMembers(trainerId)
+        );
     }
 
     public GymMemberCountDto getGymAndNumberOfMembers(Long trainerId, Long gymId) {

@@ -1,8 +1,10 @@
 package com.sideproject.withpt.application.pt.repository;
 
+import static com.sideproject.withpt.domain.gym.QGymTrainer.*;
 import static com.sideproject.withpt.domain.pt.QPersonalTraining.personalTraining;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.pt.controller.response.EachGymMemberListResponse;
@@ -12,6 +14,7 @@ import com.sideproject.withpt.application.pt.repository.dto.QGymMemberCountDto;
 import com.sideproject.withpt.application.pt.repository.dto.QPtMemberListDto;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.domain.gym.Gym;
+import com.sideproject.withpt.domain.gym.QGymTrainer;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.util.ArrayList;
@@ -32,7 +35,7 @@ public class PersonalTrainingQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public List<GymMemberCountDto> findAllPTsByGymAndTrainer(List<Gym> gyms, Trainer trainer) {
+    public List<GymMemberCountDto> findAllPTsPageableByGymAndTrainer(Slice<Gym> gyms, Trainer trainer) {
 
         return jpaQueryFactory
             .select(
@@ -42,9 +45,23 @@ public class PersonalTrainingQueryRepository {
             )
             .from(personalTraining)
             .leftJoin(personalTraining.gym)
-            .where(gymsIn(gyms), trainerEq(trainer))
+            .where(trainerEq(trainer), gymsIn(gyms.getContent()))
             .groupBy(personalTraining.gym)
             .fetch();
+    }
+
+    public Long countOfAllPtMembers(Long trainerId) {
+        return jpaQueryFactory
+            .select(personalTraining.count())
+            .from(personalTraining)
+            .where(
+                personalTraining.gym.id.in(
+                    JPAExpressions
+                        .select(gymTrainer.gym.id)
+                        .from(gymTrainer)
+                        .where(gymTrainer.trainer.id.eq(trainerId))
+
+                )).fetchOne();
     }
 
     public long deleteAllByMembersAndTrainerAndGym(List<Member> members, Trainer trainer, Gym gym) {
@@ -70,7 +87,8 @@ public class PersonalTrainingQueryRepository {
                 .fetchOne();
     }
 
-    public EachGymMemberListResponse findAllPtMembersByRegistrationAllowedStatus(Gym gym, Trainer trainer, PtRegistrationAllowedStatus registrationAllowedStatus, Pageable pageable) {
+    public EachGymMemberListResponse findAllPtMembersByRegistrationAllowedStatus(Gym gym, Trainer trainer,
+        PtRegistrationAllowedStatus registrationAllowedStatus, Pageable pageable) {
         List<PtMemberListDto> ptMemberListDtos = jpaQueryFactory
             .select(
                 new QPtMemberListDto(
@@ -98,7 +116,7 @@ public class PersonalTrainingQueryRepository {
 
         boolean hasNext = false;
 
-        if(content.size() > pageable.getPageSize()) {
+        if (content.size() > pageable.getPageSize()) {
             content.remove(pageable.getPageSize());
             hasNext = true;
         }
@@ -135,6 +153,9 @@ public class PersonalTrainingQueryRepository {
     }
 
     private BooleanExpression registrationAllowedStatusEq(PtRegistrationAllowedStatus registrationAllowedStatus) {
-        return ObjectUtils.isEmpty(registrationAllowedStatus) ? null : personalTraining.registrationAllowedStatus.eq(registrationAllowedStatus);
+        return ObjectUtils.isEmpty(registrationAllowedStatus) ? null
+            : personalTraining.registrationAllowedStatus.eq(registrationAllowedStatus);
     }
+
+
 }
