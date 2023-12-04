@@ -5,12 +5,15 @@ import com.sideproject.withpt.application.gym.controller.response.TrainerAllGyms
 import com.sideproject.withpt.application.gym.exception.GymException;
 import com.sideproject.withpt.application.gym.repositoy.GymQueryRepository;
 import com.sideproject.withpt.application.trainer.service.TrainerService;
+import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,5 +39,10 @@ public class GymQueryService {
                 .map(gymTrainer -> GymResponse.from(gymTrainer.getGym()))
                 .collect(Collectors.toList())
         );
+    }
+
+    public Slice<Gym> listOfAllGymsByPageable(Long trainerId, Pageable pageable) {
+        Trainer trainer = trainerService.getTrainerById(trainerId);
+        return gymQueryRepository.findAllTrainerGymsByPageable(trainer, pageable);
     }
 }
