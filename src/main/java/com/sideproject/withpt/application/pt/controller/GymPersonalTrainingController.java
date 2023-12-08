@@ -1,5 +1,6 @@
 package com.sideproject.withpt.application.pt.controller;
 
+import com.sideproject.withpt.application.pt.controller.request.AcceptPtRegistrationRequest;
 import com.sideproject.withpt.application.pt.controller.request.RemovePtMembersRequest;
 import com.sideproject.withpt.application.pt.controller.response.CountOfMembersAndGymsResponse;
 import com.sideproject.withpt.application.pt.controller.response.EachGymMemberListResponse;
@@ -56,6 +57,13 @@ public class GymPersonalTrainingController {
             personalTrainingService.listOfPtMembersByRegistrationAllowedStatus(gymId, trainerId,
                 PtRegistrationAllowedStatus.WAITING, pageable)
         );
+    }
+
+    @Operation(summary = "알림 - PT 등록 승인")
+    @PostMapping("/notification/registration-acceptance")
+    public ApiSuccessResponse<?> allowPtRegistrationNotification (@RequestBody AcceptPtRegistrationRequest request) {
+        personalTrainingService.allowPtRegistrationNotification(request);
+        return null;
     }
 
     @Operation(summary = "특정 체육관 - 승인된 회원 리스트 조회")
