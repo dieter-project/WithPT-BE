@@ -61,9 +61,8 @@ public class GymPersonalTrainingController {
 
     @Operation(summary = "알림 - PT 등록 승인")
     @PostMapping("/notification/registration-acceptance")
-    public ApiSuccessResponse<?> allowPtRegistrationNotification (@RequestBody AcceptPtRegistrationRequest request) {
+    public void allowPtRegistrationNotification (@RequestBody AcceptPtRegistrationRequest request) {
         personalTrainingService.allowPtRegistrationNotification(request);
-        return null;
     }
 
     @Operation(summary = "특정 체육관 - 승인된 회원 리스트 조회")
