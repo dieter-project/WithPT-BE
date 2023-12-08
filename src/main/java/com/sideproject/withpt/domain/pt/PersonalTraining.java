@@ -25,9 +25,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter(AccessLevel.PROTECTED)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -90,5 +92,11 @@ public class PersonalTraining extends BaseEntity {
             .registrationStatus(PtRegistrationStatus.ALLOWED_BEFORE)
             .registrationAllowedStatus(PtRegistrationAllowedStatus.WAITING)
             .build();
+    }
+
+    public static void allowPTRegistration(PersonalTraining personalTraining) {
+        personalTraining.setFirstRegistrationDate(LocalDateTime.now());
+        personalTraining.setRegistrationAllowedStatus(PtRegistrationAllowedStatus.APPROVED);
+        personalTraining.setRegistrationStatus(PtRegistrationStatus.NEW_REGISTRATION);
     }
 }

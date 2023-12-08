@@ -3,6 +3,7 @@ package com.sideproject.withpt.application.pt.service;
 import com.sideproject.withpt.application.gym.repositoy.GymQueryRepository;
 import com.sideproject.withpt.application.gym.service.GymService;
 import com.sideproject.withpt.application.member.service.MemberService;
+import com.sideproject.withpt.application.pt.controller.request.AcceptPtRegistrationRequest;
 import com.sideproject.withpt.application.pt.controller.response.CountOfMembersAndGymsResponse;
 import com.sideproject.withpt.application.pt.controller.response.EachGymMemberListResponse;
 import com.sideproject.withpt.application.pt.controller.response.PersonalTrainingMemberResponse;
@@ -113,4 +114,20 @@ public class PersonalTrainingService {
             registrationAllowedStatus, pageable);
     }
 
+    @Transactional
+    public void allowPtRegistrationNotification(AcceptPtRegistrationRequest request) {
+        Member member = memberService.getMemberById(request.getMemberId());
+        Trainer trainer = trainerService.getTrainerById(request.getTrainerId());
+        Gym gym = gymService.getGymById(request.getGymId());
+
+        PersonalTraining personalTraining = trainingRepository.findByMemberAndTrainerAndGym(member, trainer, gym)
+            .orElseThrow(() -> PTException.PT_NOT_FOUND);
+
+        // 이미 등록을 허용하면 에러
+        if (personalTraining.getRegistrationAllowedStatus() == PtRegistrationAllowedStatus.APPROVED) {
+            throw PTException.AlREADY_ALLOWED_PT_REGISTRATION;
+        }
+
+        PersonalTraining.allowPTRegistration(personalTraining);
+    }
 }
