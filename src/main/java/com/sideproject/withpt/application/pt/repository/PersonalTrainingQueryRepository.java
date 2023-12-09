@@ -1,20 +1,23 @@
 package com.sideproject.withpt.application.pt.repository;
 
-import static com.sideproject.withpt.domain.gym.QGymTrainer.*;
+import static com.sideproject.withpt.domain.gym.QGymTrainer.gymTrainer;
 import static com.sideproject.withpt.domain.pt.QPersonalTraining.personalTraining;
+import static com.sideproject.withpt.domain.pt.QPersonalTrainingInfo.personalTrainingInfo;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.pt.controller.response.EachGymMemberListResponse;
+import com.sideproject.withpt.application.pt.controller.response.MemberDetailInfoResponse;
+import com.sideproject.withpt.application.pt.controller.response.QMemberDetailInfoResponse;
+import com.sideproject.withpt.application.pt.controller.response.QReRegistrationHistoryResponse;
+import com.sideproject.withpt.application.pt.controller.response.ReRegistrationHistoryResponse;
 import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
 import com.sideproject.withpt.application.pt.repository.dto.PtMemberListDto;
 import com.sideproject.withpt.application.pt.repository.dto.QGymMemberCountDto;
 import com.sideproject.withpt.application.pt.repository.dto.QPtMemberListDto;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.domain.gym.Gym;
-import com.sideproject.withpt.domain.gym.QGymTrainer;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.util.ArrayList;
@@ -136,8 +139,84 @@ public class PersonalTrainingQueryRepository {
             .build();
     }
 
+    public MemberDetailInfoResponse findPtMemberDetailInfo(Long memberId, Long trainerId, Long gymId) {
+        return jpaQueryFactory
+            .select(
+                new QMemberDetailInfoResponse(
+                    personalTraining.member.id,
+                    personalTraining.gym.id,
+                    personalTraining.registrationStatus,
+                    personalTraining.totalPtCount,
+                    personalTraining.remainingPtCount,
+                    personalTraining.firstRegistrationDate,
+                    personalTraining.lastRegistrationDate,
+                    personalTraining.member.name,
+                    personalTraining.gym.name,
+                    personalTraining.member.authentication.birth,
+                    personalTraining.member.authentication.sex,
+                    personalTraining.member.height,
+                    personalTraining.member.weight,
+                    personalTraining.member.dietType,
+                    personalTraining.note
+                )
+            )
+            .from(personalTraining)
+            .join(personalTraining.member)
+            .join(personalTraining.gym)
+            .where(
+                personalTraining.member.id.eq(memberId),
+                personalTraining.trainer.id.eq(trainerId),
+                personalTraining.gym.id.eq(gymId)
+            )
+            .fetchOne();
+    }
+
+    public Slice<ReRegistrationHistoryResponse> findRegistrationHistory(Member member, Trainer trainer, Gym gym, Pageable pageable) {
+
+        List<ReRegistrationHistoryResponse> contents = jpaQueryFactory
+            .select(
+                new QReRegistrationHistoryResponse(
+                    personalTrainingInfo.personalTraining.id,
+                    personalTrainingInfo.ptCount,
+                    personalTrainingInfo.registrationDate,
+                    personalTrainingInfo.registrationStatus
+                )
+            )
+            .from(personalTrainingInfo)
+            .leftJoin(personalTrainingInfo.personalTraining)
+            .where(
+                personalTrainingInfo.personalTraining.id.eq(
+                    JPAExpressions
+                        .select(personalTraining.id)
+                        .from(personalTraining)
+                        .where(
+                            memberEq(member),
+                            trainerEq(trainer),
+                            gymEq(gym)
+                        )
+                )
+            )
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize() + 1)
+            .orderBy(personalTrainingInfo.registrationDate.asc())
+            .fetch();
+
+        boolean hasNext = false;
+
+        if(contents.size() > pageable.getPageSize()) {
+            contents.remove(pageable.getPageSize());
+            hasNext = true;
+        }
+
+        return new SliceImpl<>(contents, pageable, hasNext);
+    }
+
     private BooleanExpression membersIn(List<Member> members) {
         return CollectionUtils.isEmpty(members) ? null : personalTraining.member.in(members);
+    }
+
+    private BooleanExpression memberEq(Member member) {
+        return ObjectUtils.isEmpty(member) ? null : personalTraining.member.eq(member);
     }
 
     private BooleanExpression gymsIn(List<Gym> gyms) {

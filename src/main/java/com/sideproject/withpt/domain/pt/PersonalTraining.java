@@ -8,8 +8,6 @@ import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -19,7 +17,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -51,9 +48,6 @@ public class PersonalTraining extends BaseEntity {
     @JoinColumn(name = "gym_id")
     private Gym gym;
 
-    @OneToMany(mappedBy = "personalTraining")
-    private List<PersonalTrainingInfo> personalTrainingInfos = new ArrayList<>();
-
     private int totalPtCount;
 
     private int remainingPtCount;
@@ -75,11 +69,6 @@ public class PersonalTraining extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PtRegistrationAllowedStatus registrationAllowedStatus;
 
-    public void inputPtRegistrationInfo(PersonalTrainingInfo trainingInfo) {
-        this.personalTrainingInfos.add(trainingInfo);
-        trainingInfo.addTraining(this);
-    }
-
     public static PersonalTraining registerPersonalTraining(Member member, Trainer trainer, Gym gym) {
         return PersonalTraining.builder()
             .member(member)
@@ -95,8 +84,29 @@ public class PersonalTraining extends BaseEntity {
     }
 
     public static void allowPTRegistration(PersonalTraining personalTraining) {
-        personalTraining.setFirstRegistrationDate(LocalDateTime.now());
         personalTraining.setRegistrationAllowedStatus(PtRegistrationAllowedStatus.APPROVED);
-        personalTraining.setRegistrationStatus(PtRegistrationStatus.NEW_REGISTRATION);
+        personalTraining.setRegistrationStatus(PtRegistrationStatus.ALLOWED);
+    }
+
+    public static void saveFirstPtDetailInfo(PersonalTraining pt, int ptCount, LocalDateTime firstRegistrationDate, String note) {
+        pt.setTotalPtCount(ptCount);
+        pt.setRemainingPtCount(ptCount);
+        pt.setFirstRegistrationDate(firstRegistrationDate);
+        pt.setNote(note);
+        pt.setInfoInputStatus(PTInfoInputStatus.INFO_REGISTERED);
+        pt.setRegistrationStatus(PtRegistrationStatus.NEW_REGISTRATION);
+    }
+
+    public static void updatePtDetailInfo(PersonalTraining pt, int totalPtCount, int remainingPtCount, String note) {
+        pt.setTotalPtCount(pt.getTotalPtCount() + (totalPtCount - pt.getTotalPtCount()));
+        pt.setRemainingPtCount(pt.getRemainingPtCount() + (remainingPtCount - pt.getRemainingPtCount()));
+        pt.setNote(note);
+    }
+
+    public static void extendPt(PersonalTraining pt, int totalPtCount, int remainingPtCount, LocalDateTime registrationDate) {
+        pt.setTotalPtCount(pt.getTotalPtCount() + totalPtCount);
+        pt.setRemainingPtCount(pt.getRemainingPtCount() + remainingPtCount);
+        pt.setLastRegistrationDate(registrationDate);
+        pt.setRegistrationStatus(PtRegistrationStatus.RE_REGISTRATION);
     }
 }
