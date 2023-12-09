@@ -1,10 +1,16 @@
 package com.sideproject.withpt.application.pt.controller;
 
 import com.sideproject.withpt.application.pt.controller.request.AcceptPtRegistrationRequest;
+import com.sideproject.withpt.application.pt.controller.request.ExtendPtRequest;
 import com.sideproject.withpt.application.pt.controller.request.RemovePtMembersRequest;
+import com.sideproject.withpt.application.pt.controller.request.SavePtMemberDetailInfoRequest;
+import com.sideproject.withpt.application.pt.controller.request.UpdatePtMemberDetailInfoRequest;
 import com.sideproject.withpt.application.pt.controller.response.CountOfMembersAndGymsResponse;
 import com.sideproject.withpt.application.pt.controller.response.EachGymMemberListResponse;
+import com.sideproject.withpt.application.pt.controller.response.MemberDetailInfoResponse;
 import com.sideproject.withpt.application.pt.controller.response.PersonalTrainingMemberResponse;
+import com.sideproject.withpt.application.pt.controller.response.ReRegistrationHistoryResponse;
+import com.sideproject.withpt.application.pt.controller.response.TotalAndRemainingPtCountResponse;
 import com.sideproject.withpt.application.pt.controller.response.TotalPtsCountResponse;
 import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
 import com.sideproject.withpt.application.pt.service.PersonalTrainingService;
@@ -18,6 +24,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -101,5 +108,47 @@ public class GymPersonalTrainingController {
         );
     }
 
+    @Operation(summary = "세부 정보 입력 필요 상태일 때 - 회원 정보 조회")
+    @GetMapping("/gyms/{gymId}/members/{memberId}/info")
+    public ApiSuccessResponse<MemberDetailInfoResponse> getPtMemberDetailInfo(@PathVariable Long memberId, @PathVariable Long gymId, @AuthenticationPrincipal Long trainerId) {
+        return ApiSuccessResponse.from(
+            personalTrainingService.getPtMemberDetailInfo(memberId, trainerId, gymId)
+        );
+    }
 
+    @Operation(summary = "PT 회원 세부 정보 초기 입력")
+    @PostMapping("/gyms/{gymId}/members/{memberId}/info")
+    public void savePtMemberDetailInfo(
+        @PathVariable Long memberId, @PathVariable Long gymId, @RequestBody SavePtMemberDetailInfoRequest request, @AuthenticationPrincipal Long trainerId
+    ) {
+        personalTrainingService.savePtMemberDetailInfo(memberId, trainerId, gymId, request);
+    }
+
+    @Operation(summary = "회원 PT 잔여 및 전체 횟수 조회")
+    @GetMapping("/gyms/{gymId}/members/{memberId}/info/pt-count")
+    public ApiSuccessResponse<TotalAndRemainingPtCountResponse> getPtTotalAndRemainingCount(@PathVariable Long memberId, @PathVariable Long gymId, @AuthenticationPrincipal Long trainerId) {
+        return ApiSuccessResponse.from(
+            personalTrainingService.getPtTotalAndRemainingCount(memberId, trainerId, gymId)
+        );
+    }
+
+    @Operation(summary = "PT 회원 세부 정보 수정")
+    @PatchMapping("/gyms/{gymId}/members/{memberId}/info")
+    public void updatePtMemberDetailInfo(@PathVariable Long memberId, @PathVariable Long gymId, @RequestBody UpdatePtMemberDetailInfoRequest request, @AuthenticationPrincipal Long trainerId) {
+        personalTrainingService.updatePtMemberDetailInfo(memberId, trainerId, gymId, request);
+    }
+
+    @Operation(summary = "PT 횟수 연장하기")
+    @PatchMapping("/gyms/{gymId}/members/{memberId}")
+    public void extendPt(@PathVariable Long memberId, @PathVariable Long gymId, @RequestBody ExtendPtRequest request, @AuthenticationPrincipal Long trainerId) {
+        personalTrainingService.extendPt(memberId, trainerId, gymId, request);
+    }
+
+    @Operation(summary = "PT 재등록 히스토리")
+    @GetMapping("/gyms/{gymId}/members/{memberId}/history")
+    public ApiSuccessResponse<Slice<ReRegistrationHistoryResponse>> getReRegistrationHistory(@PathVariable Long memberId, @PathVariable Long gymId, @AuthenticationPrincipal Long trainerId, Pageable pageable) {
+        return ApiSuccessResponse.from(
+            personalTrainingService.getReRegistrationHistory(memberId, trainerId, gymId, pageable)
+        );
+    }
 }

@@ -2,6 +2,9 @@ package com.sideproject.withpt.domain.pt;
 
 import com.sideproject.withpt.application.type.PtRegistrationStatus;
 import com.sideproject.withpt.domain.BaseEntity;
+import com.sideproject.withpt.domain.gym.Gym;
+import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDateTime;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -17,21 +20,20 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Entity
 @Getter
 @Builder
 @AllArgsConstructor
-@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PersonalTrainingInfo extends BaseEntity {
+public class PTCountLog extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int ptCount;
+    private int totalPtCount;
+    private int remainingPtCount;
 
     private LocalDateTime registrationDate;
 
@@ -39,21 +41,29 @@ public class PersonalTrainingInfo extends BaseEntity {
     private PtRegistrationStatus registrationStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "personal_training_id")
-    private PersonalTraining personalTraining;
+    @JoinColumn(name = "member_id")
+    private Member member;
 
-    public void addTraining(PersonalTraining personalTraining) {
-        this.personalTraining = personalTraining;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trainer_id")
+    private Trainer trainer;
 
-    public static PersonalTrainingInfo saveTrainingInfo(
-        PersonalTraining personalTraining, int ptCount, LocalDateTime registrationDate, PtRegistrationStatus registrationStatus
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gym_id")
+    private Gym gym;
+
+    public static PTCountLog recordPTCountLog(
+        Member member, Trainer trainer, Gym gym,
+        int totalPtCount, int remainingPtCount, LocalDateTime registrationDate, PtRegistrationStatus registrationStatus
     ) {
-        return PersonalTrainingInfo.builder()
-            .ptCount(ptCount)
+        return PTCountLog.builder()
+            .member(member)
+            .trainer(trainer)
+            .gym(gym)
+            .totalPtCount(totalPtCount)
+            .remainingPtCount(remainingPtCount)
             .registrationDate(registrationDate)
             .registrationStatus(registrationStatus)
-            .personalTraining(personalTraining)
             .build();
     }
 }
