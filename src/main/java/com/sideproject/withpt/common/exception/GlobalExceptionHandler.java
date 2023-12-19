@@ -41,6 +41,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, errorCode, request);
     }
 
+
+    @Override
+    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers,
+        HttpStatus status, WebRequest request) {
+        log.warn("Exception {}", ex.getMessage());
+        ErrorCode errorCode = CommonErrorCode.INTERNAL_SERVER_ERROR;
+
+        return ResponseEntity
+            .status(errorCode.getHttpStatus())
+            .body(ApiErrorResponse.from(ex, errorCode, request));
+    }
+
     private ResponseEntity<Object> handleExceptionInternal(ErrorCode errorCode, HttpServletRequest request) {
         return ResponseEntity
             .status(errorCode.getHttpStatus())
