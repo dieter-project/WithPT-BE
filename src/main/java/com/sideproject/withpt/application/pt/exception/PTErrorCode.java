@@ -9,6 +9,9 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum PTErrorCode implements ErrorCode {
 
+    MISSING_PT_DETAILS_INFO(HttpStatus.BAD_REQUEST, "PT 상세 정보를 입력하지 않으셨습니다."),
+    NO_REMAINING_PT(HttpStatus.BAD_REQUEST,"잔여 PT 횟수가 남아 있지 않습니다"),
+    PT_REGISTRATION_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "아직 PT 등록을 허용하지 않은 회원입니다."),
     AlREADY_REGISTERED_FIRST_PT_INFO(HttpStatus.BAD_REQUEST, "이미 초기 PT 정보가 등록되어 있습니다."),
     AlREADY_ALLOWED_PT_REGISTRATION(HttpStatus.BAD_REQUEST, "이미 PT 등록 알림을 허용한 상태입니다."),
     AlREADY_REGISTERED_PT_MEMBER(HttpStatus.BAD_REQUEST, "이미 등록된 PT 회원입니다."),
