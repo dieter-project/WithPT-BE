@@ -1,8 +1,7 @@
 package com.sideproject.withpt.domain.trainer;
 
 import com.sideproject.withpt.domain.BaseEntity;
-import com.sideproject.withpt.domain.trainer.convertor.YearMonthToDateConverter;
-import java.time.LocalDate;
+import com.sideproject.withpt.common.convertor.YearMonthToDateConverter;
 import java.time.YearMonth;
 import javax.persistence.Column;
 import javax.persistence.Convert;

@@ -2,9 +2,7 @@ package com.sideproject.withpt.domain.trainer;
 
 import com.sideproject.withpt.application.type.EmploymentStatus;
 import com.sideproject.withpt.domain.BaseEntity;
-import com.sideproject.withpt.domain.trainer.convertor.YearMonthToDateConverter;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import com.sideproject.withpt.common.convertor.YearMonthToDateConverter;
 import java.time.YearMonth;
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -23,7 +21,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Entity
 @Builder

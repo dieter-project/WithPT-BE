@@ -1,7 +1,7 @@
 package com.sideproject.withpt.domain.trainer;
 
 import com.sideproject.withpt.domain.BaseEntity;
-import com.sideproject.withpt.domain.trainer.convertor.YearToShortConverter;
+import com.sideproject.withpt.common.convertor.YearToShortConverter;
 import java.time.Year;
 import javax.persistence.Convert;
 import javax.persistence.Entity;

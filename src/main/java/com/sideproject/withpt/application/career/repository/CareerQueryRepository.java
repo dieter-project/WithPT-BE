@@ -2,22 +2,15 @@ package com.sideproject.withpt.application.career.repository;
 
 import static com.sideproject.withpt.domain.trainer.QCareer.career;
 
-import com.querydsl.core.types.ConstantImpl;
-import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.career.controller.response.CareerResponse;
 import com.sideproject.withpt.application.career.controller.response.QCareerResponse;
 import com.sideproject.withpt.application.type.EmploymentStatus;
 import com.sideproject.withpt.domain.trainer.Career;
-import com.sideproject.withpt.domain.trainer.convertor.YearMonthToDateConverter;
-import java.sql.Date;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.Convert;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
