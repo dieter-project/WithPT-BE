@@ -3,25 +3,26 @@ package com.sideproject.withpt.application.lesson.service;
 import com.sideproject.withpt.application.gym.repositoy.GymQueryRepository;
 import com.sideproject.withpt.application.gym.service.GymService;
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
+import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.controller.response.SearchMemberResponse;
 import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.lesson.repository.LessonQueryRepository;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
 import com.sideproject.withpt.application.member.service.MemberService;
 import com.sideproject.withpt.application.pt.exception.PTException;
-import com.sideproject.withpt.application.pt.repository.PersonalTrainingInfoRepository;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingQueryRepository;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
 import com.sideproject.withpt.application.trainer.service.TrainerService;
+import com.sideproject.withpt.application.type.Day;
 import com.sideproject.withpt.application.type.LessonStatus;
 import com.sideproject.withpt.application.type.PTInfoInputStatus;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.pt.Lesson;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -96,7 +97,13 @@ public class LessonService {
         return lessonQueryRepository.findAllMembersByGymIdAndName(trainer, gym, name, pageable);
     }
 
-    public void getTrainerWorkSchedule() {
 
+    public AvailableLessonScheduleResponse getTrainerWorkSchedule(Long gymId, Long trainerId, Day weekday, LocalDate date) {
+        Gym gym = gymService.getGymById(gymId);
+
+        return AvailableLessonScheduleResponse.of(
+            trainerId, gymId, date, weekday,
+            lessonQueryRepository.getAvailableTrainerLessonSchedule(trainerId, gym, weekday, date)
+        );
     }
 }

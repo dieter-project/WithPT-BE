@@ -1,29 +1,21 @@
 package com.sideproject.withpt.application.lesson.controller;
 
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
+import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.controller.response.SearchMemberResponse;
 import com.sideproject.withpt.application.lesson.service.LessonService;
 import com.sideproject.withpt.application.type.Day;
-import com.sideproject.withpt.application.type.Role;
-import com.sideproject.withpt.common.exception.validator.ValidEnum;
-import com.sideproject.withpt.common.jwt.JwtTokenProvider;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
-import com.sideproject.withpt.common.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
-import java.security.Principal;
-import java.security.Security;
-import java.util.ArrayList;
-import java.util.stream.Collectors;
+import java.time.LocalDate;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -65,12 +57,14 @@ public class LessonController {
     }
 
     @Operation(summary = "수업관리/스케줄 - 수업등록 => 트레이너 근무 시간 조회")
-    @GetMapping("/gym/{gymId}/schedule")
-    public void getTrainerWorkSchedule(@PathVariable Long gymId, @AuthenticationPrincipal Long trainerId,
-        @ValidEnum(regexp = "MON|TUE|WED|THU|FRI|SAT|SUN", enumClass = Day.class)
-        @RequestParam Day weekday
+    @GetMapping("/gym/{gymId}/trainers/{trainerId}/schedule")
+    public ApiSuccessResponse<AvailableLessonScheduleResponse> getTrainerWorkSchedule(@PathVariable Long gymId,
+        @PathVariable Long trainerId,
+        @RequestParam Day weekday,
+        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date
     ) {
-        log.info("요일 : " + weekday);
-//        getTrainerWorkSchedule
+        return ApiSuccessResponse.from(
+            lessonService.getTrainerWorkSchedule(gymId, trainerId, weekday, date)
+        );
     }
 }
