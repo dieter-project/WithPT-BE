@@ -129,15 +129,12 @@ public class PersonalTrainingService {
     }
 
     @Transactional
-    public void allowPtRegistrationNotification(AcceptPtRegistrationRequest request) {
-        Member member = memberService.getMemberById(request.getMemberId());
-        Trainer trainer = trainerService.getTrainerById(request.getTrainerId());
-        Gym gym = gymService.getGymById(request.getGymId());
+    public void allowPtRegistrationNotification(Long ptId) {
 
-        PersonalTraining personalTraining = trainingRepository.findByMemberAndTrainerAndGym(member, trainer, gym)
+        PersonalTraining personalTraining = trainingRepository.findById(ptId)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
-        // 이미 등록을 허용하면 에러
+        // 이미 등록을 허용한 상태면 에러
         if (personalTraining.getRegistrationAllowedStatus() == PtRegistrationAllowedStatus.APPROVED) {
             throw PTException.AlREADY_ALLOWED_PT_REGISTRATION;
         }
