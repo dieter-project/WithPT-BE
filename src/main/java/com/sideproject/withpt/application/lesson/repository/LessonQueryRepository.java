@@ -10,6 +10,8 @@ import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
+import com.sideproject.withpt.application.lesson.controller.response.LessonMembersInGymResponse.LessonMember;
+import com.sideproject.withpt.application.lesson.controller.response.QLessonMembersInGymResponse_LessonMember;
 import com.sideproject.withpt.application.lesson.controller.response.QSearchMemberResponse;
 import com.sideproject.withpt.application.lesson.controller.response.SearchMemberResponse;
 import com.sideproject.withpt.application.type.Day;
@@ -17,6 +19,7 @@ import com.sideproject.withpt.application.type.LessonStatus;
 import com.sideproject.withpt.application.type.PTInfoInputStatus;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.domain.gym.Gym;
+import com.sideproject.withpt.domain.member.QMember;
 import com.sideproject.withpt.domain.pt.Lesson;
 import com.sideproject.withpt.domain.pt.QLesson;
 import com.sideproject.withpt.domain.pt.QPersonalTraining;
@@ -112,7 +115,8 @@ public class LessonQueryRepository {
         );
     }
 
-    public Map<LocalTime, Boolean> getAvailableTrainerLessonSchedule(Long trainerId, Gym gym, Day weekday, LocalDate date) {
+    public Map<LocalTime, Boolean> getAvailableTrainerLessonSchedule(Long trainerId, Gym gym, Day weekday,
+        LocalDate date) {
         WorkSchedule schedule = jpaQueryFactory
             .selectFrom(workSchedule)
             .where(
@@ -143,7 +147,7 @@ public class LessonQueryRepository {
 
         Map<LocalTime, Boolean> lessonSchedule = new LinkedHashMap<>();
 
-        while(startTime.isBefore(endTime)) {
+        while (startTime.isBefore(endTime)) {
             lessonSchedule.put(startTime, times.contains(startTime));
             startTime = startTime.plus(interval);
         }
@@ -153,6 +157,72 @@ public class LessonQueryRepository {
         log.info("수업 스케줄 : {}", lessonSchedule);
 
         return lessonSchedule;
+    }
+
+    public Long getLessonMembersReservationTotalCount(Long trainerId, Gym gym, LocalDate date) {
+        return jpaQueryFactory
+            .select(lesson.count())
+            .from(lesson)
+            .where(
+                lesson.personalTraining.id.in(
+                    JPAExpressions
+                        .select(personalTraining.id)
+                        .from(personalTraining)
+                        .where(
+                            personalTraining.trainer.id.eq(trainerId),
+                            personalTraining.gym.eq(gym)
+                        )
+                ),
+                lesson.date.eq(date),
+                lesson.status.eq(LessonStatus.RESERVATION)
+            ).fetchOne();
+    }
+
+    public Slice<LessonMember> getLessonScheduleMembersInGym(Long trainerId, Gym gym, LocalDate date, Pageable pageable) {
+        QMember qMember = QMember.member;
+
+        List<LessonMember> content = jpaQueryFactory
+            .select(
+                new QLessonMembersInGymResponse_LessonMember(
+                    qMember.id,
+                    qMember.name,
+                    lesson.time,
+                    lesson.time
+                )
+            )
+            .from(lesson)
+            .leftJoin(lesson.personalTraining)
+            .leftJoin(qMember).on(lesson.personalTraining.member.eq(qMember))
+            .where(
+                lesson.date.eq(date),
+                lesson.status.eq(LessonStatus.RESERVATION),
+                lesson.personalTraining.id.in(
+                    JPAExpressions
+                        .select(personalTraining.id)
+                        .from(personalTraining)
+                        .where(
+                            personalTraining.trainer.id.eq(trainerId),
+                            personalTraining.gym.eq(gym)
+                        )
+                )
+            )
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize() + 1)
+            .orderBy(
+                lesson.time.asc()
+            )
+            .fetch();
+
+        log.info("결과 : {}", content);
+
+        boolean hasNext = false;
+
+        if (content.size() > pageable.getPageSize()) {
+            content.remove(pageable.getPageSize());
+            hasNext = true;
+        }
+
+        return new SliceImpl<>(content, pageable, hasNext);
     }
 
     private BooleanExpression memberNameContains(String name) {
@@ -166,4 +236,5 @@ public class LessonQueryRepository {
     private BooleanExpression gymEq(Gym gym) {
         return ObjectUtils.isEmpty(gym) ? null : personalTraining.gym.eq(gym);
     }
+
 }

@@ -4,6 +4,8 @@ import com.sideproject.withpt.application.gym.repositoy.GymQueryRepository;
 import com.sideproject.withpt.application.gym.service.GymService;
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
+import com.sideproject.withpt.application.lesson.controller.response.LessonMembersInGymResponse;
+import com.sideproject.withpt.application.lesson.controller.response.LessonMembersInGymResponse.LessonMember;
 import com.sideproject.withpt.application.lesson.controller.response.SearchMemberResponse;
 import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.lesson.repository.LessonQueryRepository;
@@ -104,6 +106,17 @@ public class LessonService {
         return AvailableLessonScheduleResponse.of(
             trainerId, gymId, date, weekday,
             lessonQueryRepository.getAvailableTrainerLessonSchedule(trainerId, gym, weekday, date)
+        );
+    }
+
+    public LessonMembersInGymResponse getLessonScheduleMembersInGym(Long trainerId, Long gymId, LocalDate date, Pageable pageable) {
+        Gym gym = gymService.getGymById(gymId);
+
+        return LessonMembersInGymResponse.of(
+            gym,
+            date,
+            lessonQueryRepository.getLessonMembersReservationTotalCount(trainerId, gym, date),
+            lessonQueryRepository.getLessonScheduleMembersInGym(trainerId, gym, date, pageable)
         );
     }
 }

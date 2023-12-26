@@ -2,6 +2,7 @@ package com.sideproject.withpt.application.lesson.controller;
 
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
+import com.sideproject.withpt.application.lesson.controller.response.LessonMembersInGymResponse;
 import com.sideproject.withpt.application.lesson.controller.response.SearchMemberResponse;
 import com.sideproject.withpt.application.lesson.service.LessonService;
 import com.sideproject.withpt.application.type.Day;
@@ -32,6 +33,16 @@ public class LessonController {
 
     private final LessonService lessonService;
 
+    @Operation(summary = "수업관리/스케줄 - 해당 날짜의 체육관 수업 스케줄 조회")
+    @GetMapping("/gym/{gymId}/members")
+    public ApiSuccessResponse<LessonMembersInGymResponse> getLessonScheduleMembersInGym(@AuthenticationPrincipal Long trainerId, @PathVariable Long gymId,
+        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date, Pageable pageable) {
+
+        return ApiSuccessResponse.from(
+            lessonService.getLessonScheduleMembersInGym(trainerId, gymId, date, pageable)
+        );
+    }
+
     @Operation(summary = "수업관리/스케줄 - 수업등록")
     @PostMapping("/gym/{gymId}")
     public void registrationPtLesson(@PathVariable Long gymId,
@@ -45,7 +56,7 @@ public class LessonController {
     }
 
     @Operation(summary = "수업관리/스케줄 - 수업등록 => 회원이름 검색")
-    @GetMapping("/gym/{gymId}/members")
+    @GetMapping("/gym/{gymId}/members/search")
     public ApiSuccessResponse<Slice<SearchMemberResponse>> searchPtMemberInGym(
         @PathVariable Long gymId, @AuthenticationPrincipal Long trainerId,
         @RequestParam(required = false) String name,
