@@ -97,6 +97,7 @@ public class PersonalTrainingQueryRepository {
                 new QPtMemberListDto(
                     personalTraining.member.id,
                     personalTraining.member.name,
+                    personalTraining.id,
                     personalTraining.totalPtCount,
                     personalTraining.remainingPtCount,
                     personalTraining.infoInputStatus,

@@ -15,6 +15,7 @@ public class PtMemberListDto {
 
     private Long id;
     private String name;
+    private Long ptId;
     private int totalPtCount;
     private int remainingPtCount;
     private PTInfoInputStatus infoInputStatus;
@@ -22,11 +23,12 @@ public class PtMemberListDto {
     private LocalDateTime registrationRequestDate;
 
     @QueryProjection
-    public PtMemberListDto(Long id, String name, int totalPtCount, int remainingPtCount,
+    public PtMemberListDto(Long id, String name, Long ptId, int totalPtCount, int remainingPtCount,
         PTInfoInputStatus infoInputStatus,
         PtRegistrationAllowedStatus registrationAllowedStatus, LocalDateTime registrationRequestDate) {
         this.id = id;
         this.name = name;
+        this.ptId = ptId;
         this.totalPtCount = totalPtCount;
         this.remainingPtCount = remainingPtCount;
         this.infoInputStatus = infoInputStatus;
