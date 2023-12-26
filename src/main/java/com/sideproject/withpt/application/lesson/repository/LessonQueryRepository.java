@@ -58,6 +58,7 @@ public class LessonQueryRepository {
                 new QSearchMemberResponse(
                     personalTraining.member.id,
                     personalTraining.member.name,
+                    personalTraining.infoInputStatus,
                     personalTraining.member.authentication.birth,
                     personalTraining.member.authentication.sex,
                     personalTraining.remainingPtCount
@@ -69,7 +70,6 @@ public class LessonQueryRepository {
                 trainerEq(trainer),
                 gymEq(gym),
                 personalTraining.registrationAllowedStatus.eq(PtRegistrationAllowedStatus.APPROVED),
-                personalTraining.infoInputStatus.eq(PTInfoInputStatus.INFO_REGISTERED),
                 memberNameContains(name)
             )
             .offset(pageable.getOffset())
