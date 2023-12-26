@@ -1,4 +1,4 @@
-package com.sideproject.withpt.domain.trainer.convertor;
+package com.sideproject.withpt.common.convertor;
 
 import java.time.Year;
 import javax.persistence.AttributeConverter;

@@ -79,4 +79,12 @@ public class ApiErrorResponse {
             .build();
     }
 
+    public static ApiErrorResponse from(Exception e, ErrorCode errorCode, WebRequest request) {
+        return ApiErrorResponse.builder()
+            .status(errorCode.getHttpStatus().toString())
+            .code(errorCode.name())
+            .message(e.getMessage())
+            .requestUrl(((ServletWebRequest)request).getRequest().getRequestURI())
+            .build();
+    }
 }

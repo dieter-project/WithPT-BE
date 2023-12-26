@@ -1,8 +1,9 @@
-package com.sideproject.withpt.domain.trainer;
+package com.sideproject.withpt.domain.pt;
 
 import com.sideproject.withpt.application.type.Day;
+import com.sideproject.withpt.application.type.LessonStatus;
 import com.sideproject.withpt.domain.BaseEntity;
-import com.sideproject.withpt.domain.gym.Gym;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -22,37 +23,30 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Builder
-@Setter(AccessLevel.PACKAGE)
 @Getter
+@Setter(AccessLevel.PROTECTED)
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class WorkSchedule extends BaseEntity {
+public class Lesson extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "trainer_id")
-    private Trainer trainer;
+    @JoinColumn(name = "personal_training_id")
+    private PersonalTraining personalTraining;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gym_id")
-    private Gym gym;
+    private LocalDate date;
+
+    @Column(name = "TIME", columnDefinition = "TIME")
+    private LocalTime time;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "\"DAY\"")
     private Day weekday;
 
-    @Column(name = "IN_TIME", columnDefinition = "TIME")
-    private LocalTime inTime;
-
-    @Column(name = "OUT_TIME", columnDefinition = "TIME")
-    private LocalTime outTime;
-
-    public static WorkSchedule createWorkSchedule(Gym gym, WorkSchedule workSchedule) {
-        workSchedule.setGym(gym);
-        return workSchedule;
-    }
+    @Enumerated(EnumType.STRING)
+    private LessonStatus status;
 }
