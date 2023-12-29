@@ -124,10 +124,10 @@ public class GymPersonalTrainingController {
     }
 
     @Operation(summary = "회원 PT 잔여 및 전체 횟수 조회")
-    @GetMapping("/{gymId}/personal-trainings/members/{memberId}/info/pt-count")
-    public ApiSuccessResponse<TotalAndRemainingPtCountResponse> getPtTotalAndRemainingCount(@PathVariable Long memberId, @PathVariable Long gymId, @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId) {
+    @GetMapping("/personal-trainings/{ptId}/member/info/pt-count")
+    public ApiSuccessResponse<TotalAndRemainingPtCountResponse> getPtTotalAndRemainingCount(@PathVariable Long ptId) {
         return ApiSuccessResponse.from(
-            personalTrainingService.getPtTotalAndRemainingCount(memberId, trainerId, gymId)
+            personalTrainingService.getPtTotalAndRemainingCount(ptId)
         );
     }
 

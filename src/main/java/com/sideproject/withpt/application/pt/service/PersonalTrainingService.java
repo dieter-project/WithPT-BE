@@ -185,17 +185,13 @@ public class PersonalTrainingService {
         );
     }
 
-    public TotalAndRemainingPtCountResponse getPtTotalAndRemainingCount(Long memberId, Long trainerId, Long gymId) {
-        Member member = memberService.getMemberById(memberId);
-        Trainer trainer = trainerService.getTrainerById(trainerId);
-        Gym gym = gymService.getGymById(gymId);
+    public TotalAndRemainingPtCountResponse getPtTotalAndRemainingCount(Long ptId) {
 
-        PersonalTraining personalTraining = trainingRepository.findByMemberAndTrainerAndGym(member, trainer, gym)
+        PersonalTraining personalTraining = trainingRepository.findById(ptId)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
         return TotalAndRemainingPtCountResponse.of(
-            member.getId(),
-            gym.getId(),
+            ptId,
             personalTraining.getTotalPtCount(),
             personalTraining.getRemainingPtCount()
         );
