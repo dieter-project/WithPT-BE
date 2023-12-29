@@ -132,9 +132,9 @@ public class GymPersonalTrainingController {
     }
 
     @Operation(summary = "PT 회원 세부 정보 수정")
-    @PatchMapping("/{gymId}/personal-trainings/members/{memberId}/info")
-    public void updatePtMemberDetailInfo(@PathVariable Long memberId, @PathVariable Long gymId, @RequestBody UpdatePtMemberDetailInfoRequest request, @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId) {
-        personalTrainingService.updatePtMemberDetailInfo(memberId, trainerId, gymId, request);
+    @PatchMapping("/personal-trainings/{ptId}/member/info")
+    public void updatePtMemberDetailInfo(@PathVariable Long ptId, @RequestBody UpdatePtMemberDetailInfoRequest request) {
+        personalTrainingService.updatePtMemberDetailInfo(ptId, request);
     }
 
     @Operation(summary = "PT 횟수 연장하기")

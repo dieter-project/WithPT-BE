@@ -202,12 +202,8 @@ public class PersonalTrainingService {
     }
 
     @Transactional
-    public void updatePtMemberDetailInfo(Long memberId, Long trainerId, Long gymId, UpdatePtMemberDetailInfoRequest request) {
-        Member member = memberService.getMemberById(memberId);
-        Trainer trainer = trainerService.getTrainerById(trainerId);
-        Gym gym = gymService.getGymById(gymId);
-
-        PersonalTraining personalTraining = trainingRepository.findByMemberAndTrainerAndGym(member, trainer, gym)
+    public void updatePtMemberDetailInfo(Long ptId, UpdatePtMemberDetailInfoRequest request) {
+        PersonalTraining personalTraining = trainingRepository.findById(ptId)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
         int beforeTotalPtCount = personalTraining.getTotalPtCount();
@@ -231,9 +227,6 @@ public class PersonalTrainingService {
     public void extendPt(Long ptId, ExtendPtRequest request) {
         PersonalTraining personalTraining = trainingRepository.findById(ptId)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
-
-        int beforeTotalPtCount = personalTraining.getTotalPtCount();
-        int beforeRemainingPtCount = personalTraining.getRemainingPtCount();
 
         PersonalTraining.extendPt(personalTraining, request.getPtCount(), request.getPtCount(), request.getReRegistrationDate());
 
