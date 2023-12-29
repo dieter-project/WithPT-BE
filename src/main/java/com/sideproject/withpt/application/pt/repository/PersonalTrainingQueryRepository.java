@@ -19,6 +19,8 @@ import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
 import com.sideproject.withpt.application.pt.repository.dto.PtMemberListDto;
 import com.sideproject.withpt.application.pt.repository.dto.QGymMemberCountDto;
 import com.sideproject.withpt.application.pt.repository.dto.QPtMemberListDto;
+import com.sideproject.withpt.application.pt.repository.dto.QPtMemberListDto_MemberInfo;
+import com.sideproject.withpt.application.pt.repository.dto.QPtMemberListDto_PtInfo;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.member.Member;
@@ -100,14 +102,18 @@ public class PersonalTrainingQueryRepository {
         List<PtMemberListDto> ptMemberListDtos = jpaQueryFactory
             .select(
                 new QPtMemberListDto(
-                    personalTraining.member.id,
-                    personalTraining.member.name,
-                    personalTraining.id,
-                    personalTraining.totalPtCount,
-                    personalTraining.remainingPtCount,
-                    personalTraining.infoInputStatus,
-                    personalTraining.registrationAllowedStatus,
-                    personalTraining.registrationRequestDate
+                    new QPtMemberListDto_MemberInfo(
+                        personalTraining.member.id,
+                        personalTraining.member.name,
+                        new QPtMemberListDto_PtInfo(
+                            personalTraining.id,
+                            personalTraining.totalPtCount,
+                            personalTraining.remainingPtCount,
+                            personalTraining.infoInputStatus,
+                            personalTraining.registrationAllowedStatus,
+                            personalTraining.registrationRequestDate
+                        )
+                    )
                 )
             )
             .from(personalTraining)
