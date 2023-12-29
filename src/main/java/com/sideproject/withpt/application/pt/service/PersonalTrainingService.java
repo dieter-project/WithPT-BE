@@ -151,13 +151,14 @@ public class PersonalTrainingService {
     }
 
     @Transactional
-    public void savePtMemberDetailInfo(Long memberId, Long trainerId, Long gymId, SavePtMemberDetailInfoRequest request) {
-        Member member = memberService.getMemberById(memberId);
-        Trainer trainer = trainerService.getTrainerById(trainerId);
-        Gym gym = gymService.getGymById(gymId);
-
-        PersonalTraining personalTraining = trainingRepository.findByMemberAndTrainerAndGym(member, trainer, gym)
+    public void savePtMemberDetailInfo(Long ptId, SavePtMemberDetailInfoRequest request) {
+        PersonalTraining personalTraining = trainingRepository.findById(ptId)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
+
+        // 등록 허용되지 않은 회원이면
+        if(personalTraining.getRegistrationAllowedStatus() == PtRegistrationAllowedStatus.WAITING) {
+            throw PTException.PT_REGISTRATION_NOT_ALLOWED;
+        }
 
         // 이미 초기 입력이 됐으면 에러
         if (personalTraining.getRegistrationStatus() == PtRegistrationStatus.NEW_REGISTRATION) {
@@ -177,7 +178,7 @@ public class PersonalTrainingService {
 
         ptCountLogRepository.save(
             PTCountLog.recordPTCountLog(
-                member, trainer, gym,
+                personalTraining,
                 request.getPtCount(),
                 request.getPtCount(),
                 request.getFirstRegistrationDate(), PtRegistrationStatus.NEW_REGISTRATION)
@@ -217,7 +218,7 @@ public class PersonalTrainingService {
         // 로그 기록
         ptCountLogRepository.save(
             PTCountLog.recordPTCountLog(
-                member, trainer, gym,
+                personalTraining,
                 request.getTotalPtCount() - beforeTotalPtCount,
                 request.getRemainingPtCount() - beforeRemainingPtCount,
                 LocalDateTime.now(),
@@ -227,12 +228,8 @@ public class PersonalTrainingService {
     }
 
     @Transactional
-    public void extendPt(Long memberId, Long trainerId, Long gymId, ExtendPtRequest request) {
-        Member member = memberService.getMemberById(memberId);
-        Trainer trainer = trainerService.getTrainerById(trainerId);
-        Gym gym = gymService.getGymById(gymId);
-
-        PersonalTraining personalTraining = trainingRepository.findByMemberAndTrainerAndGym(member, trainer, gym)
+    public void extendPt(Long ptId, ExtendPtRequest request) {
+        PersonalTraining personalTraining = trainingRepository.findById(ptId)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
         int beforeTotalPtCount = personalTraining.getTotalPtCount();
@@ -252,7 +249,7 @@ public class PersonalTrainingService {
         // 로그 기록
         ptCountLogRepository.save(
             PTCountLog.recordPTCountLog(
-                member, trainer, gym,
+                personalTraining,
                 request.getPtCount(),
                 request.getPtCount(),
                 request.getReRegistrationDate(),

@@ -18,6 +18,7 @@ import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -117,11 +118,9 @@ public class GymPersonalTrainingController {
     }
 
     @Operation(summary = "PT 회원 세부 정보 초기 입력")
-    @PostMapping("/{gymId}/personal-trainings/members/{memberId}/info")
-    public void savePtMemberDetailInfo(
-        @PathVariable Long memberId, @PathVariable Long gymId, @RequestBody SavePtMemberDetailInfoRequest request, @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId
-    ) {
-        personalTrainingService.savePtMemberDetailInfo(memberId, trainerId, gymId, request);
+    @PostMapping("/personal-trainings/{ptId}/member/info")
+    public void savePtMemberDetailInfo(@PathVariable Long ptId, @Valid @RequestBody SavePtMemberDetailInfoRequest request) {
+        personalTrainingService.savePtMemberDetailInfo(ptId, request);
     }
 
     @Operation(summary = "회원 PT 잔여 및 전체 횟수 조회")
@@ -139,9 +138,9 @@ public class GymPersonalTrainingController {
     }
 
     @Operation(summary = "PT 횟수 연장하기")
-    @PatchMapping("/{gymId}/personal-trainings/members/{memberId}")
-    public void extendPt(@PathVariable Long memberId, @PathVariable Long gymId, @RequestBody ExtendPtRequest request, @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId) {
-        personalTrainingService.extendPt(memberId, trainerId, gymId, request);
+    @PatchMapping("/personal-trainings/{ptId}")
+    public void extendPt(@PathVariable Long ptId, @Valid @RequestBody ExtendPtRequest request) {
+        personalTrainingService.extendPt(ptId, request);
     }
 
     @Operation(summary = "PT 재등록 히스토리")
