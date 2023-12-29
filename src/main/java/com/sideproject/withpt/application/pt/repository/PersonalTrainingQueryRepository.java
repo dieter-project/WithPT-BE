@@ -52,7 +52,8 @@ public class PersonalTrainingQueryRepository {
             )
             .from(personalTraining)
             .leftJoin(personalTraining.gym)
-            .where(trainerEq(trainer), gymsIn(gyms.getContent()))
+            .where(trainerEq(trainer), gymsIn(gyms.getContent()),
+                personalTraining.registrationAllowedStatus.eq(PtRegistrationAllowedStatus.APPROVED))
             .groupBy(personalTraining.gym)
             .fetch();
     }
