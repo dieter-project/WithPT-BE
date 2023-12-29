@@ -9,6 +9,6 @@ import lombok.ToString;
 @Getter
 public class RemovePtMembersRequest {
 
-    List<Long> memberIds;
+    List<Long> ptIds;
 
 }
