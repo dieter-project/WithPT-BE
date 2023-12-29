@@ -190,7 +190,7 @@ public class PersonalTrainingQueryRepository {
             .fetchOne();
     }
 
-    public Slice<ReRegistrationHistoryResponse> findRegistrationHistory(Member member, Trainer trainer, Gym gym, Pageable pageable) {
+    public Slice<ReRegistrationHistoryResponse> findRegistrationHistory(PersonalTraining pt, Pageable pageable) {
 
         List<ReRegistrationHistoryResponse> contents = jpaQueryFactory
             .select(
@@ -209,9 +209,7 @@ public class PersonalTrainingQueryRepository {
                         .select(personalTraining.id)
                         .from(personalTraining)
                         .where(
-                            memberEq(member),
-                            trainerEq(trainer),
-                            gymEq(gym)
+                            personalTraining.eq(pt)
                         )
                 )
             )

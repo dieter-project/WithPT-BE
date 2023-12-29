@@ -144,10 +144,10 @@ public class GymPersonalTrainingController {
     }
 
     @Operation(summary = "PT 재등록 히스토리")
-    @GetMapping("/{gymId}/personal-trainings/members/{memberId}/history")
-    public ApiSuccessResponse<Slice<ReRegistrationHistoryResponse>> getReRegistrationHistory(@PathVariable Long memberId, @PathVariable Long gymId, @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId, Pageable pageable) {
+    @GetMapping("/personal-trainings/{ptId}/member/info/history")
+    public ApiSuccessResponse<Slice<ReRegistrationHistoryResponse>> getReRegistrationHistory(@PathVariable Long ptId, Pageable pageable) {
         return ApiSuccessResponse.from(
-            personalTrainingService.getReRegistrationHistory(memberId, trainerId, gymId, pageable)
+            personalTrainingService.getReRegistrationHistory(ptId, pageable)
         );
     }
 }

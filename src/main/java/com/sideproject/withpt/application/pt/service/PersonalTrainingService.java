@@ -247,11 +247,10 @@ public class PersonalTrainingService {
         );
     }
 
-    public Slice<ReRegistrationHistoryResponse> getReRegistrationHistory(Long memberId, Long trainerId, Long gymId, Pageable pageable) {
-        Member member = memberService.getMemberById(memberId);
-        Trainer trainer = trainerService.getTrainerById(trainerId);
-        Gym gym = gymService.getGymById(gymId);
+    public Slice<ReRegistrationHistoryResponse> getReRegistrationHistory(Long ptId, Pageable pageable) {
+        PersonalTraining personalTraining = trainingRepository.findById(ptId)
+            .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
-         return trainingQueryRepository.findRegistrationHistory(member, trainer, gym, pageable);
+         return trainingQueryRepository.findRegistrationHistory(personalTraining, pageable);
     }
 }
