@@ -14,6 +14,7 @@ import com.sideproject.withpt.application.pt.controller.response.PersonalTrainin
 import com.sideproject.withpt.application.pt.controller.response.ReRegistrationHistoryResponse;
 import com.sideproject.withpt.application.pt.controller.response.TotalAndRemainingPtCountResponse;
 import com.sideproject.withpt.application.pt.controller.response.TotalPtsCountResponse;
+import com.sideproject.withpt.application.pt.exception.PTErrorCode;
 import com.sideproject.withpt.application.pt.exception.PTException;
 import com.sideproject.withpt.application.pt.repository.PTCountLogRepository;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingInfoRepository;
@@ -23,6 +24,9 @@ import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
 import com.sideproject.withpt.application.trainer.service.TrainerService;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.application.type.PtRegistrationStatus;
+import com.sideproject.withpt.common.exception.CommonErrorCode;
+import com.sideproject.withpt.common.exception.ErrorCode;
+import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.pt.PTCountLog;
@@ -37,6 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,12 +80,8 @@ public class PersonalTrainingService {
     }
 
     @Transactional
-    public long deletePersonalTrainingMembers(Long gymId, Long trainerId, List<Long> memberIds) {
-        Gym gym = gymService.getGymById(gymId);
-        Trainer trainer = trainerService.getTrainerById(trainerId);
-        List<Member> members = memberService.getAllMemberById(memberIds);
-
-        return trainingQueryRepository.deleteAllByMembersAndTrainerAndGym(members, trainer, gym);
+    public void deletePersonalTrainingMembers(List<Long> ptIds) {
+        trainingRepository.deleteAllByIdInBatch(ptIds);
     }
 
     public Slice<CountOfMembersAndGymsResponse> listOfGymsAndNumberOfMembers(Long trainerId, Pageable pageable) {

@@ -51,10 +51,9 @@ public class GymPersonalTrainingController {
     }
 
     @Operation(summary = "체육관 회원 해제하기")
-    @DeleteMapping("/{gymId}/personal-trainings/members")
-    public void deletePtMembers(@PathVariable Long gymId,@Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
-        @RequestBody RemovePtMembersRequest request) {
-        personalTrainingService.deletePersonalTrainingMembers(gymId, trainerId, request.getMemberIds());
+    @DeleteMapping("/personal-trainings/members")
+    public void deletePtMembers(@RequestBody RemovePtMembersRequest request) {
+        personalTrainingService.deletePersonalTrainingMembers(request.getPtIds());
     }
 
     @Operation(summary = "특정 체육관 - 등록 요청 대기 중 회원 리스트 조회")
