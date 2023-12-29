@@ -142,8 +142,11 @@ public class PersonalTrainingService {
         PersonalTraining.allowPTRegistration(personalTraining);
     }
 
-    public MemberDetailInfoResponse getPtMemberDetailInfo(Long memberId, Long trainerId, Long gymId) {
-        return trainingQueryRepository.findPtMemberDetailInfo(memberId, trainerId, gymId);
+    public MemberDetailInfoResponse getPtMemberDetailInfo(Long ptId) {
+        PersonalTraining personalTraining = trainingRepository.findById(ptId)
+            .orElseThrow(() -> PTException.PT_NOT_FOUND);
+
+        return trainingQueryRepository.findPtMemberDetailInfo(personalTraining);
     }
 
     @Transactional

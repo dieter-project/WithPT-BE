@@ -10,6 +10,9 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.pt.controller.response.EachGymMemberListResponse;
 import com.sideproject.withpt.application.pt.controller.response.MemberDetailInfoResponse;
 import com.sideproject.withpt.application.pt.controller.response.QMemberDetailInfoResponse;
+import com.sideproject.withpt.application.pt.controller.response.QMemberDetailInfoResponse_GymInfo;
+import com.sideproject.withpt.application.pt.controller.response.QMemberDetailInfoResponse_MemberInfo;
+import com.sideproject.withpt.application.pt.controller.response.QMemberDetailInfoResponse_PtInfo;
 import com.sideproject.withpt.application.pt.controller.response.QReRegistrationHistoryResponse;
 import com.sideproject.withpt.application.pt.controller.response.ReRegistrationHistoryResponse;
 import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
@@ -19,6 +22,7 @@ import com.sideproject.withpt.application.pt.repository.dto.QPtMemberListDto;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.util.ArrayList;
 import java.util.List;
@@ -140,34 +144,39 @@ public class PersonalTrainingQueryRepository {
             .build();
     }
 
-    public MemberDetailInfoResponse findPtMemberDetailInfo(Long memberId, Long trainerId, Long gymId) {
+    public MemberDetailInfoResponse findPtMemberDetailInfo(PersonalTraining pt) {
         return jpaQueryFactory
             .select(
                 new QMemberDetailInfoResponse(
-                    personalTraining.member.id,
-                    personalTraining.gym.id,
-                    personalTraining.registrationStatus,
-                    personalTraining.totalPtCount,
-                    personalTraining.remainingPtCount,
-                    personalTraining.firstRegistrationDate,
-                    personalTraining.lastRegistrationDate,
-                    personalTraining.member.name,
-                    personalTraining.gym.name,
-                    personalTraining.member.authentication.birth,
-                    personalTraining.member.authentication.sex,
-                    personalTraining.member.height,
-                    personalTraining.member.weight,
-                    personalTraining.member.dietType,
-                    personalTraining.note
+                    new QMemberDetailInfoResponse_MemberInfo(
+                        personalTraining.member.id,
+                        personalTraining.member.name,
+                        personalTraining.member.authentication.birth,
+                        personalTraining.member.authentication.sex,
+                        personalTraining.member.height,
+                        personalTraining.member.weight,
+                        personalTraining.member.dietType
+                    ),
+                    new QMemberDetailInfoResponse_GymInfo(
+                        personalTraining.gym.id,
+                        personalTraining.gym.name
+                    ),
+                    new QMemberDetailInfoResponse_PtInfo(
+                        personalTraining.id,
+                        personalTraining.registrationStatus,
+                        personalTraining.totalPtCount,
+                        personalTraining.remainingPtCount,
+                        personalTraining.note,
+                        personalTraining.firstRegistrationDate,
+                        personalTraining.lastRegistrationDate
+                    )
                 )
             )
             .from(personalTraining)
             .join(personalTraining.member)
             .join(personalTraining.gym)
             .where(
-                personalTraining.member.id.eq(memberId),
-                personalTraining.trainer.id.eq(trainerId),
-                personalTraining.gym.id.eq(gymId)
+                personalTraining.eq(pt)
             )
             .fetchOne();
     }
