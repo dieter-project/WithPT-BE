@@ -71,7 +71,9 @@ public class PersonalTrainingQueryRepository {
                         .from(gymTrainer)
                         .where(gymTrainer.trainer.id.eq(trainerId))
 
-                )).fetchOne();
+                ),
+                personalTraining.registrationAllowedStatus.eq(PtRegistrationAllowedStatus.APPROVED)
+                ).fetchOne();
     }
 
     public long deleteAllByMembersAndTrainerAndGym(List<Member> members, Trainer trainer, Gym gym) {
