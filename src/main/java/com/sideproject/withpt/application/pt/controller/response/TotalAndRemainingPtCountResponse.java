@@ -12,15 +12,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TotalAndRemainingPtCountResponse {
 
-    private Long memberId;
-    private Long gymId;
+    private Long ptId;
     private int totalPtCount;
     private int remainingPtCount;
 
-    public static TotalAndRemainingPtCountResponse of(Long memberId, Long gymId, int totalPtCount, int remainingPtCount) {
+    public static TotalAndRemainingPtCountResponse of(Long ptId, int totalPtCount, int remainingPtCount) {
         return TotalAndRemainingPtCountResponse.builder()
-            .memberId(memberId)
-            .gymId(gymId)
+            .ptId(ptId)
             .totalPtCount(totalPtCount)
             .remainingPtCount(remainingPtCount)
             .build();

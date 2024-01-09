@@ -11,49 +11,86 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
-@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberDetailInfoResponse {
 
-    private Long memberId;
-    private Long gymId;
-
-    private PtRegistrationStatus registrationStatus;
-    private int totalPtCount;
-    private int remainingPtCount;
-
-    private LocalDateTime firstRegistrationDate;
-    private LocalDateTime lastRegistrationDate;
-
-    private String memberName;
-    private String gymName;
-    private LocalDate birthDate;
-    private Sex sex;
-    private Double height;
-    private Double weight;
-    private DietType dietType;
-    private String note;
+    private MemberInfo member;
+    private GymInfo gym;
+    private PtInfo pt;
 
     @QueryProjection
-    public MemberDetailInfoResponse(Long memberId, Long gymId, PtRegistrationStatus registrationStatus, int totalPtCount,
-        int remainingPtCount, LocalDateTime firstRegistrationDate, LocalDateTime lastRegistrationDate, String memberName,
-        String gymName, LocalDate birthDate, Sex sex, Double height, Double weight, DietType dietType, String note) {
-        this.memberId = memberId;
-        this.gymId = gymId;
-        this.registrationStatus = registrationStatus;
-        this.totalPtCount = totalPtCount;
-        this.remainingPtCount = remainingPtCount;
-        this.firstRegistrationDate = firstRegistrationDate;
-        this.lastRegistrationDate = lastRegistrationDate;
-        this.memberName = memberName;
-        this.gymName = gymName;
-        this.birthDate = birthDate;
-        this.sex = sex;
-        this.height = height;
-        this.weight = weight;
-        this.dietType = dietType;
-        this.note = note;
+    public MemberDetailInfoResponse(MemberInfo member, GymInfo gym, PtInfo pt) {
+        this.member = member;
+        this.gym = gym;
+        this.pt = pt;
     }
+
+    @Getter
+    @ToString
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class MemberInfo {
+        private Long id;
+        private String name;
+        private LocalDate birth;
+        private Sex sex;
+        private Double height;
+        private Double weight;
+        private DietType dietType;
+
+        @QueryProjection
+        public MemberInfo(Long id, String name, LocalDate birth, Sex sex, Double height, Double weight,
+            DietType dietType) {
+            this.id = id;
+            this.name = name;
+            this.birth = birth;
+            this.sex = sex;
+            this.height = height;
+            this.weight = weight;
+            this.dietType = dietType;
+        }
+    }
+
+    @Getter
+    @ToString
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class GymInfo {
+        private Long id;
+        private String name;
+
+        @QueryProjection
+        public GymInfo(Long id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+    }
+
+    @Getter
+    @ToString
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class PtInfo {
+        private Long id;
+        private PtRegistrationStatus registrationStatus;
+        private int totalPtCount;
+        private int remainingPtCount;
+        private String note;
+        private LocalDateTime firstRegistrationDate;
+        private LocalDateTime lastRegistrationDate;
+
+        @QueryProjection
+        public PtInfo(Long id, PtRegistrationStatus registrationStatus, int totalPtCount, int remainingPtCount,
+            String note,
+            LocalDateTime firstRegistrationDate, LocalDateTime lastRegistrationDate) {
+            this.id = id;
+            this.registrationStatus = registrationStatus;
+            this.totalPtCount = totalPtCount;
+            this.remainingPtCount = remainingPtCount;
+            this.note = note;
+            this.firstRegistrationDate = firstRegistrationDate;
+            this.lastRegistrationDate = lastRegistrationDate;
+        }
+    }
+
 }

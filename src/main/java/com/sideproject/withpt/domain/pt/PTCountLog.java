@@ -41,25 +41,15 @@ public class PTCountLog extends BaseEntity {
     private PtRegistrationStatus registrationStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "trainer_id")
-    private Trainer trainer;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gym_id")
-    private Gym gym;
+    @JoinColumn(name = "personal_training_id")
+    private PersonalTraining personalTraining;
 
     public static PTCountLog recordPTCountLog(
-        Member member, Trainer trainer, Gym gym,
+        PersonalTraining personalTraining,
         int totalPtCount, int remainingPtCount, LocalDateTime registrationDate, PtRegistrationStatus registrationStatus
     ) {
         return PTCountLog.builder()
-            .member(member)
-            .trainer(trainer)
-            .gym(gym)
+            .personalTraining(personalTraining)
             .totalPtCount(totalPtCount)
             .remainingPtCount(remainingPtCount)
             .registrationDate(registrationDate)
