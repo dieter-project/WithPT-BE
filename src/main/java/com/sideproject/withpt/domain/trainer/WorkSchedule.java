@@ -20,6 +20,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Builder
@@ -27,6 +28,7 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(exclude = {"trainer", "gym"})
 public class WorkSchedule extends BaseEntity {
 
     @Id
@@ -54,5 +56,10 @@ public class WorkSchedule extends BaseEntity {
     public static WorkSchedule createWorkSchedule(Gym gym, WorkSchedule workSchedule) {
         workSchedule.setGym(gym);
         return workSchedule;
+    }
+
+    public void editWorkScheduleTime(LocalTime inTime, LocalTime outTime){
+        this.inTime = inTime;
+        this.outTime = outTime;
     }
 }

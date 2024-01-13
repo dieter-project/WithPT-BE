@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -24,14 +23,14 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/trainers/mypage/management/awards")
+@RequestMapping("/api/v1/trainers/{trainerId}/awards")
 public class AwardController {
 
     private final AwardQueryService awardQueryService;
 
     @Operation(summary = "트레이너 모든 수상내역 조회")
     @GetMapping
-    public ApiSuccessResponse<Slice<AwardResponse>> getAllAwards(@AuthenticationPrincipal Long trainerId, Pageable pageable) {
+    public ApiSuccessResponse<Slice<AwardResponse>> getAllAwards(@PathVariable Long trainerId, Pageable pageable) {
         return ApiSuccessResponse.from(
             awardQueryService.getAllAwards(trainerId, pageable)
         );
@@ -39,7 +38,7 @@ public class AwardController {
 
     @Operation(summary = "트레이너 수상내역 단건 조회")
     @GetMapping("/{awardId}")
-    public ApiSuccessResponse<AwardResponse> getAward(@AuthenticationPrincipal Long trainerId, @PathVariable Long awardId) {
+    public ApiSuccessResponse<AwardResponse> getAward(@PathVariable Long trainerId, @PathVariable Long awardId) {
         return ApiSuccessResponse.from(
             awardQueryService.getAward(trainerId, awardId)
         );
@@ -47,7 +46,7 @@ public class AwardController {
 
     @Operation(summary = "트레이너 수상내역 추가")
     @PostMapping
-    public ApiSuccessResponse<AwardResponse> saveAward(@AuthenticationPrincipal Long trainerId, @Valid @RequestBody AwardSaveRequest request) {
+    public ApiSuccessResponse<AwardResponse> saveAward(@PathVariable Long trainerId, @Valid @RequestBody AwardSaveRequest request) {
         return ApiSuccessResponse.from(
            awardQueryService.saveAward(trainerId, request.toEntity())
         );
@@ -55,7 +54,7 @@ public class AwardController {
 
     @Operation(summary = "수상내역 수정")
     @PatchMapping
-    public ApiSuccessResponse<AwardResponse> editAward(@AuthenticationPrincipal Long trainerId, @Valid @RequestBody AwardEditRequest request) {
+    public ApiSuccessResponse<AwardResponse> editAward(@PathVariable Long trainerId, @Valid @RequestBody AwardEditRequest request) {
         return ApiSuccessResponse.from(
             awardQueryService.editAward(trainerId, request)
         );
@@ -63,7 +62,7 @@ public class AwardController {
 
     @Operation(summary = "수상내역 삭제")
     @DeleteMapping("/{awardId}")
-    public void deleteAward(@AuthenticationPrincipal Long trainerId, @PathVariable Long awardId) {
+    public void deleteAward(@PathVariable Long trainerId, @PathVariable Long awardId) {
         awardQueryService.deleteAward(trainerId, awardId);
     }
 }

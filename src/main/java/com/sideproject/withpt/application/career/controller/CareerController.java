@@ -4,7 +4,6 @@ import com.sideproject.withpt.application.career.controller.request.CareerEditRe
 import com.sideproject.withpt.application.career.controller.request.CareerSaveRequest;
 import com.sideproject.withpt.application.career.controller.response.CareerResponse;
 import com.sideproject.withpt.application.career.service.CareerQueryService;
-import com.sideproject.withpt.application.trainer.controller.request.CareerRequest;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import javax.validation.Valid;
@@ -12,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -25,15 +23,14 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/trainers/mypage/management/careers")
+@RequestMapping("/api/v1/trainers/{trainerId}/careers")
 public class CareerController {
 
     private final CareerQueryService careerQueryService;
 
     @Operation(summary = "트레이너 모든 경력 조회")
     @GetMapping
-    public ApiSuccessResponse<Slice<CareerResponse>> getAllCareers(@AuthenticationPrincipal Long trainerId,
-        Pageable pageable) {
+    public ApiSuccessResponse<Slice<CareerResponse>> getAllCareers(@PathVariable Long trainerId, Pageable pageable) {
         return ApiSuccessResponse.from(
             careerQueryService.getAllCareers(trainerId, pageable)
         );
@@ -41,7 +38,7 @@ public class CareerController {
 
     @Operation(summary = "트레이너 경력 단건 조회")
     @GetMapping("/{careerId}")
-    public ApiSuccessResponse<CareerResponse> getCareer(@AuthenticationPrincipal Long trainerId, @PathVariable Long careerId) {
+    public ApiSuccessResponse<CareerResponse> getCareer(@PathVariable Long trainerId, @PathVariable Long careerId) {
         return ApiSuccessResponse.from(
           careerQueryService.getCareer(trainerId, careerId)
         );
@@ -49,7 +46,7 @@ public class CareerController {
 
     @Operation(summary = "트레이너 경력 추가")
     @PostMapping
-    public ApiSuccessResponse<CareerResponse> saveCareer(@AuthenticationPrincipal Long trainerId, @RequestBody CareerSaveRequest request) {
+    public ApiSuccessResponse<CareerResponse> saveCareer(@PathVariable Long trainerId, @RequestBody CareerSaveRequest request) {
         return ApiSuccessResponse.from(
             careerQueryService.saveCareer(trainerId, request.toEntity())
         );
@@ -57,7 +54,7 @@ public class CareerController {
 
     @Operation(summary = "경력 사항 수정")
     @PatchMapping
-    public ApiSuccessResponse<CareerResponse> editCareer(@AuthenticationPrincipal Long trainerId, @Valid @RequestBody CareerEditRequest request) {
+    public ApiSuccessResponse<CareerResponse> editCareer(@PathVariable Long trainerId, @Valid @RequestBody CareerEditRequest request) {
         return ApiSuccessResponse.from(
             careerQueryService.editCareer(trainerId, request)
         );
@@ -65,7 +62,7 @@ public class CareerController {
 
     @Operation(summary = "경력 삭제")
     @DeleteMapping("/{careerId}")
-    public void deleteCareer(@AuthenticationPrincipal Long trainerId, @PathVariable Long careerId) {
+    public void deleteCareer(@PathVariable Long trainerId, @PathVariable Long careerId) {
         careerQueryService.deleteCareer(trainerId, careerId);
     }
 }

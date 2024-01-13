@@ -7,8 +7,13 @@ import static com.sideproject.withpt.domain.pt.QPersonalTrainingInfo.personalTra
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.sideproject.withpt.application.pt.controller.response.AssignedPTInfoResponse;
 import com.sideproject.withpt.application.pt.controller.response.EachGymMemberListResponse;
 import com.sideproject.withpt.application.pt.controller.response.MemberDetailInfoResponse;
+import com.sideproject.withpt.application.pt.controller.response.QAssignedPTInfoResponse;
+import com.sideproject.withpt.application.pt.controller.response.QAssignedPTInfoResponse_GymInfo;
+import com.sideproject.withpt.application.pt.controller.response.QAssignedPTInfoResponse_PtInfo;
+import com.sideproject.withpt.application.pt.controller.response.QAssignedPTInfoResponse_TrainerInfo;
 import com.sideproject.withpt.application.pt.controller.response.QMemberDetailInfoResponse;
 import com.sideproject.withpt.application.pt.controller.response.QMemberDetailInfoResponse_GymInfo;
 import com.sideproject.withpt.application.pt.controller.response.QMemberDetailInfoResponse_MemberInfo;
@@ -21,6 +26,7 @@ import com.sideproject.withpt.application.pt.repository.dto.QGymMemberCountDto;
 import com.sideproject.withpt.application.pt.repository.dto.QPtMemberListDto;
 import com.sideproject.withpt.application.pt.repository.dto.QPtMemberListDto_MemberInfo;
 import com.sideproject.withpt.application.pt.repository.dto.QPtMemberListDto_PtInfo;
+import com.sideproject.withpt.application.type.PTInfoInputStatus;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.member.Member;
@@ -228,6 +234,38 @@ public class PersonalTrainingQueryRepository {
         return new SliceImpl<>(contents, pageable, hasNext);
     }
 
+    public List<AssignedPTInfoResponse> findPtAssignedTrainerInformation(Member member) {
+        return jpaQueryFactory
+            .select(
+                new QAssignedPTInfoResponse(
+                    new QAssignedPTInfoResponse_TrainerInfo(
+                        personalTraining.trainer.id,
+                        personalTraining.trainer.name
+                    ),
+                    new QAssignedPTInfoResponse_GymInfo(
+                        personalTraining.gym.id,
+                        personalTraining.gym.name
+                    ),
+                    new QAssignedPTInfoResponse_PtInfo(
+                        personalTraining.id,
+                        personalTraining.totalPtCount,
+                        personalTraining.remainingPtCount,
+                        personalTraining.registrationAllowedStatus,
+                        personalTraining.infoInputStatus,
+                        personalTraining.firstRegistrationDate,
+                        personalTraining.lastRegistrationDate
+                    )
+                )
+            )
+            .from(personalTraining)
+            .join(personalTraining.trainer)
+            .join(personalTraining.gym)
+            .where(
+                personalTraining.member.eq(member)
+            )
+            .fetch();
+    }
+
     private BooleanExpression membersIn(List<Member> members) {
         return CollectionUtils.isEmpty(members) ? null : personalTraining.member.in(members);
     }
@@ -252,6 +290,5 @@ public class PersonalTrainingQueryRepository {
         return ObjectUtils.isEmpty(registrationAllowedStatus) ? null
             : personalTraining.registrationAllowedStatus.eq(registrationAllowedStatus);
     }
-
 
 }
