@@ -3,10 +3,10 @@ package com.sideproject.withpt.application.pt.service;
 import com.sideproject.withpt.application.gym.repositoy.GymQueryRepository;
 import com.sideproject.withpt.application.gym.service.GymService;
 import com.sideproject.withpt.application.member.service.MemberService;
-import com.sideproject.withpt.application.pt.controller.request.AcceptPtRegistrationRequest;
 import com.sideproject.withpt.application.pt.controller.request.ExtendPtRequest;
 import com.sideproject.withpt.application.pt.controller.request.SavePtMemberDetailInfoRequest;
 import com.sideproject.withpt.application.pt.controller.request.UpdatePtMemberDetailInfoRequest;
+import com.sideproject.withpt.application.pt.controller.response.AssignedPTInfoResponse;
 import com.sideproject.withpt.application.pt.controller.response.CountOfMembersAndGymsResponse;
 import com.sideproject.withpt.application.pt.controller.response.EachGymMemberListResponse;
 import com.sideproject.withpt.application.pt.controller.response.MemberDetailInfoResponse;
@@ -14,7 +14,6 @@ import com.sideproject.withpt.application.pt.controller.response.PersonalTrainin
 import com.sideproject.withpt.application.pt.controller.response.ReRegistrationHistoryResponse;
 import com.sideproject.withpt.application.pt.controller.response.TotalAndRemainingPtCountResponse;
 import com.sideproject.withpt.application.pt.controller.response.TotalPtsCountResponse;
-import com.sideproject.withpt.application.pt.exception.PTErrorCode;
 import com.sideproject.withpt.application.pt.exception.PTException;
 import com.sideproject.withpt.application.pt.repository.PTCountLogRepository;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingInfoRepository;
@@ -22,11 +21,9 @@ import com.sideproject.withpt.application.pt.repository.PersonalTrainingQueryRep
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
 import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
 import com.sideproject.withpt.application.trainer.service.TrainerService;
+import com.sideproject.withpt.application.type.PTInfoInputStatus;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.application.type.PtRegistrationStatus;
-import com.sideproject.withpt.common.exception.CommonErrorCode;
-import com.sideproject.withpt.common.exception.ErrorCode;
-import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.pt.PTCountLog;
@@ -41,7 +38,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -252,5 +248,10 @@ public class PersonalTrainingService {
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
          return trainingQueryRepository.findRegistrationHistory(personalTraining, pageable);
+    }
+
+    public List<AssignedPTInfoResponse> getPtAssignedTrainerInformation(Long memberId) {
+        Member member = memberService.getMemberById(memberId);
+        return trainingQueryRepository.findPtAssignedTrainerInformation(member);
     }
 }

@@ -1,10 +1,10 @@
 package com.sideproject.withpt.application.pt.controller;
 
-import com.sideproject.withpt.application.pt.controller.request.AcceptPtRegistrationRequest;
 import com.sideproject.withpt.application.pt.controller.request.ExtendPtRequest;
 import com.sideproject.withpt.application.pt.controller.request.RemovePtMembersRequest;
 import com.sideproject.withpt.application.pt.controller.request.SavePtMemberDetailInfoRequest;
 import com.sideproject.withpt.application.pt.controller.request.UpdatePtMemberDetailInfoRequest;
+import com.sideproject.withpt.application.pt.controller.response.AssignedPTInfoResponse;
 import com.sideproject.withpt.application.pt.controller.response.CountOfMembersAndGymsResponse;
 import com.sideproject.withpt.application.pt.controller.response.EachGymMemberListResponse;
 import com.sideproject.withpt.application.pt.controller.response.MemberDetailInfoResponse;
@@ -18,6 +18,7 @@ import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -148,6 +149,14 @@ public class GymPersonalTrainingController {
     public ApiSuccessResponse<Slice<ReRegistrationHistoryResponse>> getReRegistrationHistory(@PathVariable Long ptId, Pageable pageable) {
         return ApiSuccessResponse.from(
             personalTrainingService.getReRegistrationHistory(ptId, pageable)
+        );
+    }
+
+    @Operation(summary = "담당 트레이너 정보 조회")
+    @GetMapping("/personal-trainings/member/trainers")
+    public ApiSuccessResponse<List<AssignedPTInfoResponse>> getPtAssignedTrainerInformation(@Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
+        return ApiSuccessResponse.from(
+            personalTrainingService.getPtAssignedTrainerInformation(memberId)
         );
     }
 }
