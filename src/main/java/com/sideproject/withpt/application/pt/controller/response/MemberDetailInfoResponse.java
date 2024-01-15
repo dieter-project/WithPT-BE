@@ -2,6 +2,7 @@ package com.sideproject.withpt.application.pt.controller.response;
 
 import com.querydsl.core.annotations.QueryProjection;
 import com.sideproject.withpt.application.type.DietType;
+import com.sideproject.withpt.application.type.PTInfoInputStatus;
 import com.sideproject.withpt.application.type.PtRegistrationStatus;
 import com.sideproject.withpt.application.type.Sex;
 import java.time.LocalDate;
@@ -34,6 +35,7 @@ public class MemberDetailInfoResponse {
     public static class MemberInfo {
         private Long id;
         private String name;
+        private String imageUrl;
         private LocalDate birth;
         private Sex sex;
         private Double height;
@@ -41,10 +43,11 @@ public class MemberDetailInfoResponse {
         private DietType dietType;
 
         @QueryProjection
-        public MemberInfo(Long id, String name, LocalDate birth, Sex sex, Double height, Double weight,
+        public MemberInfo(Long id, String name, String imageUrl, LocalDate birth, Sex sex, Double height, Double weight,
             DietType dietType) {
             this.id = id;
             this.name = name;
+            this.imageUrl = imageUrl;
             this.birth = birth;
             this.sex = sex;
             this.height = height;
@@ -73,6 +76,7 @@ public class MemberDetailInfoResponse {
     public static class PtInfo {
         private Long id;
         private PtRegistrationStatus registrationStatus;
+        private PTInfoInputStatus infoInputStatus;
         private int totalPtCount;
         private int remainingPtCount;
         private String note;
@@ -80,11 +84,12 @@ public class MemberDetailInfoResponse {
         private LocalDateTime lastRegistrationDate;
 
         @QueryProjection
-        public PtInfo(Long id, PtRegistrationStatus registrationStatus, int totalPtCount, int remainingPtCount,
+        public PtInfo(Long id, PtRegistrationStatus registrationStatus, PTInfoInputStatus infoInputStatus, int totalPtCount, int remainingPtCount,
             String note,
             LocalDateTime firstRegistrationDate, LocalDateTime lastRegistrationDate) {
             this.id = id;
             this.registrationStatus = registrationStatus;
+            this.infoInputStatus = infoInputStatus;
             this.totalPtCount = totalPtCount;
             this.remainingPtCount = remainingPtCount;
             this.note = note;

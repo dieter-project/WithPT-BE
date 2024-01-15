@@ -159,4 +159,12 @@ public class GymPersonalTrainingController {
             personalTrainingService.getPtAssignedTrainerInformation(memberId)
         );
     }
+
+    @Operation(summary = "트레이너의 모든 담당 회원 정보 조회")
+    @GetMapping("/personal-trainings/trainers/{trainerId}/members")
+    public ApiSuccessResponse<List<MemberDetailInfoResponse>> getPtAssignedMemberInformation(@PathVariable Long trainerId) {
+        return ApiSuccessResponse.from(
+            personalTrainingService.getPtAssignedMemberInformation(trainerId)
+        );
+    }
 }

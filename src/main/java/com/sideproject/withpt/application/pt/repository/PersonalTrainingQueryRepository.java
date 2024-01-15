@@ -26,7 +26,6 @@ import com.sideproject.withpt.application.pt.repository.dto.QGymMemberCountDto;
 import com.sideproject.withpt.application.pt.repository.dto.QPtMemberListDto;
 import com.sideproject.withpt.application.pt.repository.dto.QPtMemberListDto_MemberInfo;
 import com.sideproject.withpt.application.pt.repository.dto.QPtMemberListDto_PtInfo;
-import com.sideproject.withpt.application.type.PTInfoInputStatus;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.member.Member;
@@ -166,6 +165,7 @@ public class PersonalTrainingQueryRepository {
                     new QMemberDetailInfoResponse_MemberInfo(
                         personalTraining.member.id,
                         personalTraining.member.name,
+                        personalTraining.member.imageUrl,
                         personalTraining.member.authentication.birth,
                         personalTraining.member.authentication.sex,
                         personalTraining.member.height,
@@ -179,6 +179,7 @@ public class PersonalTrainingQueryRepository {
                     new QMemberDetailInfoResponse_PtInfo(
                         personalTraining.id,
                         personalTraining.registrationStatus,
+                        personalTraining.infoInputStatus,
                         personalTraining.totalPtCount,
                         personalTraining.remainingPtCount,
                         personalTraining.note,
@@ -263,6 +264,45 @@ public class PersonalTrainingQueryRepository {
             .join(personalTraining.gym)
             .where(
                 personalTraining.member.eq(member)
+            )
+            .fetch();
+    }
+
+    public List<MemberDetailInfoResponse> findPtAssignedMemberInformation(Trainer trainer) {
+        return jpaQueryFactory
+            .select(
+                new QMemberDetailInfoResponse(
+                    new QMemberDetailInfoResponse_MemberInfo(
+                        personalTraining.member.id,
+                        personalTraining.member.name,
+                        personalTraining.member.imageUrl,
+                        personalTraining.member.authentication.birth,
+                        personalTraining.member.authentication.sex,
+                        personalTraining.member.height,
+                        personalTraining.member.weight,
+                        personalTraining.member.dietType
+                    ),
+                    new QMemberDetailInfoResponse_GymInfo(
+                        personalTraining.gym.id,
+                        personalTraining.gym.name
+                    ),
+                    new QMemberDetailInfoResponse_PtInfo(
+                        personalTraining.id,
+                        personalTraining.registrationStatus,
+                        personalTraining.infoInputStatus,
+                        personalTraining.totalPtCount,
+                        personalTraining.remainingPtCount,
+                        personalTraining.note,
+                        personalTraining.firstRegistrationDate,
+                        personalTraining.lastRegistrationDate
+                    )
+                )
+            )
+            .from(personalTraining)
+            .join(personalTraining.member)
+            .join(personalTraining.gym)
+            .where(
+                personalTraining.trainer.eq(trainer)
             )
             .fetch();
     }
