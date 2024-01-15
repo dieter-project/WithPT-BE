@@ -254,4 +254,9 @@ public class PersonalTrainingService {
         Member member = memberService.getMemberById(memberId);
         return trainingQueryRepository.findPtAssignedTrainerInformation(member);
     }
+
+    public List<MemberDetailInfoResponse> getPtAssignedMemberInformation(Long trainerId) {
+        Trainer trainer = trainerService.getTrainerById(trainerId);
+        return trainingQueryRepository.findPtAssignedMemberInformation(trainer);
+    }
 }
