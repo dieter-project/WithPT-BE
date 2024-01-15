@@ -153,10 +153,18 @@ public class GymPersonalTrainingController {
     }
 
     @Operation(summary = "담당 트레이너 정보 조회")
-    @GetMapping("/personal-trainings/member/trainers")
-    public ApiSuccessResponse<List<AssignedPTInfoResponse>> getPtAssignedTrainerInformation(@Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
+    @GetMapping("/personal-trainings/members/{memberId}/trainers")
+    public ApiSuccessResponse<List<AssignedPTInfoResponse>> getPtAssignedTrainerInformation(@PathVariable Long memberId) {
         return ApiSuccessResponse.from(
             personalTrainingService.getPtAssignedTrainerInformation(memberId)
+        );
+    }
+
+    @Operation(summary = "트레이너의 모든 담당 회원 정보 조회")
+    @GetMapping("/personal-trainings/trainers/{trainerId}/members")
+    public ApiSuccessResponse<List<MemberDetailInfoResponse>> getPtAssignedMemberInformation(@PathVariable Long trainerId) {
+        return ApiSuccessResponse.from(
+            personalTrainingService.getPtAssignedMemberInformation(trainerId)
         );
     }
 }
