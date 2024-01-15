@@ -153,8 +153,8 @@ public class GymPersonalTrainingController {
     }
 
     @Operation(summary = "담당 트레이너 정보 조회")
-    @GetMapping("/personal-trainings/member/trainers")
-    public ApiSuccessResponse<List<AssignedPTInfoResponse>> getPtAssignedTrainerInformation(@Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
+    @GetMapping("/personal-trainings/members/{memberId}/trainers")
+    public ApiSuccessResponse<List<AssignedPTInfoResponse>> getPtAssignedTrainerInformation(@PathVariable Long memberId) {
         return ApiSuccessResponse.from(
             personalTrainingService.getPtAssignedTrainerInformation(memberId)
         );

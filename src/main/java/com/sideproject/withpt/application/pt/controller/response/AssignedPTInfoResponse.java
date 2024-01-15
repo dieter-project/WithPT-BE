@@ -36,11 +36,13 @@ public class AssignedPTInfoResponse {
 
         private Long id;
         private String name;
+        private String imageUrl;
 
         @QueryProjection
-        public TrainerInfo(Long id, String name) {
+        public TrainerInfo(Long id, String name, String imageUrl) {
             this.id = id;
             this.name = name;
+            this.imageUrl = imageUrl;
         }
     }
 

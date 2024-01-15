@@ -240,7 +240,8 @@ public class PersonalTrainingQueryRepository {
                 new QAssignedPTInfoResponse(
                     new QAssignedPTInfoResponse_TrainerInfo(
                         personalTraining.trainer.id,
-                        personalTraining.trainer.name
+                        personalTraining.trainer.name,
+                        personalTraining.trainer.imageUrl
                     ),
                     new QAssignedPTInfoResponse_GymInfo(
                         personalTraining.gym.id,
