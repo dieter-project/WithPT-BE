@@ -4,12 +4,16 @@ import static com.sideproject.withpt.domain.gym.QGymTrainer.gymTrainer;
 import static com.sideproject.withpt.domain.pt.QPersonalTraining.personalTraining;
 import static com.sideproject.withpt.domain.pt.QPersonalTrainingInfo.personalTrainingInfo;
 
+import com.querydsl.core.types.ConstantImpl;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.DateTemplate;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.pt.controller.response.AssignedPTInfoResponse;
 import com.sideproject.withpt.application.pt.controller.response.EachGymMemberListResponse;
 import com.sideproject.withpt.application.pt.controller.response.MemberDetailInfoResponse;
+import com.sideproject.withpt.application.pt.controller.response.PtStatisticResponse.MonthlyMemberCount;
 import com.sideproject.withpt.application.pt.controller.response.QAssignedPTInfoResponse;
 import com.sideproject.withpt.application.pt.controller.response.QAssignedPTInfoResponse_GymInfo;
 import com.sideproject.withpt.application.pt.controller.response.QAssignedPTInfoResponse_PtInfo;
@@ -18,6 +22,7 @@ import com.sideproject.withpt.application.pt.controller.response.QMemberDetailIn
 import com.sideproject.withpt.application.pt.controller.response.QMemberDetailInfoResponse_GymInfo;
 import com.sideproject.withpt.application.pt.controller.response.QMemberDetailInfoResponse_MemberInfo;
 import com.sideproject.withpt.application.pt.controller.response.QMemberDetailInfoResponse_PtInfo;
+import com.sideproject.withpt.application.pt.controller.response.QPtStatisticResponse_MonthlyMemberCount;
 import com.sideproject.withpt.application.pt.controller.response.QReRegistrationHistoryResponse;
 import com.sideproject.withpt.application.pt.controller.response.ReRegistrationHistoryResponse;
 import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
@@ -27,10 +32,12 @@ import com.sideproject.withpt.application.pt.repository.dto.QPtMemberListDto;
 import com.sideproject.withpt.application.pt.repository.dto.QPtMemberListDto_MemberInfo;
 import com.sideproject.withpt.application.pt.repository.dto.QPtMemberListDto_PtInfo;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
+import com.sideproject.withpt.application.type.PtRegistrationStatus;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -78,7 +85,7 @@ public class PersonalTrainingQueryRepository {
 
                 ),
                 personalTraining.registrationAllowedStatus.eq(PtRegistrationAllowedStatus.APPROVED)
-                ).fetchOne();
+            ).fetchOne();
     }
 
     public long deleteAllByMembersAndTrainerAndGym(List<Member> members, Trainer trainer, Gym gym) {
@@ -227,7 +234,7 @@ public class PersonalTrainingQueryRepository {
 
         boolean hasNext = false;
 
-        if(contents.size() > pageable.getPageSize()) {
+        if (contents.size() > pageable.getPageSize()) {
             contents.remove(pageable.getPageSize());
             hasNext = true;
         }
@@ -305,6 +312,125 @@ public class PersonalTrainingQueryRepository {
                 personalTraining.trainer.eq(trainer)
             )
             .fetch();
+    }
+
+    public List<MonthlyMemberCount> calculatePTStatistic(Trainer trainer, LocalDate date) {
+
+        DateTemplate<String> localDateDateTemplate = Expressions.dateTemplate(
+            String.class,
+            "DATE_FORMAT({0}, {1})",
+            personalTrainingInfo.registrationDate,
+            ConstantImpl.create("%Y-%m")
+        );
+
+        DateTemplate<String> startDate = Expressions.dateTemplate(
+            String.class,
+            "DATE_FORMAT({0}, {1})",
+            date.minusMonths(12),
+            ConstantImpl.create("%Y-%m")
+        );
+
+        DateTemplate<String> endDate = Expressions.dateTemplate(
+            String.class,
+            "DATE_FORMAT({0}, {1})",
+            date,
+            ConstantImpl.create("%Y-%m")
+        );
+
+        return jpaQueryFactory
+            .select(
+                new QPtStatisticResponse_MonthlyMemberCount(
+                    localDateDateTemplate,
+                    personalTrainingInfo.count()
+                )
+            ).from(personalTrainingInfo)
+            .where(
+                localDateDateTemplate.between(startDate, endDate),
+                personalTrainingInfo.personalTraining.id.in(
+                    JPAExpressions
+                        .select(personalTraining.id)
+                        .from(personalTraining)
+                        .where(
+                            personalTraining.trainer.eq(trainer)
+                        )
+                )
+            )
+            .groupBy(
+                localDateDateTemplate
+            ).orderBy(
+                localDateDateTemplate.desc()
+            ).fetch();
+    }
+
+    public int getMemberCountThisMonthByRegistrationStatus(Trainer trainer, LocalDate date, PtRegistrationStatus status) {
+
+        DateTemplate<String> localDateDateTemplate = Expressions.dateTemplate(
+            String.class,
+            "DATE_FORMAT({0}, {1})",
+            personalTrainingInfo.registrationDate,
+            ConstantImpl.create("%Y-%m")
+        );
+
+        DateTemplate<String> endDate = Expressions.dateTemplate(
+            String.class,
+            "DATE_FORMAT({0}, {1})",
+            date,
+            ConstantImpl.create("%Y-%m")
+        );
+
+        Long result = jpaQueryFactory
+            .select(
+                personalTrainingInfo.count()
+            ).from(personalTrainingInfo)
+            .where(
+                localDateDateTemplate.eq(endDate),
+                personalTrainingInfo.registrationStatus.eq(status),
+                personalTrainingInfo.personalTraining.id.in(
+                    JPAExpressions
+                        .select(personalTraining.id)
+                        .from(personalTraining)
+                        .where(
+                            personalTraining.trainer.eq(trainer)
+                        )
+                )
+            ).fetchOne();
+
+        return result != null ? result.intValue() : 0;
+    }
+
+    public int getExistingMemberCount(Trainer trainer, LocalDate date) {
+
+        DateTemplate<String> localDateDateTemplate = Expressions.dateTemplate(
+            String.class,
+            "DATE_FORMAT({0}, {1})",
+            personalTrainingInfo.registrationDate,
+            ConstantImpl.create("%Y-%m")
+        );
+
+        DateTemplate<String> endDate = Expressions.dateTemplate(
+            String.class,
+            "DATE_FORMAT({0}, {1})",
+            date,
+            ConstantImpl.create("%Y-%m")
+        );
+
+        Long result = jpaQueryFactory
+            .select(
+                personalTrainingInfo.count()
+            ).from(personalTrainingInfo)
+            .where(
+                localDateDateTemplate.lt(endDate),
+                personalTrainingInfo.personalTraining.id.in(
+                    JPAExpressions
+                        .select(personalTraining.id)
+                        .from(personalTraining)
+                        .where(
+                            personalTraining.trainer.eq(trainer)
+                        )
+                )
+            ).fetchOne();
+
+        return result != null ? result.intValue() : 0;
     }
 
     private BooleanExpression membersIn(List<Member> members) {

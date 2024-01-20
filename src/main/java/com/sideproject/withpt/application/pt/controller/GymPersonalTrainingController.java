@@ -1,5 +1,7 @@
 package com.sideproject.withpt.application.pt.controller;
 
+import static com.sideproject.withpt.application.pt.exception.PtConstants.MAX_QUERY_MONTHS;
+
 import com.sideproject.withpt.application.pt.controller.request.ExtendPtRequest;
 import com.sideproject.withpt.application.pt.controller.request.RemovePtMembersRequest;
 import com.sideproject.withpt.application.pt.controller.request.SavePtMemberDetailInfoRequest;
@@ -9,21 +11,26 @@ import com.sideproject.withpt.application.pt.controller.response.CountOfMembersA
 import com.sideproject.withpt.application.pt.controller.response.EachGymMemberListResponse;
 import com.sideproject.withpt.application.pt.controller.response.MemberDetailInfoResponse;
 import com.sideproject.withpt.application.pt.controller.response.PersonalTrainingMemberResponse;
+import com.sideproject.withpt.application.pt.controller.response.PtStatisticResponse;
 import com.sideproject.withpt.application.pt.controller.response.ReRegistrationHistoryResponse;
 import com.sideproject.withpt.application.pt.controller.response.TotalAndRemainingPtCountResponse;
 import com.sideproject.withpt.application.pt.controller.response.TotalPtsCountResponse;
+import com.sideproject.withpt.application.pt.exception.PTErrorCode;
+import com.sideproject.withpt.application.pt.exception.PTException;
 import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
 import com.sideproject.withpt.application.pt.service.PersonalTrainingService;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import java.time.LocalDate;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,6 +39,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -165,6 +173,21 @@ public class GymPersonalTrainingController {
     public ApiSuccessResponse<List<MemberDetailInfoResponse>> getPtAssignedMemberInformation(@PathVariable Long trainerId) {
         return ApiSuccessResponse.from(
             personalTrainingService.getPtAssignedMemberInformation(trainerId)
+        );
+    }
+
+    @Operation(summary = "회원 통계 정보 조회")
+    @GetMapping("/personal-trainings/statistics")
+    public ApiSuccessResponse<PtStatisticResponse> getPtStatistics(@Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
+        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam LocalDate date,
+        @RequestParam(defaultValue = "12") int size) {
+
+        if(size > MAX_QUERY_MONTHS) {
+            throw new PTException(PTErrorCode.MAX_QUERY_MONTHS);
+        }
+
+        return ApiSuccessResponse.from(
+            personalTrainingService.getPtStatistics(trainerId, date, size)
         );
     }
 }
