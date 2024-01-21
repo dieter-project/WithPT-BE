@@ -93,7 +93,7 @@ public class LessonQueryRepository {
         return new SliceImpl<>(content, pageable, hasNext);
     }
 
-    public boolean existsLessonByTrainer(Trainer trainer, LocalDate date, LocalTime time,
+    public boolean existsLessonByDateAndTimeAndStatus(Trainer trainer, LocalDate date, LocalTime time,
         LessonStatus status) {
         return !ObjectUtils.isEmpty(
             jpaQueryFactory
@@ -142,7 +142,7 @@ public class LessonQueryRepository {
                         )
                 ),
                 lesson.date.eq(date),
-                lesson.status.eq(LessonStatus.RESERVATION)
+                lesson.status.eq(LessonStatus.RESERVED)
             ).fetch();
 
         Map<LocalTime, Boolean> lessonSchedule = new LinkedHashMap<>();
@@ -174,7 +174,7 @@ public class LessonQueryRepository {
                         )
                 ),
                 lesson.date.eq(date),
-                lesson.status.eq(LessonStatus.RESERVATION)
+                lesson.status.eq(LessonStatus.RESERVED)
             ).fetchOne();
     }
 
@@ -195,7 +195,7 @@ public class LessonQueryRepository {
             .leftJoin(qMember).on(lesson.personalTraining.member.eq(qMember))
             .where(
                 lesson.date.eq(date),
-                lesson.status.eq(LessonStatus.RESERVATION),
+                lesson.status.eq(LessonStatus.RESERVED),
                 lesson.personalTraining.id.in(
                     JPAExpressions
                         .select(personalTraining.id)

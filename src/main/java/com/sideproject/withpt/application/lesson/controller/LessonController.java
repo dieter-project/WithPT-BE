@@ -4,10 +4,12 @@ import com.sideproject.withpt.application.lesson.controller.request.LessonRegist
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.controller.response.LessonMembersInGymResponse;
 import com.sideproject.withpt.application.lesson.controller.response.SearchMemberResponse;
+import com.sideproject.withpt.application.lesson.service.LessonLockFacade;
 import com.sideproject.withpt.application.lesson.service.LessonService;
 import com.sideproject.withpt.application.type.Day;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import java.time.LocalDate;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,10 +34,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class LessonController {
 
     private final LessonService lessonService;
+    private final LessonLockFacade lessonLockFacade;
 
     @Operation(summary = "수업관리/스케줄 - 해당 날짜의 체육관 수업 스케줄 조회")
     @GetMapping("/gym/{gymId}/members")
-    public ApiSuccessResponse<LessonMembersInGymResponse> getLessonScheduleMembersInGym(@AuthenticationPrincipal Long trainerId, @PathVariable Long gymId,
+    public ApiSuccessResponse<LessonMembersInGymResponse> getLessonScheduleMembersInGym(
+        @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId, @PathVariable Long gymId,
         @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date, Pageable pageable) {
 
         return ApiSuccessResponse.from(
@@ -46,19 +50,23 @@ public class LessonController {
     @Operation(summary = "수업관리/스케줄 - 수업등록")
     @PostMapping("/gym/{gymId}")
     public void registrationPtLesson(@PathVariable Long gymId,
-        @AuthenticationPrincipal Long loginId,
+        @Parameter(hidden = true) @AuthenticationPrincipal Long loginId,
         @Valid @RequestBody LessonRegistrationRequest request) {
 
         String loginRole = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-            .findFirst().get().getAuthority();
+            .findFirst().get().getAuthority().split("_")[1];
 
-        lessonService.registrationPtLesson(gymId, loginId, loginRole, request);
+        log.info("로그인 role = {}", loginRole);
+
+
+        lessonLockFacade.registrationPtLesson(gymId, loginId, loginRole, request);
     }
 
-    @Operation(summary = "수업관리/스케줄 - 수업등록 => 회원이름 검색")
+    @Operation(summary = "체육관 별 회원이름 검색")
     @GetMapping("/gym/{gymId}/members/search")
     public ApiSuccessResponse<Slice<SearchMemberResponse>> searchPtMemberInGym(
-        @PathVariable Long gymId, @AuthenticationPrincipal Long trainerId,
+        @PathVariable Long gymId,
+        @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
         @RequestParam(required = false) String name,
         Pageable pageable) {
 

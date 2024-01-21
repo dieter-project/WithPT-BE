@@ -7,6 +7,7 @@ import lombok.Getter;
 public class LessonException extends GlobalException {
 
     public static final LessonException ALREADY_RESERVATION = new LessonException(LessonErrorCode.ALREADY_RESERVATION);
+    public static final LessonException ALREADY_PENDING_APPROVAL = new LessonException(LessonErrorCode.ALREADY_PENDING_APPROVAL);
 
     private final LessonErrorCode errorCode;
 

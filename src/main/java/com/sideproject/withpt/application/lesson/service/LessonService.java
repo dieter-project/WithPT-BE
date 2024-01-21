@@ -55,7 +55,9 @@ public class LessonService {
         Member member = null;
         Trainer trainer = null;
 
-        if(loginRole.contains(Role.TRAINER.name())) {
+        Gym gym = gymService.getGymById(gymId);
+
+        if(loginRole.equals(Role.TRAINER.name())) {
             trainer = trainerService.getTrainerById(loginId);
             member = memberService.getMemberById(request.getRegistrationRequestId());
         } else {
@@ -63,8 +65,27 @@ public class LessonService {
             trainer = trainerService.getTrainerById(request.getRegistrationRequestId());
         }
 
-        Gym gym = gymService.getGymById(gymId);
+        PersonalTraining personalTraining = validationPersonalTraining(member, trainer, gym);
 
+        validationLessonTime(request, trainer);
+
+        // TODO 수업 등록 - 예약 시스템이므로 동시성 고려하기
+        lessonRepository.save(request.toEntity(personalTraining, loginRole));
+    }
+
+    private void validationLessonTime(LessonRegistrationRequest request, Trainer personalTraining) {
+        // 트레이너의 예약 신청 - 날짜, 시간, 상태(예약)가 이미 등록되어 있으면 에러
+        if(lessonQueryRepository.existsLessonByDateAndTimeAndStatus(personalTraining, request.getDate(), request.getTime(), LessonStatus.RESERVED)) {
+            throw LessonException.ALREADY_RESERVATION;
+        }
+
+        // 회원의 예약 신청 - 날짜, 시간, 상태(승인 대기 중) 이면 등록되어 있는 것으로 간주
+        if(lessonQueryRepository.existsLessonByDateAndTimeAndStatus(personalTraining, request.getDate(), request.getTime(), LessonStatus.PENDING_APPROVAL)) {
+            throw LessonException.ALREADY_PENDING_APPROVAL;
+        }
+    }
+
+    private PersonalTraining validationPersonalTraining(Member member, Trainer trainer, Gym gym) {
         // 해당 PT 정보가 있는지 조회
         PersonalTraining personalTraining = trainingRepository.findByMemberAndTrainerAndGym(member, trainer, gym)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
@@ -81,15 +102,9 @@ public class LessonService {
         if(personalTraining.getRemainingPtCount() <= 0) {
             throw PTException.NO_REMAINING_PT;
         }
-
-        // 트레이너의 예약 신청 - 날짜, 시간, 상태(예약)가 이미 등록되어 있으면 에러
-        if(lessonQueryRepository.existsLessonByTrainer(trainer, request.getDate(), request.getTime(), LessonStatus.RESERVATION)) {
-            throw LessonException.ALREADY_RESERVATION;
-        }
-
-        // TODO 수업 등록 - 예약 시스템이므로 동시성 고려하기
-        lessonRepository.save(request.toEntity(personalTraining));
+        return personalTraining;
     }
+
 
     public Slice<SearchMemberResponse> searchMembersByGymIdAndName(Long gymId, Long trainerId, String name, Pageable pageable) {
         Trainer trainer = trainerService.getTrainerById(trainerId);
