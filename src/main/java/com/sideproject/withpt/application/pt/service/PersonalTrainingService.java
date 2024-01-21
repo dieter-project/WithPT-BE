@@ -274,9 +274,8 @@ public class PersonalTrainingService {
     public PtStatisticResponse getPtStatistics(Long trainerId, LocalDate current, int size) {
         Trainer trainer = trainerService.getTrainerById(trainerId);
 
-        List<MonthlyMemberCount> monthlyCounts = trainingQueryRepository.calculatePTStatistic(trainer, current);
-
-        Map<YearMonth, Long> monthlyCountsMap = monthlyCounts.stream()
+        Map<YearMonth, Long> monthlyCountsMap = trainingQueryRepository.calculatePTStatistic(trainer, current)
+            .stream()
             .collect(Collectors.toMap(
                 monthlyMemberCount -> YearMonth.parse(monthlyMemberCount.getDate()),
                 PtStatisticResponse.MonthlyMemberCount::getCount,
@@ -292,16 +291,23 @@ public class PersonalTrainingService {
             })
             .collect(Collectors.toList());
 
-        return PtStatisticResponse.builder()
-            .monthStatistic(
-                MonthStatistics.builder()
-                    .currentDate(current)
-                    .existingMemberCount(trainingQueryRepository.getExistingMemberCount(trainer, current))
-                    .reEnrolledMemberCount(trainingQueryRepository.getMemberCountThisMonthByRegistrationStatus(trainer, current, PtRegistrationStatus.RE_REGISTRATION))
-                    .newMemberCount(trainingQueryRepository.getMemberCountThisMonthByRegistrationStatus(trainer, current, PtRegistrationStatus.NEW_REGISTRATION))
-                    .build()
-            )
-            .statistics(statistic)
-            .build();
+        return PtStatisticResponse.of(
+            MonthStatistics.builder()
+                .currentDate(current)
+                .existingMemberCount(
+                    trainingQueryRepository.getExistingMemberCount(trainer, current)
+                        .orElse(0L)
+                )
+                .reEnrolledMemberCount(
+                    trainingQueryRepository.getMemberCountThisMonthByRegistrationStatus(trainer, current, PtRegistrationStatus.RE_REGISTRATION)
+                        .orElse(0L)
+                )
+                .newMemberCount(
+                    trainingQueryRepository.getMemberCountThisMonthByRegistrationStatus(trainer, current, PtRegistrationStatus.NEW_REGISTRATION)
+                        .orElse(0L)
+                )
+                .build(),
+            statistic
+        );
     }
 }

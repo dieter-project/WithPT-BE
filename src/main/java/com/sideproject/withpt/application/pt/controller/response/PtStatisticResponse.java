@@ -1,6 +1,7 @@
 package com.sideproject.withpt.application.pt.controller.response;
 
 import com.querydsl.core.annotations.QueryProjection;
+import com.sideproject.withpt.application.type.PtRegistrationStatus;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,12 @@ public class PtStatisticResponse {
     private MonthStatistics monthStatistic;
     private List<MonthlyMemberCount> statistics;
 
+    public static PtStatisticResponse of(MonthStatistics monthStatistic, List<MonthlyMemberCount> statistic) {
+        return PtStatisticResponse.builder()
+            .monthStatistic(monthStatistic)
+            .statistics(statistic)
+            .build();
+    }
 
     @Getter
     @ToString
@@ -44,8 +51,8 @@ public class PtStatisticResponse {
     public static class MonthStatistics {
 
         private LocalDate currentDate;
-        private int existingMemberCount;
-        private int reEnrolledMemberCount;
-        private int newMemberCount;
+        private Long existingMemberCount;
+        private Long reEnrolledMemberCount;
+        private Long newMemberCount;
     }
 }
