@@ -40,6 +40,7 @@ import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -362,7 +363,7 @@ public class PersonalTrainingQueryRepository {
             ).fetch();
     }
 
-    public int getMemberCountThisMonthByRegistrationStatus(Trainer trainer, LocalDate date, PtRegistrationStatus status) {
+    public Optional<Long> getMemberCountThisMonthByRegistrationStatus(Trainer trainer, LocalDate date, PtRegistrationStatus status) {
 
         DateTemplate<String> localDateDateTemplate = Expressions.dateTemplate(
             String.class,
@@ -378,27 +379,26 @@ public class PersonalTrainingQueryRepository {
             ConstantImpl.create("%Y-%m")
         );
 
-        Long result = jpaQueryFactory
-            .select(
-                personalTrainingInfo.count()
-            ).from(personalTrainingInfo)
-            .where(
-                localDateDateTemplate.eq(endDate),
-                personalTrainingInfo.registrationStatus.eq(status),
-                personalTrainingInfo.personalTraining.id.in(
-                    JPAExpressions
-                        .select(personalTraining.id)
-                        .from(personalTraining)
-                        .where(
-                            personalTraining.trainer.eq(trainer)
-                        )
-                )
-            ).fetchOne();
-
-        return result != null ? result.intValue() : 0;
+        return Optional.ofNullable(
+            jpaQueryFactory
+                .select(
+                    personalTrainingInfo.count()
+                ).from(personalTrainingInfo)
+                .where(
+                    localDateDateTemplate.eq(endDate),
+                    personalTrainingInfo.registrationStatus.eq(status),
+                    personalTrainingInfo.personalTraining.id.in(
+                        JPAExpressions
+                            .select(personalTraining.id)
+                            .from(personalTraining)
+                            .where(
+                                personalTraining.trainer.eq(trainer)
+                            )
+                    )
+                ).fetchOne());
     }
 
-    public int getExistingMemberCount(Trainer trainer, LocalDate date) {
+    public Optional<Long> getExistingMemberCount(Trainer trainer, LocalDate date) {
 
         DateTemplate<String> localDateDateTemplate = Expressions.dateTemplate(
             String.class,
@@ -414,7 +414,8 @@ public class PersonalTrainingQueryRepository {
             ConstantImpl.create("%Y-%m")
         );
 
-        Long result = jpaQueryFactory
+        return Optional.ofNullable(
+            jpaQueryFactory
             .select(
                 personalTrainingInfo.count()
             ).from(personalTrainingInfo)
@@ -428,9 +429,8 @@ public class PersonalTrainingQueryRepository {
                             personalTraining.trainer.eq(trainer)
                         )
                 )
-            ).fetchOne();
-
-        return result != null ? result.intValue() : 0;
+            ).fetchOne()
+        );
     }
 
     private BooleanExpression membersIn(List<Member> members) {
