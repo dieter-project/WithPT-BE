@@ -2,10 +2,14 @@ package com.sideproject.withpt.application.lesson.repository;
 
 import static com.sideproject.withpt.domain.pt.QLesson.*;
 import static com.sideproject.withpt.domain.pt.QPersonalTraining.*;
+import static com.sideproject.withpt.domain.pt.QPersonalTrainingInfo.personalTrainingInfo;
 import static com.sideproject.withpt.domain.trainer.QWorkSchedule.*;
 
+import com.querydsl.core.types.ConstantImpl;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.DateTemplate;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -34,6 +38,7 @@ import com.sideproject.withpt.domain.trainer.WorkSchedule;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -269,6 +274,37 @@ public class LessonQueryRepository {
                 lesson.time.asc(),
                 lesson.personalTraining.gym.name.asc()
             )
+            .fetch();
+    }
+
+    public List<LocalDate> getLessonScheduleOfMonth(Long trainerId, Long gymId, YearMonth date) {
+
+        DateTemplate<String> localDateTemplate = Expressions.dateTemplate(
+            String.class,
+            "DATE_FORMAT({0}, {1})",
+            lesson.date,
+            ConstantImpl.create("%Y-%m")
+        );
+
+        return jpaQueryFactory
+            .select(
+                lesson.date
+            )
+            .from(lesson)
+            .where(
+                lesson.personalTraining.id.in(
+                    JPAExpressions
+                        .select(personalTraining.id)
+                        .from(personalTraining)
+                        .where(
+                            gymIdEq(gymId),
+                            personalTraining.trainer.id.eq(trainerId),
+                            personalTraining.infoInputStatus.eq(PTInfoInputStatus.INFO_REGISTERED)
+                        )
+                ),
+                localDateTemplate.eq(date.toString()),
+                lesson.status.notIn(LessonStatus.CANCELED)
+            ).distinct()
             .fetch();
     }
 

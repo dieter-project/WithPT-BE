@@ -13,6 +13,8 @@ import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -100,6 +102,18 @@ public class LessonController {
 
         return ApiSuccessResponse.from(
             lessonService.getLessonScheduleMembers(trainerId, gymId, date, status)
+        );
+    }
+
+    @Operation(summary = "수업관리/메인 - 해당 월(Month) 체육관 수업 일정 조회")
+    @GetMapping("/days")
+    public ApiSuccessResponse<List<LocalDate>> getLessonScheduleOfMonth(
+        @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
+        @RequestParam(name = "gym", required = false) Long gymId, @RequestParam @DateTimeFormat(pattern = "yyyy-MM") YearMonth date
+    ) {
+        log.info("체육관 {}, 날짜 {}", gymId, date.toString());
+        return ApiSuccessResponse.from(
+            lessonService.getLessonScheduleOfMonth(trainerId, gymId, date)
         );
     }
 }

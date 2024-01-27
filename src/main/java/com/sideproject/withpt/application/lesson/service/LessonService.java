@@ -26,6 +26,7 @@ import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -145,5 +146,9 @@ public class LessonService {
         return new LessonMembersResponse(
             lessonQueryRepository.getLessonScheduleMembers(trainerId, gymId, date, status)
         );
+    }
+
+    public List<LocalDate> getLessonScheduleOfMonth(Long trainerId, Long gymId, YearMonth date) {
+        return lessonQueryRepository.getLessonScheduleOfMonth(trainerId, gymId, date);
     }
 }
