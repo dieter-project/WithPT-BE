@@ -253,7 +253,7 @@ public class LessonQueryRepository {
             .join(lesson.personalTraining.gym)
             .where(
                 lesson.date.eq(date),
-                statusEq(status),
+                statusNotInOrEq(status),
                 lesson.personalTraining.id.in(
                     JPAExpressions
                         .select(personalTraining.id)
@@ -288,8 +288,8 @@ public class LessonQueryRepository {
         return ObjectUtils.isEmpty(gymId) ? null : personalTraining.gym.id.eq(gymId);
     }
 
-    private BooleanExpression statusEq(LessonStatus status) {
-        return ObjectUtils.isEmpty(status) ? null : lesson.status.eq(status);
+    private BooleanExpression statusNotInOrEq(LessonStatus status) {
+        return ObjectUtils.isEmpty(status) ? lesson.status.notIn(LessonStatus.PENDING_APPROVAL) : lesson.status.eq(status);
     }
 
 }
