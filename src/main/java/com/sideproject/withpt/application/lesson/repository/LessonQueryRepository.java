@@ -11,7 +11,11 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.controller.response.LessonMembersInGymResponse.LessonMember;
+import com.sideproject.withpt.application.lesson.controller.response.LessonMembersResponse.LessonInfo;
 import com.sideproject.withpt.application.lesson.controller.response.QLessonMembersInGymResponse_LessonMember;
+import com.sideproject.withpt.application.lesson.controller.response.QLessonMembersResponse_LessonInfo;
+import com.sideproject.withpt.application.lesson.controller.response.QLessonMembersResponse_LessonInfo_Gym;
+import com.sideproject.withpt.application.lesson.controller.response.QLessonMembersResponse_LessonInfo_Member;
 import com.sideproject.withpt.application.lesson.controller.response.QSearchMemberResponse;
 import com.sideproject.withpt.application.lesson.controller.response.SearchMemberResponse;
 import com.sideproject.withpt.application.type.Day;
@@ -19,6 +23,7 @@ import com.sideproject.withpt.application.type.LessonStatus;
 import com.sideproject.withpt.application.type.PTInfoInputStatus;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.domain.gym.Gym;
+import com.sideproject.withpt.domain.gym.QGym;
 import com.sideproject.withpt.domain.member.QMember;
 import com.sideproject.withpt.domain.pt.Lesson;
 import com.sideproject.withpt.domain.pt.QLesson;
@@ -225,6 +230,48 @@ public class LessonQueryRepository {
         return new SliceImpl<>(content, pageable, hasNext);
     }
 
+    public List<LessonInfo> getLessonScheduleMembers(Long trainerId, Long gymId, LocalDate date, LessonStatus status) {
+        return jpaQueryFactory
+            .select(
+                new QLessonMembersResponse_LessonInfo(
+                    lesson.id,
+                    lesson.date,
+                    lesson.time,
+                    lesson.status,
+                    new QLessonMembersResponse_LessonInfo_Member(
+                        lesson.personalTraining.member.id,
+                        lesson.personalTraining.member.name
+                    ),
+                    new QLessonMembersResponse_LessonInfo_Gym(
+                        lesson.personalTraining.gym.id,
+                        lesson.personalTraining.gym.name
+                    )
+                )
+            )
+            .from(lesson)
+            .join(lesson.personalTraining.member)
+            .join(lesson.personalTraining.gym)
+            .where(
+                lesson.date.eq(date),
+                statusEq(status),
+                lesson.personalTraining.id.in(
+                    JPAExpressions
+                        .select(personalTraining.id)
+                        .from(personalTraining)
+                        .where(
+                            gymIdEq(gymId),
+                            personalTraining.trainer.id.eq(trainerId),
+                            personalTraining.infoInputStatus.eq(PTInfoInputStatus.INFO_REGISTERED)
+                        )
+                )
+            )
+            .orderBy(
+                lesson.time.asc(),
+                lesson.personalTraining.gym.name.asc()
+            )
+            .fetch();
+    }
+
     private BooleanExpression memberNameContains(String name) {
         return StringUtils.hasText(name) ? personalTraining.member.name.contains(name) : null;
     }
@@ -235,6 +282,14 @@ public class LessonQueryRepository {
 
     private BooleanExpression gymEq(Gym gym) {
         return ObjectUtils.isEmpty(gym) ? null : personalTraining.gym.eq(gym);
+    }
+
+    private BooleanExpression gymIdEq(Long gymId) {
+        return ObjectUtils.isEmpty(gymId) ? null : personalTraining.gym.id.eq(gymId);
+    }
+
+    private BooleanExpression statusEq(LessonStatus status) {
+        return ObjectUtils.isEmpty(status) ? null : lesson.status.eq(status);
     }
 
 }
