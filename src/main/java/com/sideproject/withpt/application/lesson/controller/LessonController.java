@@ -23,7 +23,9 @@ import org.springframework.data.domain.Slice;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -116,4 +118,11 @@ public class LessonController {
             lessonService.getLessonScheduleOfMonth(trainerId, gymId, date)
         );
     }
+
+    @Operation(summary = "수업관리/취소된 수업 > 삭제 알림 - 취소된 수업 삭제하기")
+    @DeleteMapping("/{lessonId}")
+    public void deleteDecidedLesson(@PathVariable Long lessonId) {
+        lessonService.deleteLesson(lessonId);
+    }
+
 }

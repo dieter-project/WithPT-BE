@@ -1,5 +1,7 @@
 package com.sideproject.withpt.application.lesson.service;
 
+import static com.sideproject.withpt.application.lesson.exception.LessonErrorCode.*;
+
 import com.sideproject.withpt.application.gym.repositoy.GymQueryRepository;
 import com.sideproject.withpt.application.gym.service.GymService;
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
@@ -8,6 +10,7 @@ import com.sideproject.withpt.application.lesson.controller.response.LessonMembe
 import com.sideproject.withpt.application.lesson.controller.response.LessonMembersInGymResponse.LessonMember;
 import com.sideproject.withpt.application.lesson.controller.response.LessonMembersResponse;
 import com.sideproject.withpt.application.lesson.controller.response.SearchMemberResponse;
+import com.sideproject.withpt.application.lesson.exception.LessonErrorCode;
 import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.lesson.repository.LessonQueryRepository;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
@@ -23,6 +26,7 @@ import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.pt.Lesson;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
@@ -150,5 +154,16 @@ public class LessonService {
 
     public List<LocalDate> getLessonScheduleOfMonth(Long trainerId, Long gymId, YearMonth date) {
         return lessonQueryRepository.getLessonScheduleOfMonth(trainerId, gymId, date);
+    }
+
+    @Transactional
+    public void deleteLesson(Long lessonId) {
+        lessonRepository.findById(lessonId)
+            .ifPresentOrElse(
+                lessonRepository::delete,
+                () -> {
+                    throw new LessonException(LESSON_NOT_FOUND);
+                }
+            );
     }
 }
