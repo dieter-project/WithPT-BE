@@ -26,6 +26,8 @@ import com.sideproject.withpt.application.type.PTInfoInputStatus;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.member.QMember;
+import com.sideproject.withpt.domain.pt.Lesson;
+import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import com.sideproject.withpt.domain.trainer.WorkSchedule;
 import java.time.Duration;
@@ -35,6 +37,7 @@ import java.time.YearMonth;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -95,30 +98,18 @@ public class LessonQueryRepository {
         return new SliceImpl<>(content, pageable, hasNext);
     }
 
-    public boolean existsLessonByDateAndTimeAndStatus(Trainer trainer, LocalDate date, LocalTime time,
-        LessonStatus status) {
-        return !ObjectUtils.isEmpty(
-            jpaQueryFactory
-                .select(lesson.id)
-                .from(lesson)
-                .where(
-                    lesson.personalTraining.id.in(
-                        JPAExpressions
-                            .select(personalTraining.id)
-                            .from(personalTraining)
-                            .where(
-                                personalTraining.trainer.eq(trainer)
-                            )
-                    ),
-                    lesson.date.eq(date),
-                    lesson.time.eq(time),
-                    lesson.status.eq(status)
-                ).fetchOne()
+    public Optional<Lesson> findLessonByDateAndTimeAndStatus(Trainer trainer, LocalDate date, LocalTime time) {
+        return Optional.ofNullable(jpaQueryFactory
+            .selectFrom(lesson)
+            .where(
+                lesson.trainer.eq(trainer),
+                lesson.schedule.date.eq(date),
+                lesson.schedule.time.eq(time)
+            ).fetchOne()
         );
     }
 
-    public Map<LocalTime, Boolean> getAvailableTrainerLessonSchedule(Long trainerId, Gym gym, Day weekday,
-        LocalDate date) {
+    public Map<LocalTime, Boolean> getAvailableTrainerLessonSchedule(Long trainerId, Gym gym, Day weekday, LocalDate date) {
         WorkSchedule schedule = jpaQueryFactory
             .selectFrom(workSchedule)
             .where(
@@ -132,18 +123,11 @@ public class LessonQueryRepository {
         Duration interval = Duration.ofHours(1);
 
         List<LocalTime> times = jpaQueryFactory
-            .select(lesson.time)
+            .select(lesson.schedule.time)
             .from(lesson)
             .where(
-                lesson.personalTraining.id.in(
-                    JPAExpressions
-                        .select(personalTraining.id)
-                        .from(personalTraining)
-                        .where(
-                            personalTraining.trainer.id.eq(trainerId)
-                        )
-                ),
-                lesson.date.eq(date),
+                lesson.trainer.id.eq(trainerId),
+                lesson.schedule.date.eq(date),
                 lesson.status.eq(LessonStatus.RESERVED)
             ).fetch();
 
@@ -161,110 +145,36 @@ public class LessonQueryRepository {
         return lessonSchedule;
     }
 
-    public Long getLessonMembersReservationTotalCount(Long trainerId, Gym gym, LocalDate date) {
-        return jpaQueryFactory
-            .select(lesson.count())
-            .from(lesson)
-            .where(
-                lesson.personalTraining.id.in(
-                    JPAExpressions
-                        .select(personalTraining.id)
-                        .from(personalTraining)
-                        .where(
-                            personalTraining.trainer.id.eq(trainerId),
-                            personalTraining.gym.eq(gym)
-                        )
-                ),
-                lesson.date.eq(date),
-                lesson.status.eq(LessonStatus.RESERVED)
-            ).fetchOne();
-    }
-
-    public Slice<LessonMember> getLessonScheduleMembersInGym(Long trainerId, Gym gym, LocalDate date, Pageable pageable) {
-        QMember qMember = QMember.member;
-
-        List<LessonMember> content = jpaQueryFactory
-            .select(
-                new QLessonMembersInGymResponse_LessonMember(
-                    qMember.id,
-                    qMember.name,
-                    lesson.time,
-                    lesson.time
-                )
-            )
-            .from(lesson)
-            .leftJoin(lesson.personalTraining)
-            .leftJoin(qMember).on(lesson.personalTraining.member.eq(qMember))
-            .where(
-                lesson.date.eq(date),
-                lesson.status.eq(LessonStatus.RESERVED),
-                lesson.personalTraining.id.in(
-                    JPAExpressions
-                        .select(personalTraining.id)
-                        .from(personalTraining)
-                        .where(
-                            personalTraining.trainer.id.eq(trainerId),
-                            personalTraining.gym.eq(gym)
-                        )
-                )
-            )
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize() + 1)
-            .orderBy(
-                lesson.time.asc()
-            )
-            .fetch();
-
-        log.info("결과 : {}", content);
-
-        boolean hasNext = false;
-
-        if (content.size() > pageable.getPageSize()) {
-            content.remove(pageable.getPageSize());
-            hasNext = true;
-        }
-
-        return new SliceImpl<>(content, pageable, hasNext);
-    }
-
     public List<LessonInfo> getLessonScheduleMembers(Long trainerId, Long gymId, LocalDate date, LessonStatus status) {
         return jpaQueryFactory
             .select(
                 new QLessonInfo(
                     lesson.id,
-                    lesson.date,
-                    lesson.time,
+                    lesson.schedule.date,
+                    lesson.schedule.time,
                     lesson.status,
                     new QLessonInfo_Member(
-                        lesson.personalTraining.member.id,
-                        lesson.personalTraining.member.name
+                        lesson.member.id,
+                        lesson.member.name
                     ),
                     new QLessonInfo_Gym(
-                        lesson.personalTraining.gym.id,
-                        lesson.personalTraining.gym.name
+                        lesson.gym.id,
+                        lesson.gym.name
                     )
                 )
             )
             .from(lesson)
-            .join(lesson.personalTraining.member)
-            .join(lesson.personalTraining.gym)
+            .join(lesson.member)
+            .join(lesson.gym)
             .where(
-                lesson.date.eq(date),
-                statusNotInOrEq(status),
-                lesson.personalTraining.id.in(
-                    JPAExpressions
-                        .select(personalTraining.id)
-                        .from(personalTraining)
-                        .where(
-                            gymIdEq(gymId),
-                            personalTraining.trainer.id.eq(trainerId),
-                            personalTraining.infoInputStatus.eq(PTInfoInputStatus.INFO_REGISTERED)
-                        )
-                )
+                lesson.schedule.date.eq(date),
+                lesson.trainer.id.eq(trainerId),
+                gymIdEq(gymId),
+                statusNotInOrEq(status)
             )
             .orderBy(
-                lesson.time.asc(),
-                lesson.personalTraining.gym.name.asc()
+                lesson.schedule.time.asc(),
+                lesson.gym.name.asc()
             )
             .fetch();
     }
@@ -274,22 +184,22 @@ public class LessonQueryRepository {
             .select(
                 new QLessonInfo(
                     lesson.id,
-                    lesson.date,
-                    lesson.time,
+                    lesson.schedule.date,
+                    lesson.schedule.time,
                     lesson.status,
                     new QLessonInfo_Member(
-                        lesson.personalTraining.member.id,
-                        lesson.personalTraining.member.name
+                        lesson.member.id,
+                        lesson.member.name
                     ),
                     new QLessonInfo_Gym(
-                        lesson.personalTraining.gym.id,
-                        lesson.personalTraining.gym.name
+                        lesson.gym.id,
+                        lesson.gym.name
                     )
                 )
             )
             .from(lesson)
-            .join(lesson.personalTraining.member)
-            .join(lesson.personalTraining.gym)
+            .join(lesson.member)
+            .join(lesson.gym)
             .where(
                lesson.id.eq(lessonId)
             )
@@ -301,46 +211,39 @@ public class LessonQueryRepository {
         DateTemplate<String> localDateTemplate = Expressions.dateTemplate(
             String.class,
             "DATE_FORMAT({0}, {1})",
-            lesson.date,
+            lesson.schedule.date,
             ConstantImpl.create("%Y-%m")
         );
 
         return jpaQueryFactory
             .select(
-                lesson.date
+                lesson.schedule.date
             )
             .from(lesson)
             .where(
-                lesson.personalTraining.id.in(
-                    JPAExpressions
-                        .select(personalTraining.id)
-                        .from(personalTraining)
-                        .where(
-                            gymIdEq(gymId),
-                            personalTraining.trainer.id.eq(trainerId),
-                            personalTraining.infoInputStatus.eq(PTInfoInputStatus.INFO_REGISTERED)
-                        )
-                ),
+                lesson.trainer.id.eq(trainerId),
+                gymIdEq(gymId),
                 localDateTemplate.eq(date.toString()),
                 lesson.status.notIn(LessonStatus.CANCELED)
             ).distinct()
+            .orderBy(lesson.schedule.date.asc())
             .fetch();
     }
 
     private BooleanExpression memberNameContains(String name) {
-        return StringUtils.hasText(name) ? personalTraining.member.name.contains(name) : null;
+        return StringUtils.hasText(name) ? lesson.member.name.contains(name) : null;
     }
 
     private BooleanExpression trainerEq(Trainer trainer) {
-        return ObjectUtils.isEmpty(trainer) ? null : personalTraining.trainer.eq(trainer);
+        return ObjectUtils.isEmpty(trainer) ? null : lesson.trainer.eq(trainer);
     }
 
     private BooleanExpression gymEq(Gym gym) {
-        return ObjectUtils.isEmpty(gym) ? null : personalTraining.gym.eq(gym);
+        return ObjectUtils.isEmpty(gym) ? null : lesson.gym.eq(gym);
     }
 
     private BooleanExpression gymIdEq(Long gymId) {
-        return ObjectUtils.isEmpty(gymId) ? null : personalTraining.gym.id.eq(gymId);
+        return ObjectUtils.isEmpty(gymId) ? null : lesson.gym.id.eq(gymId);
     }
 
     private BooleanExpression statusNotInOrEq(LessonStatus status) {

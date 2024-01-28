@@ -10,7 +10,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface LessonRepository extends JpaRepository<Lesson, Long> {
 
-    Optional<Lesson> findByDateAndTimeAndStatus(LocalDate date, LocalTime time, LessonStatus status);
-    List<Lesson> findAllByDateAndTimeAndStatus(LocalDate date, LocalTime time, LessonStatus status);
-    boolean existsByDateAndTimeAndStatus(LocalDate date, LocalTime time, LessonStatus status);
+//    Optional<Lesson> findByDateAndTimeAndStatus(LocalDate date, LocalTime time, LessonStatus status);
+//    List<Lesson> findAllByDateAndTimeAndStatus(LocalDate date, LocalTime time, LessonStatus status);
+    List<Lesson> findAllByScheduleDateAndScheduleTimeAndStatus(LocalDate date, LocalTime time, LessonStatus status);
+//    boolean existsByDateAndTimeAndStatus(LocalDate date, LocalTime time, LessonStatus status);
 }

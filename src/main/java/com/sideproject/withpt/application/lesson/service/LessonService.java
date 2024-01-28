@@ -25,11 +25,14 @@ import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.pt.Lesson;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -70,29 +73,24 @@ public class LessonService {
             trainer = trainerService.getTrainerById(request.getRegistrationRequestId());
         }
 
-        PersonalTraining personalTraining = validationPersonalTraining(member, trainer, gym);
+        validationPersonalTraining(member, trainer, gym);
 
         validationLessonTime(request, trainer);
 
         // TODO 수업 등록 - 예약 시스템이므로 동시성 고려하기
-        lessonRepository.save(request.toEntity(personalTraining, loginRole));
+        lessonRepository.save(request.toEntity(member, trainer, gym, loginRole));
     }
 
-    private void validationLessonTime(LessonRegistrationRequest request, Trainer personalTraining) {
-        // 트레이너의 예약 신청 - 날짜, 시간, 상태(예약)가 이미 등록되어 있으면 에러
-        if (lessonQueryRepository.existsLessonByDateAndTimeAndStatus(personalTraining, request.getDate(),
-            request.getTime(), LessonStatus.RESERVED)) {
-            throw LessonException.ALREADY_RESERVATION;
-        }
-
-//        // 회원의 예약 신청 - 날짜, 시간, 상태(승인 대기 중) 이면 등록되어 있는 것으로 간주
-//        if (lessonQueryRepository.existsLessonByDateAndTimeAndStatus(personalTraining, request.getDate(),
-//            request.getTime(), LessonStatus.PENDING_APPROVAL)) {
-//            throw LessonException.ALREADY_PENDING_APPROVAL;
-//        }
+    private void validationLessonTime(LessonRegistrationRequest request, Trainer trainer) {
+        lessonQueryRepository.findLessonByDateAndTimeAndStatus(trainer, request.getDate(), request.getTime())
+            .ifPresent(lesson -> {
+                if (lesson.getStatus() == LessonStatus.RESERVED || lesson.getStatus() == LessonStatus.PENDING_APPROVAL) {
+                    throw LessonException.ALREADY_RESERVATION;
+                }
+            });
     }
 
-    private PersonalTraining validationPersonalTraining(Member member, Trainer trainer, Gym gym) {
+    private void validationPersonalTraining(Member member, Trainer trainer, Gym gym) {
         // 해당 PT 정보가 있는지 조회
         PersonalTraining personalTraining = trainingRepository.findByMemberAndTrainerAndGym(member, trainer, gym)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
@@ -109,7 +107,6 @@ public class LessonService {
         if (personalTraining.getRemainingPtCount() <= 0) {
             throw PTException.NO_REMAINING_PT;
         }
-        return personalTraining;
     }
 
 
@@ -128,17 +125,6 @@ public class LessonService {
         return AvailableLessonScheduleResponse.of(
             trainerId, gymId, date, weekday,
             lessonQueryRepository.getAvailableTrainerLessonSchedule(trainerId, gym, weekday, date)
-        );
-    }
-
-    public LessonMembersInGymResponse getLessonScheduleMembersInGym(Long trainerId, Long gymId, LocalDate date, Pageable pageable) {
-        Gym gym = gymService.getGymById(gymId);
-
-        return LessonMembersInGymResponse.of(
-            gym,
-            date,
-            lessonQueryRepository.getLessonMembersReservationTotalCount(trainerId, gym, date),
-            lessonQueryRepository.getLessonScheduleMembersInGym(trainerId, gym, date, pageable)
         );
     }
 

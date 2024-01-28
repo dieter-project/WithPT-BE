@@ -65,7 +65,7 @@ class LessonServiceTest {
         latch.await();
 
         //when
-        List<Lesson> result = lessonRepository.findAllByDateAndTimeAndStatus(request.getDate(),
+        List<Lesson> result = lessonRepository.findAllByScheduleDateAndScheduleTimeAndStatus(request.getDate(),
             request.getTime(),
             LessonStatus.RESERVED);
         //then

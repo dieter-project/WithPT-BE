@@ -1,5 +1,6 @@
 package com.sideproject.withpt.application.lesson.controller;
 
+import com.sideproject.withpt.application.lesson.controller.request.LessonChangeRequest;
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.controller.response.LessonInfo;
@@ -42,17 +43,6 @@ public class LessonController {
 
     private final LessonService lessonService;
     private final LessonLockFacade lessonLockFacade;
-
-    @Operation(summary = "수업관리/스케줄 - 해당 날짜의 체육관 수업 스케줄 조회")
-    @GetMapping("/gym/{gymId}/members")
-    public ApiSuccessResponse<LessonMembersInGymResponse> getLessonScheduleMembersInGym(
-        @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId, @PathVariable Long gymId,
-        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date, Pageable pageable) {
-
-        return ApiSuccessResponse.from(
-            lessonService.getLessonScheduleMembersInGym(trainerId, gymId, date, pageable)
-        );
-    }
 
     @Operation(summary = "수업관리/스케줄 - 수업등록")
     @PostMapping("/gym/{gymId}")
@@ -140,4 +130,16 @@ public class LessonController {
         lessonService.changeLessonStatus(lessonId, LessonStatus.CANCELED);
     }
 
+    @Operation(summary = "수업관리/스케줄 - 수업변경")
+    @PatchMapping("/{lessonId}")
+    public void changePtLesson(@PathVariable Long lessonId,
+        @Parameter(hidden = true) @AuthenticationPrincipal Long loginId,
+        @Valid @RequestBody LessonChangeRequest request) {
+
+        String loginRole = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+            .findFirst().get().getAuthority().split("_")[1];
+
+        log.info("로그인 role = {}", loginRole);
+
+    }
 }
