@@ -2,6 +2,7 @@ package com.sideproject.withpt.application.lesson.controller;
 
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
+import com.sideproject.withpt.application.lesson.controller.response.LessonInfo;
 import com.sideproject.withpt.application.lesson.controller.response.LessonMembersInGymResponse;
 import com.sideproject.withpt.application.lesson.controller.response.LessonMembersResponse;
 import com.sideproject.withpt.application.lesson.controller.response.SearchMemberResponse;
@@ -104,6 +105,14 @@ public class LessonController {
 
         return ApiSuccessResponse.from(
             lessonService.getLessonScheduleMembers(trainerId, gymId, date, status)
+        );
+    }
+
+    @Operation(summary = "단일 수업 스케줄 조회")
+    @GetMapping("/{lessonId}")
+    public ApiSuccessResponse<LessonInfo> getLessonSchedule(@PathVariable Long lessonId) {
+        return ApiSuccessResponse.from(
+            lessonService.getLessonSchedule(lessonId)
         );
     }
 

@@ -1,16 +1,15 @@
 package com.sideproject.withpt.application.lesson.service;
 
-import static com.sideproject.withpt.application.lesson.exception.LessonErrorCode.*;
+import static com.sideproject.withpt.application.lesson.exception.LessonErrorCode.LESSON_NOT_FOUND;
 
 import com.sideproject.withpt.application.gym.repositoy.GymQueryRepository;
 import com.sideproject.withpt.application.gym.service.GymService;
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
+import com.sideproject.withpt.application.lesson.controller.response.LessonInfo;
 import com.sideproject.withpt.application.lesson.controller.response.LessonMembersInGymResponse;
-import com.sideproject.withpt.application.lesson.controller.response.LessonMembersInGymResponse.LessonMember;
 import com.sideproject.withpt.application.lesson.controller.response.LessonMembersResponse;
 import com.sideproject.withpt.application.lesson.controller.response.SearchMemberResponse;
-import com.sideproject.withpt.application.lesson.exception.LessonErrorCode;
 import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.lesson.repository.LessonQueryRepository;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
@@ -26,13 +25,10 @@ import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.pt.Lesson;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -152,6 +148,10 @@ public class LessonService {
         );
     }
 
+    public LessonInfo getLessonSchedule(Long lessonId) {
+        return lessonQueryRepository.getLessonSchedule(lessonId);
+    }
+
     public List<LocalDate> getLessonScheduleOfMonth(Long trainerId, Long gymId, YearMonth date) {
         return lessonQueryRepository.getLessonScheduleOfMonth(trainerId, gymId, date);
     }
@@ -177,4 +177,5 @@ public class LessonService {
                 }
             );
     }
+
 }

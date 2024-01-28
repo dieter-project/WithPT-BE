@@ -1,9 +1,8 @@
 package com.sideproject.withpt.application.lesson.repository;
 
-import static com.sideproject.withpt.domain.pt.QLesson.*;
-import static com.sideproject.withpt.domain.pt.QPersonalTraining.*;
-import static com.sideproject.withpt.domain.pt.QPersonalTrainingInfo.personalTrainingInfo;
-import static com.sideproject.withpt.domain.trainer.QWorkSchedule.*;
+import static com.sideproject.withpt.domain.pt.QLesson.lesson;
+import static com.sideproject.withpt.domain.pt.QPersonalTraining.personalTraining;
+import static com.sideproject.withpt.domain.trainer.QWorkSchedule.workSchedule;
 
 import com.querydsl.core.types.ConstantImpl;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -13,13 +12,12 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
+import com.sideproject.withpt.application.lesson.controller.response.LessonInfo;
 import com.sideproject.withpt.application.lesson.controller.response.LessonMembersInGymResponse.LessonMember;
-import com.sideproject.withpt.application.lesson.controller.response.LessonMembersResponse.LessonInfo;
+import com.sideproject.withpt.application.lesson.controller.response.QLessonInfo;
+import com.sideproject.withpt.application.lesson.controller.response.QLessonInfo_Gym;
+import com.sideproject.withpt.application.lesson.controller.response.QLessonInfo_Member;
 import com.sideproject.withpt.application.lesson.controller.response.QLessonMembersInGymResponse_LessonMember;
-import com.sideproject.withpt.application.lesson.controller.response.QLessonMembersResponse_LessonInfo;
-import com.sideproject.withpt.application.lesson.controller.response.QLessonMembersResponse_LessonInfo_Gym;
-import com.sideproject.withpt.application.lesson.controller.response.QLessonMembersResponse_LessonInfo_Member;
 import com.sideproject.withpt.application.lesson.controller.response.QSearchMemberResponse;
 import com.sideproject.withpt.application.lesson.controller.response.SearchMemberResponse;
 import com.sideproject.withpt.application.type.Day;
@@ -27,19 +25,13 @@ import com.sideproject.withpt.application.type.LessonStatus;
 import com.sideproject.withpt.application.type.PTInfoInputStatus;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.domain.gym.Gym;
-import com.sideproject.withpt.domain.gym.QGym;
 import com.sideproject.withpt.domain.member.QMember;
-import com.sideproject.withpt.domain.pt.Lesson;
-import com.sideproject.withpt.domain.pt.QLesson;
-import com.sideproject.withpt.domain.pt.QPersonalTraining;
-import com.sideproject.withpt.domain.trainer.QWorkSchedule;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import com.sideproject.withpt.domain.trainer.WorkSchedule;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -238,16 +230,16 @@ public class LessonQueryRepository {
     public List<LessonInfo> getLessonScheduleMembers(Long trainerId, Long gymId, LocalDate date, LessonStatus status) {
         return jpaQueryFactory
             .select(
-                new QLessonMembersResponse_LessonInfo(
+                new QLessonInfo(
                     lesson.id,
                     lesson.date,
                     lesson.time,
                     lesson.status,
-                    new QLessonMembersResponse_LessonInfo_Member(
+                    new QLessonInfo_Member(
                         lesson.personalTraining.member.id,
                         lesson.personalTraining.member.name
                     ),
-                    new QLessonMembersResponse_LessonInfo_Gym(
+                    new QLessonInfo_Gym(
                         lesson.personalTraining.gym.id,
                         lesson.personalTraining.gym.name
                     )
@@ -275,6 +267,33 @@ public class LessonQueryRepository {
                 lesson.personalTraining.gym.name.asc()
             )
             .fetch();
+    }
+
+    public LessonInfo getLessonSchedule(Long lessonId) {
+        return jpaQueryFactory
+            .select(
+                new QLessonInfo(
+                    lesson.id,
+                    lesson.date,
+                    lesson.time,
+                    lesson.status,
+                    new QLessonInfo_Member(
+                        lesson.personalTraining.member.id,
+                        lesson.personalTraining.member.name
+                    ),
+                    new QLessonInfo_Gym(
+                        lesson.personalTraining.gym.id,
+                        lesson.personalTraining.gym.name
+                    )
+                )
+            )
+            .from(lesson)
+            .join(lesson.personalTraining.member)
+            .join(lesson.personalTraining.gym)
+            .where(
+               lesson.id.eq(lessonId)
+            )
+            .fetchOne();
     }
 
     public List<LocalDate> getLessonScheduleOfMonth(Long trainerId, Long gymId, YearMonth date) {
