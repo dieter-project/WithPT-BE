@@ -125,4 +125,10 @@ public class LessonController {
         lessonService.deleteLesson(lessonId);
     }
 
+    @Operation(summary = "수업관리/확정된 수업 > 취소 알림 - 수업 취소하기")
+    @PatchMapping("/{lessonId}/cancel")
+    public void cancelDecidedLesson(@PathVariable Long lessonId) {
+        lessonService.changeLessonStatus(lessonId, LessonStatus.CANCELED);
+    }
+
 }

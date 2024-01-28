@@ -166,4 +166,15 @@ public class LessonService {
                 }
             );
     }
+
+    @Transactional
+    public void changeLessonStatus(Long lessonId, LessonStatus status) {
+        lessonRepository.findById(lessonId)
+            .ifPresentOrElse( lesson ->
+                lesson.changeLessonStatus(status),
+                () -> {
+                    throw new LessonException(LESSON_NOT_FOUND);
+                }
+            );
+    }
 }
