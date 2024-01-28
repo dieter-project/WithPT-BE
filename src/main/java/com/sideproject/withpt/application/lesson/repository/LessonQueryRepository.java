@@ -54,50 +54,6 @@ public class LessonQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public Slice<SearchMemberResponse> findAllMembersByGymIdAndName(Trainer trainer, Gym gym, String name,
-        Pageable pageable) {
-
-        NumberExpression<Integer> remainingPtCountRank = new CaseBuilder()
-            .when(personalTraining.remainingPtCount.gt(0)).then(1)
-            .otherwise(2);
-
-        List<SearchMemberResponse> content = jpaQueryFactory
-            .select(
-                new QSearchMemberResponse(
-                    personalTraining.member.id,
-                    personalTraining.member.name,
-                    personalTraining.infoInputStatus,
-                    personalTraining.member.authentication.birth,
-                    personalTraining.member.authentication.sex,
-                    personalTraining.remainingPtCount
-                )
-            )
-            .from(personalTraining)
-            .leftJoin(personalTraining.member)
-            .where(
-                trainerEq(trainer),
-                gymEq(gym),
-                personalTraining.registrationAllowedStatus.eq(PtRegistrationAllowedStatus.APPROVED),
-                memberNameContains(name)
-            )
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize() + 1)
-            .orderBy(
-                remainingPtCountRank.asc(),
-                personalTraining.member.name.asc()
-            )
-            .fetch();
-
-        boolean hasNext = false;
-
-        if (content.size() > pageable.getPageSize()) {
-            content.remove(pageable.getPageSize());
-            hasNext = true;
-        }
-
-        return new SliceImpl<>(content, pageable, hasNext);
-    }
-
     public Optional<Lesson> findLessonByDateAndTimeAndStatus(Trainer trainer, LocalDate date, LocalTime time) {
         return Optional.ofNullable(jpaQueryFactory
             .selectFrom(lesson)
@@ -167,9 +123,9 @@ public class LessonQueryRepository {
             .join(lesson.member)
             .join(lesson.gym)
             .where(
-                lesson.schedule.date.eq(date),
                 lesson.trainer.id.eq(trainerId),
                 gymIdEq(gymId),
+                scheduleDateEq(date),
                 statusNotInOrEq(status)
             )
             .orderBy(
@@ -248,6 +204,10 @@ public class LessonQueryRepository {
 
     private BooleanExpression statusNotInOrEq(LessonStatus status) {
         return ObjectUtils.isEmpty(status) ? lesson.status.notIn(LessonStatus.PENDING_APPROVAL) : lesson.status.eq(status);
+    }
+
+    private BooleanExpression scheduleDateEq(LocalDate date) {
+        return ObjectUtils.isEmpty(date) ? null : lesson.schedule.date.eq(date);
     }
 
 }

@@ -38,14 +38,14 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/personal-trainings/lessons")
+@RequestMapping("/api/v1")
 public class LessonController {
 
     private final LessonService lessonService;
     private final LessonLockFacade lessonLockFacade;
 
     @Operation(summary = "수업관리/스케줄 - 수업등록")
-    @PostMapping("/gym/{gymId}")
+    @PostMapping("/gym/{gymId}/lessons")
     public void registrationPtLesson(@PathVariable Long gymId,
         @Parameter(hidden = true) @AuthenticationPrincipal Long loginId,
         @Valid @RequestBody LessonRegistrationRequest request) {
@@ -59,20 +59,7 @@ public class LessonController {
         lessonLockFacade.registrationPtLesson(gymId, loginId, loginRole, request);
     }
 
-    @Operation(summary = "체육관 별 회원이름 검색")
-    @GetMapping("/gym/{gymId}/members/search")
-    public ApiSuccessResponse<Slice<SearchMemberResponse>> searchPtMemberInGym(
-        @PathVariable Long gymId,
-        @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
-        @RequestParam(required = false) String name,
-        Pageable pageable) {
-
-        return ApiSuccessResponse.from(
-            lessonService.searchMembersByGymIdAndName(gymId, trainerId, name, pageable)
-        );
-    }
-
-    @Operation(summary = "수업관리/스케줄 - 수업등록 => 트레이너 근무 시간 조회")
+    @Operation(summary = "예약 가능한 수업 시간표 조회")
     @GetMapping("/gym/{gymId}/trainers/{trainerId}/schedule")
     public ApiSuccessResponse<AvailableLessonScheduleResponse> getTrainerWorkSchedule(@PathVariable Long gymId,
         @PathVariable Long trainerId,
@@ -85,10 +72,11 @@ public class LessonController {
     }
 
     @Operation(summary = "수업관리/메인 - 날짜 별 체육관 수업 스케줄 조회")
-    @GetMapping
+    @GetMapping("/lessons")
     public ApiSuccessResponse<LessonMembersResponse> getLessonScheduleMembers(
         @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
-        @RequestParam(name = "gym", required = false) Long gymId, @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
+        @RequestParam(name = "gym", required = false) Long gymId,
+        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
         @RequestParam(required = false) LessonStatus status
     ) {
         log.info("체육관 {}, 날짜 {}, 상태 {}", gymId, date, status);
@@ -98,8 +86,14 @@ public class LessonController {
         );
     }
 
+    @Operation(summary = "수업관리/메인 - 대기 수업 조회")
+    @GetMapping("/pending-lessons")
+    public void getPendingLessons() {
+
+    }
+
     @Operation(summary = "단일 수업 스케줄 조회")
-    @GetMapping("/{lessonId}")
+    @GetMapping("/lessons/{lessonId}")
     public ApiSuccessResponse<LessonInfo> getLessonSchedule(@PathVariable Long lessonId) {
         return ApiSuccessResponse.from(
             lessonService.getLessonSchedule(lessonId)
@@ -107,7 +101,7 @@ public class LessonController {
     }
 
     @Operation(summary = "수업관리/메인 - 해당 월(Month) 체육관 수업 일정 조회")
-    @GetMapping("/days")
+    @GetMapping("/lessons/days")
     public ApiSuccessResponse<List<LocalDate>> getLessonScheduleOfMonth(
         @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
         @RequestParam(name = "gym", required = false) Long gymId, @RequestParam @DateTimeFormat(pattern = "yyyy-MM") YearMonth date
@@ -119,19 +113,19 @@ public class LessonController {
     }
 
     @Operation(summary = "수업관리/취소된 수업 > 삭제 알림 - 취소된 수업 삭제하기")
-    @DeleteMapping("/{lessonId}")
+    @DeleteMapping("/lessons/{lessonId}")
     public void deleteDecidedLesson(@PathVariable Long lessonId) {
         lessonService.deleteLesson(lessonId);
     }
 
     @Operation(summary = "수업관리/확정된 수업 > 취소 알림 - 수업 취소하기")
-    @PatchMapping("/{lessonId}/cancel")
+    @PatchMapping("/lessons/{lessonId}/cancel")
     public void cancelDecidedLesson(@PathVariable Long lessonId) {
         lessonService.changeLessonStatus(lessonId, LessonStatus.CANCELED);
     }
 
     @Operation(summary = "수업관리/스케줄 - 수업변경")
-    @PatchMapping("/{lessonId}")
+    @PatchMapping("/lessons/{lessonId}")
     public void changePtLesson(@PathVariable Long lessonId,
         @Parameter(hidden = true) @AuthenticationPrincipal Long loginId,
         @Valid @RequestBody LessonChangeRequest request) {

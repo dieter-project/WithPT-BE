@@ -109,16 +109,6 @@ public class LessonService {
         }
     }
 
-
-    public Slice<SearchMemberResponse> searchMembersByGymIdAndName(Long gymId, Long trainerId, String name, Pageable pageable) {
-        Trainer trainer = trainerService.getTrainerById(trainerId);
-        Gym gym = gymService.getGymById(gymId);
-
-        // TODO : 예외 처리 추가
-        return lessonQueryRepository.findAllMembersByGymIdAndName(trainer, gym, name, pageable);
-    }
-
-
     public AvailableLessonScheduleResponse getTrainerWorkSchedule(Long gymId, Long trainerId, Day weekday, LocalDate date) {
         Gym gym = gymService.getGymById(gymId);
 
