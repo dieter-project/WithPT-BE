@@ -4,9 +4,7 @@ import com.sideproject.withpt.application.lesson.controller.request.LessonChange
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.controller.response.LessonInfo;
-import com.sideproject.withpt.application.lesson.controller.response.LessonMembersInGymResponse;
 import com.sideproject.withpt.application.lesson.controller.response.LessonMembersResponse;
-import com.sideproject.withpt.application.lesson.controller.response.SearchMemberResponse;
 import com.sideproject.withpt.application.lesson.service.LessonLockFacade;
 import com.sideproject.withpt.application.lesson.service.LessonService;
 import com.sideproject.withpt.application.type.Day;
@@ -17,12 +15,12 @@ import io.swagger.v3.oas.annotations.Parameter;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -50,13 +48,13 @@ public class LessonController {
         @Parameter(hidden = true) @AuthenticationPrincipal Long loginId,
         @Valid @RequestBody LessonRegistrationRequest request) {
 
-        String loginRole = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-            .findFirst().get().getAuthority().split("_")[1];
-
+        String loginRole = getLoginRole();
         log.info("로그인 role = {}", loginRole);
 
-
-        lessonLockFacade.registrationPtLesson(gymId, loginId, loginRole, request);
+        lessonLockFacade.lessonConcurrencyCheck(() ->
+                lessonService.registrationPtLesson(gymId, loginId, loginRole, request),
+            lessonLockFacade.generateKey(request.getDate(), request.getTime())
+        );
     }
 
     @Operation(summary = "예약 가능한 수업 시간표 조회")
@@ -104,7 +102,8 @@ public class LessonController {
     @GetMapping("/lessons/days")
     public ApiSuccessResponse<List<LocalDate>> getLessonScheduleOfMonth(
         @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
-        @RequestParam(name = "gym", required = false) Long gymId, @RequestParam @DateTimeFormat(pattern = "yyyy-MM") YearMonth date
+        @RequestParam(name = "gym", required = false) Long gymId,
+        @RequestParam @DateTimeFormat(pattern = "yyyy-MM") YearMonth date
     ) {
         log.info("체육관 {}, 날짜 {}", gymId, date.toString());
         return ApiSuccessResponse.from(
@@ -126,14 +125,22 @@ public class LessonController {
 
     @Operation(summary = "수업관리/스케줄 - 수업변경")
     @PatchMapping("/lessons/{lessonId}")
-    public void changePtLesson(@PathVariable Long lessonId,
-        @Parameter(hidden = true) @AuthenticationPrincipal Long loginId,
-        @Valid @RequestBody LessonChangeRequest request) {
+    public void changePtLesson(@PathVariable Long lessonId, @Valid @RequestBody LessonChangeRequest request) {
 
-        String loginRole = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-            .findFirst().get().getAuthority().split("_")[1];
-
+        String loginRole = getLoginRole();
         log.info("로그인 role = {}", loginRole);
 
+        lessonLockFacade.lessonConcurrencyCheck(() ->
+                lessonService.changePtLesson(lessonId, loginRole, request),
+            lessonLockFacade.generateKey(request.getDate(), request.getTime())
+        );
+    }
+
+    private String getLoginRole() {
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+            .map(GrantedAuthority::getAuthority)
+            .filter(s -> s.contains("TRAINER") || s.contains("MEMBER"))
+            .collect(Collectors.joining())
+            .split("_")[1];
     }
 }

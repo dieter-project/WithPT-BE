@@ -11,9 +11,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Embeddable
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,4 +29,10 @@ public class LessonSchedule {
     @Enumerated(EnumType.STRING)
     @Column(name = "\"DAY\"")
     private Day weekday;
+
+    public void changeSchedule(LessonSchedule schedule) {
+        this.date = schedule.getDate();
+        this.time = schedule.getTime();
+        this.weekday = schedule.getWeekday();
+    }
 }

@@ -1,33 +1,21 @@
 package com.sideproject.withpt.application.lesson.repository;
 
 import static com.sideproject.withpt.domain.pt.QLesson.lesson;
-import static com.sideproject.withpt.domain.pt.QPersonalTraining.personalTraining;
 import static com.sideproject.withpt.domain.trainer.QWorkSchedule.workSchedule;
 
 import com.querydsl.core.types.ConstantImpl;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.DateTemplate;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.NumberExpression;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.lesson.controller.response.LessonInfo;
-import com.sideproject.withpt.application.lesson.controller.response.LessonMembersInGymResponse.LessonMember;
 import com.sideproject.withpt.application.lesson.controller.response.QLessonInfo;
 import com.sideproject.withpt.application.lesson.controller.response.QLessonInfo_Gym;
 import com.sideproject.withpt.application.lesson.controller.response.QLessonInfo_Member;
-import com.sideproject.withpt.application.lesson.controller.response.QLessonMembersInGymResponse_LessonMember;
-import com.sideproject.withpt.application.lesson.controller.response.QSearchMemberResponse;
-import com.sideproject.withpt.application.lesson.controller.response.SearchMemberResponse;
 import com.sideproject.withpt.application.type.Day;
 import com.sideproject.withpt.application.type.LessonStatus;
-import com.sideproject.withpt.application.type.PTInfoInputStatus;
-import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.domain.gym.Gym;
-import com.sideproject.withpt.domain.member.QMember;
 import com.sideproject.withpt.domain.pt.Lesson;
-import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import com.sideproject.withpt.domain.trainer.WorkSchedule;
 import java.time.Duration;
@@ -40,9 +28,6 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -54,7 +39,7 @@ public class LessonQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public Optional<Lesson> findLessonByDateAndTimeAndStatus(Trainer trainer, LocalDate date, LocalTime time) {
+    public Optional<Lesson> findLessonByTrainerAndDateAndTime(Trainer trainer, LocalDate date, LocalTime time) {
         return Optional.ofNullable(jpaQueryFactory
             .selectFrom(lesson)
             .where(

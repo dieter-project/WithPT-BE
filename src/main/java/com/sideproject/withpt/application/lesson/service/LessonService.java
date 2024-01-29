@@ -4,12 +4,11 @@ import static com.sideproject.withpt.application.lesson.exception.LessonErrorCod
 
 import com.sideproject.withpt.application.gym.repositoy.GymQueryRepository;
 import com.sideproject.withpt.application.gym.service.GymService;
+import com.sideproject.withpt.application.lesson.controller.request.LessonChangeRequest;
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.controller.response.LessonInfo;
-import com.sideproject.withpt.application.lesson.controller.response.LessonMembersInGymResponse;
 import com.sideproject.withpt.application.lesson.controller.response.LessonMembersResponse;
-import com.sideproject.withpt.application.lesson.controller.response.SearchMemberResponse;
 import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.lesson.repository.LessonQueryRepository;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
@@ -29,14 +28,11 @@ import com.sideproject.withpt.domain.pt.Lesson;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,6 +56,7 @@ public class LessonService {
     @Transactional
     public void registrationPtLesson(Long gymId, Long loginId, String loginRole, LessonRegistrationRequest request) {
 
+        log.info("=================== 수업 등록 =======================\n");
         Member member = null;
         Trainer trainer = null;
 
@@ -75,14 +72,14 @@ public class LessonService {
 
         validationPersonalTraining(member, trainer, gym);
 
-        validationLessonTime(request, trainer);
+        validationLessonTime(trainer, request.getDate(), request.getTime());
 
         // TODO 수업 등록 - 예약 시스템이므로 동시성 고려하기
         lessonRepository.save(request.toEntity(member, trainer, gym, loginRole));
     }
 
-    private void validationLessonTime(LessonRegistrationRequest request, Trainer trainer) {
-        lessonQueryRepository.findLessonByDateAndTimeAndStatus(trainer, request.getDate(), request.getTime())
+    private void validationLessonTime(Trainer trainer, LocalDate date, LocalTime time) {
+        lessonQueryRepository.findLessonByTrainerAndDateAndTime(trainer, date, time)
             .ifPresent(lesson -> {
                 if (lesson.getStatus() == LessonStatus.RESERVED || lesson.getStatus() == LessonStatus.PENDING_APPROVAL) {
                     throw LessonException.ALREADY_RESERVATION;
@@ -154,4 +151,14 @@ public class LessonService {
             );
     }
 
+    @Transactional
+    public void changePtLesson(Long lessonId, String loginRole, LessonChangeRequest request) {
+
+        Lesson lesson = lessonRepository.findById(lessonId)
+            .orElseThrow(() -> new LessonException(LESSON_NOT_FOUND));
+
+        validationLessonTime(lesson.getTrainer(), request.getDate(), request.getTime());
+
+        lesson.changeLessonSchedule(request.getDate(), request.getTime(), request.getWeekday(), loginRole);
+    }
 }

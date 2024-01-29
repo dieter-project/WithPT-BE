@@ -27,8 +27,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.LastModifiedBy;
 
 @Entity
 @Getter
@@ -63,9 +61,9 @@ public class Lesson extends BaseEntity {
 
     @Embedded
     @AttributeOverrides({
-        @AttributeOverride(name="date", column = @Column(name="BEFORE_DATE")),
-        @AttributeOverride(name="time", column = @Column(name="BEFORE_TIME")),
-        @AttributeOverride(name="weekday", column = @Column(name="BEFORE_DAY"))
+        @AttributeOverride(name = "date", column = @Column(name = "BEFORE_DATE")),
+        @AttributeOverride(name = "time", column = @Column(name = "BEFORE_TIME")),
+        @AttributeOverride(name = "weekday", column = @Column(name = "BEFORE_DAY"))
     })
     private LessonSchedule beforeSchedule;
 
@@ -78,5 +76,24 @@ public class Lesson extends BaseEntity {
 
     public void changeLessonStatus(LessonStatus status) {
         this.status = status;
+    }
+
+    public void changeLessonSchedule(LocalDate date, LocalTime time, Day weekday, String loginRole) {
+//        beforeSchedule.changeSchedule(this.schedule);
+
+        this.beforeSchedule = LessonSchedule.builder()
+            .date(this.schedule.getDate())
+            .time(this.schedule.getTime())
+            .weekday(this.schedule.getWeekday())
+            .build();
+
+        this.schedule.changeSchedule(
+            LessonSchedule.builder()
+                .date(date)
+                .time(time)
+                .weekday(weekday)
+                .build());
+        this.status = LessonStatus.PENDING_APPROVAL;
+        this.modifiedBy = loginRole;
     }
 }
