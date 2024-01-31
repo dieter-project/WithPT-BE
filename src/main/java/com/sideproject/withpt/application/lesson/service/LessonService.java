@@ -1,6 +1,10 @@
 package com.sideproject.withpt.application.lesson.service;
 
 import static com.sideproject.withpt.application.lesson.exception.LessonErrorCode.LESSON_NOT_FOUND;
+import static java.util.stream.Collectors.filtering;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 
 import com.sideproject.withpt.application.gym.repositoy.GymQueryRepository;
 import com.sideproject.withpt.application.gym.service.GymService;
@@ -9,6 +13,7 @@ import com.sideproject.withpt.application.lesson.controller.request.LessonRegist
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.controller.response.LessonInfo;
 import com.sideproject.withpt.application.lesson.controller.response.LessonMembersResponse;
+import com.sideproject.withpt.application.lesson.controller.response.PendingLessonInfo;
 import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.lesson.repository.LessonQueryRepository;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
@@ -18,6 +23,7 @@ import com.sideproject.withpt.application.pt.repository.PersonalTrainingQueryRep
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
 import com.sideproject.withpt.application.trainer.service.TrainerService;
 import com.sideproject.withpt.application.type.Day;
+import com.sideproject.withpt.application.type.LessonRequestStatus;
 import com.sideproject.withpt.application.type.LessonStatus;
 import com.sideproject.withpt.application.type.PTInfoInputStatus;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
@@ -25,12 +31,15 @@ import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.pt.Lesson;
+import com.sideproject.withpt.domain.pt.LessonSchedule;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -47,8 +56,6 @@ public class LessonService {
     private final TrainerService trainerService;
 
     private final PersonalTrainingRepository trainingRepository;
-    private final PersonalTrainingQueryRepository trainingQueryRepository;
-    private final GymQueryRepository gymQueryRepository;
 
     private final LessonQueryRepository lessonQueryRepository;
     private final LessonRepository lessonRepository;
@@ -121,6 +128,41 @@ public class LessonService {
         );
     }
 
+    public Map<LessonRequestStatus, Map<LessonRequestStatus, List<PendingLessonInfo>>> getPendingLessons(Long trainerId) {
+        List<Lesson> allByTrainerId = lessonRepository.findAllByTrainerIdAndStatus(trainerId, LessonStatus.PENDING_APPROVAL);
+        allByTrainerId.forEach(System.out::println);
+        System.out.println("===================\n");
+
+        Map<LessonRequestStatus, Map<LessonRequestStatus, List<PendingLessonInfo>>> collect = allByTrainerId.stream()
+            .collect(
+                groupingBy(LessonService::groupByRequestStatus,
+                    groupingBy(LessonService::groupByRegistrationStatus,
+                        mapping(lesson ->
+                                PendingLessonInfo.from(lesson, lesson.getMember(), lesson.getGym()),
+                            toList())
+                    )
+                )
+            );
+
+        return collect;
+    }
+
+    private static LessonRequestStatus groupByRegistrationStatus(Lesson lesson) {
+        if (lesson.getModifiedBy() == null) {
+            return LessonRequestStatus.REGISTRATION;
+        } else {
+            return LessonRequestStatus.CHANGE;
+        }
+    }
+
+    private static LessonRequestStatus groupByRequestStatus(Lesson lesson) {
+        if (lesson.getRegisteredBy().equals("MEMBER") || lesson.getModifiedBy().equals("MEMBER")) {
+            return LessonRequestStatus.RECEIVED;
+        } else {
+            return LessonRequestStatus.SENT;
+        }
+    }
+
     public LessonInfo getLessonSchedule(Long lessonId) {
         return lessonQueryRepository.getLessonSchedule(lessonId);
     }
@@ -161,4 +203,5 @@ public class LessonService {
 
         lesson.changeLessonSchedule(request.getDate(), request.getTime(), request.getWeekday(), loginRole);
     }
+
 }

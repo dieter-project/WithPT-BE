@@ -5,20 +5,25 @@ import com.sideproject.withpt.application.lesson.controller.request.LessonRegist
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.controller.response.LessonInfo;
 import com.sideproject.withpt.application.lesson.controller.response.LessonMembersResponse;
+import com.sideproject.withpt.application.lesson.controller.response.PendingLessonInfo;
 import com.sideproject.withpt.application.lesson.service.LessonLockFacade;
 import com.sideproject.withpt.application.lesson.service.LessonService;
 import com.sideproject.withpt.application.type.Day;
+import com.sideproject.withpt.application.type.LessonRequestStatus;
 import com.sideproject.withpt.application.type.LessonStatus;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
+import com.sideproject.withpt.domain.pt.Lesson;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -86,8 +91,13 @@ public class LessonController {
 
     @Operation(summary = "수업관리/메인 - 대기 수업 조회")
     @GetMapping("/pending-lessons")
-    public void getPendingLessons() {
+    public ApiSuccessResponse<Map<LessonRequestStatus, Map<LessonRequestStatus, List<PendingLessonInfo>>>> getPendingLessons(
+        @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId
+    ) {
 
+        return ApiSuccessResponse.from(
+            lessonService.getPendingLessons(trainerId)
+        );
     }
 
     @Operation(summary = "단일 수업 스케줄 조회")

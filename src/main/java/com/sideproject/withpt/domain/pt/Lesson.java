@@ -27,10 +27,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Getter
 @Setter(AccessLevel.PROTECTED)
+@ToString(exclude = {"member", "trainer", "gym"})
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -39,10 +41,6 @@ public class Lesson extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "personal_training_id")
-//    private PersonalTraining personalTraining;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -79,8 +77,6 @@ public class Lesson extends BaseEntity {
     }
 
     public void changeLessonSchedule(LocalDate date, LocalTime time, Day weekday, String loginRole) {
-//        beforeSchedule.changeSchedule(this.schedule);
-
         this.beforeSchedule = LessonSchedule.builder()
             .date(this.schedule.getDate())
             .time(this.schedule.getTime())
