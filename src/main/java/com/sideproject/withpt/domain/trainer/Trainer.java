@@ -24,9 +24,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter(AccessLevel.PRIVATE)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -156,5 +158,12 @@ public class Trainer extends BaseEntity {
         educations.forEach(trainer::addEducation);
 
         return trainer;
+    }
+
+    public void editTrainerProfile(String imageUrl, String name, LocalDate birth, Sex sex) {
+        this.imageUrl = imageUrl;
+        this.name = name;
+        this.birth = birth;
+        this.sex = sex;
     }
 }

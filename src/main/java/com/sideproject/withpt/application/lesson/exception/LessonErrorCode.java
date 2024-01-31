@@ -8,8 +8,9 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum LessonErrorCode implements ErrorCode {
-
-    ALREADY_RESERVATION(HttpStatus.BAD_REQUEST, "이미 예약된 수업입니다.")
+    LESSON_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않은 수업입니다"),
+    ALREADY_RESERVATION(HttpStatus.BAD_REQUEST, "이미 예약된 수업입니다."),
+    ALREADY_PENDING_APPROVAL(HttpStatus.BAD_REQUEST, "승인 대기 중인 수업입니다.")
     ;
 
     private final HttpStatus httpStatus;

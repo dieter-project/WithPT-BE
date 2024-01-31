@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum PTErrorCode implements ErrorCode {
 
+    MAX_QUERY_MONTHS(HttpStatus.BAD_REQUEST, "최대 12개월까지 조회 가능합니다"),
     MISSING_PT_DETAILS_INFO(HttpStatus.BAD_REQUEST, "PT 상세 정보를 입력하지 않으셨습니다."),
     NO_REMAINING_PT(HttpStatus.BAD_REQUEST,"잔여 PT 횟수가 남아 있지 않습니다"),
     PT_REGISTRATION_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "아직 PT 등록을 허용하지 않은 회원입니다."),

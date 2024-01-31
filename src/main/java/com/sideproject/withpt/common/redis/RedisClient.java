@@ -2,6 +2,7 @@ package com.sideproject.withpt.common.redis;
 
 import com.sideproject.withpt.common.exception.GlobalException;
 import io.netty.util.internal.StringUtil;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -65,5 +66,19 @@ public class RedisClient {
         if (!StringUtil.isNullOrEmpty(key)) {
             redisTemplate.delete(key);
         }
+    }
+
+    public Boolean lock(String key) {
+        return redisTemplate
+            .opsForValue()
+            .setIfAbsent(generateKey(key), "lock", Duration.ofMillis(3_000));
+    }
+
+    public Boolean unlock(String key) {
+        return redisTemplate.delete(generateKey(key));
+    }
+
+    private String generateKey(String key) {
+        return key.toString();
     }
 }

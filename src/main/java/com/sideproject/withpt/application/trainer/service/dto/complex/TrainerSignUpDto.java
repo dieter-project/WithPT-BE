@@ -20,6 +20,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.beans.factory.annotation.Value;
 
 @Getter
 @Builder
@@ -31,6 +32,9 @@ public class TrainerSignUpDto {
     private String email;
 
     private String name;
+
+    @Value("${default.profile.image.url}")
+    private String imageUrl;
 
     private LocalDate birth;
 
@@ -60,7 +64,7 @@ public class TrainerSignUpDto {
         return Trainer.BySignUpBuilder()
             .email(this.email)
             .name(this.name)
-            .imageUrl("imageURL")
+            .imageUrl(this.imageUrl)
             .birth(this.birth)
             .sex(this.sex)
             .loginType(LoginType.SOCIAL)
