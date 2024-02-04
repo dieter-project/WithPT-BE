@@ -1,12 +1,15 @@
 package com.sideproject.withpt.application.chat.service;
 
+import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.CHAT_LIST_REQUEST_ERROR;
 import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.CHAT_ROOM_ALREADY_EXISTS;
 import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.CHAT_ROOM_CREATION_ERROR;
 
 import com.sideproject.withpt.application.chat.contoller.request.CreateRoomRequest;
 import com.sideproject.withpt.application.chat.contoller.response.CreateRoomResponse;
 import com.sideproject.withpt.application.chat.contoller.response.CreateRoomResponse.RoomInfo;
+import com.sideproject.withpt.application.chat.contoller.response.RoomListResponse;
 import com.sideproject.withpt.application.chat.exception.ChatException;
+import com.sideproject.withpt.application.chat.repository.ChatQueryRepository;
 import com.sideproject.withpt.application.chat.repository.ChatRoomRepository;
 import com.sideproject.withpt.application.chat.repository.ParticipantRepository;
 import com.sideproject.withpt.application.member.service.MemberService;
@@ -29,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChatService {
 
     private final ChatRoomRepository chatRoomRepository;
+    private final ChatQueryRepository chatQueryRepository;
     private final ParticipantRepository participantRepository;
     private final TrainerService trainerService;
     private final MemberService memberService;
@@ -65,8 +69,25 @@ public class ChatService {
         }
     }
 
+    public RoomListResponse getRoomList(Long loginId, Role loginRole) {
+        try {
+            Trainer trainer = loginRole.equals(Role.TRAINER) ? trainerService.getTrainerById(loginId) : null;
+            Member member = loginRole.equals(Role.MEMBER) ? memberService.getMemberById(loginId) : null;
+
+            return new RoomListResponse(
+                chatQueryRepository.findAllRoomInfo(trainer, member, loginRole),
+                "채팅방 리스트 조회"
+            );
+        } catch (Exception e) {
+            log.error("Error occurred during chat room creation", e);
+            throw new ChatException(CHAT_LIST_REQUEST_ERROR);
+        }
+    }
+
     private void saveParticipant(Trainer trainer, Member member, Role role, Room room) {
         String participantName = (role.equals(Role.TRAINER)) ? member.getName() : trainer.getName();
         participantRepository.save(Participant.createParticipant(trainer, member, role, room, participantName));
     }
+
+
 }
