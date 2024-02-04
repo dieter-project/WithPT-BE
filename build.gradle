@@ -64,6 +64,20 @@ dependencies {
 	// 스프링 배치
 	implementation 'org.springframework.boot:spring-boot-starter-batch'
 
+	// chatting
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+	// sockjs
+	implementation 'org.webjars:sockjs-client:1.5.1'
+
+	// stomp
+	implementation 'org.webjars:stomp-websocket:2.3.4'
+
+	//외부 브로커를 사용하기 위해
+	// https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-reactor-netty
+	implementation 'org.springframework.boot:spring-boot-starter-reactor-netty'
+
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
