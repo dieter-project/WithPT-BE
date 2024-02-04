@@ -1,10 +1,12 @@
 package com.sideproject.withpt.application.chat.service;
 
 import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.CHAT_ROOM_ALREADY_EXISTS;
+import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.CHAT_ROOM_CREATION_ERROR;
 
 import com.sideproject.withpt.application.chat.contoller.request.CreateRoomRequest;
 import com.sideproject.withpt.application.chat.contoller.response.CreateRoomResponse;
 import com.sideproject.withpt.application.chat.contoller.response.CreateRoomResponse.RoomInfo;
+import com.sideproject.withpt.application.chat.exception.ChatException;
 import com.sideproject.withpt.application.chat.repository.ChatRoomRepository;
 import com.sideproject.withpt.application.chat.repository.ParticipantRepository;
 import com.sideproject.withpt.application.member.service.MemberService;
@@ -33,29 +35,34 @@ public class ChatService {
 
     @Transactional
     public CreateRoomResponse createRoom(Long loginId, Role loginRole, CreateRoomRequest request) {
-        return chatRoomRepository.findByIdentifier(request.getIdentifier())
-            .map(existingRoom ->
-                new CreateRoomResponse(
-                    RoomInfo.createRoomInfo(existingRoom,
-                        participantRepository.findByRoomAndRole(existingRoom, loginRole)),
-                    CHAT_ROOM_ALREADY_EXISTS.getMessage()
-                ))
-            .orElseGet(() -> {
-                Member member = (loginRole.equals(Role.TRAINER)) ? memberService.getMemberById(request.getId())
-                    : memberService.getMemberById(loginId);
-                Trainer trainer = (loginRole.equals(Role.TRAINER)) ? trainerService.getTrainerById(loginId)
-                    : trainerService.getTrainerById(request.getId());
+        try {
+            return chatRoomRepository.findByIdentifier(request.getIdentifier())
+                .map(existingRoom ->
+                    new CreateRoomResponse(
+                        RoomInfo.createRoomInfo(existingRoom,
+                            participantRepository.findByRoomAndRole(existingRoom, loginRole)),
+                        CHAT_ROOM_ALREADY_EXISTS.getMessage()
+                    ))
+                .orElseGet(() -> {
+                    Member member = (loginRole.equals(Role.TRAINER)) ? memberService.getMemberById(request.getId())
+                        : memberService.getMemberById(loginId);
+                    Trainer trainer = (loginRole.equals(Role.TRAINER)) ? trainerService.getTrainerById(loginId)
+                        : trainerService.getTrainerById(request.getId());
 
-                Room room = chatRoomRepository.saveAndFlush(Room.createRoom(request.getIdentifier()));
+                    Room room = chatRoomRepository.saveAndFlush(Room.createRoom(request.getIdentifier()));
 
-                Arrays.stream(Role.values())
-                    .forEach(role -> saveParticipant(trainer, member, role, room));
+                    Arrays.stream(Role.values())
+                        .forEach(role -> saveParticipant(trainer, member, role, room));
 
-                return new CreateRoomResponse(
-                    RoomInfo.createRoomInfo(room, participantRepository.findByRoomAndRole(room, loginRole)),
-                    "채팅방이 생성되었습니다"
-                );
-            });
+                    return new CreateRoomResponse(
+                        RoomInfo.createRoomInfo(room, participantRepository.findByRoomAndRole(room, loginRole)),
+                        "채팅방이 생성되었습니다"
+                    );
+                });
+        } catch (Exception e) {
+            log.error("Error occurred during chat room creation", e);
+            throw new ChatException(CHAT_ROOM_CREATION_ERROR);
+        }
     }
 
     private void saveParticipant(Trainer trainer, Member member, Role role, Room room) {
