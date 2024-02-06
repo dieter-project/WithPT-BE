@@ -3,18 +3,25 @@ package com.sideproject.withpt.application.chat.service;
 import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.CHAT_LIST_REQUEST_ERROR;
 import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.CHAT_ROOM_ALREADY_EXISTS;
 import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.CHAT_ROOM_CREATION_ERROR;
+import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.CHAT_ROOM_NOT_FOUND;
 
 import com.sideproject.withpt.application.chat.contoller.request.CreateRoomRequest;
+import com.sideproject.withpt.application.chat.contoller.request.MessageRequest;
+import com.sideproject.withpt.application.chat.contoller.request.ReadMessageRequest;
 import com.sideproject.withpt.application.chat.contoller.response.CreateRoomResponse;
 import com.sideproject.withpt.application.chat.contoller.response.CreateRoomResponse.RoomInfo;
+import com.sideproject.withpt.application.chat.contoller.response.MessageResponse;
+import com.sideproject.withpt.application.chat.contoller.response.ReadMessageResponse;
 import com.sideproject.withpt.application.chat.contoller.response.RoomListResponse;
 import com.sideproject.withpt.application.chat.exception.ChatException;
 import com.sideproject.withpt.application.chat.repository.ChatQueryRepository;
 import com.sideproject.withpt.application.chat.repository.ChatRoomRepository;
+import com.sideproject.withpt.application.chat.repository.MessageRepository;
 import com.sideproject.withpt.application.chat.repository.ParticipantRepository;
 import com.sideproject.withpt.application.member.service.MemberService;
 import com.sideproject.withpt.application.trainer.service.TrainerService;
 import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.domain.chat.Message;
 import com.sideproject.withpt.domain.chat.Participant;
 import com.sideproject.withpt.domain.chat.Room;
 import com.sideproject.withpt.domain.member.Member;
@@ -34,6 +41,8 @@ public class ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatQueryRepository chatQueryRepository;
     private final ParticipantRepository participantRepository;
+    private final MessageRepository messageRepository;
+
     private final TrainerService trainerService;
     private final MemberService memberService;
 
@@ -82,6 +91,48 @@ public class ChatService {
             log.error("Error occurred during chat room creation", e);
             throw new ChatException(CHAT_LIST_REQUEST_ERROR);
         }
+    }
+
+    @Transactional
+    public MessageResponse saveMessage(MessageRequest messageRequest) {
+        return chatRoomRepository.findById(messageRequest.getRoomId())
+            .map(exisginRoom -> {
+                    exisginRoom.updateLastChat(messageRequest.getMessage());
+                    Message savedMessage = messageRepository.save(messageRequest.toEntity(exisginRoom));
+
+                    participantRepository.findByRoomAndRole(exisginRoom, messageRequest.getReceiverRole())
+                        .incrementNotReadChat();
+
+                    participantRepository.findByRoomAndRole(exisginRoom, messageRequest.getSenderRole())
+                        .updateLastChatAndNotReadChat(savedMessage.getId());
+
+                    // TODO : 식단, 운동에 따른 로직 변경 or 추가
+                    return MessageResponse.from(savedMessage, exisginRoom);
+                }
+            )
+            .orElseThrow(() -> new ChatException(CHAT_ROOM_NOT_FOUND));
+    }
+
+    @Transactional
+    public ReadMessageResponse readMessage(ReadMessageRequest request) {
+        return chatRoomRepository.findById(request.getRoomId())
+            .map(exisginRoom -> {
+                    messageRepository.decrementNotRead(
+                        exisginRoom,
+                        request.getStartLastReadMessageId(),
+                        request.getEndLastReadMessageId()
+                    );
+
+                    participantRepository.findByRoomAndRole(exisginRoom, request.getLoginUserRole())
+                        .updateLastChatAndNotReadChat(request.getEndLastReadMessageId());
+
+                    return new ReadMessageResponse(
+                        exisginRoom.getId(),
+                        request.getLastReadMessageIdRange()
+                    );
+                }
+            )
+            .orElseThrow(() -> new ChatException(CHAT_ROOM_NOT_FOUND));
     }
 
     private void saveParticipant(Trainer trainer, Member member, Role role, Room room) {

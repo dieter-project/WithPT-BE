@@ -14,6 +14,7 @@ public enum ChatErrorCode implements ErrorCode {
 
     INVALID_USER_IDENTIFIER(HttpStatus.BAD_REQUEST, "로그인한 유저의 식별자 값이 잘못되었습니다"),
     INVALID_REQUESTED_CHAT_IDENTIFIER(HttpStatus.BAD_REQUEST, "채팅을 요청받은 유저의 식별자 값이 잘못되었습니다"),
+    CHAT_ROOM_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당 채팅방이 존재하지 않습니다."),
     CHAT_ROOM_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "채팅 방이 이미 존재합니다.");
 
     private final HttpStatus httpStatus;

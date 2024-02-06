@@ -52,9 +52,18 @@ public class Participant extends BaseEntity {
 
     private String roomName;
 
-    private int notReadChat;
+    private int notReadChat; // 읽지 않은 채팅 수
 
-    private Long lastReadChatId;
+    private Long lastReadChatId; // 마지막으로 읽은 채팅 ID
+
+    public void incrementNotReadChat() {
+        this.notReadChat += 1;
+    }
+
+    public void updateLastChatAndNotReadChat(Long savedMessageId) {
+        this.notReadChat = 0;
+        this.lastReadChatId = savedMessageId;
+    }
 
     public static Participant createParticipant(Trainer trainer, Member member, Role role, Room room, String roomName) {
         return Participant.builder()

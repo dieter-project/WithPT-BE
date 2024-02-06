@@ -1,20 +1,16 @@
 package com.sideproject.withpt.domain.chat;
 
-import com.sideproject.withpt.application.type.RoomType;
+import com.sideproject.withpt.application.type.MessageType;
 import com.sideproject.withpt.domain.BaseEntity;
-import java.util.Map;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.MapKeyColumn;
+import javax.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,34 +18,35 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+@ToString(exclude = {"room"})
 @Entity
 @Getter
 @Builder
-@ToString
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Room extends BaseEntity {
+public class Message extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String identifier;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_id")
+    private Room room;
+
+    private String sender;
+
+    private String receiver;
+
+    private String message;
 
     @Enumerated(EnumType.STRING)
-    private RoomType type;
+    private MessageType type;
 
-    private String lastChat;
+    private int notRead;
 
-    public static Room createRoom(String identifier) {
-        return Room.builder()
-            .identifier(identifier)
-            .type(RoomType.INDIVIDUAL)
-            .lastChat("")
-            .build();
-    }
-
-    public void updateLastChat(String lastChat) {
-        this.lastChat = lastChat;
-    }
+    /* 파일 업로드 관련 변수 */
+    private String s3DataUrl; // 파일 업로드 url
+    private String fileName; // 파일이름
+    private String fileDir; // s3 파일 경로
 }
