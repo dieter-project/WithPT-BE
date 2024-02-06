@@ -1,5 +1,6 @@
 package com.sideproject.withpt.application.chat.service;
 
+import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.CHAT_LIST_LOAD_ERROR_MESSAGE;
 import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.CHAT_LIST_REQUEST_ERROR;
 import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.CHAT_ROOM_ALREADY_EXISTS;
 import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.CHAT_ROOM_CREATION_ERROR;
@@ -27,6 +28,7 @@ import com.sideproject.withpt.domain.chat.Room;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.util.Arrays;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -90,6 +92,14 @@ public class ChatService {
         } catch (Exception e) {
             log.error("Error occurred during chat room creation", e);
             throw new ChatException(CHAT_LIST_REQUEST_ERROR);
+        }
+    }
+
+    public List<MessageResponse> getChattingList(Long roomId, Long cursor) {
+        try {
+            return chatQueryRepository.findAllChattingList(roomId, cursor);
+        }catch (Exception e) {
+            throw new ChatException(CHAT_LIST_LOAD_ERROR_MESSAGE);
         }
     }
 

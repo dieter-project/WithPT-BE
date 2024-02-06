@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.chat.contoller;
 
-import com.sideproject.withpt.application.chat.contoller.request.MessageRequest;
 import com.sideproject.withpt.application.chat.contoller.request.CreateRoomRequest;
+import com.sideproject.withpt.application.chat.contoller.request.MessageRequest;
 import com.sideproject.withpt.application.chat.contoller.request.ReadMessageRequest;
 import com.sideproject.withpt.application.chat.contoller.response.CreateRoomResponse;
 import com.sideproject.withpt.application.chat.contoller.response.MessageResponse;
@@ -12,7 +12,7 @@ import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +24,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -64,17 +66,25 @@ public class ChatController {
         );
     }
 
-    @MessageMapping("chat/enterUser")
-    public void enterUser(@Payload MessageRequest chat) {
-        log.info("유저 {} 입장!!", chat.getSender());
+    @Operation(summary = "채팅 내역 조회")
+    @GetMapping("/chat/rooms/{roomId}")
+    public ApiSuccessResponse<List<MessageResponse>> getChattingList(@PathVariable Long roomId,
+        @RequestParam(required = false, defaultValue = "9999999999") Long cursor) {
+        log.info("room {}, cursor {}", roomId, cursor);
+
+        return ApiSuccessResponse.from(
+            chatService.getChattingList(roomId, cursor)
+        );
     }
 
+    @Operation(summary = "메세지 전송")
     @MessageMapping("chat/sendMessage")
     public void sendMessage(@Payload MessageRequest request) {
         log.info("CHAT {}", request);
         chatFacade.sendMessage(request);
     }
 
+    @Operation(summary = "메세지 읽기")
     @MessageMapping("chat/readMessage")
     public void readMessage(@Payload ReadMessageRequest request) {
         chatFacade.readMessage(request);
