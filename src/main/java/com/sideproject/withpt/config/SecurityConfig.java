@@ -66,6 +66,7 @@ public class SecurityConfig {
                 "/api/v1/trainers/sign-up",
                 "/api/v1/oauth/google",
                 "/api/v1/oauth/kakao").permitAll()
+            .antMatchers("/ws-stomp/**", "/topic/**", "/exchange/**", "/pub/**").permitAll()
             // /trainers 로 시작하는 요청은 TRAINER 권한이 있는 유저에게만 허용
             .antMatchers("/api/v1/trainers/**").hasRole("TRAINER")
             // /members 로 시작하는 요청은 MEMBER 권한이 있는 유저에게만 허용
