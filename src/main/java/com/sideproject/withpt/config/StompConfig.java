@@ -2,7 +2,6 @@ package com.sideproject.withpt.config;
 
 import com.sideproject.withpt.common.stomp.StompPreHandler;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.util.AntPathMatcher;
@@ -16,21 +15,6 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class StompConfig implements WebSocketMessageBrokerConfigurer {
 
     private final StompPreHandler stompPreHandler;
-
-    @Value("${spring.rabbitmq.host}")
-    private String host;
-
-    @Value("${spring.rabbitmq.username}")
-    private String username;
-
-    @Value("${spring.rabbitmq.password}")
-    private String password;
-
-    @Value("${spring.rabbitmq.virtual-host}")
-    private String virtualHost;
-
-    @Value("${spring.rabbitmq.port}")
-    private int port;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -50,12 +34,7 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
 
         // 메시지를 구독하는 요청 url => 메시지 받을 때
 //        registry.enableSimpleBroker("/sub");
-        registry.enableStompBrokerRelay("/topic", "/exchange")
-            .setRelayHost(host)
-            .setRelayPort(port)
-            .setClientLogin(username)
-            .setClientPasscode(password)
-            .setVirtualHost(virtualHost);
+        registry.enableStompBrokerRelay("/topic", "/exchange");
     }
 
 //    @Override
