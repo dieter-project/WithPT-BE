@@ -8,6 +8,7 @@ import com.sideproject.withpt.application.auth.infra.google.GoogleLoginParams;
 import com.sideproject.withpt.application.auth.infra.kakao.KakaoLoginParams;
 import com.sideproject.withpt.application.auth.service.OAuthLoginService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -37,7 +38,7 @@ public class OAuthController {
 
     @PostMapping("/logout")
     public ApiSuccessResponse<LogoutResponse> logout(
-        @AuthenticationPrincipal Long userId,
+        @Parameter(hidden = true) @AuthenticationPrincipal Long userId,
         @RequestHeader(name = "Authorization") String accessToken) {
 
         return ApiSuccessResponse.from(oAuthLoginService.logout(userId, accessToken));

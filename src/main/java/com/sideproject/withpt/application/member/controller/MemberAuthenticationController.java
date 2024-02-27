@@ -5,6 +5,7 @@ import com.sideproject.withpt.application.member.dto.request.MemberSignUpRequest
 import com.sideproject.withpt.application.member.service.MemberAuthenticationService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +37,7 @@ public class MemberAuthenticationController {
 
     @Operation(summary = "회원 탈퇴")
     @DeleteMapping("/withdrawal")
-    public void deleteMember(@AuthenticationPrincipal Long memberId) {
+    public void deleteMember(@Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
         memberAuthenticationService.deleteMember(memberId);
     }
 }

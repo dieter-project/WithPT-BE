@@ -25,7 +25,7 @@ public class GymController {
 
     @Operation(summary = "체육관 리스트 조회")
     @GetMapping
-    public ApiSuccessResponse<Slice<Gym>> listOfAllGyms(@AuthenticationPrincipal Long trainerId, Pageable pageable) {
+    public ApiSuccessResponse<Slice<Gym>> listOfAllGyms(@Parameter(hidden = true) @AuthenticationPrincipal Long trainerId, Pageable pageable) {
         return ApiSuccessResponse.from(
             gymQueryService.listOfAllGymsByPageable(trainerId, pageable)
         );
