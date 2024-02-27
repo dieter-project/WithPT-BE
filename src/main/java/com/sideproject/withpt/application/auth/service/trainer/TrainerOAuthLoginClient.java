@@ -52,18 +52,16 @@ public class TrainerOAuthLoginClient implements OAuthLoginClient {
 
     // 이미 가입된 회원 : 토큰 발급
     private OAuthLoginResponse existinglogin(OAuthInfoResponse oAuthInfoResponse, Role role) {
-        Long userId = trainerRepository.findByEmail(oAuthInfoResponse.getEmail())
-            .map(Trainer::getId)
-            .get();
+        Trainer trainer = trainerRepository.findByEmail(oAuthInfoResponse.getEmail()).get();
 
-        TokenSetDto tokenSetDto = authTokenGenerator.generateTokenSet(userId, role);
+        TokenSetDto tokenSetDto = authTokenGenerator.generateTokenSet(trainer.getId(), role);
 
         redisClient.put(
-            TRAINER_REFRESH_TOKEN_PREFIX + userId,
+            TRAINER_REFRESH_TOKEN_PREFIX + trainer.getId(),
             tokenSetDto.getRefreshToken(),
             TimeUnit.SECONDS,
             tokenSetDto.getRefreshExpiredAt());
 
-        return OAuthLoginResponse.of(tokenSetDto);
+        return OAuthLoginResponse.of(trainer.getId(), trainer.getEmail(), trainer.getName(), trainer.getOauthProvider(), trainer.getRole(), tokenSetDto);
     }
 }

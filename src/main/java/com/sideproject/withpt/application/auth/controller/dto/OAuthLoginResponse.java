@@ -19,12 +19,12 @@ import lombok.NoArgsConstructor;
 @JsonInclude(Include.NON_NULL) // null 값 제외
 public class OAuthLoginResponse {
 
-    // 신규 회원
+    private Long id;
     private String email;
+    private String name;
     private OAuthProvider oAuthProvider;
     private Role role;
 
-    // 가입된 회원
     private String accessToken;
     private String refreshToken;
     private String grantType;
@@ -39,8 +39,13 @@ public class OAuthLoginResponse {
             .build();
     }
 
-    public static OAuthLoginResponse of(TokenSetDto tokenSetDto) {
+    public static OAuthLoginResponse of(Long id, String email, String name, OAuthProvider oAuthProvider, Role role, TokenSetDto tokenSetDto) {
         return OAuthLoginResponse.builder()
+            .id(id)
+            .email(email)
+            .name(name)
+            .oAuthProvider(oAuthProvider)
+            .role(role)
             .grantType(tokenSetDto.getGrantType())
             .accessToken(tokenSetDto.getAccessToken())
             .accessExpiredAt(tokenSetDto.getAccessExpiredAt())
