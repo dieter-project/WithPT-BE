@@ -10,7 +10,6 @@ import com.sideproject.withpt.application.auth.service.OAuthLoginService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,13 +26,13 @@ public class OAuthController {
     private final OAuthLoginService oAuthLoginService;
 
     @PostMapping ("/google")
-    public ResponseEntity<OAuthLoginResponse> loginGoogle(@RequestBody GoogleLoginParams request) {
-        return ResponseEntity.ok(oAuthLoginService.login(request));
+    public ApiSuccessResponse<OAuthLoginResponse> loginGoogle(@RequestBody GoogleLoginParams request) {
+        return ApiSuccessResponse.from(oAuthLoginService.login(request));
     }
 
     @PostMapping("/kakao")
-    public ResponseEntity<OAuthLoginResponse> loginKakao(@RequestBody KakaoLoginParams request) {
-        return ResponseEntity.ok(oAuthLoginService.login(request));
+    public ApiSuccessResponse<OAuthLoginResponse> loginKakao(@RequestBody KakaoLoginParams request) {
+        return ApiSuccessResponse.from(oAuthLoginService.login(request));
     }
 
     @PostMapping("/logout")

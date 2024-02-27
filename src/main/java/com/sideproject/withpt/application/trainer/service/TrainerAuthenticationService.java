@@ -2,6 +2,7 @@ package com.sideproject.withpt.application.trainer.service;
 
 import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.TRAINER_REFRESH_TOKEN_PREFIX;
 
+import com.sideproject.withpt.application.auth.controller.dto.OAuthLoginResponse;
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.application.trainer.service.dto.complex.TrainerSignUpDto;
@@ -41,7 +42,7 @@ public class TrainerAuthenticationService {
     private final RedisClient redisClient;
 
     @Transactional
-    public TokenSetDto signUp(TrainerSignUpDto signUpDto) {
+    public OAuthLoginResponse signUp(TrainerSignUpDto signUpDto) {
 
         trainerRepository.findByEmail(signUpDto.getEmail())
             .ifPresent(member -> {
@@ -86,6 +87,7 @@ public class TrainerAuthenticationService {
             tokenSetDto.getRefreshExpiredAt()
         );
 
-        return tokenSetDto;
+        return OAuthLoginResponse.of(userId, signUpDto.getEmail(), signUpDto.getName(), signUpDto.getOauthProvider(),
+            signUpDto.toTrainerBasicEntity().getRole(), tokenSetDto);
     }
 }

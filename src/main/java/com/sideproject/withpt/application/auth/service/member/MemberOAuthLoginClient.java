@@ -53,18 +53,16 @@ public class MemberOAuthLoginClient implements OAuthLoginClient {
 
     // 이미 가입된 회원 : 토큰 발급
     private OAuthLoginResponse existinglogin(OAuthInfoResponse oAuthInfoResponse, Role role) {
-        Long userId = memberRepository.findByEmail(oAuthInfoResponse.getEmail())
-            .map(Member::getId)
-            .get();
+        Member member = memberRepository.findByEmail(oAuthInfoResponse.getEmail()).get();
 
-        TokenSetDto tokenSetDto = authTokenGenerator.generateTokenSet(userId, role);
+        TokenSetDto tokenSetDto = authTokenGenerator.generateTokenSet(member.getId(), role);
 
         redisClient.put(
-            MEMBER_REFRESH_TOKEN_PREFIX + userId,
+            MEMBER_REFRESH_TOKEN_PREFIX + member.getId(),
             tokenSetDto.getRefreshToken(),
             TimeUnit.SECONDS,
             tokenSetDto.getRefreshExpiredAt());
 
-        return OAuthLoginResponse.of(tokenSetDto);
+        return OAuthLoginResponse.of(member.getId(), member.getEmail(), member.getName(), member.getSocialLogin().getOauthProvider(), member.getRole(), tokenSetDto);
     }
 }

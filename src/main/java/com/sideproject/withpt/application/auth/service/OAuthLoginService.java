@@ -4,15 +4,12 @@ import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.ACC
 import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.ACCESS_TOKEN_PREFIX;
 import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.MEMBER_REFRESH_TOKEN_PREFIX;
 import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.REFRESH_TOKEN_VALID_TIME;
-import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.TOKEN_HEADER;
 import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.TRAINER_REFRESH_TOKEN_PREFIX;
 
 import com.sideproject.withpt.application.auth.controller.dto.LogoutResponse;
 import com.sideproject.withpt.application.auth.controller.dto.OAuthLoginResponse;
 import com.sideproject.withpt.application.auth.controller.dto.ReissueResponse;
 import com.sideproject.withpt.application.auth.infra.OAuthLoginParams;
-import com.sideproject.withpt.application.auth.infra.google.GoogleLoginParams;
-import com.sideproject.withpt.application.auth.infra.kakao.KakaoClient;
 import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.jwt.AuthTokenGenerator;
@@ -22,11 +19,9 @@ import com.sideproject.withpt.common.redis.RedisClient;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Component;

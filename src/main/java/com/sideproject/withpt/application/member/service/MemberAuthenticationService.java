@@ -2,6 +2,7 @@ package com.sideproject.withpt.application.member.service;
 
 import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.MEMBER_REFRESH_TOKEN_PREFIX;
 
+import com.sideproject.withpt.application.auth.controller.dto.OAuthLoginResponse;
 import com.sideproject.withpt.application.member.dto.request.MemberSignUpRequest;
 import com.sideproject.withpt.application.member.dto.response.NicknameCheckResponse;
 import com.sideproject.withpt.application.member.exception.MemberException;
@@ -40,7 +41,7 @@ public class MemberAuthenticationService {
     }
 
     @Transactional
-    public TokenSetDto signUpMember(MemberSignUpRequest params) {
+    public OAuthLoginResponse signUpMember(MemberSignUpRequest params) {
         memberRepository.findByEmail(params.getEmail())
             .ifPresent(member -> {
                 throw GlobalException.ALREADY_REGISTERED_USER;
@@ -59,7 +60,8 @@ public class MemberAuthenticationService {
             tokenSetDto.getRefreshExpiredAt()
         );
 
-        return tokenSetDto;
+        return OAuthLoginResponse.of(userId, params.getEmail(), params.getName(), params.getOauthProvider(), params.toMemberEntity()
+            .getRole(), tokenSetDto);
     }
 
     @Transactional
