@@ -13,6 +13,7 @@ import com.sideproject.withpt.application.trainer.service.dto.single.Certificate
 import com.sideproject.withpt.application.trainer.service.dto.single.EducationDto;
 import com.sideproject.withpt.application.trainer.service.dto.single.WorkScheduleDto;
 import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.application.type.Sex;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.jwt.AuthTokenGenerator;
 import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
@@ -90,4 +91,5 @@ public class TrainerAuthenticationService {
         return OAuthLoginResponse.of(userId, signUpDto.getEmail(), signUpDto.getName(), signUpDto.getOauthProvider(),
             signUpDto.toTrainerBasicEntity().getRole(), tokenSetDto);
     }
+
 }

@@ -1,5 +1,7 @@
 package com.sideproject.withpt.application.trainer.service.dto.complex;
 
+import static com.sideproject.withpt.domain.trainer.Trainer.getProfileImageUrlBySex;
+
 import com.sideproject.withpt.application.trainer.service.dto.single.AcademicDto;
 import com.sideproject.withpt.application.trainer.service.dto.single.AwardDto;
 import com.sideproject.withpt.application.trainer.service.dto.single.CareerDto;
@@ -20,7 +22,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.springframework.beans.factory.annotation.Value;
 
 @Getter
 @Builder
@@ -32,9 +33,6 @@ public class TrainerSignUpDto {
     private String email;
 
     private String name;
-
-    @Value("${default.profile.image.url}")
-    private String imageUrl;
 
     private LocalDate birth;
 
@@ -64,8 +62,8 @@ public class TrainerSignUpDto {
         return Trainer.BySignUpBuilder()
             .email(this.email)
             .name(this.name)
-            .imageUrl(this.imageUrl)
             .birth(this.birth)
+            .imageUrl(getProfileImageUrlBySex(this.sex))
             .sex(this.sex)
             .loginType(LoginType.SOCIAL)
             .oauthProvider(this.oauthProvider)
