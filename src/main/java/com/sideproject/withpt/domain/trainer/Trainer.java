@@ -160,6 +160,12 @@ public class Trainer extends BaseEntity {
         return trainer;
     }
 
+    public static String getProfileImageUrlBySex(Sex sex) {
+        return sex.equals(Sex.MAN) ?
+            "https://withpt-s3.s3.ap-northeast-2.amazonaws.com/PROFILE/default_profile/TRAINER_MAN.png" :
+            "https://withpt-s3.s3.ap-northeast-2.amazonaws.com/PROFILE/default_profile/TRAINER_WOMAN.png";
+    }
+
     public void editTrainerProfile(String imageUrl, String name, LocalDate birth, Sex sex) {
         this.imageUrl = imageUrl;
         this.name = name;

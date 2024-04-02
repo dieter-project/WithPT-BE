@@ -8,6 +8,7 @@ import com.sideproject.withpt.application.member.dto.response.NicknameCheckRespo
 import com.sideproject.withpt.application.member.exception.MemberException;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.application.type.Sex;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.jwt.AuthTokenGenerator;
 import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
@@ -28,9 +29,6 @@ public class MemberAuthenticationService {
     private final AuthTokenGenerator authTokenGenerator;
     private final RedisClient redisClient;
 
-    @Value("${default.profile.url}")
-    private String imageUrl;
-
     public NicknameCheckResponse checkNickname(String nickname) {
         memberRepository.findByNickname(nickname).ifPresent(member -> {
             throw MemberException.DUPLICATE_NICKNAME;
@@ -48,7 +46,7 @@ public class MemberAuthenticationService {
             });
 
         Member member = params.toMemberEntity();
-        member.addDefaultImageUrl(imageUrl);
+        member.addDefaultImageUrl(getDefaultProfileImageBySex(params.getSex()));
 
         Long userId = memberRepository.save(member).getId();
 
@@ -60,8 +58,9 @@ public class MemberAuthenticationService {
             tokenSetDto.getRefreshExpiredAt()
         );
 
-        return OAuthLoginResponse.of(userId, params.getEmail(), params.getName(), params.getOauthProvider(), params.toMemberEntity()
-            .getRole(), tokenSetDto);
+        return OAuthLoginResponse.of(userId, params.getEmail(), params.getName(), params.getOauthProvider(),
+            params.toMemberEntity()
+                .getRole(), tokenSetDto);
     }
 
     @Transactional
@@ -70,5 +69,11 @@ public class MemberAuthenticationService {
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         memberRepository.delete(member);
+    }
+
+    private String getDefaultProfileImageBySex(Sex sex) {
+        return sex.equals(Sex.MAN) ?
+            "https://withpt-s3.s3.ap-northeast-2.amazonaws.com/PROFILE/default_profile/MEMBER_MAN.png" :
+            "https://withpt-s3.s3.ap-northeast-2.amazonaws.com/PROFILE/default_profile/MEMBER_WOMAN.png";
     }
 }
