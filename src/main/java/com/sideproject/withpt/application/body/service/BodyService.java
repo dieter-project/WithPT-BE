@@ -104,18 +104,18 @@ public class BodyService {
 
     public BodyImageResponse findTodayBodyImage(Long memberId, String dateTime) {
         try {
-            return BodyImageResponse.from(imageRepository.findByMemberIdAndUploadDateAndUsage(memberId, LocalDate.parse(dateTime), Usages.BODY));
+            return BodyImageResponse.from(imageRepository.findByMemberIdAndUploadDateAndUsages(memberId, LocalDate.parse(dateTime), Usages.BODY));
         } catch (Exception e) {
             throw GlobalException.EMPTY_FILE;
         }
     }
 
     @Transactional
-    public void saveBodyImage(List<MultipartFile> file, String dateTime, Long memberId) {
+    public void saveBodyImage(List<MultipartFile> file, Long memberId) {
         Member member = validateMemberId(memberId);
 
         if(file != null && file.size() > 0) {
-            imageUploader.uploadAndSaveImages(file, LocalDate.parse(dateTime), Usages.BODY, member);
+            imageUploader.uploadAndSaveImages(file, LocalDate.now(), Usages.BODY, member);
         }
     }
 

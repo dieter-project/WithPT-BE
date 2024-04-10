@@ -27,7 +27,7 @@ public class ImageUploader {
             Image image = Image.builder()
                     .member(member)
                     .entityId(entityId)
-                    .usage(usage)
+                    .usages(usage)
                     .url(imageUrl)
                     .attachType(file.getContentType())
                     .build();
@@ -42,7 +42,7 @@ public class ImageUploader {
 
             Image image = Image.builder()
                     .member(member)
-                    .usage(usage)
+                    .usages(usage)
                     .url(imageUrl)
                     .uploadDate(uploadDate)
                     .attachType(file.getContentType())
@@ -55,7 +55,7 @@ public class ImageUploader {
     public void deleteImage(String url) {
         Image image = imageRepository.findByUrl(url).orElseThrow(() -> GlobalException.EMPTY_DELETE_FILE);
 
-        awsS3Uploader.delete(image.getUsage().toString(), image.getUrl());
+        awsS3Uploader.delete(image.getUsages().toString(), image.getUrl());
         imageRepository.deleteByUrl(url);
     }
 

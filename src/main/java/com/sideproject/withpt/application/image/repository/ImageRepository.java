@@ -11,5 +11,5 @@ import java.util.Optional;
 public interface ImageRepository extends JpaRepository<Image, Long>, ImageCustomRepository {
     Optional<Image> findByUrl(String url);
     void deleteByUrl(String url);
-    List<Image> findByMemberIdAndUploadDateAndUsage(Long memberId, LocalDate uploadDate, Usages usages);
+    List<Image> findByMemberIdAndUploadDateAndUsages(Long memberId, LocalDate uploadDate, Usages usages);
 }
