@@ -80,7 +80,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers,
         HttpStatus status, WebRequest request) {
-        log.warn("Exception {}", ex.getMessage());
+        log.warn("Exception message {}", ex.getMessage());
+        log.warn("Exception ", ex);
         ErrorCode errorCode = CommonErrorCode.INTERNAL_SERVER_ERROR;
 
         return ResponseEntity

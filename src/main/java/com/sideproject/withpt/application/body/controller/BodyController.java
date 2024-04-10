@@ -69,7 +69,7 @@ public class BodyController {
     @Operation(summary = "눈바디 이미지 업로드")
     @PostMapping("/image")
     public void saveBodyImage(
-        @RequestPart(value = "files") List<MultipartFile> files,
+        @RequestPart(value = "files", required = false) List<MultipartFile> files,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
         bodyService.saveBodyImage(files, memberId);
     }
