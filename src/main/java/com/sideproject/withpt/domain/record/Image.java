@@ -31,7 +31,7 @@ public class Image {
     private Long entityId;
 
     @Enumerated(EnumType.STRING)
-    private Usages usage;
+    private Usages usages;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private LocalDate uploadDate;

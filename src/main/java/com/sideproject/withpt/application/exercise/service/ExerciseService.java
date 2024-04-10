@@ -44,7 +44,7 @@ public class ExerciseService {
         List<String> imageUrls = new ArrayList<>();
 
         // 현재 예외처리 되어있는지 확인하기
-        Optional.ofNullable(imageRepository.findByMemberIdAndUploadDateAndUsage(memberId, LocalDate.parse(dateTime), Usages.EXERCISE))
+        Optional.ofNullable(imageRepository.findByMemberIdAndUploadDateAndUsages(memberId, LocalDate.parse(dateTime), Usages.EXERCISE))
                 .ifPresent(images -> {
                     imageUrls.addAll(images.stream()
                             .map(Image::getUrl)
