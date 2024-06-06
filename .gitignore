@@ -41,4 +41,7 @@ src/main/resources/application-oauth.yml
 src/main/resources/application-dev.yml
 src/main/resources/application-db.yml
 src/test/resources/application-test.yml
-
+src/test
+src/main/java/com/sideproject/withpt/common/jwt/model/constants/JwtConstants.java
+src/main/resources/static/index.html
+src/main/resources/application.yml
