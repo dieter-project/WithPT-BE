@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.member.service;
 
-import com.sideproject.withpt.application.member.dto.response.MemberSearchResponse;
+import com.sideproject.withpt.application.member.controller.response.MemberSearchResponse;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

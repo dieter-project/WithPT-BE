@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.member.dto.request;
+package com.sideproject.withpt.application.member.controller.request;
 
 import com.sideproject.withpt.application.type.DietType;
 import com.sideproject.withpt.application.type.ExerciseFrequency;

@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.member.dto.response;
+package com.sideproject.withpt.application.member.controller.response;
 
 import com.sideproject.withpt.application.type.Sex;
 import java.time.LocalDate;

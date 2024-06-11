@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.member.controller;
 
 import com.sideproject.withpt.application.auth.controller.dto.OAuthLoginResponse;
-import com.sideproject.withpt.application.member.dto.request.MemberSignUpRequest;
+import com.sideproject.withpt.application.member.controller.request.MemberSignUpRequest;
 import com.sideproject.withpt.application.member.service.MemberAuthenticationService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
