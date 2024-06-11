@@ -1,10 +1,13 @@
 package com.sideproject.withpt.application.member.controller;
 
+import com.sideproject.withpt.application.member.controller.request.EditMemberDietTypeRequest;
 import com.sideproject.withpt.application.member.controller.request.EditMemberInfoRequest;
 import com.sideproject.withpt.application.member.controller.response.MemberInfoResponse;
 import com.sideproject.withpt.application.member.controller.response.MemberSearchResponse;
 import com.sideproject.withpt.application.member.service.MemberQueryService;
 import com.sideproject.withpt.application.member.service.MemberService;
+import com.sideproject.withpt.application.type.DietType;
+import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -53,12 +56,14 @@ public class MemberController {
     @PatchMapping("/info")
     public void editMemberInfo(@Valid @RequestBody EditMemberInfoRequest request,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        log.info("memberInfo {} ", request);
         memberService.editMemberInfo(request, memberId);
     }
-//    @Operation(summary = "식단 수정")
-//    @PatchMapping("/info/diet")
-//    public void editMemberDietType() {}
+
+    @Operation(summary = "식단 수정")
+    @PatchMapping("/info/diet")
+    public void editMemberDietType(@Valid @RequestBody EditMemberDietTypeRequest request, @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
+        memberService.editDietType(request, memberId);
+    }
 
 //    @Operation(summary = "운동목표 수정")
 //    @PatchMapping("/info/exercise")

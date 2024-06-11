@@ -18,10 +18,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Getter
 @Builder
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "member_authentication")
@@ -42,4 +44,8 @@ public class Authentication extends BaseEntity {
 
     private LocalDateTime joinDate;
 
+    public void editMemberInfo(LocalDate birth, Sex sex) {
+        this.birth = birth;
+        this.sex = sex;
+    }
 }

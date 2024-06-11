@@ -1,9 +1,11 @@
 package com.sideproject.withpt.application.member.service;
 
+import com.sideproject.withpt.application.member.controller.request.EditMemberDietTypeRequest;
 import com.sideproject.withpt.application.member.controller.request.EditMemberInfoRequest;
 import com.sideproject.withpt.application.member.controller.response.MemberInfoResponse;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.pt.repository.dto.PtMemberListDto.MemberInfo;
+import com.sideproject.withpt.application.type.DietType;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Authentication;
 import com.sideproject.withpt.domain.member.Member;
@@ -42,6 +44,12 @@ public class MemberService {
             request.getHeight(),
             request.getWeight()
         );
+    }
+
+    @Transactional
+    public void editDietType(EditMemberDietTypeRequest request, Long memberId) {
+        Member findMember = getMemberById(memberId);
+        findMember.editDietType(request.getDietType());
     }
 
     public List<Member> getAllMemberById(List<Long> memberIds) {

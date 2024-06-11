@@ -4,8 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
+import com.sideproject.withpt.application.member.controller.request.EditMemberDietTypeRequest;
 import com.sideproject.withpt.application.member.controller.request.EditMemberInfoRequest;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
+import com.sideproject.withpt.application.type.DietType;
+import com.sideproject.withpt.application.type.ExerciseFrequency;
 import com.sideproject.withpt.application.type.Sex;
 import com.sideproject.withpt.domain.member.Authentication;
 import com.sideproject.withpt.domain.member.Member;
@@ -54,6 +57,23 @@ class MemberServiceTest {
         assertThat(findMember.getName()).isEqualTo("test2");
     }
 
+    @Test
+    @DisplayName("식단 수정")
+    public void editDietType() {
+        //given
+        EditMemberDietTypeRequest request = new EditMemberDietTypeRequest(DietType.PROTEIN);
+        Long memberId = 11L;
+
+        given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
+
+        //when
+        memberService.editDietType(request, memberId);
+
+        //then
+        Member findMember = memberService.getMemberById(memberId);
+        assertThat(findMember.getDietType()).isEqualTo(DietType.PROTEIN);
+    }
+
     private Member createMember() {
         Authentication authentication = Authentication.builder()
             .birth(LocalDate.parse("1994-07-19"))
@@ -65,7 +85,10 @@ class MemberServiceTest {
             .name("test")
             .authentication(authentication)
             .height(173.0)
-            .height(73.5)
+            .weight(73.5)
+            .dietType(DietType.Carb_Protein_Fat)
+            .exerciseFrequency(ExerciseFrequency.EVERYDAY)
+            .targetWeight(65.0)
             .build();
     }
 }

@@ -3,7 +3,9 @@ package com.sideproject.withpt.domain.member;
 import com.sideproject.withpt.application.type.DietType;
 import com.sideproject.withpt.application.type.ExerciseFrequency;
 import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.application.type.Sex;
 import com.sideproject.withpt.domain.BaseEntity;
+import java.time.LocalDate;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -72,4 +74,14 @@ public class Member extends BaseEntity {
         this.imageUrl = imageUrl;
     }
 
+    public void editMemberInfo(String name, LocalDate birth, Sex sex, Double height, Double weight) {
+        this.name = name;
+        this.authentication.editMemberInfo(birth, sex);
+        this.height = height;
+        this.weight = weight;
+    }
+
+    public void editDietType(DietType dietType) {
+        this.dietType = dietType;
+    }
 }
