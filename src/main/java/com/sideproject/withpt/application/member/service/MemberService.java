@@ -1,12 +1,18 @@
 package com.sideproject.withpt.application.member.service;
 
+import com.sideproject.withpt.application.member.controller.response.MemberInfoResponse;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
+import com.sideproject.withpt.application.pt.repository.dto.PtMemberListDto.MemberInfo;
 import com.sideproject.withpt.common.exception.GlobalException;
+import com.sideproject.withpt.domain.member.Authentication;
 import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.member.SocialLogin;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -16,6 +22,11 @@ public class MemberService {
     public Member getMemberById(Long memberId) {
         return memberRepository.findById(memberId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+    }
+
+    public MemberInfoResponse getMemberInfo(Long memberId) {
+        Member findMember = getMemberById(memberId);
+        return MemberInfoResponse.of(findMember, findMember.getAuthentication(), findMember.getSocialLogin());
     }
 
     public List<Member> getAllMemberById(List<Long> memberIds) {
