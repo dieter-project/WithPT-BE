@@ -84,4 +84,12 @@ public class Member extends BaseEntity {
     public void editDietType(DietType dietType) {
         this.dietType = dietType;
     }
+
+    public void editExerciseFrequency(ExerciseFrequency exerciseFrequency) {
+        this.exerciseFrequency = exerciseFrequency;
+    }
+
+    public void editTargetWeight(Double targetWeight) {
+        this.targetWeight = targetWeight;
+    }
 }

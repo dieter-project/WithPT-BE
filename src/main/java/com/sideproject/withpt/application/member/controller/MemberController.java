@@ -1,7 +1,9 @@
 package com.sideproject.withpt.application.member.controller;
 
 import com.sideproject.withpt.application.member.controller.request.EditMemberDietTypeRequest;
+import com.sideproject.withpt.application.member.controller.request.EditMemberExerciseFrequencyRequest;
 import com.sideproject.withpt.application.member.controller.request.EditMemberInfoRequest;
+import com.sideproject.withpt.application.member.controller.request.EditMemberTargetWeightRequest;
 import com.sideproject.withpt.application.member.controller.response.MemberInfoResponse;
 import com.sideproject.withpt.application.member.controller.response.MemberSearchResponse;
 import com.sideproject.withpt.application.member.service.MemberQueryService;
@@ -65,11 +67,16 @@ public class MemberController {
         memberService.editDietType(request, memberId);
     }
 
-//    @Operation(summary = "운동목표 수정")
-//    @PatchMapping("/info/exercise")
-//      public void editMemberExerciseFrequency() {}
-//    @Operation(summary = "목표체중 수정")
-//    @PatchMapping("/info/weight")
-//    public void editMemberTargetWeight() {}
+    @Operation(summary = "운동목표 수정")
+    @PatchMapping("/info/exercise")
+    public void editMemberExerciseFrequency(@Valid @RequestBody EditMemberExerciseFrequencyRequest request, @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
+        memberService.editExerciseFrequency(request, memberId);
+    }
+
+    @Operation(summary = "목표체중 수정")
+    @PatchMapping("/info/weight")
+    public void editMemberTargetWeight(@Valid @RequestBody EditMemberTargetWeightRequest request, @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
+        memberService.editTargetWeight(request, memberId);
+    }
 
 }

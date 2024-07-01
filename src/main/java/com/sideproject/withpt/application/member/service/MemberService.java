@@ -1,7 +1,9 @@
 package com.sideproject.withpt.application.member.service;
 
 import com.sideproject.withpt.application.member.controller.request.EditMemberDietTypeRequest;
+import com.sideproject.withpt.application.member.controller.request.EditMemberExerciseFrequencyRequest;
 import com.sideproject.withpt.application.member.controller.request.EditMemberInfoRequest;
+import com.sideproject.withpt.application.member.controller.request.EditMemberTargetWeightRequest;
 import com.sideproject.withpt.application.member.controller.response.MemberInfoResponse;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.pt.repository.dto.PtMemberListDto.MemberInfo;
@@ -52,7 +54,19 @@ public class MemberService {
         findMember.editDietType(request.getDietType());
     }
 
+    @Transactional
+    public void editExerciseFrequency(EditMemberExerciseFrequencyRequest request, Long memberId) {
+        Member findMember = getMemberById(memberId);
+        findMember.editExerciseFrequency(request.getExerciseFrequency());
+    }
+
+    @Transactional
+    public void editTargetWeight(EditMemberTargetWeightRequest request, Long memberId) {
+        Member findMember = getMemberById(memberId);
+        findMember.editTargetWeight(request.getTargetWeight());
+    }
     public List<Member> getAllMemberById(List<Long> memberIds) {
         return memberRepository.findAllByIdIn(memberIds);
     }
+
 }

@@ -5,7 +5,9 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
 import com.sideproject.withpt.application.member.controller.request.EditMemberDietTypeRequest;
+import com.sideproject.withpt.application.member.controller.request.EditMemberExerciseFrequencyRequest;
 import com.sideproject.withpt.application.member.controller.request.EditMemberInfoRequest;
+import com.sideproject.withpt.application.member.controller.request.EditMemberTargetWeightRequest;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.type.DietType;
 import com.sideproject.withpt.application.type.ExerciseFrequency;
@@ -72,6 +74,40 @@ class MemberServiceTest {
         //then
         Member findMember = memberService.getMemberById(memberId);
         assertThat(findMember.getDietType()).isEqualTo(DietType.PROTEIN);
+    }
+
+    @Test
+    @DisplayName("운동목표 수정")
+    public void editExerciseFrequency() {
+        //given
+        EditMemberExerciseFrequencyRequest request = new EditMemberExerciseFrequencyRequest(ExerciseFrequency.FIRST_TIME);
+        Long memberId = 11L;
+
+        given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
+
+        //when
+        memberService.editExerciseFrequency(request, memberId);
+
+        //then
+        Member findMember = memberService.getMemberById(memberId);
+        assertThat(findMember.getExerciseFrequency()).isEqualTo(ExerciseFrequency.FIRST_TIME);
+    }
+
+    @Test
+    @DisplayName("목표체중 수정")
+    public void editTargetWeight() {
+        //given
+        EditMemberTargetWeightRequest request = new EditMemberTargetWeightRequest(80.5);
+        Long memberId = 11L;
+
+        given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
+
+        //when
+        memberService.editTargetWeight(request, memberId);
+
+        //then
+        Member findMember = memberService.getMemberById(memberId);
+        assertThat(findMember.getTargetWeight()).isEqualTo(request.getTargetWeight());
     }
 
     private Member createMember() {
