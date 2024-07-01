@@ -3,8 +3,8 @@ package com.sideproject.withpt.application.member.service;
 import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.MEMBER_REFRESH_TOKEN_PREFIX;
 
 import com.sideproject.withpt.application.auth.controller.dto.OAuthLoginResponse;
-import com.sideproject.withpt.application.member.dto.request.MemberSignUpRequest;
-import com.sideproject.withpt.application.member.dto.response.NicknameCheckResponse;
+import com.sideproject.withpt.application.member.controller.request.MemberSignUpRequest;
+import com.sideproject.withpt.application.member.controller.response.NicknameCheckResponse;
 import com.sideproject.withpt.application.member.exception.MemberException;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.type.Role;
@@ -16,7 +16,6 @@ import com.sideproject.withpt.common.redis.RedisClient;
 import com.sideproject.withpt.domain.member.Member;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.member.dto.response;
+package com.sideproject.withpt.application.member.controller.response;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
