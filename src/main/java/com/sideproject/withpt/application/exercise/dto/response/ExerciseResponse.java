@@ -26,7 +26,7 @@ public class ExerciseResponse {
                 .id(exercise.getId())
                 .title(exercise.getTitle())
                 .weight(exercise.getWeight())
-                .set(exercise.getSet())
+                .set(exercise.getExerciseSet())
                 .times(exercise.getTimes())
                 .hour(exercise.getHour())
                 .bodyPart(exercise.getBodyPart())

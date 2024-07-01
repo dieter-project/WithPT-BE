@@ -30,7 +30,8 @@ public class Exercise extends BaseEntity {
 
     private String title;
     private int weight;
-    private int set;
+
+    private int exerciseSet;
     private int times;
     private int hour;
 
@@ -44,7 +45,7 @@ public class Exercise extends BaseEntity {
         this.exerciseDate = request.getExerciseDate();
         this.title = request.getTitle();
         this.weight = request.getWeight();
-        this.set = request.getSet();
+        this.exerciseSet = request.getExerciseSet();
         this.times = request.getTimes();
         this.hour = request.getHour();
         this.exerciseType = request.getExerciseType();

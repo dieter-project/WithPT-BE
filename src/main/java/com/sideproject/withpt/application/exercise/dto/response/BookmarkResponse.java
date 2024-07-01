@@ -26,7 +26,7 @@ public class BookmarkResponse {
                 .id(bookmark.getId())
                 .title(bookmark.getTitle())
                 .weight(bookmark.getWeight())
-                .set(bookmark.getSet())
+                .set(bookmark.getExerciseSet())
                 .times(bookmark.getTimes())
                 .hour(bookmark.getHour())
                 .bodyPart(bookmark.getBodyPart())

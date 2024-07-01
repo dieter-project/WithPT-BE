@@ -29,7 +29,7 @@ public class ExerciseRequest {
     private String title;
 
     private int weight;
-    private int set;
+    private int exerciseSet;
     private int times;
     private int hour;
 
@@ -47,7 +47,7 @@ public class ExerciseRequest {
                 .member(member)
                 .title(title)
                 .weight(weight)
-                .set(set)
+                .exerciseSet(exerciseSet)
                 .times(times)
                 .hour(hour)
                 .bodyPart(bodyPart)
@@ -61,7 +61,7 @@ public class ExerciseRequest {
                 .member(member)
                 .title(title)
                 .weight(weight)
-                .set(set)
+                .exerciseSet(exerciseSet)
                 .times(times)
                 .hour(hour)
                 .bodyPart(bodyPart)

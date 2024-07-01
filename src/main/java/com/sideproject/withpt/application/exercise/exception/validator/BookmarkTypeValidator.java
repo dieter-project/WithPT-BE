@@ -17,7 +17,7 @@ public class BookmarkTypeValidator implements ConstraintValidator<ValidBookmarkT
         if(request.getExerciseType().equals(ExerciseType.AEROBIC)) {    // 유산소
             return request.getHour() > 0;
         } else if(request.getExerciseType().equals(ExerciseType.ANAEROBIC)) {    // 무산소
-            return request.getWeight() > 0 && request.getSet() > 0 && request.getTimes() > 0;
+            return request.getWeight() > 0 && request.getExerciseSet() > 0 && request.getTimes() > 0;
         }
 
         return true;
