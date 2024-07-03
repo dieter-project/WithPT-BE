@@ -48,7 +48,7 @@ public class LessonController {
     private final LessonLockFacade lessonLockFacade;
 
     @Operation(summary = "수업관리/스케줄 - 수업등록")
-    @PostMapping("/gym/{gymId}/lessons")
+    @PostMapping("/gyms/{gymId}/lessons")
     public void registrationPtLesson(@PathVariable Long gymId,
         @Parameter(hidden = true) @AuthenticationPrincipal Long loginId,
         @Valid @RequestBody LessonRegistrationRequest request) {
@@ -63,7 +63,7 @@ public class LessonController {
     }
 
     @Operation(summary = "예약 가능한 수업 시간표 조회")
-    @GetMapping("/gym/{gymId}/trainers/{trainerId}/schedule")
+    @GetMapping("/gyms/{gymId}/trainers/{trainerId}/schedule")
     public ApiSuccessResponse<AvailableLessonScheduleResponse> getTrainerWorkSchedule(@PathVariable Long gymId,
         @PathVariable Long trainerId,
         @RequestParam Day weekday,
@@ -90,7 +90,7 @@ public class LessonController {
     }
 
     @Operation(summary = "수업관리/메인 - 대기 수업 조회")
-    @GetMapping("/pending-lessons")
+    @GetMapping("/lessons/pending-lessons")
     public ApiSuccessResponse<Map<LessonRequestStatus, Map<LessonRequestStatus, List<PendingLessonInfo>>>> getPendingLessons(
         @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId
     ) {
