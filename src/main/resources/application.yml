@@ -33,8 +33,6 @@ springdoc:
   api-docs:
     path: /api-docs
   show-actuator: true
-  paths-to-match:
-    - /api/v1/**
 
 
 ---
