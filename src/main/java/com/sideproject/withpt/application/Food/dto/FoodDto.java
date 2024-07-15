@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.Food.dto;
 
-import com.sideproject.withpt.domain.record.Food;
+import com.sideproject.withpt.domain.record.diet.Food;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -65,7 +65,7 @@ public class FoodDto {
                 .calories(energyKcal)
                 .carbohydrate(carbohydrates)
                 .protein(protein)
-                .province(fat)
+                .fat(fat)
                 .sugars(sugars)
                 .build();
     }

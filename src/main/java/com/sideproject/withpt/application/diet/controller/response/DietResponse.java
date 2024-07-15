@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.diet.dto.response;
+package com.sideproject.withpt.application.diet.controller.response;
 
 import com.sideproject.withpt.application.type.MealCategory;
 import lombok.*;
