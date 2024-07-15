@@ -2,7 +2,9 @@ package com.sideproject.withpt.domain.record;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sideproject.withpt.application.type.Usages;
+import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.trainer.Trainer;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -17,7 +19,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-public class Image {
+public class Image extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +30,7 @@ public class Image {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    private Long entityId;
+    private String usageIdentificationId;
 
     @Enumerated(EnumType.STRING)
     private Usages usages;
@@ -37,10 +39,11 @@ public class Image {
     private LocalDate uploadDate;
 
     private String url;
+
     private String attachType;
 
-    @CreatedDate
-    @Column(updatable = false, nullable = false)
-    private LocalDateTime createdDate;
+//    @CreatedDate
+//    @Column(updatable = false, nullable = false)
+//    private LocalDateTime createdDate;
 
 }

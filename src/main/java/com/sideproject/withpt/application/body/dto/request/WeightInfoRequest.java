@@ -2,7 +2,7 @@ package com.sideproject.withpt.application.body.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.record.Body;
+import com.sideproject.withpt.domain.record.body.Body;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;

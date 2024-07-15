@@ -7,7 +7,7 @@ import com.sideproject.withpt.application.exercise.repository.BookmarkRepository
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.record.Bookmark;
+import com.sideproject.withpt.domain.record.exercise.Bookmark;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

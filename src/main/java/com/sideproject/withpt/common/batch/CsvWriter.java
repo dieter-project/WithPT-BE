@@ -2,7 +2,7 @@ package com.sideproject.withpt.common.batch;
 
 import com.sideproject.withpt.application.Food.dto.FoodDto;
 import com.sideproject.withpt.application.Food.repository.FoodRepository;
-import com.sideproject.withpt.domain.record.Food;
+import com.sideproject.withpt.domain.record.diet.Food;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.context.annotation.Configuration;

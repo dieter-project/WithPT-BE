@@ -2,7 +2,7 @@ package com.sideproject.withpt.application.exercise.dto.response;
 
 import com.sideproject.withpt.application.type.BodyPart;
 import com.sideproject.withpt.application.type.ExerciseType;
-import com.sideproject.withpt.domain.record.Exercise;
+import com.sideproject.withpt.domain.record.exercise.Exercise;
 import lombok.*;
 
 @Getter

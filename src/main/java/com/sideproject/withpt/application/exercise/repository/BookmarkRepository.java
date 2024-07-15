@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.exercise.repository;
 
-import com.sideproject.withpt.domain.record.Bookmark;
+import com.sideproject.withpt.domain.record.exercise.Bookmark;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
