@@ -1,15 +1,16 @@
 package com.sideproject.withpt.application.body.repository;
 
+import static com.sideproject.withpt.domain.record.body.QBody.body;
+
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sideproject.withpt.domain.record.Body;
+import com.sideproject.withpt.domain.record.body.Body;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import static com.sideproject.withpt.domain.record.QBody.body;
 
 @Repository
 @RequiredArgsConstructor

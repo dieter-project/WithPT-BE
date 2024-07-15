@@ -1,4 +1,4 @@
-package com.sideproject.withpt.domain.record;
+package com.sideproject.withpt.domain.record.body;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sideproject.withpt.application.body.dto.request.BodyInfoRequest;

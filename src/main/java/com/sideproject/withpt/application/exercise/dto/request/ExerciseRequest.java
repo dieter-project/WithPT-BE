@@ -6,8 +6,8 @@ import com.sideproject.withpt.application.type.BodyPart;
 import com.sideproject.withpt.application.type.ExerciseType;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.record.Bookmark;
-import com.sideproject.withpt.domain.record.Exercise;
+import com.sideproject.withpt.domain.record.exercise.Bookmark;
+import com.sideproject.withpt.domain.record.exercise.Exercise;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;

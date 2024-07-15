@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.body.dto.response;
 
-import com.sideproject.withpt.domain.record.Body;
+import com.sideproject.withpt.domain.record.body.Body;
 import lombok.*;
 
 import java.time.LocalDate;

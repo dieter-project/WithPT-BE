@@ -18,7 +18,7 @@ public class FileReaderJobConfig {
     private final CsvReader csvReader;
     private  final CsvWriter csvScheduleWriter;
 
-    private static final int chunkSize = 100000; // 데이터 처리할 row size
+    private static final int chunkSize = 100_000; // 데이터 처리할 row size
 
 
     @Bean
@@ -27,7 +27,6 @@ public class FileReaderJobConfig {
                 .start(csvFoodReaderStep())
                 .build();
     }
-
 
     @Bean
     public Step csvFoodReaderStep(){

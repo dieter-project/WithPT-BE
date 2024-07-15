@@ -12,7 +12,7 @@ import com.sideproject.withpt.application.body.repository.BodyRepository;
 import com.sideproject.withpt.application.type.Usages;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.record.Body;
+import com.sideproject.withpt.domain.record.body.Body;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -115,7 +115,7 @@ public class BodyService {
         Member member = validateMemberId(memberId);
 
         if(file != null && file.size() > 0) {
-            imageUploader.uploadAndSaveImages(file, LocalDate.now(), Usages.BODY, member);
+            imageUploader.uploadAndSaveImages(file, LocalDate.now(), Usages.BODY, null);
         }
     }
 

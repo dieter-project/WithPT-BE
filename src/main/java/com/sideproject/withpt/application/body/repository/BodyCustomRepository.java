@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.body.repository;
 
-import com.sideproject.withpt.domain.record.Body;
+import com.sideproject.withpt.domain.record.body.Body;
 
 import java.time.LocalDate;
 import java.util.Optional;

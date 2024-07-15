@@ -13,7 +13,7 @@ import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.type.Usages;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.record.Exercise;
+import com.sideproject.withpt.domain.record.exercise.Exercise;
 import com.sideproject.withpt.domain.record.Image;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
