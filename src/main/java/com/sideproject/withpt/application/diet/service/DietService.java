@@ -3,6 +3,7 @@ package com.sideproject.withpt.application.diet.service;
 import com.sideproject.withpt.application.diet.controller.request.DietFoodRequest;
 import com.sideproject.withpt.application.diet.controller.request.SaveDietRequest;
 import com.sideproject.withpt.application.diet.controller.request.SaveDietRequest.Summary;
+import com.sideproject.withpt.application.diet.controller.response.DailyDietResponse;
 import com.sideproject.withpt.application.diet.exception.DietException;
 import com.sideproject.withpt.application.diet.repository.DietFoodRepository;
 import com.sideproject.withpt.application.diet.repository.DietInfoRepository;
@@ -17,6 +18,7 @@ import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.diet.DietFood;
 import com.sideproject.withpt.domain.record.diet.DietInfo;
 import com.sideproject.withpt.domain.record.diet.Diets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -65,8 +67,9 @@ public class DietService {
                 });
     }
 
-    public void getDiet() {
-
+    public DailyDietResponse findDietByUploadDate(LocalDate uploadDate, Long memberId) {
+        Member member = validateMemberId(memberId);
+        return dietQueryRepository.findDietByUploadDate(member, uploadDate);
     }
 
     @Transactional
