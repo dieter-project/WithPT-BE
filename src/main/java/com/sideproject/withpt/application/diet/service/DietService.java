@@ -4,6 +4,7 @@ import com.sideproject.withpt.application.diet.controller.request.DietFoodReques
 import com.sideproject.withpt.application.diet.controller.request.SaveDietRequest;
 import com.sideproject.withpt.application.diet.controller.request.SaveDietRequest.Summary;
 import com.sideproject.withpt.application.diet.controller.response.DailyDietResponse;
+import com.sideproject.withpt.application.diet.controller.response.DietInfoResponse;
 import com.sideproject.withpt.application.diet.exception.DietException;
 import com.sideproject.withpt.application.diet.repository.DietFoodRepository;
 import com.sideproject.withpt.application.diet.repository.DietInfoRepository;
@@ -70,6 +71,11 @@ public class DietService {
     public DailyDietResponse findDietByUploadDate(LocalDate uploadDate, Long memberId) {
         Member member = validateMemberId(memberId);
         return dietQueryRepository.findDietByUploadDate(member, uploadDate);
+    }
+
+    public DietInfoResponse findDietInfoById(Long memberId, Long dietInfoId) {
+        Member member = validateMemberId(memberId);
+        return dietQueryRepository.findDietInfoById(member, dietInfoId);
     }
 
     @Transactional
@@ -141,4 +147,5 @@ public class DietService {
             "DIET_" + diets.getId() + "/DIETINFO_" + saveDietInfo.getId(),
             member);
     }
+
 }

@@ -2,6 +2,7 @@ package com.sideproject.withpt.application.diet.controller;
 
 import com.sideproject.withpt.application.diet.controller.request.SaveDietRequest;
 import com.sideproject.withpt.application.diet.controller.response.DailyDietResponse;
+import com.sideproject.withpt.application.diet.controller.response.DietInfoResponse;
 import com.sideproject.withpt.application.diet.service.DietService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,7 +36,7 @@ public class DietController {
 
     @Operation(summary = "날짜별 식단 조회")
     @GetMapping
-    public ApiSuccessResponse<DailyDietResponse> findDiet(
+    public ApiSuccessResponse<DailyDietResponse> findDietByUploadDate(
         @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate uploadDate,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
         return ApiSuccessResponse.from(
@@ -50,8 +51,17 @@ public class DietController {
         dietService.saveDiet(memberId, request, files);
     }
 
+    @Operation(summary = "식단 정보 조회")
+    @GetMapping("/{dietId}/dietInfos/{dietInfoId}")
+    public ApiSuccessResponse<DietInfoResponse> findDietInfoById(@PathVariable Long dietId, @PathVariable Long dietInfoId,
+        @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
+        return ApiSuccessResponse.from(
+            dietService.findDietInfoById(memberId, dietInfoId)
+        );
+    }
+
     @Operation(summary = "식단 수정하기")
-    @PatchMapping("/{dietsId}")
+    @PatchMapping("/{dietId}")
     public void modifyDiet(@Valid @RequestBody SaveDietRequest request, @PathVariable Long dietsId,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
         dietService.modifyDiet(memberId, dietsId, request);

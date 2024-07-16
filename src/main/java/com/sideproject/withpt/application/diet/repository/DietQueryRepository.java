@@ -12,11 +12,13 @@ import com.querydsl.core.types.dsl.DateTemplate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.diet.controller.response.DailyDietResponse;
-import com.sideproject.withpt.application.diet.controller.response.DailyDietResponse.DietInfoResponse;
+import com.sideproject.withpt.application.diet.controller.response.DietInfoResponse;
 import com.sideproject.withpt.application.diet.controller.response.QDailyDietResponse;
-import com.sideproject.withpt.application.diet.controller.response.QDailyDietResponse_DietFoodResponse;
-import com.sideproject.withpt.application.diet.controller.response.QDailyDietResponse_DietInfoResponse;
-import com.sideproject.withpt.application.diet.controller.response.QDailyDietResponse_ImageResponse;
+import com.sideproject.withpt.application.diet.controller.response.QDietInfoResponse;
+import com.sideproject.withpt.application.diet.controller.response.QDietInfoResponse_DietFoodResponse;
+import com.sideproject.withpt.application.diet.controller.response.QDietInfoResponse_ImageResponse;
+import com.sideproject.withpt.application.diet.exception.DietErrorCode;
+import com.sideproject.withpt.application.diet.exception.DietException;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.diet.Diets;
 import java.time.LocalDate;
@@ -76,60 +78,127 @@ public class DietQueryRepository {
             Expressions.constant("%Y-%m-%d")
         );
 
-        DailyDietResponse dailyDietResponse = jpaQueryFactory
-            .select(
-                new QDailyDietResponse(
-                    diets.id,
-                    diets.uploadDate,
-                    diets.feedback,
-                    diets.totalCalorie,
-                    diets.totalProtein,
-                    diets.totalCarbohydrate,
-                    diets.totalFat,
-                    diets.targetDietType
-                )
-            )
-            .from(diets)
-            .where(diets.member.eq(member).and(uploadDateTemplate.eq(dietUploadDateTemplate)))
-            .fetchOne();
-
-        List<DietInfoResponse> dietInfoResponses = jpaQueryFactory
-            .selectFrom(dietInfo)
-            .leftJoin(dietFood).on(dietFood.dietInfo.eq(dietInfo))
-            .where(dietInfo.diets.id.eq(dailyDietResponse.getId()))
-            .orderBy(dietInfo.mealTime.asc(), dietFood.id.asc())
-            .transform(groupBy(dietInfo.id)
-                .list(new QDailyDietResponse_DietInfoResponse(
-                    dietInfo.id,
-                    dietInfo.mealCategory,
-                    dietInfo.mealTime,
-                    dietInfo.totalCalorie,
-                    dietInfo.totalProtein,
-                    dietInfo.totalCarbohydrate,
-                    dietInfo.totalFat,
-                    list(new QDailyDietResponse_DietFoodResponse(
-                        dietFood.id,
-                        dietFood.name,
-                        dietFood.capacity,
-                        dietFood.units,
-                        dietFood.calories,
-                        dietFood.carbohydrate,
-                        dietFood.protein,
-                        dietFood.fat
-                    )),
-                    Expressions.stringTemplate(
-                        "CONCAT('DIET_', {0}, '/DIETINFO_', {1})",
-                        dietInfo.diets.id.stringValue(),
-                        dietInfo.id.stringValue()
+        try {
+            DailyDietResponse dailyDietResponse = jpaQueryFactory
+                .select(
+                    new QDailyDietResponse(
+                        diets.id,
+                        diets.uploadDate,
+                        diets.feedback,
+                        diets.totalCalorie,
+                        diets.totalProtein,
+                        diets.totalCarbohydrate,
+                        diets.totalFat,
+                        diets.targetDietType
                     )
-                ))
-            );
+                )
+                .from(diets)
+                .where(diets.member.eq(member).and(uploadDateTemplate.eq(dietUploadDateTemplate)))
+                .fetchOne();
 
-        for (DietInfoResponse dietInfoResponse : dietInfoResponses) {
+            List<DietInfoResponse> dietInfoResponses = jpaQueryFactory
+                .selectFrom(dietInfo)
+                .leftJoin(dietFood).on(dietFood.dietInfo.eq(dietInfo))
+                .where(dietInfo.diets.id.eq(dailyDietResponse.getId()))
+                .orderBy(dietInfo.mealTime.asc(), dietFood.id.asc())
+                .transform(groupBy(dietInfo.id)
+                    .list(new QDietInfoResponse(
+                        dietInfo.id,
+                        dietInfo.mealCategory,
+                        dietInfo.mealTime,
+                        dietInfo.totalCalorie,
+                        dietInfo.totalProtein,
+                        dietInfo.totalCarbohydrate,
+                        dietInfo.totalFat,
+                        list(new QDietInfoResponse_DietFoodResponse(
+                            dietFood.id,
+                            dietFood.name,
+                            dietFood.capacity,
+                            dietFood.units,
+                            dietFood.calories,
+                            dietFood.carbohydrate,
+                            dietFood.protein,
+                            dietFood.fat
+                        )),
+                        Expressions.stringTemplate(
+                            "CONCAT('DIET_', {0}, '/DIETINFO_', {1})",
+                            dietInfo.diets.id.stringValue(),
+                            dietInfo.id.stringValue()
+                        )
+                    ))
+                );
+
+            for (DietInfoResponse dietInfoResponse : dietInfoResponses) {
+                dietInfoResponse.setImages(
+                    jpaQueryFactory
+                        .select(
+                            new QDietInfoResponse_ImageResponse(
+                                image.id,
+                                image.usageIdentificationId,
+                                image.usages,
+                                image.uploadDate,
+                                image.url,
+                                image.attachType
+                            )
+                        )
+                        .from(image)
+                        .where(image.member.eq(member).and(
+                            image.usageIdentificationId.eq(
+                                dietInfoResponse.getImageUsageIdentificationId()
+                            )
+                        )).fetch()
+                );
+            }
+
+            dailyDietResponse.setDietInfos(dietInfoResponses);
+            return dailyDietResponse;
+
+        } catch (Exception e) {
+            throw new DietException(DietErrorCode.DIET_NOT_EXIST);
+        }
+    }
+
+    public DietInfoResponse findDietInfoById(Member member, Long dietInfoId) {
+
+        try {
+            List<DietInfoResponse> dietInfoResponses = jpaQueryFactory
+                .select(dietInfo)
+                .from(dietInfo)
+                .leftJoin(dietFood).on(dietFood.dietInfo.eq(dietInfo))
+                .where(dietInfo.id.eq(dietInfoId))
+                .orderBy(dietInfo.mealTime.asc(), dietFood.id.asc())
+                .transform(groupBy(dietInfo.id)
+                    .list(new QDietInfoResponse(
+                        dietInfo.id,
+                        dietInfo.mealCategory,
+                        dietInfo.mealTime,
+                        dietInfo.totalCalorie,
+                        dietInfo.totalProtein,
+                        dietInfo.totalCarbohydrate,
+                        dietInfo.totalFat,
+                        list(new QDietInfoResponse_DietFoodResponse(
+                            dietFood.id,
+                            dietFood.name,
+                            dietFood.capacity,
+                            dietFood.units,
+                            dietFood.calories,
+                            dietFood.carbohydrate,
+                            dietFood.protein,
+                            dietFood.fat
+                        )),
+                        Expressions.stringTemplate(
+                            "CONCAT('DIET_', {0}, '/DIETINFO_', {1})",
+                            dietInfo.diets.id.stringValue(),
+                            dietInfo.id.stringValue()
+                        )
+                    ))
+                );
+
+            DietInfoResponse dietInfoResponse = dietInfoResponses.get(0);
             dietInfoResponse.setImages(
                 jpaQueryFactory
                     .select(
-                        new QDailyDietResponse_ImageResponse(
+                        new QDietInfoResponse_ImageResponse(
                             image.id,
                             image.usageIdentificationId,
                             image.usages,
@@ -145,10 +214,10 @@ public class DietQueryRepository {
                         )
                     )).fetch()
             );
+
+            return dietInfoResponse;
+        } catch (Exception e) {
+            throw new DietException(DietErrorCode.DIET_NOT_EXIST);
         }
-
-        dailyDietResponse.setDietInfos(dietInfoResponses);
-        return dailyDietResponse;
     }
-
 }
