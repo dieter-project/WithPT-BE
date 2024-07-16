@@ -51,6 +51,10 @@ public class ImageUploader {
         }
     }
 
+    public void deleteImage(Long id) {
+        imageRepository.deleteById(id);
+    }
+
     public void deleteImage(String url) {
         Image image = imageRepository.findByUrl(url).orElseThrow(() -> GlobalException.EMPTY_DELETE_FILE);
 

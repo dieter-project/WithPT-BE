@@ -1,5 +1,6 @@
 package com.sideproject.withpt.application.diet.controller;
 
+import com.sideproject.withpt.application.diet.controller.request.EditDietInfoRequest;
 import com.sideproject.withpt.application.diet.controller.request.SaveDietRequest;
 import com.sideproject.withpt.application.diet.controller.response.DailyDietResponse;
 import com.sideproject.withpt.application.diet.controller.response.DietInfoResponse;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -60,11 +60,12 @@ public class DietController {
         );
     }
 
-    @Operation(summary = "식단 수정하기")
-    @PatchMapping("/{dietId}")
-    public void modifyDiet(@Valid @RequestBody SaveDietRequest request, @PathVariable Long dietsId,
+    @Operation(summary = "식단 정보 수정하기")
+    @PatchMapping("/{dietId}/dietInfos/{dietInfoId}")
+    public void modifyDiet(@Valid @RequestPart EditDietInfoRequest request, @PathVariable Long dietId, @PathVariable Long dietInfoId,
+        @RequestPart(required = false) List<MultipartFile> files,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        dietService.modifyDiet(memberId, dietsId, request);
+        dietService.modifyDietInfo(memberId, dietId, dietInfoId, request, files);
     }
 
     @Operation(summary = "식단 삭제하기")
