@@ -1,8 +1,11 @@
 package com.sideproject.withpt.application.diet.service;
 
 import com.sideproject.withpt.application.diet.controller.request.DietFoodRequest;
+import com.sideproject.withpt.application.diet.controller.request.EditDietInfoRequest;
 import com.sideproject.withpt.application.diet.controller.request.SaveDietRequest;
 import com.sideproject.withpt.application.diet.controller.request.SaveDietRequest.Summary;
+import com.sideproject.withpt.application.diet.controller.response.DailyDietResponse;
+import com.sideproject.withpt.application.diet.controller.response.DietInfoResponse;
 import com.sideproject.withpt.application.diet.exception.DietException;
 import com.sideproject.withpt.application.diet.repository.DietFoodRepository;
 import com.sideproject.withpt.application.diet.repository.DietInfoRepository;
@@ -17,13 +20,16 @@ import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.diet.DietFood;
 import com.sideproject.withpt.domain.record.diet.DietInfo;
 import com.sideproject.withpt.domain.record.diet.Diets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -31,7 +37,7 @@ public class DietService {
 
     private final DietRepository dietRepository;
     private final DietInfoRepository dietInfoRepository;
-    private final DietFoodRepository foodItemRepository;
+    private final DietFoodRepository dietFoodRepository;
     private final DietQueryRepository dietQueryRepository;
     private final MemberRepository memberRepository;
     private final ImageUploader imageUploader;
@@ -65,8 +71,14 @@ public class DietService {
                 });
     }
 
-    public void getDiet() {
+    public DailyDietResponse findDietByUploadDate(LocalDate uploadDate, Long memberId) {
+        Member member = validateMemberId(memberId);
+        return dietQueryRepository.findDietByUploadDate(member, uploadDate);
+    }
 
+    public DietInfoResponse findDietInfoById(Long memberId, Long dietInfoId) {
+        Member member = validateMemberId(memberId);
+        return dietQueryRepository.findDietInfoById(member, dietInfoId);
     }
 
     @Transactional
@@ -89,9 +101,92 @@ public class DietService {
     }
 
     @Transactional
-    public void deleteDiet(Long memberId, Long dietId) {
-        validateDietId(dietId, memberId);
-        dietRepository.deleteById(dietId);
+    public void modifyDietInfo(Long memberId, Long dietId, Long dietInfoId, EditDietInfoRequest request, List<MultipartFile> files) {
+        Member member = validateMemberId(memberId);
+        Diets diets = dietRepository.findById(dietId)
+            .orElseThrow(() -> DietException.DIET_NOT_EXIST);
+
+        DietInfo dietInfo = dietInfoRepository.findById(dietInfoId)
+            .orElseThrow(() -> DietException.DIET_FOOD_NOT_EXIST);
+
+        // 삭제되는 음식 성분 값 빼기
+        if (!request.getDeletedFoodIds().isEmpty()) {
+            List<DietFood> deletedFoods = dietFoodRepository.findAllByIdInAndDietInfo(request.getDeletedFoodIds(), dietInfo);
+
+            for (DietFood deletedFood : deletedFoods) {
+                diets.subtractTotalCalorie(deletedFood.getCalories());
+                diets.subtractTotalCarbohydrate(deletedFood.getCarbohydrate());
+                diets.subtractTotalProtein(deletedFood.getProtein());
+                diets.subtractTotalFat(deletedFood.getFat());
+
+                dietInfo.subtractTotalCalorie(deletedFood.getCalories());
+                dietInfo.subtractTotalCarbohydrate(deletedFood.getCarbohydrate());
+                dietInfo.subtractTotalProtein(deletedFood.getProtein());
+                dietInfo.subtractTotalFat(deletedFood.getFat());
+            }
+
+            for (DietFood dietFood : deletedFoods) {
+                log.info("음식들 {}", dietFood);
+            }
+            dietFoodRepository.deleteAllByIdInAndDietInfo(request.getDeletedFoodIds(), dietInfo);
+        }
+
+        // 음식 추가
+        if (!request.getDietFoods().isEmpty()) {
+            Summary summary = request.getDietFoods().stream().collect(
+                Summary::new,
+                Summary::accept,
+                Summary::combine
+            );
+
+            for (DietFoodRequest foodRequest : request.getDietFoods()) {
+                DietFood dietFood = foodRequest.toEntity(dietInfo);
+                dietInfo.addDietFood(dietFood);
+            }
+
+            diets.addTotalCalorie(summary.getTotalCalories());
+            diets.addTotalCarbohydrate(summary.getTotalCarbohydrate());
+            diets.addTotalProtein(summary.getTotalProtein());
+            diets.addTotalFat(summary.getTotalFat());
+
+            dietInfo.addTotalCalorie(summary.getTotalCalories());
+            dietInfo.addTotalCarbohydrate(summary.getTotalCarbohydrate());
+            dietInfo.addTotalProtein(summary.getTotalProtein());
+            dietInfo.addTotalFat(summary.getTotalFat());
+        }
+
+        // 이미지 삭제
+        if (!request.getDeletedImageIds().isEmpty()) {
+            request.getDeletedImageIds().forEach(id -> imageUploader.deleteImage(id));
+        }
+
+        // 이미지 추가
+        if (!files.isEmpty()) {
+            imageUploader.uploadAndSaveImages(files, Usages.MEAL,
+                "DIET_" + diets.getId() + "/DIETINFO_" + dietInfo.getId(), member);
+        }
+
+        dietInfo.setMealTime(LocalDateTime.of(request.getUploadDate(), request.getMealTime()));
+        dietInfo.setMealCategory(request.getMealCategory());
+    }
+
+    @Transactional
+    public void deleteDiet(Long memberId, Long dietId, Long dietInfoId) {
+        Member member = validateMemberId(memberId);
+        Diets diets = dietRepository.findById(dietId)
+            .orElseThrow(() -> DietException.DIET_NOT_EXIST);
+
+        DietInfo dietInfo = dietInfoRepository.findById(dietInfoId)
+            .orElseThrow(() -> DietException.DIET_FOOD_NOT_EXIST);
+
+        diets.subtractTotalCalorie(dietInfo.getTotalCalorie());
+        diets.subtractTotalCarbohydrate(dietInfo.getTotalCarbohydrate());
+        diets.subtractTotalProtein(dietInfo.getTotalProtein());
+        diets.subtractTotalFat(dietInfo.getTotalFat());
+
+
+        imageUploader.deleteImageByIdentificationAndMember("DIET_" + diets.getId() + "/DIETINFO_" + dietInfo.getId(), member);
+        dietInfoRepository.delete(dietInfo);
     }
 
     private Member validateMemberId(Long memberId) {
@@ -138,4 +233,5 @@ public class DietService {
             "DIET_" + diets.getId() + "/DIETINFO_" + saveDietInfo.getId(),
             member);
     }
+
 }

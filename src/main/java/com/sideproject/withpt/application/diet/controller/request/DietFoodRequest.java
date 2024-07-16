@@ -2,7 +2,6 @@ package com.sideproject.withpt.application.diet.controller.request;
 
 import com.sideproject.withpt.domain.record.diet.DietFood;
 import com.sideproject.withpt.domain.record.diet.DietInfo;
-import com.sideproject.withpt.domain.record.diet.Diets;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

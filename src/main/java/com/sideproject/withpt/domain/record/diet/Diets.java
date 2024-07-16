@@ -63,4 +63,20 @@ public class Diets extends BaseEntity {
     public void addTotalFat(double totalFat) {
         this.totalFat += totalFat;
     }
+
+    public void subtractTotalCalorie(double totalCalorie) {
+        this.totalCalorie -= totalCalorie;
+    }
+
+    public void subtractTotalProtein(double totalProtein) {
+        this.totalProtein -= totalProtein;
+    }
+
+    public void subtractTotalCarbohydrate(double totalCarbohydrate) {
+        this.totalCarbohydrate -= totalCarbohydrate;
+    }
+
+    public void subtractTotalFat(double totalFat) {
+        this.totalFat -= totalFat;
+    }
 }

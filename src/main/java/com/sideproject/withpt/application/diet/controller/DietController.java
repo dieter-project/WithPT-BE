@@ -1,18 +1,29 @@
 package com.sideproject.withpt.application.diet.controller;
 
+import com.sideproject.withpt.application.diet.controller.request.EditDietInfoRequest;
 import com.sideproject.withpt.application.diet.controller.request.SaveDietRequest;
-import com.sideproject.withpt.application.diet.controller.response.DietResponse;
+import com.sideproject.withpt.application.diet.controller.response.DailyDietResponse;
+import com.sideproject.withpt.application.diet.controller.response.DietInfoResponse;
 import com.sideproject.withpt.application.diet.service.DietService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import java.time.LocalDate;
 import java.util.List;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
@@ -23,11 +34,14 @@ public class DietController {
 
     private final DietService dietService;
 
-    @Operation(summary = "식단 단건 조회하기")
-    @GetMapping("/{dietId}")
-    public ApiSuccessResponse<DietResponse> findOneDiet(@PathVariable Long dietId,
+    @Operation(summary = "날짜별 식단 조회")
+    @GetMapping
+    public ApiSuccessResponse<DailyDietResponse> findDietByUploadDate(
+        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate uploadDate,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        return null;
+        return ApiSuccessResponse.from(
+            dietService.findDietByUploadDate(uploadDate, memberId)
+        );
     }
 
     @Operation(summary = "식단 입력하기")
@@ -37,18 +51,28 @@ public class DietController {
         dietService.saveDiet(memberId, request, files);
     }
 
-    @Operation(summary = "식단 수정하기")
-    @PatchMapping("/{dietsId}")
-    public void modifyDiet(@Valid @RequestBody SaveDietRequest request, @PathVariable Long dietsId,
+    @Operation(summary = "식단 정보 조회")
+    @GetMapping("/{dietId}/dietInfos/{dietInfoId}")
+    public ApiSuccessResponse<DietInfoResponse> findDietInfoById(@PathVariable Long dietId, @PathVariable Long dietInfoId,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        dietService.modifyDiet(memberId, dietsId, request);
+        return ApiSuccessResponse.from(
+            dietService.findDietInfoById(memberId, dietInfoId)
+        );
     }
 
-    @Operation(summary = "식단 삭제하기")
-    @DeleteMapping("/{dietId}")
-    public void deleteDiet(@PathVariable Long dietId,
+    @Operation(summary = "식단 정보 수정하기")
+    @PatchMapping("/{dietId}/dietInfos/{dietInfoId}")
+    public void modifyDiet(@Valid @RequestPart EditDietInfoRequest request, @PathVariable Long dietId, @PathVariable Long dietInfoId,
+        @RequestPart(required = false) List<MultipartFile> files,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        dietService.deleteDiet(memberId, dietId);
+        dietService.modifyDietInfo(memberId, dietId, dietInfoId, request, files);
+    }
+
+    @Operation(summary = "식단 정보 삭제하기")
+    @DeleteMapping("/{dietId}/dietInfos/{dietInfoId}")
+    public void deleteDiet(@PathVariable Long dietId, @PathVariable Long dietInfoId,
+        @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
+        dietService.deleteDiet(memberId, dietId, dietInfoId);
     }
 
 }
