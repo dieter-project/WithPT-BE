@@ -68,11 +68,11 @@ public class DietController {
         dietService.modifyDietInfo(memberId, dietId, dietInfoId, request, files);
     }
 
-    @Operation(summary = "식단 삭제하기")
-    @DeleteMapping("/{dietId}")
-    public void deleteDiet(@PathVariable Long dietId,
+    @Operation(summary = "식단 정보 삭제하기")
+    @DeleteMapping("/{dietId}/dietInfos/{dietInfoId}")
+    public void deleteDiet(@PathVariable Long dietId, @PathVariable Long dietInfoId,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        dietService.deleteDiet(memberId, dietId);
+        dietService.deleteDiet(memberId, dietId, dietInfoId);
     }
 
 }

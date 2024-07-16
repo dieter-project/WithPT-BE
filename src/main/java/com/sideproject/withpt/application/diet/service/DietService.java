@@ -171,9 +171,22 @@ public class DietService {
     }
 
     @Transactional
-    public void deleteDiet(Long memberId, Long dietId) {
-        validateDietId(dietId, memberId);
-        dietRepository.deleteById(dietId);
+    public void deleteDiet(Long memberId, Long dietId, Long dietInfoId) {
+        Member member = validateMemberId(memberId);
+        Diets diets = dietRepository.findById(dietId)
+            .orElseThrow(() -> DietException.DIET_NOT_EXIST);
+
+        DietInfo dietInfo = dietInfoRepository.findById(dietInfoId)
+            .orElseThrow(() -> DietException.DIET_FOOD_NOT_EXIST);
+
+        diets.subtractTotalCalorie(dietInfo.getTotalCalorie());
+        diets.subtractTotalCarbohydrate(dietInfo.getTotalCarbohydrate());
+        diets.subtractTotalProtein(dietInfo.getTotalProtein());
+        diets.subtractTotalFat(dietInfo.getTotalFat());
+
+
+        imageUploader.deleteImageByIdentificationAndMember("DIET_" + diets.getId() + "/DIETINFO_" + dietInfo.getId(), member);
+        dietInfoRepository.delete(dietInfo);
     }
 
     private Member validateMemberId(Long memberId) {
