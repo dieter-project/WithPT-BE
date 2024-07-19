@@ -2,7 +2,7 @@ package com.sideproject.withpt.application.image.repository;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sideproject.withpt.application.body.dto.response.BodyImageResponse;
+import com.sideproject.withpt.application.body.controller.response.BodyImageResponse;
 import com.sideproject.withpt.application.type.Usages;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;

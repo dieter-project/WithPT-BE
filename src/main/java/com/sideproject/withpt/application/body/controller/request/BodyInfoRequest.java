@@ -1,12 +1,15 @@
-package com.sideproject.withpt.application.body.dto.request;
+package com.sideproject.withpt.application.body.controller.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.body.Body;
-import lombok.*;
-
-import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import javax.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
@@ -25,28 +28,17 @@ public class BodyInfoRequest {
 
     @NotNull(message = "측정일을 입력해 주세요")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
-    private LocalDate bodyRecordDate;
+    private LocalDate uploadDate;
 
     public Body toEntity(Member member) {
         return Body.builder()
-                .member(member)
-                .weight(member.getWeight())
-                .skeletalMuscle(skeletalMuscle)
-                .bodyFatPercentage(bodyFatPercentage)
-                .bmi(bmi)
-                .bodyRecordDate(bodyRecordDate)
-                .build();
-    }
-
-    public Body toBodyEntity(Member member, Body body) {
-        return Body.builder()
-                .member(member)
-                .weight(body.getWeight())
-                .bodyRecordDate(bodyRecordDate)
-                .bmi(bmi)
-                .skeletalMuscle(skeletalMuscle)
-                .bodyFatPercentage(bodyFatPercentage)
-                .build();
+            .member(member)
+            .targetWeight(member.getTargetWeight())
+            .skeletalMuscle(skeletalMuscle)
+            .bodyFatPercentage(bodyFatPercentage)
+            .bmi(bmi)
+            .uploadDate(uploadDate)
+            .build();
     }
 
 }

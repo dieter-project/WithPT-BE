@@ -1,27 +1,26 @@
 package com.sideproject.withpt.application.body.service;
 
-import com.sideproject.withpt.application.body.dto.request.WeightInfoRequest;
-import com.sideproject.withpt.application.body.dto.response.BodyImageResponse;
+import com.sideproject.withpt.application.body.controller.request.BodyInfoRequest;
+import com.sideproject.withpt.application.body.controller.request.WeightInfoRequest;
+import com.sideproject.withpt.application.body.controller.response.BodyImageResponse;
+import com.sideproject.withpt.application.body.controller.response.WeightInfoResponse;
+import com.sideproject.withpt.application.body.exception.BodyException;
+import com.sideproject.withpt.application.body.repository.BodyRepository;
 import com.sideproject.withpt.application.image.ImageUploader;
 import com.sideproject.withpt.application.image.repository.ImageRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
-import com.sideproject.withpt.application.body.dto.request.BodyInfoRequest;
-import com.sideproject.withpt.application.body.dto.response.WeightInfoResponse;
-import com.sideproject.withpt.application.body.exception.BodyException;
-import com.sideproject.withpt.application.body.repository.BodyRepository;
 import com.sideproject.withpt.application.type.Usages;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.body.Body;
+import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDate;
-import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -35,11 +34,11 @@ public class BodyService {
     private final ImageUploader imageUploader;
 
     public WeightInfoResponse findWeightInfo(Long memberId, LocalDate dateTime) {
-        validateMemberId(memberId);
+        Member member = validateMemberId(memberId);
 
         Body body = bodyRepository
-                .findRecentBodyInfo(memberId, dateTime)
-                .orElseThrow(() -> BodyException.BODY_NOT_EXIST);
+            .findRecentBodyInfo(member, dateTime)
+            .orElseThrow(() -> BodyException.BODY_NOT_EXIST);
 
         return WeightInfoResponse.from(body);
     }
@@ -49,25 +48,16 @@ public class BodyService {
         Member member = validateMemberId(memberId);
 
         bodyRepository
-                .findTodayBodyInfo(memberId, request.getBodyRecordDate())
-                .ifPresentOrElse(
-                        value -> {
-                            // 오늘 날짜 기록이 존재한다면 기록 수정하기
-                            value.changeWeight(request.getWeight());
-                        },
-                        () -> {
-                            // 오늘 날짜 기록이 없다면 새로 기록 저장하기
-                            bodyRepository
-                                    .findRecentBodyInfo(memberId, request.getBodyRecordDate())
-                                    .ifPresentOrElse(
-                                            body -> {
-                                                body.changeWeight(request.getWeight());
-                                                bodyRepository.save(request.toBodyEntity(member, body));
-                                            },
-                                            () -> {
-                                                bodyRepository.save(request.toEntity(member));
-                                            });
-                        });
+            .findTodayBodyInfo(member, request.getUploadDate())
+            .ifPresentOrElse(
+                body -> {
+                    // 오늘 날짜 기록이 이미 존재한다면 체중 기록만 수정하기
+                    body.changeWeight(request.getWeight());
+                },
+                () -> {
+                    // 오늘 날짜 기록이 없다면 새로 기록 저장하기
+                    bodyRepository.save(request.toEntity(member));
+                });
 
         member.changeWeight(request.getWeight());
     }
@@ -77,25 +67,16 @@ public class BodyService {
         Member member = validateMemberId(memberId);
 
         bodyRepository
-                .findTodayBodyInfo(memberId, request.getBodyRecordDate())
-                .ifPresentOrElse(
-                        value -> {
-                            // 오늘 날짜 기록이 존재한다면 기록 수정하기
-                            value.updateBodyInfo(request);
-                        },
-                        () -> {
-                            // 오늘 날짜 기록이 없다면 새로 기록 저장하기
-                            bodyRepository
-                                    .findRecentBodyInfo(memberId, request.getBodyRecordDate())
-                                    .ifPresentOrElse(
-                                            body -> {
-                                                body.updateBodyInfo(request);
-                                                bodyRepository.save(request.toBodyEntity(member, body));
-                                            },
-                                            () -> {
-                                                bodyRepository.save(request.toEntity(member));
-                                            });
-                        });
+            .findTodayBodyInfo(member, request.getUploadDate())
+            .ifPresentOrElse(
+                body -> {
+                    // 오늘 날짜 기록이 존재한다면 기록 수정하기
+                    body.updateBodyInfo(request.getSkeletalMuscle(), request.getBodyFatPercentage(), request.getBmi());
+                },
+                () -> {
+                    // 오늘 날짜 기록이 없다면 새로 기록 저장하기
+                    bodyRepository.save(request.toEntity(member));
+                });
     }
 
     public Slice<BodyImageResponse> findAllBodyImage(Long memberId, Pageable pageable) {
@@ -114,7 +95,7 @@ public class BodyService {
     public void saveBodyImage(List<MultipartFile> file, Long memberId) {
         Member member = validateMemberId(memberId);
 
-        if(file != null && file.size() > 0) {
+        if (file != null && file.size() > 0) {
             imageUploader.uploadAndSaveImages(file, LocalDate.now(), Usages.BODY, null);
         }
     }
@@ -126,7 +107,7 @@ public class BodyService {
 
     private Member validateMemberId(Long memberId) {
         return memberRepository.findById(memberId)
-                .orElseThrow(() -> GlobalException.TEST_ERROR);
+            .orElseThrow(() -> GlobalException.TEST_ERROR);
     }
 
 }

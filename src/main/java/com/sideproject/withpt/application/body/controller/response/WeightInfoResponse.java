@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.body.dto.response;
+package com.sideproject.withpt.application.body.controller.response;
 
 import com.sideproject.withpt.domain.record.body.Body;
 import lombok.*;
@@ -24,7 +24,7 @@ public class WeightInfoResponse {
                 .skeletalMuscle(body.getSkeletalMuscle())
                 .bodyFatPercentage(body.getBodyFatPercentage())
                 .bmi(body.getBmi())
-                .weightRecordDate(body.getBodyRecordDate())
+                .weightRecordDate(body.getUploadDate())
                 .build();
     }
 
