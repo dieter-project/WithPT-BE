@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.body.dto.response;
+package com.sideproject.withpt.application.body.controller.response;
 
 import com.sideproject.withpt.domain.record.Image;
 import lombok.*;

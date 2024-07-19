@@ -36,6 +36,22 @@ public class ImageUploader {
         }
     }
 
+    public void uploadAndSaveImages(List<MultipartFile> files, Usages usage, LocalDate uploadDate, Member member) {
+        for (MultipartFile file : files) {
+            String imageUrl = awsS3Uploader.upload(usage.toString(), member.getId() + "/" + uploadDate, file);
+
+            Image image = Image.builder()
+                .member(member)
+                .usages(usage)
+                .uploadDate(uploadDate)
+                .url(imageUrl)
+                .attachType(file.getContentType())
+                .build();
+
+            imageRepository.save(image);
+        }
+    }
+
     public void uploadAndSaveImages(List<MultipartFile> files, LocalDate uploadDate, Usages usage, Member member) {
         for (MultipartFile file : files) {
             String imageUrl = awsS3Uploader.upload(usage.toString(), "image", file);
