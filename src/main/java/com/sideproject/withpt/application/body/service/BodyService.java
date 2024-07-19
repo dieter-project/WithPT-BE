@@ -10,6 +10,7 @@ import com.sideproject.withpt.application.image.ImageUploader;
 import com.sideproject.withpt.application.image.repository.ImageRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.type.Usages;
+import com.sideproject.withpt.common.exception.CommonErrorCode;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.body.Body;
@@ -92,12 +93,13 @@ public class BodyService {
     }
 
     @Transactional
-    public void saveBodyImage(List<MultipartFile> file, Long memberId) {
-        Member member = validateMemberId(memberId);
+    public void saveBodyImage(List<MultipartFile> files, LocalDate uploadDate, Long memberId) {
 
-        if (file != null && file.size() > 0) {
-            imageUploader.uploadAndSaveImages(file, LocalDate.now(), Usages.BODY, null);
+        if (files == null || files.size() == 0) {
+            throw GlobalException.EMPTY_FILE;
         }
+        Member member = validateMemberId(memberId);
+        imageUploader.uploadAndSaveImages(files, Usages.BODY, uploadDate, member);
     }
 
     @Transactional
