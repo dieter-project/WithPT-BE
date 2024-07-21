@@ -1,6 +1,7 @@
 package com.sideproject.withpt.application.body.service;
 
 import com.sideproject.withpt.application.body.controller.request.BodyInfoRequest;
+import com.sideproject.withpt.application.body.controller.request.DeleteBodyImageRequest;
 import com.sideproject.withpt.application.body.controller.request.WeightInfoRequest;
 import com.sideproject.withpt.application.body.controller.response.BodyImageInfoResponse;
 import com.sideproject.withpt.application.body.controller.response.BodyImageResponse;
@@ -100,8 +101,11 @@ public class BodyService {
     }
 
     @Transactional
-    public void deleteBodyImage(String url) {
-        imageUploader.deleteImage(url);
+    public void deleteBodyImage(Long memberId, DeleteBodyImageRequest request) {
+        for (long id : request.getImageIds()) {
+            imageUploader.deleteImage(id);
+        }
+//        imageUploader.deleteImage(url);
     }
 
     private Member validateMemberId(Long memberId) {

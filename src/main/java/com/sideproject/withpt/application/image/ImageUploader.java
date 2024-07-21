@@ -8,10 +8,15 @@ import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.Image;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ImageUploader {
@@ -19,16 +24,21 @@ public class ImageUploader {
     private final AwsS3Uploader awsS3Uploader;
     private final ImageRepository imageRepository;
 
+    @Value("${cloud.aws.url}")
+    private String awsUrl;
+
     public void uploadAndSaveImages(List<MultipartFile> files, Usages usage, String usageIdentificationId, Member member) {
         for (MultipartFile file : files) {
-            String imageUrl = awsS3Uploader.upload(usage.toString(), member.getId() + "/" + usageIdentificationId, file);
+            Map<String, String> imageUrl = awsS3Uploader.upload(usage.toString(), member.getId() + "/" + usageIdentificationId, file);
+            String fullPath = awsUrl + "/" + imageUrl.get("uploadUrlPath");
 
             Image image = Image.builder()
                 .member(member)
                 .usageIdentificationId(usageIdentificationId)
                 .usages(usage)
                 .uploadDate(LocalDate.now())
-                .url(imageUrl)
+                .url(imageUrl.get("url"))
+                .uploadUrlPath(fullPath)
                 .attachType(file.getContentType())
                 .build();
 
@@ -38,13 +48,16 @@ public class ImageUploader {
 
     public void uploadAndSaveImages(List<MultipartFile> files, Usages usage, LocalDate uploadDate, Member member) {
         for (MultipartFile file : files) {
-            String imageUrl = awsS3Uploader.upload(usage.toString(), member.getId() + "/" + uploadDate, file);
+            Map<String, String> imageUrl = awsS3Uploader.upload(usage.toString(), member.getId() + "/" + uploadDate, file);
+            String fullPath = awsUrl + "/" + imageUrl.get("uploadUrlPath");
+            log.info("fileName {}", fullPath);
 
             Image image = Image.builder()
                 .member(member)
                 .usages(usage)
                 .uploadDate(uploadDate)
-                .url(imageUrl)
+                .url(imageUrl.get("url"))
+                .uploadUrlPath(fullPath)
                 .attachType(file.getContentType())
                 .build();
 
@@ -54,11 +67,13 @@ public class ImageUploader {
 
     public void uploadAndSaveImages(List<MultipartFile> files, LocalDate uploadDate, Usages usage, Member member) {
         for (MultipartFile file : files) {
-            String imageUrl = awsS3Uploader.upload(usage.toString(), "image", file);
+            Map<String, String> imageUrl = awsS3Uploader.upload(usage.toString(), "image", file);
+            String fullPath = awsUrl + "/" + imageUrl.get("uploadUrlPath");
 
             Image image = Image.builder()
                 .usages(usage)
-                .url(imageUrl)
+                .url(imageUrl.get("url"))
+                .uploadUrlPath(fullPath)
                 .uploadDate(uploadDate)
                 .attachType(file.getContentType())
                 .build();
@@ -68,6 +83,10 @@ public class ImageUploader {
     }
 
     public void deleteImage(Long id) {
+        Image image = imageRepository.findById(id)
+            .orElseThrow(() -> GlobalException.EMPTY_DELETE_FILE);
+
+        awsS3Uploader.delete(image.getUsages().toString(), image.getUploadUrlPath());
         imageRepository.deleteById(id);
     }
 
@@ -76,7 +95,8 @@ public class ImageUploader {
     }
 
     public void deleteImage(String url) {
-        Image image = imageRepository.findByUrl(url).orElseThrow(() -> GlobalException.EMPTY_DELETE_FILE);
+        Image image = imageRepository.findByUrl(url)
+            .orElseThrow(() -> GlobalException.EMPTY_DELETE_FILE);
 
         awsS3Uploader.delete(image.getUsages().toString(), image.getUrl());
         imageRepository.deleteByUrl(url);

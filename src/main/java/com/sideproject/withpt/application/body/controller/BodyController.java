@@ -1,6 +1,7 @@
 package com.sideproject.withpt.application.body.controller;
 
 import com.sideproject.withpt.application.body.controller.request.BodyInfoRequest;
+import com.sideproject.withpt.application.body.controller.request.DeleteBodyImageRequest;
 import com.sideproject.withpt.application.body.controller.request.WeightInfoRequest;
 import com.sideproject.withpt.application.body.controller.response.BodyImageInfoResponse;
 import com.sideproject.withpt.application.body.controller.response.WeightInfoResponse;
@@ -88,8 +89,10 @@ public class BodyController {
 
     @Operation(summary = "눈바디 이미지 삭제")
     @DeleteMapping("/image")
-    public void deleteBodyImage(@RequestParam String url) {
-        bodyService.deleteBodyImage(url);
+    public void deleteBodyImage(@RequestBody DeleteBodyImageRequest request,
+        @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
+        log.info("images {}", request.getImageIds());
+        bodyService.deleteBodyImage(memberId, request);
     }
 
 }

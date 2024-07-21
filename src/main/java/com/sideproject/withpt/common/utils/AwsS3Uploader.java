@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.sideproject.withpt.common.exception.GlobalException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +30,7 @@ public class AwsS3Uploader {
     private static final String FILE_EXTENSION_SEPARATOR = ".";
     private static final String SEPARATOR = "_";
 
-    public String upload(String directory, String subDirectory, MultipartFile multipartFile) {
+    public Map<String, String> upload(String directory, String subDirectory, MultipartFile multipartFile) {
         if (multipartFile.isEmpty()) {
             throw GlobalException.EMPTY_FILE;
         }
@@ -52,12 +53,16 @@ public class AwsS3Uploader {
             throw GlobalException.FILE_UPLOAD_FAILED;
         }
 
-        return amazonS3Client.getUrl(bucket, fileName).toString();
+        return Map.of(
+            "url", amazonS3Client.getUrl(bucket, fileName).toString(),
+            "uploadUrlPath", fileName
+        );
     }
 
     public void delete(String directory, String imageUrl) {
         try {
             String objectKey = imageUrl.substring(imageUrl.indexOf(directory));
+            log.info("objectKey {}", objectKey);
             amazonS3Client.deleteObject(bucket, objectKey);
         } catch (AmazonServiceException e) {
             log.error(e.getMessage());
@@ -65,7 +70,7 @@ public class AwsS3Uploader {
         }
     }
 
-    private String buildFileName(String directory, String category, String originalFileName) {
+    public String buildFileName(String directory, String category, String originalFileName) {
         int fileExtensionIndex = originalFileName.lastIndexOf(FILE_EXTENSION_SEPARATOR);
         String fileExtension = originalFileName.substring(fileExtensionIndex);
         String fileName = originalFileName.substring(0, fileExtensionIndex);
