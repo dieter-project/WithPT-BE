@@ -2,6 +2,7 @@ package com.sideproject.withpt.application.body.service;
 
 import com.sideproject.withpt.application.body.controller.request.BodyInfoRequest;
 import com.sideproject.withpt.application.body.controller.request.WeightInfoRequest;
+import com.sideproject.withpt.application.body.controller.response.BodyImageInfoResponse;
 import com.sideproject.withpt.application.body.controller.response.BodyImageResponse;
 import com.sideproject.withpt.application.body.controller.response.WeightInfoResponse;
 import com.sideproject.withpt.application.body.exception.BodyException;
@@ -10,7 +11,6 @@ import com.sideproject.withpt.application.image.ImageUploader;
 import com.sideproject.withpt.application.image.repository.ImageRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.type.Usages;
-import com.sideproject.withpt.common.exception.CommonErrorCode;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.body.Body;
@@ -80,13 +80,10 @@ public class BodyService {
                 });
     }
 
-    public Slice<BodyImageResponse> findAllBodyImage(Long memberId, Pageable pageable) {
-        return imageRepository.findAllBodyImage(pageable, memberId, Usages.BODY);
-    }
-
-    public BodyImageResponse findTodayBodyImage(Long memberId, String dateTime) {
+    public Slice<BodyImageInfoResponse> findAllBodyImage(Long memberId, LocalDate uploadDate, Pageable pageable) {
         try {
-            return BodyImageResponse.from(imageRepository.findByMemberIdAndUploadDateAndUsages(memberId, LocalDate.parse(dateTime), Usages.BODY));
+            Member member = validateMemberId(memberId);
+            return imageRepository.findAllByMemberAndUsagesAndUploadDate(pageable, member, Usages.BODY, uploadDate);
         } catch (Exception e) {
             throw GlobalException.EMPTY_FILE;
         }

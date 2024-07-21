@@ -1,9 +1,13 @@
 package com.sideproject.withpt.application.image.repository;
 
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.sideproject.withpt.application.body.controller.response.BodyImageInfoResponse;
 import com.sideproject.withpt.application.body.controller.response.BodyImageResponse;
+import com.sideproject.withpt.application.body.controller.response.QBodyImageInfoResponse;
 import com.sideproject.withpt.application.type.Usages;
+import com.sideproject.withpt.domain.member.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -12,6 +16,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.*;
+import org.springframework.util.ObjectUtils;
 
 import static com.sideproject.withpt.domain.record.QImage.image;
 
@@ -55,4 +60,41 @@ public class ImageCustomRepositoryImpl implements ImageCustomRepository {
         return new SliceImpl<>(content, pageable, hasText);
     }
 
+    @Override
+    public Slice<BodyImageInfoResponse> findAllByMemberAndUsagesAndUploadDate(Pageable pageable, Member member, Usages usages, LocalDate uploadDate) {
+        List<BodyImageInfoResponse> bodyImageInfoResponseList = jpaQueryFactory
+            .select(
+                new QBodyImageInfoResponse(
+                    image.id,
+                    image.usages,
+                    image.uploadDate,
+                    image.url,
+                    image.attachType
+                )
+            )
+            .from(image)
+            .where(image.member.eq(member)
+                .and(image.usages.eq(usages))
+                .and(uploadDateEq(uploadDate))
+            )
+            .orderBy(image.uploadDate.desc())
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize() + 1)
+            .fetch();
+
+        List<BodyImageInfoResponse> content = new ArrayList<>(bodyImageInfoResponseList);
+
+        boolean hasNext = false;
+
+        if(content.size() > pageable.getPageSize()) {
+            content.remove(pageable.getPageSize());
+            hasNext = true;
+        }
+
+        return new SliceImpl<>(content, pageable, hasNext);
+    }
+
+    private BooleanExpression uploadDateEq(LocalDate uploadDate) {
+        return ObjectUtils.isEmpty(uploadDate) ? null : image.uploadDate.eq(uploadDate);
+    }
 }
