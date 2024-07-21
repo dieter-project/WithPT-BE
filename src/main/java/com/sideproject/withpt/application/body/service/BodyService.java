@@ -4,9 +4,7 @@ import com.sideproject.withpt.application.body.controller.request.BodyInfoReques
 import com.sideproject.withpt.application.body.controller.request.DeleteBodyImageRequest;
 import com.sideproject.withpt.application.body.controller.request.WeightInfoRequest;
 import com.sideproject.withpt.application.body.controller.response.BodyImageInfoResponse;
-import com.sideproject.withpt.application.body.controller.response.BodyImageResponse;
 import com.sideproject.withpt.application.body.controller.response.WeightInfoResponse;
-import com.sideproject.withpt.application.body.exception.BodyException;
 import com.sideproject.withpt.application.body.repository.BodyRepository;
 import com.sideproject.withpt.application.image.ImageUploader;
 import com.sideproject.withpt.application.image.repository.ImageRepository;
@@ -14,7 +12,6 @@ import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.type.Usages;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.record.body.Body;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -38,11 +35,8 @@ public class BodyService {
     public WeightInfoResponse findWeightInfo(Long memberId, LocalDate dateTime) {
         Member member = validateMemberId(memberId);
 
-        Body body = bodyRepository
-            .findRecentBodyInfo(member, dateTime)
-            .orElseThrow(() -> BodyException.BODY_NOT_EXIST);
-
-        return WeightInfoResponse.from(body);
+        return bodyRepository
+            .findRecentBodyInfo(member, dateTime);
     }
 
     @Transactional
