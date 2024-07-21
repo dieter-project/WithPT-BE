@@ -8,6 +8,7 @@ import com.sideproject.withpt.common.utils.AwsS3Uploader;
 import com.sideproject.withpt.common.utils.constants.AwsS3Constants;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import io.jsonwebtoken.lang.Objects;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -50,7 +51,8 @@ public class TrainerService {
     }
 
     private String saveProfileImage(Long trainerId, MultipartFile file) {
-        return awsS3Uploader.upload(AwsS3Constants.PROFILE_PATH, trainerId.toString(), file);
+        Map<String, String> upload = awsS3Uploader.upload(AwsS3Constants.PROFILE_PATH, trainerId.toString(), file);
+        return upload.get("url");
     }
 
     private boolean isNotEmptyFile(MultipartFile file) {

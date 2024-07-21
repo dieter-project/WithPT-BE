@@ -13,5 +13,6 @@ public interface ImageRepository extends JpaRepository<Image, Long>, ImageCustom
     Optional<Image> findByUrl(String url);
     void deleteByUrl(String url);
     List<Image> findByMemberIdAndUploadDateAndUsages(Long memberId, LocalDate uploadDate, Usages usages);
+    List<Image> findAllByMemberAndUploadDateAndUsages(Member member, LocalDate uploadDate, Usages usages);
     void deleteAllByUsageIdentificationIdAndMember(String usageIdentificationId, Member member);
 }

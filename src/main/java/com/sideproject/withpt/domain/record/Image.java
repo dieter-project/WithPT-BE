@@ -39,6 +39,7 @@ public class Image extends BaseEntity {
     private LocalDate uploadDate;
 
     private String url;
+    private String uploadUrlPath;
 
     private String attachType;
 

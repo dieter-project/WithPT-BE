@@ -1,8 +1,9 @@
 package com.sideproject.withpt.application.body.controller;
 
 import com.sideproject.withpt.application.body.controller.request.BodyInfoRequest;
+import com.sideproject.withpt.application.body.controller.request.DeleteBodyImageRequest;
 import com.sideproject.withpt.application.body.controller.request.WeightInfoRequest;
-import com.sideproject.withpt.application.body.controller.response.BodyImageResponse;
+import com.sideproject.withpt.application.body.controller.response.BodyImageInfoResponse;
 import com.sideproject.withpt.application.body.controller.response.WeightInfoResponse;
 import com.sideproject.withpt.application.body.service.BodyService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
@@ -59,18 +60,23 @@ public class BodyController {
         bodyService.saveBodyInfo(memberId, request);
     }
 
-    @Operation(summary = "회원의 전체 눈바디 이미지 조회")
+    @Operation(summary = "회원의 전체 눈바디 히스토리 조회")
     @GetMapping("/images")
-    public ApiSuccessResponse<Slice<BodyImageResponse>> findAllBodyImage(
+    public ApiSuccessResponse<Slice<BodyImageInfoResponse>> findAllBodyImage(
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId, Pageable pageable) {
-        return ApiSuccessResponse.from(bodyService.findAllBodyImage(memberId, pageable));
+        return ApiSuccessResponse.from(
+            bodyService.findAllBodyImage(memberId, null, pageable)
+        );
     }
 
     @Operation(summary = "해당하는 날짜의 눈바디 이미지 조회")
     @GetMapping("/image")
-    public ApiSuccessResponse<BodyImageResponse> findTodayBodyImage(@RequestParam String dateTime,
+    public ApiSuccessResponse<Slice<BodyImageInfoResponse>> findTodayBodyImage(
+        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam LocalDate uploadDate, Pageable pageable,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        return ApiSuccessResponse.from(bodyService.findTodayBodyImage(memberId, dateTime));
+        return ApiSuccessResponse.from(
+            bodyService.findAllBodyImage(memberId, uploadDate, pageable)
+        );
     }
 
     @Operation(summary = "눈바디 이미지 업로드")
@@ -83,8 +89,10 @@ public class BodyController {
 
     @Operation(summary = "눈바디 이미지 삭제")
     @DeleteMapping("/image")
-    public void deleteBodyImage(@RequestParam String url) {
-        bodyService.deleteBodyImage(url);
+    public void deleteBodyImage(@RequestBody DeleteBodyImageRequest request,
+        @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
+        log.info("images {}", request.getImageIds());
+        bodyService.deleteBodyImage(memberId, request);
     }
 
 }

@@ -1,19 +1,17 @@
 package com.sideproject.withpt.application.body.service;
 
 import com.sideproject.withpt.application.body.controller.request.BodyInfoRequest;
+import com.sideproject.withpt.application.body.controller.request.DeleteBodyImageRequest;
 import com.sideproject.withpt.application.body.controller.request.WeightInfoRequest;
-import com.sideproject.withpt.application.body.controller.response.BodyImageResponse;
+import com.sideproject.withpt.application.body.controller.response.BodyImageInfoResponse;
 import com.sideproject.withpt.application.body.controller.response.WeightInfoResponse;
-import com.sideproject.withpt.application.body.exception.BodyException;
 import com.sideproject.withpt.application.body.repository.BodyRepository;
 import com.sideproject.withpt.application.image.ImageUploader;
 import com.sideproject.withpt.application.image.repository.ImageRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.type.Usages;
-import com.sideproject.withpt.common.exception.CommonErrorCode;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.record.body.Body;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -37,11 +35,8 @@ public class BodyService {
     public WeightInfoResponse findWeightInfo(Long memberId, LocalDate dateTime) {
         Member member = validateMemberId(memberId);
 
-        Body body = bodyRepository
-            .findRecentBodyInfo(member, dateTime)
-            .orElseThrow(() -> BodyException.BODY_NOT_EXIST);
-
-        return WeightInfoResponse.from(body);
+        return bodyRepository
+            .findRecentBodyInfo(member, dateTime);
     }
 
     @Transactional
@@ -80,13 +75,10 @@ public class BodyService {
                 });
     }
 
-    public Slice<BodyImageResponse> findAllBodyImage(Long memberId, Pageable pageable) {
-        return imageRepository.findAllBodyImage(pageable, memberId, Usages.BODY);
-    }
-
-    public BodyImageResponse findTodayBodyImage(Long memberId, String dateTime) {
+    public Slice<BodyImageInfoResponse> findAllBodyImage(Long memberId, LocalDate uploadDate, Pageable pageable) {
         try {
-            return BodyImageResponse.from(imageRepository.findByMemberIdAndUploadDateAndUsages(memberId, LocalDate.parse(dateTime), Usages.BODY));
+            Member member = validateMemberId(memberId);
+            return imageRepository.findAllByMemberAndUsagesAndUploadDate(pageable, member, Usages.BODY, uploadDate);
         } catch (Exception e) {
             throw GlobalException.EMPTY_FILE;
         }
@@ -103,8 +95,11 @@ public class BodyService {
     }
 
     @Transactional
-    public void deleteBodyImage(String url) {
-        imageUploader.deleteImage(url);
+    public void deleteBodyImage(Long memberId, DeleteBodyImageRequest request) {
+        for (long id : request.getImageIds()) {
+            imageUploader.deleteImage(id);
+        }
+//        imageUploader.deleteImage(url);
     }
 
     private Member validateMemberId(Long memberId) {
