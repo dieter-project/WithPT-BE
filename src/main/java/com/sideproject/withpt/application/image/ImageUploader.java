@@ -9,7 +9,6 @@ import com.sideproject.withpt.domain.record.Image;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,23 +57,6 @@ public class ImageUploader {
                 .uploadDate(uploadDate)
                 .url(imageUrl.get("url"))
                 .uploadUrlPath(fullPath)
-                .attachType(file.getContentType())
-                .build();
-
-            imageRepository.save(image);
-        }
-    }
-
-    public void uploadAndSaveImages(List<MultipartFile> files, LocalDate uploadDate, Usages usage, Member member) {
-        for (MultipartFile file : files) {
-            Map<String, String> imageUrl = awsS3Uploader.upload(usage.toString(), "image", file);
-            String fullPath = awsUrl + "/" + imageUrl.get("uploadUrlPath");
-
-            Image image = Image.builder()
-                .usages(usage)
-                .url(imageUrl.get("url"))
-                .uploadUrlPath(fullPath)
-                .uploadDate(uploadDate)
                 .attachType(file.getContentType())
                 .build();
 

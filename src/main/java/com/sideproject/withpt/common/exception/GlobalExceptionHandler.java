@@ -1,5 +1,6 @@
 package com.sideproject.withpt.common.exception;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.sideproject.withpt.common.response.ApiErrorResponse;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(errorCode, e.getMessage(), request);
     }
 
+    @ExceptionHandler(JsonMappingException.class)
+    public ResponseEntity<Object> handleJsonMappingException(JsonMappingException e, HttpServletRequest request) {
+        log.warn("handleJsonMappingException {}", e.getMessage());
+        return handleExceptionInternal(CommonErrorCode.INVALID_PARAMETER, e.getMessage(), request);
+    }
 
     @Override
     protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers,
@@ -51,7 +57,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
 
         String message = ex.getMessage();
-        if(!ObjectUtils.isEmpty(ex.getRootCause())) {
+        if (!ObjectUtils.isEmpty(ex.getRootCause())) {
             message = ex.getRootCause().getMessage();
         }
 
@@ -61,7 +67,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .status(errorCode.getHttpStatus().toString())
                 .code(errorCode.name())
                 .message(message)
-                .requestUrl(((ServletWebRequest)request).getRequest().getRequestURI())
+                .requestUrl(((ServletWebRequest) request).getRequest().getRequestURI())
                 .build());
     }
 
