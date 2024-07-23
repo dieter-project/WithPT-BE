@@ -1,6 +1,6 @@
 package com.sideproject.withpt.domain.record.exercise;
 
-import com.sideproject.withpt.application.exercise.dto.request.ExerciseRequest;
+import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseRequest;
 import com.sideproject.withpt.application.type.BodyPart;
 import com.sideproject.withpt.application.type.ExerciseType;
 import com.sideproject.withpt.domain.BaseEntity;
