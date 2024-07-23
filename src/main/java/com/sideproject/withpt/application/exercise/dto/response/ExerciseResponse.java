@@ -24,13 +24,13 @@ public class ExerciseResponse {
     public static ExerciseResponse from(Exercise exercise) {
         return ExerciseResponse.builder()
                 .id(exercise.getId())
-                .title(exercise.getTitle())
-                .weight(exercise.getWeight())
-                .set(exercise.getExerciseSet())
-                .times(exercise.getTimes())
-                .hour(exercise.getHour())
-                .bodyPart(exercise.getBodyPart())
-                .exerciseType(exercise.getExerciseType())
+//                .title(exercise.getTitle())
+//                .weight(exercise.getWeight())
+//                .set(exercise.getExerciseSet())
+//                .times(exercise.getTimes())
+//                .hour(exercise.getExerciseTime())
+//                .bodyPart(exercise.getBodyPart())
+//                .exerciseType(exercise.getExerciseType())
                 .build();
     }
 

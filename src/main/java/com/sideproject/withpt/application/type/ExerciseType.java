@@ -5,6 +5,18 @@ import com.sideproject.withpt.common.exception.validator.CustomEnumDeserializer;
 
 @JsonDeserialize(using = CustomEnumDeserializer.class)
 public enum ExerciseType {
-    // 유산소, 무산소, 스트레칭
-    AEROBIC, ANAEROBIC, STRETCHING
+
+    AEROBIC("유산소"),    // 유산소
+    ANAEROBIC("무산소"),  // 무산소
+    STRETCHING("스트레칭"); // 스트레칭
+
+    private final String description;
+
+    ExerciseType(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }

@@ -14,7 +14,7 @@ public class ExerciseTypeValidator implements ConstraintValidator<ValidExerciseT
     public boolean isValid(ExerciseRequest request, ConstraintValidatorContext context) {
 
         if(request.getExerciseType().equals(ExerciseType.AEROBIC)) {    // 유산소
-            return request.getHour() > 0;
+            return request.getExerciseTime() > 0;
         } else if(request.getExerciseType().equals(ExerciseType.ANAEROBIC)) {    // 무산소
             return request.getWeight() > 0 && request.getExerciseSet() > 0 && request.getTimes() > 0;
         }
