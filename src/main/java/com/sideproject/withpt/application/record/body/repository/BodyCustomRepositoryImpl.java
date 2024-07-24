@@ -11,7 +11,9 @@ import com.sideproject.withpt.domain.record.body.Body;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -62,7 +64,7 @@ public class BodyCustomRepositoryImpl implements BodyCustomRepository {
     }
 
     @Override
-    public List<Body> findBodyByYearMonth(Member member, int year, int month) {
+    public Map<LocalDate, Body> findBodyByYearMonth(Member member, int year, int month) {
         String searchYearMonth = YearMonth.of(year, month).toString();
         StringTemplate bodyUploadDate = Expressions.stringTemplate(
             "DATE_FORMAT({0}, '%Y-%m')",
@@ -72,6 +74,11 @@ public class BodyCustomRepositoryImpl implements BodyCustomRepository {
         return jpaQueryFactory.selectFrom(body)
             .where(body.member.eq(member).and(bodyUploadDate.eq(searchYearMonth)))
             .orderBy(body.uploadDate.asc())
-            .fetch();
+            .fetch()
+            .stream()
+            .collect(
+                Collectors.toMap(Body::getUploadDate,
+                    body -> body)
+            );
     }
 }

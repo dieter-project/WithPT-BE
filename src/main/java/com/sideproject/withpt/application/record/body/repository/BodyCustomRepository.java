@@ -5,6 +5,7 @@ import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.body.Body;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface BodyCustomRepository {
@@ -14,5 +15,5 @@ public interface BodyCustomRepository {
 
     //    Optional<Body> findTodayBodyInfo(Long memberId, LocalDate weightRecordDate);
     Optional<Body> findTodayBodyInfo(Member member, LocalDate weightRecordDate);
-    List<Body> findBodyByYearMonth(Member member, int year, int month);
+    Map<LocalDate, Body> findBodyByYearMonth(Member member, int year, int month);
 }

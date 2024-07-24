@@ -25,7 +25,9 @@ import com.sideproject.withpt.domain.record.diet.Diets;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -223,8 +225,8 @@ public class DietQueryRepository {
         }
     }
 
-    public List<Diets> findDietsByYearMonth(Member member, int year, int month) {
-
+    public Map<LocalDate, Diets> findDietsByYearMonth(Member member, int year, int month) {
+        // Map<String, Diets>
         String searchYearMonth = YearMonth.of(year, month).toString();
         StringTemplate dietsUploadDate = Expressions.stringTemplate(
             "DATE_FORMAT({0}, '%Y-%m')",
@@ -234,6 +236,12 @@ public class DietQueryRepository {
         return jpaQueryFactory.selectFrom(diets)
             .where(diets.member.eq(member).and(dietsUploadDate.eq(searchYearMonth)))
             .orderBy(diets.uploadDate.desc())
-            .fetch();
+            .fetch()
+            .stream()
+            .collect(
+                Collectors.toMap(Diets::getUploadDate,
+                    diets -> diets)
+            );
+
     }
 }
