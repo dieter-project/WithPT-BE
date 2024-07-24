@@ -17,7 +17,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/members/exercise/bookmark")
+@RequestMapping("/api/v1/members/record/exercise/bookmark")
 public class BookmarkController {
 
     private final BookmarkService bookmarkService;

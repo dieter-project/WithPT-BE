@@ -2,6 +2,7 @@ package com.sideproject.withpt.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
@@ -17,15 +18,25 @@ import org.springframework.context.annotation.Configuration;
         description = "Spring MVC 기반 회원-트레이너 소통 서비스 API 명세서",
         version = "v1"
     )
+
 )
 @Configuration
 public class SwaggerConfig {
+
+    @Bean
+    public GroupedOpenApi memberRecordApi() {
+        return GroupedOpenApi.builder()
+            .group("member-record")
+            .pathsToMatch("/api/v1/members/record/**")
+            .build();
+    }
 
     @Bean
     public GroupedOpenApi memberApi() {
         return GroupedOpenApi.builder()
             .group("member")
             .pathsToMatch("/api/v1/members/**")
+            .pathsToExclude("/api/v1/members/record/**")
             .build();
     }
 
