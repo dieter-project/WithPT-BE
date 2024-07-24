@@ -14,7 +14,6 @@ import com.sideproject.withpt.domain.record.body.Body;
 import com.sideproject.withpt.domain.record.diet.Diets;
 import com.sideproject.withpt.domain.record.exercise.Exercise;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -37,9 +36,9 @@ public class RecordService {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
-        List<Exercise> exerciseList = exerciseQueryRepository.findExercisesByYearMonth(member, year, month);
-        List<Diets> dietsList = dietQueryRepository.findDietsByYearMonth(member, year, month);
-        List<Body> bodyList = bodyRepository.findBodyByYearMonth(member, year, month);
+        Map<LocalDate, Exercise> exerciseMap = exerciseQueryRepository.findExercisesByYearMonth(member, year, month);
+        Map<LocalDate, Diets> dietsMap = dietQueryRepository.findDietsByYearMonth(member, year, month);
+        Map<LocalDate, Body> bodyMap = bodyRepository.findBodyByYearMonth(member, year, month);
 
         // 날짜별로 AllDatesRecordResponse 객체 생성 및 맵으로 변환
         return DateUtility.getAllDates(year, month).stream()
@@ -49,20 +48,9 @@ public class RecordService {
                     LocalDate localDate = LocalDate.parse(date);
 
                     // 날짜별로 데이터를 찾기
-                    Diets diet = dietsList.stream()
-                        .filter(d -> d.getUploadDate().equals(localDate))
-                        .findFirst()
-                        .orElse(null);
-
-                    Body body = bodyList.stream()
-                        .filter(b -> b.getUploadDate().equals(localDate))
-                        .findFirst()
-                        .orElse(null);
-
-                    Exercise exercise = exerciseList.stream()
-                        .filter(e -> e.getUploadDate().equals(localDate))
-                        .findFirst()
-                        .orElse(null);
+                    Diets diet = dietsMap.getOrDefault(localDate, null);
+                    Body body = bodyMap.getOrDefault(localDate, null);
+                    Exercise exercise = exerciseMap.getOrDefault(localDate, null);
 
                     // AllDatesRecordResponse 객체 생성
                     return AllDatesRecordResponse.builder()
