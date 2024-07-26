@@ -1,5 +1,6 @@
 package com.sideproject.withpt.application.record.exercise.controller;
 
+import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseEditRequest;
 import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseRequest;
 import com.sideproject.withpt.application.record.exercise.controller.response.BookmarkCheckResponse;
 import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseInfoResponse;
@@ -70,11 +71,11 @@ public class ExerciseController {
         exerciseService.saveExercise(memberId, request, files);
     }
 
-    @Operation(summary = "운동 기록 수정")
-    @PatchMapping("/{exerciseId}")
-    public void modifyExercise(@Valid @RequestBody ExerciseRequest request,
-        @PathVariable Long exerciseId, @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        exerciseService.modifyExercise(memberId, exerciseId, request);
+    @Operation(summary = "운동 정보 수정")
+    @PatchMapping("/{exerciseId}/exercise-info/{exerciseInfoId}")
+    public void modifyExerciseInfo(@Valid @RequestBody ExerciseEditRequest request,
+        @PathVariable Long exerciseId, @PathVariable Long exerciseInfoId) {
+        exerciseService.modifyExercise(exerciseId, exerciseInfoId, request);
     }
 
     @Operation(summary = "운동 기록 삭제")

@@ -3,6 +3,7 @@ package com.sideproject.withpt.application.record.exercise.service;
 import com.sideproject.withpt.application.image.ImageUploader;
 import com.sideproject.withpt.application.image.repository.ImageRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
+import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseEditRequest;
 import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseRequest;
 import com.sideproject.withpt.application.record.exercise.controller.response.BookmarkCheckResponse;
 import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseInfoResponse;
@@ -11,6 +12,7 @@ import com.sideproject.withpt.application.record.exercise.controller.response.Ex
 import com.sideproject.withpt.application.record.exercise.exception.ExerciseException;
 import com.sideproject.withpt.application.record.exercise.repository.BookmarkRepository;
 import com.sideproject.withpt.application.record.exercise.repository.ExerciseRepository;
+import com.sideproject.withpt.application.type.BodyPart;
 import com.sideproject.withpt.application.type.Usages;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
@@ -102,9 +104,27 @@ public class ExerciseService {
     }
 
     @Transactional
-    public void modifyExercise(Long memberId, Long exerciseId, ExerciseRequest request) {
-        Exercise exercise = validateExerciseId(exerciseId, memberId);
-//        exercise.update(request);
+    public void modifyExercise(Long exerciseId, Long exerciseInfoId, ExerciseEditRequest request) {
+        exerciseRepository.findById(exerciseId)
+            .orElseThrow(() -> ExerciseException.EXERCISE_NOT_EXIST);
+
+        exerciseRepository.findExerciseInfoById(exerciseInfoId)
+            .ifPresentOrElse(exerciseInfo -> {
+                    exerciseInfo.update(
+                        request.getTitle(),
+                        request.getExerciseType(),
+                        request.getBodyParts().stream().map(BodyPart::valueOf)
+                            .collect(Collectors.toList()),
+                        request.getWeight(),
+                        request.getExerciseSet(),
+                        request.getTimes(),
+                        request.getExerciseTime()
+                    );
+                },
+                () -> {
+                    throw ExerciseException.EXERCISE_INFO_NOT_EXIST;
+                }
+            );
     }
 
     @Transactional
