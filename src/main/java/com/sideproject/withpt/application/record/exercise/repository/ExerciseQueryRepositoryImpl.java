@@ -24,6 +24,7 @@ import org.springframework.stereotype.Repository;
 public class ExerciseQueryRepositoryImpl implements ExerciseQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
+    private final ExerciseInfoRepository exerciseInfoRepository;
 
     @Override
     public Map<LocalDate, Exercise> findExercisesByYearMonth(Member member, int year, int month) {
@@ -54,5 +55,10 @@ public class ExerciseQueryRepositoryImpl implements ExerciseQueryRepository {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void deleteExerciseInfoById(Long id) {
+        exerciseInfoRepository.deleteById(id);
     }
 }

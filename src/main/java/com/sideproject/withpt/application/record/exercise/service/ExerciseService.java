@@ -11,7 +11,6 @@ import com.sideproject.withpt.application.record.exercise.controller.response.Ex
 import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseResponse;
 import com.sideproject.withpt.application.record.exercise.exception.ExerciseException;
 import com.sideproject.withpt.application.record.exercise.repository.BookmarkRepository;
-import com.sideproject.withpt.application.record.exercise.repository.ExerciseInfoRepository;
 import com.sideproject.withpt.application.record.exercise.repository.ExerciseRepository;
 import com.sideproject.withpt.application.type.BodyPart;
 import com.sideproject.withpt.application.type.Usages;
@@ -34,7 +33,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class ExerciseService {
 
     private final ExerciseRepository exerciseRepository;
-    private final ExerciseInfoRepository exerciseInfoRepository;
     private final MemberRepository memberRepository;
     private final BookmarkRepository bookmarkRepository;
     private final ImageRepository imageRepository;
@@ -133,7 +131,7 @@ public class ExerciseService {
     public void deleteExercise(Long exerciseId, Long exerciseInfoId) {
         exerciseRepository.findById(exerciseId)
             .orElseThrow(() -> ExerciseException.EXERCISE_NOT_EXIST);
-        exerciseInfoRepository.deleteById(exerciseInfoId);
+        exerciseRepository.deleteExerciseInfoById(exerciseInfoId);
     }
 
     @Transactional
