@@ -2,16 +2,18 @@ package com.sideproject.withpt.application.record.exercise.controller;
 
 import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseRequest;
 import com.sideproject.withpt.application.record.exercise.controller.response.BookmarkCheckResponse;
-import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseListResponse;
 import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseResponse;
+import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseResponse2;
 import com.sideproject.withpt.application.record.exercise.service.ExerciseService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import java.time.LocalDate;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,19 +35,21 @@ public class ExerciseController {
 
     private final ExerciseService exerciseService;
 
-    @Operation(summary = "해당하는 날짜의 운동 기록 리스트 조회")
+    @Operation(summary = "해당하는 날짜의 운동 기록 정보 조회")
     @GetMapping
-    public ApiSuccessResponse<ExerciseListResponse> findAllExerciseList(@RequestParam String dateTime,
+    public ApiSuccessResponse<ExerciseResponse> findAllExerciseList(
+        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam LocalDate uploadDate,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        ExerciseListResponse exerciseList = exerciseService.findAllExerciseList(memberId, dateTime);
-        return ApiSuccessResponse.from(exerciseList);
+        return ApiSuccessResponse.from(
+            exerciseService.findExerciseAndExerciseInfos(memberId, uploadDate)
+        );
     }
 
     @Operation(summary = "운동 기록 단건 조회")
     @GetMapping("/{exerciseId}")
-    public ApiSuccessResponse<ExerciseResponse> findOneExercise(@PathVariable Long exerciseId,
+    public ApiSuccessResponse<ExerciseResponse2> findOneExercise(@PathVariable Long exerciseId,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        ExerciseResponse exercise = exerciseService.findOneExercise(memberId, exerciseId);
+        ExerciseResponse2 exercise = exerciseService.findOneExercise(memberId, exerciseId);
         return ApiSuccessResponse.from(exercise);
     }
 

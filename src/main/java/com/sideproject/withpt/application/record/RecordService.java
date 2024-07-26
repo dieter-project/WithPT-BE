@@ -6,7 +6,7 @@ import com.sideproject.withpt.application.record.AllDatesRecordResponse.DietResp
 import com.sideproject.withpt.application.record.AllDatesRecordResponse.ExerciseResponse;
 import com.sideproject.withpt.application.record.body.repository.BodyRepository;
 import com.sideproject.withpt.application.record.diet.repository.DietQueryRepository;
-import com.sideproject.withpt.application.record.exercise.repository.ExerciseQueryRepository;
+import com.sideproject.withpt.application.record.exercise.repository.ExerciseRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.utils.DateUtility;
 import com.sideproject.withpt.domain.member.Member;
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
 public class RecordService {
 
     private final MemberRepository memberRepository;
-    private final ExerciseQueryRepository exerciseQueryRepository;
+    private final ExerciseRepository exerciseRepository;
     private final DietQueryRepository dietQueryRepository;
     private final BodyRepository bodyRepository;
 
@@ -36,7 +36,7 @@ public class RecordService {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
-        Map<LocalDate, Exercise> exerciseMap = exerciseQueryRepository.findExercisesByYearMonth(member, year, month);
+        Map<LocalDate, Exercise> exerciseMap = exerciseRepository.findExercisesByYearMonth(member, year, month);
         Map<LocalDate, Diets> dietsMap = dietQueryRepository.findDietsByYearMonth(member, year, month);
         Map<LocalDate, Body> bodyMap = bodyRepository.findBodyByYearMonth(member, year, month);
 
