@@ -1,6 +1,5 @@
 package com.sideproject.withpt.domain.record.exercise;
 
-import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseRequest;
 import com.sideproject.withpt.application.type.BodyPart;
 import com.sideproject.withpt.application.type.ExerciseType;
 import com.sideproject.withpt.domain.BaseEntity;
@@ -63,14 +62,14 @@ public class ExerciseInfo extends BaseEntity {
         this.exercise = exercise;
     }
 
-    public void update(ExerciseRequest request) {
-//        this.title = request.getTitle();
-//        this.weight = request.getWeight();
-//        this.exerciseSet = request.getExerciseSet();
-//        this.times = request.getTimes();
-//        this.exerciseTime = request.getExerciseTime();
-//        this.exerciseType = request.getExerciseType();
-//        this.bodyParts = request.getBodyPart();
+    public void update(String title, ExerciseType exerciseType, List<BodyPart> bodyParts, int weight, int exerciseSet, int times, int exerciseTime) {
+        this.title = title;
+        this.exerciseType = exerciseType;
+        this.bodyParts = bodyParts;
+        this.weight = weight;
+        this.exerciseSet = exerciseSet;
+        this.times = times;
+        this.exerciseTime = exerciseTime;
     }
 
 }
