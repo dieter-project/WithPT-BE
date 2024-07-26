@@ -2,8 +2,8 @@ package com.sideproject.withpt.application.record.exercise.controller;
 
 import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseRequest;
 import com.sideproject.withpt.application.record.exercise.controller.response.BookmarkCheckResponse;
+import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseInfoResponse;
 import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseResponse;
-import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseResponse2;
 import com.sideproject.withpt.application.record.exercise.service.ExerciseService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,12 +45,13 @@ public class ExerciseController {
         );
     }
 
-    @Operation(summary = "운동 기록 단건 조회")
-    @GetMapping("/{exerciseId}")
-    public ApiSuccessResponse<ExerciseResponse2> findOneExercise(@PathVariable Long exerciseId,
-        @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        ExerciseResponse2 exercise = exerciseService.findOneExercise(memberId, exerciseId);
-        return ApiSuccessResponse.from(exercise);
+    @Operation(summary = "운동 정보 단건 조회")
+    @GetMapping("/{exerciseId}/exercise-info/{exerciseInfoId}")
+    public ApiSuccessResponse<ExerciseInfoResponse> findOneExerciseInfo(
+        @PathVariable Long exerciseId, @PathVariable Long exerciseInfoId) {
+        return ApiSuccessResponse.from(
+            exerciseService.findOneExerciseInfo(exerciseId, exerciseInfoId)
+        );
     }
 
     @Operation(summary = "북마크명과 중복되는 이름 있는지 체크")
