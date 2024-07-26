@@ -78,10 +78,10 @@ public class ExerciseController {
         exerciseService.modifyExercise(exerciseId, exerciseInfoId, request);
     }
 
-    @Operation(summary = "운동 기록 삭제")
-    @DeleteMapping("/{exerciseId}")
-    public void deleteExercise(@PathVariable Long exerciseId, @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        exerciseService.deleteExercise(memberId, exerciseId);
+    @Operation(summary = "운동 정보 삭제")
+    @DeleteMapping("/{exerciseId}/exercise-info/{exerciseInfoId}")
+    public void deleteExercise(@PathVariable Long exerciseId, @PathVariable Long exerciseInfoId) {
+        exerciseService.deleteExercise(exerciseId, exerciseInfoId);
     }
 
     @Operation(summary = "운동 이미지 삭제")
