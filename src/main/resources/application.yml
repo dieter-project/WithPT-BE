@@ -30,6 +30,7 @@ springdoc:
     operationsSorter: method
     disable-swagger-default-url: true
     display-request-duration: true
+    default-models-expand-depth: -1
   api-docs:
     path: /api-docs
   show-actuator: true
