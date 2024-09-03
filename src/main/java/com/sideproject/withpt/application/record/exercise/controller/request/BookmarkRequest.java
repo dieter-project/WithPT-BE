@@ -38,7 +38,7 @@ public class BookmarkRequest {
                 .weight(weight)
                 .exerciseSet(exerciseSet)
                 .times(times)
-                .hour(hour)
+                .exerciseTime(hour)
                 .bodyPart(bodyPart)
                 .exerciseType(exerciseType)
                 .build();

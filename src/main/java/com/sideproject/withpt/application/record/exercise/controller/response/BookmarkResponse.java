@@ -28,7 +28,7 @@ public class BookmarkResponse {
                 .weight(bookmark.getWeight())
                 .set(bookmark.getExerciseSet())
                 .times(bookmark.getTimes())
-                .hour(bookmark.getHour())
+                .hour(bookmark.getExerciseTime())
                 .bodyPart(bookmark.getBodyPart())
                 .exerciseType(bookmark.getExerciseType())
                 .build();

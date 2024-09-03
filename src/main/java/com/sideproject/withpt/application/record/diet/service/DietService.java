@@ -229,9 +229,12 @@ public class DietService {
             dietInfo.addDietFood(dietFood);
         }
         DietInfo saveDietInfo = dietInfoRepository.save(dietInfo);
-        imageUploader.uploadAndSaveImages(files, Usages.MEAL,
-            "DIET_" + diets.getId() + "/DIETINFO_" + saveDietInfo.getId(),
-            member);
+
+        log.info("files {}", files);
+
+        if(files != null)
+            imageUploader.uploadAndSaveImages(files, Usages.MEAL,
+                "DIET_" + diets.getId() + "/DIETINFO_" + saveDietInfo.getId(), member);
     }
 
 }

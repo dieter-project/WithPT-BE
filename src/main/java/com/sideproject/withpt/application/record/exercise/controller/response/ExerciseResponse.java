@@ -3,6 +3,7 @@ package com.sideproject.withpt.application.record.exercise.controller.response;
 import com.sideproject.withpt.application.type.BodyPart;
 import com.sideproject.withpt.application.type.ExerciseType;
 import com.sideproject.withpt.domain.record.exercise.ExerciseInfo;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Schema(name = "MainExerciseResponse")
 public class ExerciseResponse {
 
     private Long id;
@@ -27,6 +29,7 @@ public class ExerciseResponse {
     @Builder
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     @AllArgsConstructor
+    @Schema(name = "MainExerciseResponse.ExerciseInfoResponse")
     public static class ExerciseInfoResponse {
 
         private Long id;
