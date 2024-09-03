@@ -41,3 +41,4 @@ src/main/resources/application-oauth.yml
 src/main/resources/application-dev.yml
 src/main/resources/application-db.yml
 src/test/resources/application-test.yml
+src/main/resources
