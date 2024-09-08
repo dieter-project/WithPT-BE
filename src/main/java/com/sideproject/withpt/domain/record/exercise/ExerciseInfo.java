@@ -58,6 +58,33 @@ public class ExerciseInfo extends BaseEntity {
 
     private int exerciseTime;
 
+    @Builder
+    private ExerciseInfo(Exercise exercise, String title, ExerciseType exerciseType, List<BodyPart> bodyParts, int weight, int exerciseSet, int times, int exerciseTime) {
+        this.exercise = exercise;
+        this.title = title;
+        this.exerciseType = exerciseType;
+        this.bodyParts = bodyParts;
+        this.weight = weight;
+        this.exerciseSet = exerciseSet;
+        this.times = times;
+        this.exerciseTime = exerciseTime;
+    }
+
+    private ExerciseInfo(Exercise exercise, ExerciseInfo exerciseInfo) {
+        this(exercise,
+            exerciseInfo.getTitle(),
+            exerciseInfo.getExerciseType(),
+            exerciseInfo.getBodyParts(),
+            exerciseInfo.getWeight(),
+            exerciseInfo.getExerciseSet(),
+            exerciseInfo.getTimes(),
+            exerciseInfo.getExerciseTime());
+    }
+
+    public static ExerciseInfo create(Exercise exercise, ExerciseInfo exerciseInfo) {
+        return new ExerciseInfo(exercise, exerciseInfo);
+    }
+
     public void setExercise(Exercise exercise) {
         this.exercise = exercise;
     }

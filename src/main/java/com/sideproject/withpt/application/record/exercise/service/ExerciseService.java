@@ -41,14 +41,9 @@ public class ExerciseService {
 
     public ExerciseResponse findExerciseAndExerciseInfos(Long memberId, LocalDate uploadDate) {
         Member member = validateMemberId(memberId);
-        Exercise exercise = exerciseRepository.findFirstByMemberAndUploadDate(member, uploadDate)
-            .orElseThrow(() -> ExerciseException.EXERCISE_NOT_EXIST);
-
-        return new ExerciseResponse(exercise.getId(), exercise.getUploadDate(), 0,
-            exercise.getExerciseInfos().stream()
-                .map(ExerciseResponse.ExerciseInfoResponse::of)
-                .collect(Collectors.toList())
-        );
+        return exerciseRepository.findFirstByMemberAndUploadDate(member, uploadDate)
+            .map(ExerciseResponse::of)
+            .orElse(null);
     }
 
     public ExerciseInfoResponse findOneExerciseInfo(Long exerciseId, Long exerciseInfoId) {

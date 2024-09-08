@@ -6,6 +6,7 @@ import com.sideproject.withpt.domain.member.Member;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,13 +20,11 @@ import javax.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Exercise extends BaseEntity {
@@ -39,12 +38,20 @@ public class Exercise extends BaseEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @Default
     @OneToMany(mappedBy = "exercise", cascade = CascadeType.ALL)
     private List<ExerciseInfo> exerciseInfos = new ArrayList<>();
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private LocalDate uploadDate;
+
+    @Builder
+    public Exercise(Member member, List<ExerciseInfo> exerciseInfos, LocalDate uploadDate) {
+        this.member = member;
+        this.uploadDate = uploadDate;
+        this.exerciseInfos = exerciseInfos.stream()
+            .map(exerciseInfo -> ExerciseInfo.create(this, exerciseInfo))
+            .collect(Collectors.toList());
+    }
 
     public void addExerciseInfo(ExerciseInfo exerciseInfo) {
         exerciseInfos.add(exerciseInfo);

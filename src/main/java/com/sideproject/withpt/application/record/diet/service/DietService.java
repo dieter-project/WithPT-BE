@@ -4,13 +4,14 @@ import com.sideproject.withpt.application.record.diet.controller.request.DietFoo
 import com.sideproject.withpt.application.record.diet.controller.request.EditDietInfoRequest;
 import com.sideproject.withpt.application.record.diet.controller.request.SaveDietRequest;
 import com.sideproject.withpt.application.record.diet.controller.request.SaveDietRequest.Summary;
-import com.sideproject.withpt.application.record.diet.controller.response.DailyDietResponse;
-import com.sideproject.withpt.application.record.diet.controller.response.DietInfoResponse;
 import com.sideproject.withpt.application.record.diet.exception.DietException;
 import com.sideproject.withpt.application.record.diet.repository.DietFoodRepository;
 import com.sideproject.withpt.application.record.diet.repository.DietInfoRepository;
 import com.sideproject.withpt.application.record.diet.repository.DietQueryRepository;
 import com.sideproject.withpt.application.record.diet.repository.DietRepository;
+import com.sideproject.withpt.application.record.diet.repository.response.DietInfoDto;
+import com.sideproject.withpt.application.record.diet.service.response.DailyDietResponse;
+import com.sideproject.withpt.application.record.diet.service.response.DietInfoResponse;
 import com.sideproject.withpt.application.record.exercise.exception.ExerciseException;
 import com.sideproject.withpt.application.image.ImageUploader;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
@@ -71,14 +72,22 @@ public class DietService {
                 });
     }
 
-    public DailyDietResponse findDietByUploadDate(LocalDate uploadDate, Long memberId) {
+    public DailyDietResponse findDietByMemberAndUploadDate(LocalDate uploadDate, Long memberId) {
         Member member = validateMemberId(memberId);
-        return dietQueryRepository.findDietByUploadDate(member, uploadDate);
+
+        return dietRepository.findByMemberAndUploadDate(member, uploadDate)
+            .map(diets -> {
+                List<DietInfoDto> dietInfoDtos = dietQueryRepository.findAllDietInfoAndDietFoodByDiets(member, diets);
+                return DailyDietResponse.of(diets, dietInfoDtos);
+                }
+            )
+            .orElse(null);
     }
 
     public DietInfoResponse findDietInfoById(Long memberId, Long dietInfoId) {
         Member member = validateMemberId(memberId);
-        return dietQueryRepository.findDietInfoById(member, dietInfoId);
+        DietInfoDto dietInfoDto = dietQueryRepository.findDietInfoById(member, dietInfoId);
+        return DietInfoResponse.of(dietInfoDto);
     }
 
     @Transactional
@@ -184,7 +193,6 @@ public class DietService {
         diets.subtractTotalProtein(dietInfo.getTotalProtein());
         diets.subtractTotalFat(dietInfo.getTotalFat());
 
-
         imageUploader.deleteImageByIdentificationAndMember("DIET_" + diets.getId() + "/DIETINFO_" + dietInfo.getId(), member);
         dietInfoRepository.delete(dietInfo);
     }
@@ -232,9 +240,10 @@ public class DietService {
 
         log.info("files {}", files);
 
-        if(files != null)
+        if (files != null) {
             imageUploader.uploadAndSaveImages(files, Usages.MEAL,
                 "DIET_" + diets.getId() + "/DIETINFO_" + saveDietInfo.getId(), member);
+        }
     }
 
 }

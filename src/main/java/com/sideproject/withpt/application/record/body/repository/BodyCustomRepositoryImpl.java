@@ -25,30 +25,32 @@ public class BodyCustomRepositoryImpl implements BodyCustomRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public WeightInfoResponse findRecentBodyInfo(Member member, LocalDate uploadDate) {
-
-        List<Body> weightResult = jpaQueryFactory.selectFrom(body)
-            .where(body.member.eq(member)
-                .and(body.weight.ne(0.0))
-                .and(body.uploadDate.loe(uploadDate))
-            )
-            .orderBy(body.uploadDate.desc())
-            .limit(2)
-            .fetch();
-
-        Optional<Body> bodyInfoResult = Optional.ofNullable(
+    public Optional<Body> findLatestBodyInfoBy(Member member, LocalDate uploadDate) {
+        return Optional.ofNullable(
             jpaQueryFactory.selectFrom(body)
                 .where(body.member.eq(member)
-                    .and(body.weight.eq(0.0))
+                    .and(body.skeletalMuscle.gt(0.0))
+                    .or(body.bodyFatPercentage.gt(0.0))
+                    .or(body.bmi.gt(0.0))
                     .and(body.uploadDate.loe(uploadDate))
                 )
                 .orderBy(body.uploadDate.desc())
                 .fetchFirst()
         );
-
-        return WeightInfoResponse.from(weightResult, bodyInfoResult);
     }
 
+    @Override
+    public List<Body> findLatestWeightsBy(Member member, LocalDate uploadDate) {
+        return jpaQueryFactory
+            .selectFrom(body)
+            .where(body.member.eq(member)
+                .and(body.weight.gt(0.0)) // gt >
+                .and(body.uploadDate.loe(uploadDate)) // loe <=
+            )
+            .orderBy(body.uploadDate.desc())
+            .limit(2)
+            .fetch();
+    }
 
     @Override
     public Optional<Body> findTodayBodyInfo(Member member, LocalDate uploadDate) {

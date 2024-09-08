@@ -12,14 +12,12 @@ import com.querydsl.core.types.dsl.DateTemplate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sideproject.withpt.application.record.diet.controller.response.DailyDietResponse;
-import com.sideproject.withpt.application.record.diet.controller.response.DietInfoResponse;
-import com.sideproject.withpt.application.record.diet.controller.response.QDailyDietResponse;
-import com.sideproject.withpt.application.record.diet.controller.response.QDietInfoResponse;
-import com.sideproject.withpt.application.record.diet.controller.response.QDietInfoResponse_DietFoodResponse;
-import com.sideproject.withpt.application.record.diet.controller.response.QDietInfoResponse_ImageResponse;
 import com.sideproject.withpt.application.record.diet.exception.DietErrorCode;
 import com.sideproject.withpt.application.record.diet.exception.DietException;
+import com.sideproject.withpt.application.record.diet.repository.response.DietInfoDto;
+import com.sideproject.withpt.application.record.diet.repository.response.QDietFoodDto;
+import com.sideproject.withpt.application.record.diet.repository.response.QDietInfoDto;
+import com.sideproject.withpt.application.record.diet.repository.response.QImageDto;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.diet.Diets;
 import java.time.LocalDate;
@@ -66,47 +64,16 @@ public class DietQueryRepository {
         );
     }
 
-    public DailyDietResponse findDietByUploadDate(Member member, LocalDate uploadDate) {
-
-        DateTemplate<LocalDate> uploadDateTemplate = Expressions.dateTemplate(
-            LocalDate.class,
-            "DATE_FORMAT({0}, {1})",
-            uploadDate,
-            ConstantImpl.create("%Y-%m-%d")
-        );
-
-        DateTemplate<LocalDate> dietUploadDateTemplate = Expressions.dateTemplate(
-            LocalDate.class,
-            "DATE_FORMAT({0}, {1})",
-            diets.uploadDate,
-            Expressions.constant("%Y-%m-%d")
-        );
+    public List<DietInfoDto> findAllDietInfoAndDietFoodByDiets(Member member, Diets diets) {
 
         try {
-            DailyDietResponse dailyDietResponse = jpaQueryFactory
-                .select(
-                    new QDailyDietResponse(
-                        diets.id,
-                        diets.uploadDate,
-                        diets.feedback,
-                        diets.totalCalorie,
-                        diets.totalProtein,
-                        diets.totalCarbohydrate,
-                        diets.totalFat,
-                        diets.targetDietType
-                    )
-                )
-                .from(diets)
-                .where(diets.member.eq(member).and(uploadDateTemplate.eq(dietUploadDateTemplate)))
-                .fetchOne();
-
-            List<DietInfoResponse> dietInfoResponses = jpaQueryFactory
+            List<DietInfoDto> dietInfoDtos = jpaQueryFactory
                 .selectFrom(dietInfo)
                 .leftJoin(dietFood).on(dietFood.dietInfo.eq(dietInfo))
-                .where(dietInfo.diets.id.eq(dailyDietResponse.getId()))
+                .where(dietInfo.diets.eq(diets))
                 .orderBy(dietInfo.mealTime.asc(), dietFood.id.asc())
                 .transform(groupBy(dietInfo.id)
-                    .list(new QDietInfoResponse(
+                    .list(new QDietInfoDto(
                         dietInfo.id,
                         dietInfo.mealCategory,
                         dietInfo.mealTime,
@@ -114,7 +81,7 @@ public class DietQueryRepository {
                         dietInfo.totalProtein,
                         dietInfo.totalCarbohydrate,
                         dietInfo.totalFat,
-                        list(new QDietInfoResponse_DietFoodResponse(
+                        list(new QDietFoodDto(
                             dietFood.id,
                             dietFood.name,
                             dietFood.capacity,
@@ -123,20 +90,18 @@ public class DietQueryRepository {
                             dietFood.carbohydrate,
                             dietFood.protein,
                             dietFood.fat
-                        )),
-                        Expressions.stringTemplate(
-                            "CONCAT('DIET_', {0}, '/DIETINFO_', {1})",
-                            dietInfo.diets.id.stringValue(),
-                            dietInfo.id.stringValue()
-                        )
+                        ))
                     ))
                 );
 
-            for (DietInfoResponse dietInfoResponse : dietInfoResponses) {
-                dietInfoResponse.setImages(
+            for (DietInfoDto dietInfoDto : dietInfoDtos) {
+
+                String imageUsageIdentificationId = "DIET_" + diets.getId() + "/DIETINFO_" + dietInfoDto.getId();
+
+                dietInfoDto.setImages(
                     jpaQueryFactory
                         .select(
-                            new QDietInfoResponse_ImageResponse(
+                            new QImageDto(
                                 image.id,
                                 image.usageIdentificationId,
                                 image.usages,
@@ -147,32 +112,35 @@ public class DietQueryRepository {
                         )
                         .from(image)
                         .where(image.member.eq(member).and(
-                            image.usageIdentificationId.eq(
-                                dietInfoResponse.getImageUsageIdentificationId()
-                            )
+                            image.usageIdentificationId.eq(imageUsageIdentificationId)
                         )).fetch()
                 );
             }
 
-            dailyDietResponse.setDietInfos(dietInfoResponses);
-            return dailyDietResponse;
+            return dietInfoDtos;
 
         } catch (Exception e) {
-            throw new DietException(DietErrorCode.DIET_NOT_EXIST);
+            throw new RuntimeException(e);
         }
     }
 
-    public DietInfoResponse findDietInfoById(Member member, Long dietInfoId) {
+    public DietInfoDto findDietInfoById(Member member, Long dietInfoId) {
 
         try {
-            List<DietInfoResponse> dietInfoResponses = jpaQueryFactory
+            StringTemplate imageUsageIdentificationId = Expressions.stringTemplate(
+                "CONCAT('DIET_', {0}, '/DIETINFO_', {1})",
+                dietInfo.diets.id.stringValue(),
+                dietInfo.id.stringValue()
+            );
+
+            List<DietInfoDto> dietInfoDtos = jpaQueryFactory
                 .select(dietInfo)
                 .from(dietInfo)
                 .leftJoin(dietFood).on(dietFood.dietInfo.eq(dietInfo))
                 .where(dietInfo.id.eq(dietInfoId))
                 .orderBy(dietInfo.mealTime.asc(), dietFood.id.asc())
                 .transform(groupBy(dietInfo.id)
-                    .list(new QDietInfoResponse(
+                    .list(new QDietInfoDto(
                         dietInfo.id,
                         dietInfo.mealCategory,
                         dietInfo.mealTime,
@@ -180,7 +148,7 @@ public class DietQueryRepository {
                         dietInfo.totalProtein,
                         dietInfo.totalCarbohydrate,
                         dietInfo.totalFat,
-                        list(new QDietInfoResponse_DietFoodResponse(
+                        list(new QDietFoodDto(
                             dietFood.id,
                             dietFood.name,
                             dietFood.capacity,
@@ -189,20 +157,15 @@ public class DietQueryRepository {
                             dietFood.carbohydrate,
                             dietFood.protein,
                             dietFood.fat
-                        )),
-                        Expressions.stringTemplate(
-                            "CONCAT('DIET_', {0}, '/DIETINFO_', {1})",
-                            dietInfo.diets.id.stringValue(),
-                            dietInfo.id.stringValue()
-                        )
+                        ))
                     ))
                 );
 
-            DietInfoResponse dietInfoResponse = dietInfoResponses.get(0);
-            dietInfoResponse.setImages(
+            DietInfoDto dietInfoDto = dietInfoDtos.get(0);
+            dietInfoDto.setImages(
                 jpaQueryFactory
                     .select(
-                        new QDietInfoResponse_ImageResponse(
+                        new QImageDto(
                             image.id,
                             image.usageIdentificationId,
                             image.usages,
@@ -213,13 +176,11 @@ public class DietQueryRepository {
                     )
                     .from(image)
                     .where(image.member.eq(member).and(
-                        image.usageIdentificationId.eq(
-                            dietInfoResponse.getImageUsageIdentificationId()
-                        )
+                        image.usageIdentificationId.eq(imageUsageIdentificationId)
                     )).fetch()
             );
 
-            return dietInfoResponse;
+            return dietInfoDto;
         } catch (Exception e) {
             throw new DietException(DietErrorCode.DIET_NOT_EXIST);
         }

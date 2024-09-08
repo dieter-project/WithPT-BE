@@ -1,19 +1,21 @@
 package com.sideproject.withpt.application.record.body.service;
 
+import com.sideproject.withpt.application.image.ImageUploader;
+import com.sideproject.withpt.application.image.repository.ImageRepository;
+import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.record.body.controller.request.BodyInfoRequest;
 import com.sideproject.withpt.application.record.body.controller.request.DeleteBodyImageRequest;
 import com.sideproject.withpt.application.record.body.controller.request.WeightInfoRequest;
 import com.sideproject.withpt.application.record.body.controller.response.BodyImageInfoResponse;
 import com.sideproject.withpt.application.record.body.controller.response.WeightInfoResponse;
 import com.sideproject.withpt.application.record.body.repository.BodyRepository;
-import com.sideproject.withpt.application.image.ImageUploader;
-import com.sideproject.withpt.application.image.repository.ImageRepository;
-import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.type.Usages;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.record.body.Body;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -32,11 +34,13 @@ public class BodyService {
 
     private final ImageUploader imageUploader;
 
-    public WeightInfoResponse findWeightInfo(Long memberId, LocalDate dateTime) {
+    public WeightInfoResponse findWeightInfo(Long memberId, LocalDate uploadDate) {
         Member member = validateMemberId(memberId);
 
-        return bodyRepository
-            .findRecentBodyInfo(member, dateTime);
+        List<Body> bodies = bodyRepository.findLatestWeightsBy(member, uploadDate);
+        Optional<Body> optionalBody = bodyRepository.findLatestBodyInfoBy(member, uploadDate);
+
+        return WeightInfoResponse.from(bodies, optionalBody);
     }
 
     @Transactional

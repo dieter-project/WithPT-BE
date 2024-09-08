@@ -20,7 +20,6 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Body extends BaseEntity {
@@ -42,6 +41,18 @@ public class Body extends BaseEntity {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private LocalDate uploadDate;
+
+    @Builder
+    public Body(Member member, double targetWeight, double weight, double skeletalMuscle, double bodyFatPercentage, double bmi,
+        LocalDate uploadDate) {
+        this.member = member;
+        this.targetWeight = targetWeight;
+        this.weight = weight;
+        this.skeletalMuscle = skeletalMuscle;
+        this.bodyFatPercentage = bodyFatPercentage;
+        this.bmi = bmi;
+        this.uploadDate = uploadDate;
+    }
 
     public void changeWeight(double weight) {
         this.weight = weight;
