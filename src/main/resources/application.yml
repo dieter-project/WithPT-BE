@@ -1,0 +1,55 @@
+server:
+  forward-headers-strategy: framework
+
+spring:
+  profiles:
+    group:
+      dev:
+        - dev
+      "real1": "real1_port, db, oauth"
+      "real2": "real2_port, db, oauth"
+  #    active: dev
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+logging:
+  level:
+    com:
+      amazonaws:
+        util:
+          EC2MetadataUtils : error
+
+springdoc:
+  packages-to-scan: com.sideproject.withpt
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    path: /swagger-ui # Swagger UI 경로 => localhost:8000/swagger-ui.html
+    groups-order: DESC
+    operationsSorter: method
+    disable-swagger-default-url: true
+    display-request-duration: true
+    default-models-expand-depth: -1
+  api-docs:
+    path: /api-docs
+  show-actuator: true
+
+
+---
+spring:
+  config:
+    activate:
+      on-profile: "real1_port"
+
+server:
+  port: 8081
+
+---
+spring:
+  config:
+    activate:
+      on-profile: "real2_port"
+
+server:
+  port: 8082
