@@ -2,7 +2,6 @@ package com.sideproject.withpt.application.record.body.controller.response;
 
 import com.sideproject.withpt.domain.record.body.Body;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,27 +21,20 @@ import lombok.extern.slf4j.Slf4j;
 public class WeightInfoResponse {
 
     // 목표 체중
-    private double currentTargetWeight = 0.0;
-    private List<WeightResponse> weights = new ArrayList<>();
+    private double currentTargetWeight;
+    private List<WeightResponse> weights;
     private BodyInfoResponse bodyInfo;
 
     public static WeightInfoResponse from(List<Body> weightList, Optional<Body> info) {
-
-        double targetWeight = weightList.size() == 0 ? 0 : weightList.get(0).getTargetWeight();
         return WeightInfoResponse.builder()
-            .currentTargetWeight(targetWeight)
+            .currentTargetWeight(weightList.size() == 0 ? 0 : weightList.get(0).getTargetWeight())
             .weights(weightList.stream().map(body ->
                 new WeightResponse(body.getUploadDate(), body.getWeight())
             ).collect(Collectors.toList()))
             .bodyInfo(
-                info.map(body ->
-                    new BodyInfoResponse(
-                        body.getUploadDate(),
-                        body.getSkeletalMuscle(),
-                        body.getBodyFatPercentage(),
-                        body.getBmi()
-                    )
-                ).orElse(null)
+                info
+                    .map(BodyInfoResponse::of)
+                    .orElse(new BodyInfoResponse())
             )
             .build();
     }
@@ -51,7 +43,7 @@ public class WeightInfoResponse {
     @Getter
     @Builder
     @AllArgsConstructor
-    private static class WeightResponse {
+    public static class WeightResponse {
 
         private LocalDate recentUploadDate;
         private double weight;
@@ -61,11 +53,21 @@ public class WeightInfoResponse {
     @Getter
     @Builder
     @AllArgsConstructor
-    private static class BodyInfoResponse {
+    @NoArgsConstructor
+    public static class BodyInfoResponse {
 
         private LocalDate recentUploadDate;
         private double skeletalMuscle;
         private double bodyFatPercentage;
         private double bmi;
+
+        public static BodyInfoResponse of(Body body) {
+            return BodyInfoResponse.builder()
+                .recentUploadDate(body.getUploadDate())
+                .skeletalMuscle(body.getSkeletalMuscle())
+                .bodyFatPercentage(body.getBodyFatPercentage())
+                .bmi(body.getBmi())
+                .build();
+        }
     }
 }
