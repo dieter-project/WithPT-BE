@@ -2,9 +2,9 @@ package com.sideproject.withpt.application.record.diet.controller;
 
 import com.sideproject.withpt.application.record.diet.controller.request.EditDietInfoRequest;
 import com.sideproject.withpt.application.record.diet.controller.request.SaveDietRequest;
-import com.sideproject.withpt.application.record.diet.controller.response.DailyDietResponse;
-import com.sideproject.withpt.application.record.diet.controller.response.DietInfoResponse;
 import com.sideproject.withpt.application.record.diet.service.DietService;
+import com.sideproject.withpt.application.record.diet.service.response.DailyDietResponse;
+import com.sideproject.withpt.application.record.diet.service.response.DietInfoResponse;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -40,7 +40,7 @@ public class DietController {
         @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate uploadDate,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
         return ApiSuccessResponse.from(
-            dietService.findDietByUploadDate(uploadDate, memberId)
+            dietService.findDietByMemberAndUploadDate(uploadDate, memberId)
         );
     }
 
