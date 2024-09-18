@@ -28,6 +28,10 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response,
         AuthenticationException authException) throws IOException, ServletException {
 
+        if(request.getRequestURI().equals("/api/v1/oauth/reissue")){
+            return;
+        }
+
         String exception = (String) request.getAttribute("exception");
 
         if (exception.equals(CREDENTIALS_DO_NOT_EXIST.getMessage())) {

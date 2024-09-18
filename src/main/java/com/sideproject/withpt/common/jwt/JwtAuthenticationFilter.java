@@ -46,6 +46,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String token = this.resolveTokenFromRequest(request);
 
+            if(request.getRequestURI().equals("/api/v1/oauth/reissue")){
+                filterChain.doFilter(request, response);
+            }
+
             if (StringUtils.hasText(token) && this.jwtTokenProvider.isValidationToken(token)) {
 
                 if (ObjectUtils.isEmpty(redisClient.get(ACCESS_TOKEN_BLACK_LIST_PREFIX + token))) {
@@ -55,10 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     // SecurityContext 에 Authentication 객체를 저장
                     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                    log.info(
-                        String.format("[%s] -> %s", this.jwtTokenProvider.extractSubject(token),
-                            request.getRequestURI())
-                    );
+                    log.info(String.format("[%s] -> %s", this.jwtTokenProvider.extractSubject(token), request.getRequestURI()));
                 } else {
                     log.error("Access Black-List Token: {}", NOT_VERIFICATION_LOGOUT.getMessage());
                     request.setAttribute("exception", NOT_VERIFICATION_LOGOUT.getMessage());
