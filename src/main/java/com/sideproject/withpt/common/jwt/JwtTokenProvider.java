@@ -93,7 +93,6 @@ public class JwtTokenProvider {
         }
     }
 
-    //    public boolean isValidationToken(String token, HttpServletRequest request) {
     public boolean isValidationToken(String token) {
         return !Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().isEmpty();
     }
