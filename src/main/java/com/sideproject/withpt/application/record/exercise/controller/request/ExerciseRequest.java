@@ -5,9 +5,12 @@ import com.sideproject.withpt.application.record.exercise.exception.validator.Va
 import com.sideproject.withpt.application.type.BodyPart;
 import com.sideproject.withpt.application.type.ExerciseType;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
+import com.sideproject.withpt.domain.record.exercise.BodyCategory;
 import com.sideproject.withpt.domain.record.exercise.ExerciseInfo;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -38,7 +41,9 @@ public class ExerciseRequest {
     @ValidEnum(enumClass = ExerciseType.class)
     private ExerciseType exerciseType;
 
-    private List<String> bodyParts;
+    private String bodyPart;
+
+    private List<String> specificBodyParts = new ArrayList<>();
 
     private int weight; // 무게(kg)
     private int times; // 횟수
@@ -53,12 +58,32 @@ public class ExerciseRequest {
         return ExerciseInfo.builder()
             .title(title)
             .exerciseType(exerciseType)
-            .bodyParts(bodyParts.stream().map(BodyPart::valueOf).collect(Collectors.toList()))
+            .bodyCategory(toParentBodyCategory())
             .weight(weight)
             .exerciseSet(exerciseSet)
             .times(times)
             .exerciseTime(exerciseTime)
             .build();
+    }
+
+    private BodyCategory toParentBodyCategory() {
+        return Optional.ofNullable(bodyPart)
+            .map(part -> BodyCategory.builder()
+                .name(BodyPart.valueOf(part))
+                .children(toChildBodyCategory()) // 자식 카테고리가 있으면 설정
+                .build())
+            .orElse(null);
+    }
+
+    private List<BodyCategory> toChildBodyCategory() {
+
+        return Optional.ofNullable(specificBodyParts)
+            .map(parts -> parts.stream()
+                .map(part -> BodyCategory.builder()
+                    .name(BodyPart.valueOf(part))
+                    .build())
+                .collect(Collectors.toList())
+            ).orElse(null);
     }
 
 //    public Bookmark toBookmarkEntity(Member member) {

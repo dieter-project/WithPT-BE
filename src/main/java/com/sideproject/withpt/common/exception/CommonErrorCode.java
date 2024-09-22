@@ -11,6 +11,7 @@ public enum CommonErrorCode implements ErrorCode {
     TEST_ERROR(HttpStatus.BAD_REQUEST, "테스트 에러 입니다."),
     ALREADY_REGISTERED_USER(HttpStatus.BAD_REQUEST, "이미 가입된 회원 입니다."),
     USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않은 회원입니다."),
+    AT_LEAST_ONE_DATA_MUST_BE_INCLUDED(HttpStatus.BAD_REQUEST, "최소 하나 이상의 데이터가 포함되어야 합니다."),
     INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "Invalid parameter included"),
     INVALID_TOKEN(HttpStatus.BAD_REQUEST, "유효하지 않은 토큰입니다."),
     INVALID_HEADER(HttpStatus.BAD_REQUEST, "유효한 header가 아닙니다."),

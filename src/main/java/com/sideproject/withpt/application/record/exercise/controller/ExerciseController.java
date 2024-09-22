@@ -6,6 +6,7 @@ import com.sideproject.withpt.application.record.exercise.controller.response.Bo
 import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseInfoResponse;
 import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseResponse;
 import com.sideproject.withpt.application.record.exercise.service.ExerciseService;
+import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,6 +16,7 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -63,12 +65,16 @@ public class ExerciseController {
     }
 
     @Operation(summary = "운동 기록 입력")
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void saveExercise(
         @RequestPart(value = "request") List<ExerciseRequest> request,
         @RequestPart(value = "files", required = false) List<MultipartFile> files,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        exerciseService.saveExercise(memberId, request, files);
+        if (request.size() == 0) {
+            throw GlobalException.AT_LEAST_ONE_DATA_MUST_BE_INCLUDED;
+        }
+        LocalDate uploadDate = request.get(0).getUploadDate();
+        exerciseService.saveExercise(memberId, request, files, uploadDate);
     }
 
     @Operation(summary = "운동 정보 수정")
@@ -81,7 +87,7 @@ public class ExerciseController {
     @Operation(summary = "운동 정보 삭제")
     @DeleteMapping("/{exerciseId}/exercise-info/{exerciseInfoId}")
     public void deleteExercise(@PathVariable Long exerciseId, @PathVariable Long exerciseInfoId) {
-        exerciseService.deleteExercise(exerciseId, exerciseInfoId);
+        exerciseService.deleteExerciseInfo(exerciseId, exerciseInfoId);
     }
 
     @Operation(summary = "운동 이미지 삭제")
