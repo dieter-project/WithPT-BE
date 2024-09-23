@@ -10,6 +10,4 @@ import java.util.Optional;
 public interface ExerciseQueryRepository {
     Map<LocalDate, Exercise> findExercisesByYearMonth(Member member, int year, int month);
     Optional<ExerciseInfo> findExerciseInfoById(Long id);
-
-    void deleteExerciseInfoById(Long id);
 }

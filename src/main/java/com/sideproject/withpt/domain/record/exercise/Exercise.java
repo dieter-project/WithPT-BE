@@ -38,7 +38,8 @@ public class Exercise extends BaseEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "exercise", cascade = CascadeType.ALL)
+//    @OneToMany(mappedBy = "exercise", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "exercise")
     private List<ExerciseInfo> exerciseInfos = new ArrayList<>();
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
@@ -48,9 +49,11 @@ public class Exercise extends BaseEntity {
     public Exercise(Member member, List<ExerciseInfo> exerciseInfos, LocalDate uploadDate) {
         this.member = member;
         this.uploadDate = uploadDate;
-        this.exerciseInfos = exerciseInfos.stream()
-            .map(exerciseInfo -> ExerciseInfo.create(this, exerciseInfo))
-            .collect(Collectors.toList());
+        addExerciseInfos(exerciseInfos);
+    }
+
+    public void addExerciseInfos(List<ExerciseInfo> exerciseInfos) {
+        exerciseInfos.forEach(this::addExerciseInfo);
     }
 
     public void addExerciseInfo(ExerciseInfo exerciseInfo) {

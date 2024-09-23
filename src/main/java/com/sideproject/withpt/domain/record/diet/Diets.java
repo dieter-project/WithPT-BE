@@ -3,6 +3,8 @@ package com.sideproject.withpt.domain.record.diet;
 import com.sideproject.withpt.application.type.DietType;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.record.diet.utils.DietNutritionalStatistics;
+import com.sideproject.withpt.domain.record.diet.utils.NutritionalInfo;
 import java.time.LocalDate;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -48,22 +50,6 @@ public class Diets extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private DietType targetDietType;
 
-    public void addTotalCalorie(double totalCalorie) {
-        this.totalCalorie += totalCalorie;
-    }
-
-    public void addTotalProtein(double totalProtein) {
-        this.totalProtein += totalProtein;
-    }
-
-    public void addTotalCarbohydrate(double totalCarbohydrate) {
-        this.totalCarbohydrate += totalCarbohydrate;
-    }
-
-    public void addTotalFat(double totalFat) {
-        this.totalFat += totalFat;
-    }
-
     public void subtractTotalCalorie(double totalCalorie) {
         this.totalCalorie -= totalCalorie;
     }
@@ -78,5 +64,26 @@ public class Diets extends BaseEntity {
 
     public void subtractTotalFat(double totalFat) {
         this.totalFat -= totalFat;
+    }
+
+    public <T extends NutritionalInfo> void addTotalNutritionalStatistics(DietNutritionalStatistics<T> statistics) {
+        this.totalCalorie += statistics.getTotalCalories();
+        this.totalCarbohydrate += statistics.getTotalCarbohydrate();
+        this.totalProtein += statistics.getTotalProtein();
+        this.totalFat += statistics.getTotalFat();
+    }
+
+    public <T extends NutritionalInfo> void subtractTotalNutritionalStatistics(DietNutritionalStatistics<T> statistics) {
+        this.totalCalorie -= statistics.getTotalCalories();
+        this.totalCarbohydrate -= statistics.getTotalCarbohydrate();
+        this.totalProtein -= statistics.getTotalProtein();
+        this.totalFat -= statistics.getTotalFat();
+    }
+
+    public void subtractTotalNutritionalStatistics(DietInfo dietInfo) {
+        this.totalCalorie -= dietInfo.getTotalCalorie();
+        this.totalCarbohydrate -= dietInfo.getTotalCarbohydrate();
+        this.totalProtein -= dietInfo.getTotalProtein();
+        this.totalFat -= dietInfo.getTotalFat();
     }
 }

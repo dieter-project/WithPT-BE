@@ -2,10 +2,11 @@ package com.sideproject.withpt.domain.record.diet;
 
 import com.sideproject.withpt.application.type.MealCategory;
 import com.sideproject.withpt.domain.BaseEntity;
+import com.sideproject.withpt.domain.record.diet.utils.DietNutritionalStatistics;
+import com.sideproject.withpt.domain.record.diet.utils.NutritionalInfo;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,13 +22,11 @@ import javax.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-//@Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class DietInfo extends BaseEntity {
@@ -41,8 +40,7 @@ public class DietInfo extends BaseEntity {
     @JoinColumn(name = "diet_id")
     private Diets diets;
 
-//    @Default
-    @OneToMany(mappedBy = "dietInfo", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "dietInfo", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DietFood> dietFoods = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
@@ -65,9 +63,7 @@ public class DietInfo extends BaseEntity {
         this.totalProtein = totalProtein;
         this.totalCarbohydrate = totalCarbohydrate;
         this.totalFat = totalFat;
-        this.dietFoods = dietFoods.stream()
-            .map(dietFood -> new DietFood(this, dietFood))
-            .collect(Collectors.toList());
+        dietFoods.forEach(this::addDietFood);
     }
 
     public void addDietFood(DietFood dietFood) {
@@ -75,43 +71,25 @@ public class DietInfo extends BaseEntity {
         dietFood.setDietInfo(this);
     }
 
-    public void addTotalCalorie(double totalCalorie) {
-        this.totalCalorie += totalCalorie;
+    public <T extends NutritionalInfo> void addTotalNutritionalStatistics(DietNutritionalStatistics<T> statistics) {
+        this.totalCalorie += statistics.getTotalCalories();
+        this.totalCarbohydrate += statistics.getTotalCarbohydrate();
+        this.totalProtein += statistics.getTotalProtein();
+        this.totalFat += statistics.getTotalFat();
     }
 
-    public void addTotalProtein(double totalProtein) {
-        this.totalProtein += totalProtein;
+    public <T extends NutritionalInfo> void subtractTotalNutritionalStatistics(DietNutritionalStatistics<T> statistics) {
+        this.totalCalorie -= statistics.getTotalCalories();
+        this.totalCarbohydrate -= statistics.getTotalCarbohydrate();
+        this.totalProtein -= statistics.getTotalProtein();
+        this.totalFat -= statistics.getTotalFat();
     }
 
-    public void addTotalCarbohydrate(double totalCarbohydrate) {
-        this.totalCarbohydrate += totalCarbohydrate;
-    }
-
-    public void addTotalFat(double totalFat) {
-        this.totalFat += totalFat;
-    }
-
-    public void subtractTotalCalorie(double totalCalorie) {
-        this.totalCalorie -= totalCalorie;
-    }
-
-    public void subtractTotalProtein(double totalProtein) {
-        this.totalProtein -= totalProtein;
-    }
-
-    public void subtractTotalCarbohydrate(double totalCarbohydrate) {
-        this.totalCarbohydrate -= totalCarbohydrate;
-    }
-
-    public void subtractTotalFat(double totalFat) {
-        this.totalFat -= totalFat;
-    }
-
-    public void setMealCategory(MealCategory mealCategory) {
+    public void updateMealCategory(MealCategory mealCategory) {
         this.mealCategory = mealCategory;
     }
 
-    public void setMealTime(LocalDateTime mealTime) {
+    public void updateMealTime(LocalDateTime mealTime) {
         this.mealTime = mealTime;
     }
 }

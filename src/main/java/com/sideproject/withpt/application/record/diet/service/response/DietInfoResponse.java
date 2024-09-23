@@ -2,6 +2,9 @@ package com.sideproject.withpt.application.record.diet.service.response;
 
 import com.sideproject.withpt.application.record.diet.repository.response.DietInfoDto;
 import com.sideproject.withpt.application.type.MealCategory;
+import com.sideproject.withpt.domain.record.Image;
+import com.sideproject.withpt.domain.record.diet.DietFood;
+import com.sideproject.withpt.domain.record.diet.DietInfo;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,6 +54,28 @@ public class DietInfoResponse {
             .totalFat(dietInfoDto.getTotalFat())
             .dietFoods(dietInfoDto.getDietFoods().stream().map(DietFoodResponse::of).collect(Collectors.toList()))
             .images(dietInfoDto.getImages().stream().map(ImageResponse::of).collect(Collectors.toList()))
+            .build();
+    }
+
+    public static DietInfoResponse of(DietInfo dietInfo, List<DietFood> dietFoods, List<Image> images) {
+        return DietInfoResponse.builder()
+            .id(dietInfo.getId())
+            .mealCategory(dietInfo.getMealCategory())
+            .mealTime(dietInfo.getMealTime())
+            .totalCalorie(dietInfo.getTotalCalorie())
+            .totalCarbohydrate(dietInfo.getTotalCarbohydrate())
+            .totalProtein(dietInfo.getTotalProtein())
+            .totalFat(dietInfo.getTotalFat())
+            .dietFoods(
+                dietFoods.stream()
+                    .map(DietFoodResponse::of)
+                    .collect(Collectors.toList())
+            )
+            .images(
+                images.stream()
+                    .map(ImageResponse::of)
+                    .collect(Collectors.toList())
+            )
             .build();
     }
 }
