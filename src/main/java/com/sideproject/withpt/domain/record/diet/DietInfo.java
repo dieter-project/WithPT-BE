@@ -1,6 +1,6 @@
 package com.sideproject.withpt.domain.record.diet;
 
-import com.sideproject.withpt.application.type.MealCategory;
+import com.sideproject.withpt.application.type.DietCategory;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.domain.record.diet.utils.DietNutritionalStatistics;
 import com.sideproject.withpt.domain.record.diet.utils.NutritionalInfo;
@@ -44,9 +44,9 @@ public class DietInfo extends BaseEntity {
     private List<DietFood> dietFoods = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
-    private MealCategory mealCategory;
+    private DietCategory dietCategory;
 
-    private LocalDateTime mealTime;
+    private LocalDateTime dietTime;
 
     private double totalCalorie;
     private double totalProtein;
@@ -54,11 +54,11 @@ public class DietInfo extends BaseEntity {
     private double totalFat;
 
     @Builder
-    private DietInfo(Diets diets, MealCategory mealCategory, LocalDateTime mealTime, double totalCalorie, double totalProtein, double totalCarbohydrate, double totalFat,
+    private DietInfo(Diets diets, DietCategory dietCategory, LocalDateTime dietTime, double totalCalorie, double totalProtein, double totalCarbohydrate, double totalFat,
         List<DietFood> dietFoods) {
         this.diets = diets;
-        this.mealCategory = mealCategory;
-        this.mealTime = mealTime;
+        this.dietCategory = dietCategory;
+        this.dietTime = dietTime;
         this.totalCalorie = totalCalorie;
         this.totalProtein = totalProtein;
         this.totalCarbohydrate = totalCarbohydrate;
@@ -85,11 +85,11 @@ public class DietInfo extends BaseEntity {
         this.totalFat -= statistics.getTotalFat();
     }
 
-    public void updateMealCategory(MealCategory mealCategory) {
-        this.mealCategory = mealCategory;
+    public void updateDietCategory(DietCategory dietCategory) {
+        this.dietCategory = dietCategory;
     }
 
-    public void updateMealTime(LocalDateTime mealTime) {
-        this.mealTime = mealTime;
+    public void updateDietTime(LocalDateTime dietTime) {
+        this.dietTime = dietTime;
     }
 }

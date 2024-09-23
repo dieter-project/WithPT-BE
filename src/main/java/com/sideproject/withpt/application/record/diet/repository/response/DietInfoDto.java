@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.record.diet.repository.response;
 
 import com.querydsl.core.annotations.QueryProjection;
-import com.sideproject.withpt.application.type.MealCategory;
+import com.sideproject.withpt.application.type.DietCategory;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AccessLevel;
@@ -15,8 +15,8 @@ import lombok.ToString;
 public class DietInfoDto {
 
     private Long id;
-    private MealCategory mealCategory;
-    private LocalDateTime mealTime;
+    private DietCategory dietCategory;
+    private LocalDateTime dietTime;
     private double totalCalorie;
     private double totalProtein;
     private double totalCarbohydrate;
@@ -25,11 +25,11 @@ public class DietInfoDto {
     private List<ImageDto> images;
 
     @QueryProjection
-    public DietInfoDto(Long id, MealCategory mealCategory, LocalDateTime mealTime, double totalCalorie, double totalProtein,
+    public DietInfoDto(Long id, DietCategory dietCategory, LocalDateTime dietTime, double totalCalorie, double totalProtein,
         double totalCarbohydrate, double totalFat, List<DietFoodDto> dietFoods) {
         this.id = id;
-        this.mealCategory = mealCategory;
-        this.mealTime = mealTime;
+        this.dietCategory = dietCategory;
+        this.dietTime = dietTime;
         this.totalCalorie = totalCalorie;
         this.totalProtein = totalProtein;
         this.totalCarbohydrate = totalCarbohydrate;

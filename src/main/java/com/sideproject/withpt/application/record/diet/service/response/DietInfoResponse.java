@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.record.diet.service.response;
 
 import com.sideproject.withpt.application.record.diet.repository.response.DietInfoDto;
-import com.sideproject.withpt.application.type.MealCategory;
+import com.sideproject.withpt.application.type.DietCategory;
 import com.sideproject.withpt.domain.record.Image;
 import com.sideproject.withpt.domain.record.diet.DietFood;
 import com.sideproject.withpt.domain.record.diet.DietInfo;
@@ -20,8 +20,8 @@ import lombok.ToString;
 public class DietInfoResponse {
 
     private Long id;
-    private MealCategory mealCategory;
-    private LocalDateTime mealTime;
+    private DietCategory dietCategory;
+    private LocalDateTime dietTime;
     private double totalCalorie;
     private double totalProtein;
     private double totalCarbohydrate;
@@ -30,11 +30,11 @@ public class DietInfoResponse {
     private List<ImageResponse> images;
 
     @Builder
-    private DietInfoResponse(Long id, MealCategory mealCategory, LocalDateTime mealTime, double totalCalorie, double totalProtein,
+    private DietInfoResponse(Long id, DietCategory dietCategory, LocalDateTime dietTime, double totalCalorie, double totalProtein,
         double totalCarbohydrate, double totalFat, List<DietFoodResponse> dietFoods, List<ImageResponse> images) {
         this.id = id;
-        this.mealCategory = mealCategory;
-        this.mealTime = mealTime;
+        this.dietCategory = dietCategory;
+        this.dietTime = dietTime;
         this.totalCalorie = totalCalorie;
         this.totalCarbohydrate = totalCarbohydrate;
         this.totalProtein = totalProtein;
@@ -46,8 +46,8 @@ public class DietInfoResponse {
     public static DietInfoResponse of(DietInfoDto dietInfoDto) {
         return DietInfoResponse.builder()
             .id(dietInfoDto.getId())
-            .mealCategory(dietInfoDto.getMealCategory())
-            .mealTime(dietInfoDto.getMealTime())
+            .dietCategory(dietInfoDto.getDietCategory())
+            .dietTime(dietInfoDto.getDietTime())
             .totalCalorie(dietInfoDto.getTotalCalorie())
             .totalCarbohydrate(dietInfoDto.getTotalCarbohydrate())
             .totalProtein(dietInfoDto.getTotalProtein())
@@ -60,8 +60,8 @@ public class DietInfoResponse {
     public static DietInfoResponse of(DietInfo dietInfo, List<DietFood> dietFoods, List<Image> images) {
         return DietInfoResponse.builder()
             .id(dietInfo.getId())
-            .mealCategory(dietInfo.getMealCategory())
-            .mealTime(dietInfo.getMealTime())
+            .dietCategory(dietInfo.getDietCategory())
+            .dietTime(dietInfo.getDietTime())
             .totalCalorie(dietInfo.getTotalCalorie())
             .totalCarbohydrate(dietInfo.getTotalCarbohydrate())
             .totalProtein(dietInfo.getTotalProtein())

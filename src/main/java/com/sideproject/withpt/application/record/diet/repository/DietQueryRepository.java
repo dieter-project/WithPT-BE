@@ -58,12 +58,12 @@ public class DietQueryRepository {
                 .selectFrom(dietInfo)
                 .leftJoin(dietFood).on(dietFood.dietInfo.eq(dietInfo))
                 .where(dietInfo.diets.eq(diets))
-                .orderBy(dietInfo.mealTime.asc(), dietFood.id.asc())
+                .orderBy(dietInfo.dietTime.asc(), dietFood.id.asc())
                 .transform(groupBy(dietInfo.id)
                     .list(new QDietInfoDto(
                         dietInfo.id,
-                        dietInfo.mealCategory,
-                        dietInfo.mealTime,
+                        dietInfo.dietCategory,
+                        dietInfo.dietTime,
                         dietInfo.totalCalorie,
                         dietInfo.totalProtein,
                         dietInfo.totalCarbohydrate,

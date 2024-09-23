@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.record.diet.controller.request;
 
-import com.sideproject.withpt.application.type.MealCategory;
+import com.sideproject.withpt.application.type.DietCategory;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,12 +24,12 @@ public class EditDietInfoRequest {
 
     private LocalDate uploadDate;
 
-    @ValidEnum(enumClass = MealCategory.class)
-    private MealCategory mealCategory;
+    @ValidEnum(enumClass = DietCategory.class)
+    private DietCategory dietCategory;
 
     @NotNull(message = "식사 시간을 입력해주세요.")
     @DateTimeFormat(pattern = "HH:mm")
-    private LocalTime mealTime;
+    private LocalTime dietTime;
 
     private List<Long> deletedFoodIds;
     private List<Long> deletedImageIds;
@@ -37,6 +37,6 @@ public class EditDietInfoRequest {
     private List<DietFoodRequest> dietFoods;
 
     public LocalDateTime getDietDateTime() {
-        return LocalDateTime.of(uploadDate, mealTime);
+        return LocalDateTime.of(uploadDate, dietTime);
     }
 }

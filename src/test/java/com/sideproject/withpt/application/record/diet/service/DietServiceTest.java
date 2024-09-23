@@ -1,8 +1,8 @@
 package com.sideproject.withpt.application.record.diet.service;
 
-import static com.sideproject.withpt.application.type.MealCategory.BREAKFAST;
-import static com.sideproject.withpt.application.type.MealCategory.DINNER;
-import static com.sideproject.withpt.application.type.MealCategory.LUNCH;
+import static com.sideproject.withpt.application.type.DietCategory.BREAKFAST;
+import static com.sideproject.withpt.application.type.DietCategory.DINNER;
+import static com.sideproject.withpt.application.type.DietCategory.LUNCH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
@@ -19,7 +19,7 @@ import com.sideproject.withpt.application.record.diet.service.response.DietFoodR
 import com.sideproject.withpt.application.record.diet.service.response.DietInfoResponse;
 import com.sideproject.withpt.application.record.diet.service.response.ImageResponse;
 import com.sideproject.withpt.application.type.DietType;
-import com.sideproject.withpt.application.type.MealCategory;
+import com.sideproject.withpt.application.type.DietCategory;
 import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.application.type.Usages;
 import com.sideproject.withpt.domain.member.Member;
@@ -74,8 +74,8 @@ class DietServiceTest {
         DietFoodRequest dietFoodRequest2 = createaDietFoodRequest("sample2", 200, 1, 2, 3);
         SaveDietRequest request = SaveDietRequest.builder()
             .uploadDate(uploadDate)
-            .mealCategory(DINNER)
-            .mealTime(LocalTime.of(8, 45))
+            .dietCategory(DINNER)
+            .dietTime(LocalTime.of(8, 45))
             .dietFoods(List.of(dietFoodRequest1, dietFoodRequest2))
             .build();
 
@@ -90,7 +90,7 @@ class DietServiceTest {
 
         List<DietInfo> dietInfos = dietInfoRepository.findAll();
         assertThat(dietInfos).hasSize(1)
-            .extracting("mealCategory", "mealTime", "totalCalorie", "totalCarbohydrate", "totalProtein", "totalFat")
+            .extracting("dietCategory", "dietTime", "totalCalorie", "totalCarbohydrate", "totalProtein", "totalFat")
             .contains(
                 tuple(DINNER, LocalDateTime.of(uploadDate, LocalTime.of(8, 45)), 300.0, 2.0, 4.0, 6.0)
             );
@@ -126,8 +126,8 @@ class DietServiceTest {
         DietFoodRequest dietFoodRequest2 = createaDietFoodRequest("sample2", 200, 20, 20, 20);
         SaveDietRequest request = SaveDietRequest.builder()
             .uploadDate(uploadDate)
-            .mealCategory(DINNER)
-            .mealTime(LocalTime.of(8, 45))
+            .dietCategory(DINNER)
+            .dietTime(LocalTime.of(8, 45))
             .dietFoods(List.of(dietFoodRequest1, dietFoodRequest2))
             .build();
 
@@ -142,7 +142,7 @@ class DietServiceTest {
 
         List<DietInfo> dietInfos = dietInfoRepository.findAll();
         assertThat(dietInfos).hasSize(3)
-            .extracting("mealCategory", "mealTime", "totalCalorie", "totalCarbohydrate", "totalProtein", "totalFat")
+            .extracting("dietCategory", "dietTime", "totalCalorie", "totalCarbohydrate", "totalProtein", "totalFat")
             .containsExactlyInAnyOrder(
                 tuple(BREAKFAST, LocalDateTime.of(uploadDate, LocalTime.of(8, 30)), 3.0, 300.0, 400.0, 200.0),
                 tuple(LUNCH, LocalDateTime.of(uploadDate, LocalTime.of(12, 0)), 7.0, 300.0, 400.0, 200.0),
@@ -200,7 +200,7 @@ class DietServiceTest {
 
         List<DietInfoResponse> dietInfoResponses = dailyDietResponse.getDietInfos();
         assertThat(dietInfoResponses).hasSize(3)
-            .extracting("mealCategory", "mealTime")
+            .extracting("dietCategory", "dietTime")
             .containsExactlyInAnyOrder(
                 tuple(BREAKFAST, LocalDateTime.of(2024, 9, 7, 8, 30)),
                 tuple(LUNCH, LocalDateTime.of(2024, 9, 7, 12, 0)),
@@ -256,7 +256,7 @@ class DietServiceTest {
 
         // then
         assertThat(dietInfoResponse)
-            .extracting("mealCategory", "mealTime", "totalCalorie", "totalProtein", "totalCarbohydrate", "totalFat")
+            .extracting("dietCategory", "dietTime", "totalCalorie", "totalProtein", "totalCarbohydrate", "totalFat")
             .contains(BREAKFAST, dietTime, 2400.0, 300.0, 400.0, 200.0);
 
         List<DietFoodResponse> dietFoodResponses = dietInfoResponse.getDietFoods();
@@ -312,8 +312,8 @@ class DietServiceTest {
 
         EditDietInfoRequest request = EditDietInfoRequest.builder()
             .uploadDate(uploadDate)
-            .mealCategory(DINNER)
-            .mealTime(LocalTime.of(19, 0))
+            .dietCategory(DINNER)
+            .dietTime(LocalTime.of(19, 0))
             .deletedFoodIds(List.of(dietFood2.getId()))
             .deletedImageIds(List.of())
             .dietFoods(List.of(dietFoodRequest1, dietFoodRequest2))
@@ -336,7 +336,7 @@ class DietServiceTest {
 
         DietInfo dietInfo = dietInfos.get(0);
         assertThat(dietInfo)
-            .extracting("mealCategory", "mealTime", "totalCalorie", "totalCarbohydrate", "totalProtein", "totalFat")
+            .extracting("dietCategory", "dietTime", "totalCalorie", "totalCarbohydrate", "totalProtein", "totalFat")
             .contains(DINNER, LocalDateTime.of(uploadDate, LocalTime.of(19, 0)), 303.0, 180.0, 230.0, 130.0);
 
         List<DietFood> dietFoodList = dietFoodRepository.findAll();
@@ -349,7 +349,7 @@ class DietServiceTest {
             );
     }
 
-    @DisplayName("")
+    @DisplayName("단일 식단 정보 삭제하기")
     @Test
     void deleteDietInfo() {
         // given
@@ -423,13 +423,13 @@ class DietServiceTest {
         );
     }
 
-    private DietInfo saveDietInfo(Diets diets, MealCategory mealCategory, LocalDateTime mealTime, List<DietFood> dietFoods) {
+    private DietInfo saveDietInfo(Diets diets, DietCategory dietCategory, LocalDateTime dietTime, List<DietFood> dietFoods) {
         DietNutritionalStatistics<DietFood> statistics = DietNutritionalStatistics.getStatisticsBy(dietFoods);
         return dietInfoRepository.save(
             DietInfo.builder()
                 .diets(diets)
-                .mealCategory(mealCategory)
-                .mealTime(mealTime)
+                .dietCategory(dietCategory)
+                .dietTime(dietTime)
                 .totalCalorie(statistics.getTotalCalories())
                 .totalProtein(statistics.getTotalProtein())
                 .totalCarbohydrate(statistics.getTotalCarbohydrate())
@@ -466,7 +466,7 @@ class DietServiceTest {
         return imageRepository.save(Image.builder()
             .member(member)
             .usageIdentificationId(usageIdentificationId)
-            .usages(Usages.MEAL)
+            .usages(Usages.DIET)
             .uploadDate(uploadDate)
             .url("URL")
             .uploadUrlPath("uploadUrlPath")

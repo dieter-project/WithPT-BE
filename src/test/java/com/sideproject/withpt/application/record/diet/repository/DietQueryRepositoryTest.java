@@ -1,8 +1,8 @@
 package com.sideproject.withpt.application.record.diet.repository;
 
-import static com.sideproject.withpt.application.type.MealCategory.BREAKFAST;
-import static com.sideproject.withpt.application.type.MealCategory.DINNER;
-import static com.sideproject.withpt.application.type.MealCategory.LUNCH;
+import static com.sideproject.withpt.application.type.DietCategory.BREAKFAST;
+import static com.sideproject.withpt.application.type.DietCategory.DINNER;
+import static com.sideproject.withpt.application.type.DietCategory.LUNCH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
@@ -12,7 +12,7 @@ import com.sideproject.withpt.application.record.diet.repository.response.DietFo
 import com.sideproject.withpt.application.record.diet.repository.response.DietInfoDto;
 import com.sideproject.withpt.application.record.diet.repository.response.ImageDto;
 import com.sideproject.withpt.application.type.DietType;
-import com.sideproject.withpt.application.type.MealCategory;
+import com.sideproject.withpt.application.type.DietCategory;
 import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.application.type.Usages;
 import com.sideproject.withpt.domain.member.Member;
@@ -29,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 //@Transactional
 @ActiveProfiles("test")
@@ -90,7 +89,7 @@ class DietQueryRepositoryTest {
 
         // then
         assertThat(dietInfoDtos).hasSize(3)
-            .extracting("mealTime", "mealCategory")
+            .extracting("dietTime", "dietCategory")
             .containsExactly(
                 tuple(LocalDateTime.of(2024, 9, 7, 8, 30), BREAKFAST),
                 tuple(LocalDateTime.of(2024, 9, 7, 12, 0), LUNCH),
@@ -133,11 +132,11 @@ class DietQueryRepositoryTest {
             .build();
     }
 
-    private DietInfo createDietInfo(Diets diets, MealCategory mealCategory, LocalDateTime mealTime, List<DietFood> dietFoods) {
+    private DietInfo createDietInfo(Diets diets, DietCategory dietCategory, LocalDateTime dietTime, List<DietFood> dietFoods) {
         return DietInfo.builder()
             .diets(diets)
-            .mealCategory(mealCategory)
-            .mealTime(mealTime)
+            .dietCategory(dietCategory)
+            .dietTime(dietTime)
             .totalCalorie(1000)
             .totalProtein(300)
             .totalCarbohydrate(200)
@@ -162,7 +161,7 @@ class DietQueryRepositoryTest {
         imageRepository.save(Image.builder()
             .member(member)
             .usageIdentificationId(usageIdentificationId)
-            .usages(Usages.MEAL)
+            .usages(Usages.DIET)
             .uploadDate(uploadDate)
             .url("URL")
             .uploadUrlPath("uploadUrlPath")
