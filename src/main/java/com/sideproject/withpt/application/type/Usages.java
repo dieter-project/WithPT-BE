@@ -5,5 +5,5 @@ import com.sideproject.withpt.common.exception.validator.CustomEnumDeserializer;
 
 @JsonDeserialize(using = CustomEnumDeserializer.class)
 public enum Usages {
-    EXERCISE, MEAL, BODY
+    EXERCISE, DIET, BODY
 }

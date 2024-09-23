@@ -1,10 +1,9 @@
 package com.sideproject.withpt.application.record.diet.controller.request;
 
-import com.sideproject.withpt.application.type.MealCategory;
+import com.sideproject.withpt.application.type.DietCategory;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.diet.Diets;
-import com.sideproject.withpt.domain.record.diet.utils.DietNutritionalStatistics;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -26,12 +25,12 @@ public class SaveDietRequest {
 
     private LocalDate uploadDate;
 
-    @ValidEnum(enumClass = MealCategory.class)
-    private MealCategory mealCategory;
+    @ValidEnum(enumClass = DietCategory.class)
+    private DietCategory dietCategory;
 
     @NotNull(message = "식사 시간을 입력해주세요.")
     @DateTimeFormat(pattern = "HH:mm")
-    private LocalTime mealTime;
+    private LocalTime dietTime;
 
     private List<DietFoodRequest> dietFoods;
 

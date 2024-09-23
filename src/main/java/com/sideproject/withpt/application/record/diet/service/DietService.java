@@ -97,8 +97,8 @@ public class DietService {
 
         DietInfo dietInfo = dietInfoRepository.findById(dietInfoId)
             .map(dietInfo1 -> {
-                dietInfo1.updateMealTime(request.getDietDateTime());
-                dietInfo1.updateMealCategory(request.getMealCategory());
+                dietInfo1.updateDietTime(request.getDietDateTime());
+                dietInfo1.updateDietCategory(request.getDietCategory());
                 return dietInfo1;
             })
             .orElseThrow(() -> DietException.DIET_FOOD_NOT_EXIST);
@@ -149,7 +149,7 @@ public class DietService {
         );
 
         if (files != null) {
-            imageUploader.uploadAndSaveImages(files, Usages.MEAL,
+            imageUploader.uploadAndSaveImages(files, Usages.DIET,
                 "DIET_" + diets.getId() + "/DIETINFO_" + saveDietInfo.getId(), member);
         }
     }
@@ -158,8 +158,8 @@ public class DietService {
         List<DietFood> dietFoods) {
         return DietInfo.builder()
             .diets(diets)
-            .mealCategory(request.getMealCategory())
-            .mealTime(LocalDateTime.of(request.getUploadDate(), request.getMealTime()))
+            .dietCategory(request.getDietCategory())
+            .dietTime(LocalDateTime.of(request.getUploadDate(), request.getDietTime()))
             .totalCalorie(statistics.getTotalCalories())
             .totalCarbohydrate(statistics.getTotalCarbohydrate())
             .totalProtein(statistics.getTotalProtein())
@@ -199,7 +199,7 @@ public class DietService {
 
     private void imageUpload(List<MultipartFile> files, Member member, Diets diets, DietInfo dietInfo) {
         if (files != null && !files.isEmpty()) {
-            imageUploader.uploadAndSaveImages(files, Usages.MEAL,
+            imageUploader.uploadAndSaveImages(files, Usages.DIET,
                 "DIET_" + diets.getId() + "/DIETINFO_" + dietInfo.getId(), member);
         }
     }
