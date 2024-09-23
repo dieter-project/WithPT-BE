@@ -6,16 +6,25 @@ import com.sideproject.withpt.common.exception.validator.CustomEnumDeserializer;
 @JsonDeserialize(using = CustomEnumDeserializer.class)
 public enum BodyPart {
 
-    FULL_BODY("전신"),    // 전신
-    ARM("팔"),            // 팔
-    ABS("복근"),          // 복근
-    LOWER_BODY("하체"),   // 하체
-    BACK("등"),           // 등
-    SHOULDER("어깨"),     // 어깨
-    CHEST("가슴"),        // 가슴
-    WAIST("허리"),        // 허리
-    BUTTOCKS("엉덩이"),   // 엉덩이
-    CORE("코어");         // 코어
+    // 전신
+    FULL_BODY("전신"),
+
+    // 하체
+    LOWER_BODY("하체"),
+    GLUTES("엉덩이"),
+    QUADRICEPS("앞 허벅지"),
+    HAMSTRINGS("뒤 허벅지"),
+    CALVES("종아리"),
+    ADDUCTORS("내전근"),
+
+    // 상체
+    UPPER_BODY("상체"),
+    CHEST("가슴"),
+    SHOULDERS("어깨"),
+    ARMS("팔"),
+    ABDOMINALS("복부"),
+    LOWER_BACK("허리"),
+    BACK("등");
 
     private final String description;
 

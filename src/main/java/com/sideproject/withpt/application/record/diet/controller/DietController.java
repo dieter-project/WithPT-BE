@@ -2,6 +2,7 @@ package com.sideproject.withpt.application.record.diet.controller;
 
 import com.sideproject.withpt.application.record.diet.controller.request.EditDietInfoRequest;
 import com.sideproject.withpt.application.record.diet.controller.request.SaveDietRequest;
+import com.sideproject.withpt.application.record.diet.exception.DietException;
 import com.sideproject.withpt.application.record.diet.service.DietService;
 import com.sideproject.withpt.application.record.diet.service.response.DailyDietResponse;
 import com.sideproject.withpt.application.record.diet.service.response.DietInfoResponse;
@@ -48,7 +49,10 @@ public class DietController {
     @PostMapping
     public void saveDiet(@Valid @RequestPart SaveDietRequest request, @RequestPart(required = false) List<MultipartFile> files,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        dietService.saveDiet(memberId, request, files);
+        if (request.getDietFoods() == null || request.getDietFoods().isEmpty()) {
+            throw DietException.AT_LEAST_ONE_DIET_DATA_MUST_BE_INCLUDED;
+        }
+        dietService.saveOrUpdateDiet(memberId, request, files);
     }
 
     @Operation(summary = "식단 정보 조회")
@@ -70,9 +74,9 @@ public class DietController {
 
     @Operation(summary = "식단 정보 삭제하기")
     @DeleteMapping("/{dietId}/dietInfos/{dietInfoId}")
-    public void deleteDiet(@PathVariable Long dietId, @PathVariable Long dietInfoId,
+    public void deleteDietInfo(@PathVariable Long dietId, @PathVariable Long dietInfoId,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        dietService.deleteDiet(memberId, dietId, dietInfoId);
+        dietService.deleteDietInfo(memberId, dietId, dietInfoId);
     }
 
 }

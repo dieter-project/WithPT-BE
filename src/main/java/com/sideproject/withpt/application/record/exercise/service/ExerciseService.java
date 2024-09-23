@@ -10,13 +10,17 @@ import com.sideproject.withpt.application.record.exercise.controller.response.Ex
 import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseInfoResponse.ExerciseInformation;
 import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseResponse;
 import com.sideproject.withpt.application.record.exercise.exception.ExerciseException;
+import com.sideproject.withpt.application.record.exercise.repository.BodyCategoryRepository;
 import com.sideproject.withpt.application.record.exercise.repository.BookmarkRepository;
+import com.sideproject.withpt.application.record.exercise.repository.ExerciseInfoRepository;
 import com.sideproject.withpt.application.record.exercise.repository.ExerciseRepository;
-import com.sideproject.withpt.application.type.BodyPart;
+import com.sideproject.withpt.application.type.ExerciseType;
 import com.sideproject.withpt.application.type.Usages;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.record.exercise.BodyCategory;
 import com.sideproject.withpt.domain.record.exercise.Exercise;
+import com.sideproject.withpt.domain.record.exercise.ExerciseInfo;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,6 +37,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class ExerciseService {
 
     private final ExerciseRepository exerciseRepository;
+    private final ExerciseInfoRepository exerciseInfoRepository;
+    private final BodyCategoryRepository bodyCategoryRepository;
     private final MemberRepository memberRepository;
     private final BookmarkRepository bookmarkRepository;
     private final ImageRepository imageRepository;
@@ -70,26 +76,22 @@ public class ExerciseService {
     }
 
     @Transactional
-    public void saveExercise(Long memberId, List<ExerciseRequest> requests, List<MultipartFile> files) {
-        if (requests.size() == 0) {
-            throw GlobalException.INVALID_PARAMETER;
-        }
+    public void saveExercise(Long memberId, List<ExerciseRequest> request, List<MultipartFile> files, LocalDate uploadDate) {
 
-        LocalDate uploadDate = requests.get(0).getUploadDate();
         Member member = validateMemberId(memberId);
 
         exerciseRepository.findFirstByMemberAndUploadDate(member, uploadDate)
             .ifPresentOrElse(exercise -> {
-                    requests.forEach(request -> exercise.addExerciseInfo(request.toExerciseInfo()));
-                    exerciseRepository.save(exercise);
+                    request.forEach(e -> exercise.addExerciseInfo(e.toExerciseInfo()));
                 },
                 () -> {
                     Exercise exercise = Exercise.builder()
                         .member(member)
+                        .exerciseInfos(request.stream()
+                            .map(ExerciseRequest::toExerciseInfo)
+                            .collect(Collectors.toList()))
                         .uploadDate(uploadDate)
                         .build();
-
-                    requests.forEach(request -> exercise.addExerciseInfo(request.toExerciseInfo()));
                     exerciseRepository.save(exercise);
                 });
 
@@ -105,11 +107,14 @@ public class ExerciseService {
 
         exerciseRepository.findExerciseInfoById(exerciseInfoId)
             .ifPresentOrElse(exerciseInfo -> {
+                    ExerciseType newType = request.getExerciseType();
+                    BodyCategory newBodyCategory = handleTypeChange(exerciseInfo, newType, request);
+
+                    // 공통 업데이트 처리
                     exerciseInfo.update(
                         request.getTitle(),
-                        request.getExerciseType(),
-                        request.getBodyParts().stream().map(BodyPart::valueOf)
-                            .collect(Collectors.toList()),
+                        newType,
+                        newBodyCategory,
                         request.getWeight(),
                         request.getExerciseSet(),
                         request.getTimes(),
@@ -123,10 +128,14 @@ public class ExerciseService {
     }
 
     @Transactional
-    public void deleteExercise(Long exerciseId, Long exerciseInfoId) {
-        exerciseRepository.findById(exerciseId)
+    public void deleteExerciseInfo(Long exerciseId, Long exerciseInfoId) {
+        Exercise exercise = exerciseRepository.findById(exerciseId)
             .orElseThrow(() -> ExerciseException.EXERCISE_NOT_EXIST);
-        exerciseRepository.deleteExerciseInfoById(exerciseInfoId);
+        exercise.getExerciseInfos()
+            .removeIf(info -> info.getId().equals(exerciseInfoId));
+
+        exerciseInfoRepository.deleteExerciseInfoById(exerciseInfoId);
+
     }
 
     @Transactional
@@ -139,15 +148,22 @@ public class ExerciseService {
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
     }
 
-    private Exercise validateExerciseId(Long exerciseId, Long memberId) {
-        Exercise exercise = exerciseRepository.findById(exerciseId)
-            .orElseThrow(() -> ExerciseException.EXERCISE_NOT_EXIST);
-        Member member = validateMemberId(memberId);
-
-        if (!exercise.getMember().getId().equals(member.getId())) {
-            throw ExerciseException.EXERCISE_NOT_BELONG_TO_MEMBER;
+    /**
+     * 운동 유형이 변경될 때 BodyCategory 처리
+     */
+    private BodyCategory handleTypeChange(ExerciseInfo exerciseInfo, ExerciseType newType, ExerciseEditRequest request) {
+        // 기존 BodyCategory 삭제
+        if (exerciseInfo.getBodyCategory() != null) {
+            bodyCategoryRepository.delete(exerciseInfo.getBodyCategory());
         }
-        return exercise;
+
+        if (newType == ExerciseType.AEROBIC) {
+            // 유산소로 변경 시 BodyCategory가 필요 없음
+            return null;
+        }
+
+        // 유산소가 아닌 경우에는 새 BodyCategory 생성
+        return request.toParentBodyCategory();
     }
 
 }

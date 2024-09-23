@@ -1,6 +1,7 @@
 package com.sideproject.withpt.domain.record.diet;
 
 import com.sideproject.withpt.domain.BaseEntity;
+import com.sideproject.withpt.domain.record.diet.utils.NutritionalInfo;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -17,10 +18,9 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class DietFood extends BaseEntity {
+public class DietFood extends BaseEntity implements NutritionalInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,19 +46,19 @@ public class DietFood extends BaseEntity {
     private double fat;    // 지방
 
     @Builder
-    public DietFood(DietInfo dietInfo, DietFood dietFood) {
-        this.dietInfo = dietInfo;
-        this.name = dietFood.getName();
-        this.capacity = dietFood.getCapacity();
-        this.units = dietFood.getUnits();
-        this.calories = dietFood.getCalories();
-        this.carbohydrate = dietFood.getCarbohydrate();
-        this.protein = dietFood.getProtein();
-        this.fat = dietFood.getFat();
+    public DietFood(String name, int capacity, String units, double calories, double carbohydrate, double protein, double fat) {
+        this.name = name;
+        this.capacity = capacity;
+        this.units = units;
+        this.calories = calories;
+        this.carbohydrate = carbohydrate;
+        this.protein = protein;
+        this.fat = fat;
     }
 
     protected void setDietInfo(DietInfo dietInfo) {
         this.dietInfo = dietInfo;
     }
+
 
 }

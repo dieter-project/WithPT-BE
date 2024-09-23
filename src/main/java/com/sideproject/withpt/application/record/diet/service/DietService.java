@@ -1,9 +1,11 @@
 package com.sideproject.withpt.application.record.diet.service;
 
+import com.sideproject.withpt.application.image.ImageUploader;
+import com.sideproject.withpt.application.image.repository.ImageRepository;
+import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.record.diet.controller.request.DietFoodRequest;
 import com.sideproject.withpt.application.record.diet.controller.request.EditDietInfoRequest;
 import com.sideproject.withpt.application.record.diet.controller.request.SaveDietRequest;
-import com.sideproject.withpt.application.record.diet.controller.request.SaveDietRequest.Summary;
 import com.sideproject.withpt.application.record.diet.exception.DietException;
 import com.sideproject.withpt.application.record.diet.repository.DietFoodRepository;
 import com.sideproject.withpt.application.record.diet.repository.DietInfoRepository;
@@ -12,18 +14,19 @@ import com.sideproject.withpt.application.record.diet.repository.DietRepository;
 import com.sideproject.withpt.application.record.diet.repository.response.DietInfoDto;
 import com.sideproject.withpt.application.record.diet.service.response.DailyDietResponse;
 import com.sideproject.withpt.application.record.diet.service.response.DietInfoResponse;
-import com.sideproject.withpt.application.record.exercise.exception.ExerciseException;
-import com.sideproject.withpt.application.image.ImageUploader;
-import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.type.Usages;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.record.Image;
 import com.sideproject.withpt.domain.record.diet.DietFood;
 import com.sideproject.withpt.domain.record.diet.DietInfo;
 import com.sideproject.withpt.domain.record.diet.Diets;
+import com.sideproject.withpt.domain.record.diet.utils.DietNutritionalStatistics;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -42,33 +45,18 @@ public class DietService {
     private final DietQueryRepository dietQueryRepository;
     private final MemberRepository memberRepository;
     private final ImageUploader imageUploader;
+    private final ImageRepository imageRepository;
 
     @Transactional
-    public void saveDiet(Long memberId, SaveDietRequest request, List<MultipartFile> files) {
+    public void saveOrUpdateDiet(Long memberId, SaveDietRequest request, List<MultipartFile> files) {
         Member member = validateMemberId(memberId);
-
-        if (request.getDietFoods() == null || request.getDietFoods().isEmpty()) {
-            throw DietException.DIET_FOOD_NOT_EXIST;
-        }
-
         dietQueryRepository.findByMemberAndUploadDate(member, request.getUploadDate())
-            .ifPresentOrElse(diets -> {
-                    Summary summary = request.getDietFoods().stream().collect(
-                        Summary::new,
-                        Summary::accept,
-                        Summary::combine
-                    );
-
-                    diets.addTotalCalorie(summary.getTotalCalories());
-                    diets.addTotalCarbohydrate(summary.getTotalCarbohydrate());
-                    diets.addTotalProtein(summary.getTotalProtein());
-                    diets.addTotalFat(summary.getTotalFat());
-
-                    addDietInfo(request, files, member, diets);
+            .ifPresentOrElse(existingDiets -> {
+                    handleDietUpdate(request, files, member, existingDiets);
                 },
                 () -> {
-                    Diets saveDiets = dietRepository.save(request.toEntity(member));
-                    addDietInfo(request, files, member, saveDiets);
+                    Diets newDiets = dietRepository.save(request.toEntity(member));
+                    handleDietUpdate(request, files, member, newDiets);
                 });
     }
 
@@ -77,8 +65,8 @@ public class DietService {
 
         return dietRepository.findByMemberAndUploadDate(member, uploadDate)
             .map(diets -> {
-                List<DietInfoDto> dietInfoDtos = dietQueryRepository.findAllDietInfoAndDietFoodByDiets(member, diets);
-                return DailyDietResponse.of(diets, dietInfoDtos);
+                    List<DietInfoDto> dietInfoDtos = dietQueryRepository.findAllDietInfoAndDietFoodByDiets(member, diets);
+                    return DailyDietResponse.of(diets, dietInfoDtos);
                 }
             )
             .orElse(null);
@@ -86,27 +74,19 @@ public class DietService {
 
     public DietInfoResponse findDietInfoById(Long memberId, Long dietInfoId) {
         Member member = validateMemberId(memberId);
-        DietInfoDto dietInfoDto = dietQueryRepository.findDietInfoById(member, dietInfoId);
-        return DietInfoResponse.of(dietInfoDto);
-    }
+        Optional<DietInfo> optionalDietInfo = dietInfoRepository.findById(dietInfoId);
 
-    @Transactional
-    public void modifyDiet(Long memberId, Long dietsId, SaveDietRequest request) {
-//        Diets diets = validateDietId(dietsId, memberId);
-//
-//        foodItemRepository.deleteByDiets(dietsId);
-//
-//        // 식단 음식 데이터 재저장
-//        if (request.getDietFoods() != null) {
-//            for (DietFoodRequest foodItemRequest : request.getDietFoods()) {
-//                DietFood foodItem = foodItemRequest.toEntity(diets);
-//
-//                foodItemRepository.save(foodItem);
-//                diets.addDietFood(foodItem);
-//            }
-//        }
+        if (optionalDietInfo.isEmpty()) {
+            return null;
+        }
 
-//        diets.updateDiets(request);
+        DietInfo dietInfo = optionalDietInfo.get();
+        List<DietFood> dietFoods = dietFoodRepository.findAllByDietInfoOrderById(dietInfo);
+
+        String imageUsageIdentificationId = "DIET_" + dietInfo.getDiets().getId() + "/DIETINFO_" + dietInfo.getId();
+        List<Image> images = imageRepository.findAllByMemberAndUsageIdentificationId(member, imageUsageIdentificationId);
+
+        return DietInfoResponse.of(dietInfo, dietFoods, images);
     }
 
     @Transactional
@@ -116,71 +96,21 @@ public class DietService {
             .orElseThrow(() -> DietException.DIET_NOT_EXIST);
 
         DietInfo dietInfo = dietInfoRepository.findById(dietInfoId)
+            .map(dietInfo1 -> {
+                dietInfo1.updateDietTime(request.getDietDateTime());
+                dietInfo1.updateDietCategory(request.getDietCategory());
+                return dietInfo1;
+            })
             .orElseThrow(() -> DietException.DIET_FOOD_NOT_EXIST);
 
-        // 삭제되는 음식 성분 값 빼기
-        if (!request.getDeletedFoodIds().isEmpty()) {
-            List<DietFood> deletedFoods = dietFoodRepository.findAllByIdInAndDietInfo(request.getDeletedFoodIds(), dietInfo);
-
-            for (DietFood deletedFood : deletedFoods) {
-                diets.subtractTotalCalorie(deletedFood.getCalories());
-                diets.subtractTotalCarbohydrate(deletedFood.getCarbohydrate());
-                diets.subtractTotalProtein(deletedFood.getProtein());
-                diets.subtractTotalFat(deletedFood.getFat());
-
-                dietInfo.subtractTotalCalorie(deletedFood.getCalories());
-                dietInfo.subtractTotalCarbohydrate(deletedFood.getCarbohydrate());
-                dietInfo.subtractTotalProtein(deletedFood.getProtein());
-                dietInfo.subtractTotalFat(deletedFood.getFat());
-            }
-
-            for (DietFood dietFood : deletedFoods) {
-                log.info("음식들 {}", dietFood);
-            }
-            dietFoodRepository.deleteAllByIdInAndDietInfo(request.getDeletedFoodIds(), dietInfo);
-        }
-
-        // 음식 추가
-        if (!request.getDietFoods().isEmpty()) {
-            Summary summary = request.getDietFoods().stream().collect(
-                Summary::new,
-                Summary::accept,
-                Summary::combine
-            );
-
-            for (DietFoodRequest foodRequest : request.getDietFoods()) {
-                DietFood dietFood = foodRequest.toEntity(dietInfo);
-                dietInfo.addDietFood(dietFood);
-            }
-
-            diets.addTotalCalorie(summary.getTotalCalories());
-            diets.addTotalCarbohydrate(summary.getTotalCarbohydrate());
-            diets.addTotalProtein(summary.getTotalProtein());
-            diets.addTotalFat(summary.getTotalFat());
-
-            dietInfo.addTotalCalorie(summary.getTotalCalories());
-            dietInfo.addTotalCarbohydrate(summary.getTotalCarbohydrate());
-            dietInfo.addTotalProtein(summary.getTotalProtein());
-            dietInfo.addTotalFat(summary.getTotalFat());
-        }
-
-        // 이미지 삭제
-        if (!request.getDeletedImageIds().isEmpty()) {
-            request.getDeletedImageIds().forEach(id -> imageUploader.deleteImage(id));
-        }
-
-        // 이미지 추가
-        if (!files.isEmpty()) {
-            imageUploader.uploadAndSaveImages(files, Usages.MEAL,
-                "DIET_" + diets.getId() + "/DIETINFO_" + dietInfo.getId(), member);
-        }
-
-        dietInfo.setMealTime(LocalDateTime.of(request.getUploadDate(), request.getMealTime()));
-        dietInfo.setMealCategory(request.getMealCategory());
+        removeDietFoods(request, diets, dietInfo);
+        addDietFood(request, diets, dietInfo);
+        imageDeletion(request);
+        imageUpload(files, member, diets, dietInfo);
     }
 
     @Transactional
-    public void deleteDiet(Long memberId, Long dietId, Long dietInfoId) {
+    public void deleteDietInfo(Long memberId, Long dietId, Long dietInfoId) {
         Member member = validateMemberId(memberId);
         Diets diets = dietRepository.findById(dietId)
             .orElseThrow(() -> DietException.DIET_NOT_EXIST);
@@ -202,48 +132,81 @@ public class DietService {
             .orElseThrow(() -> GlobalException.TEST_ERROR);
     }
 
-    private Diets validateDietId(Long exerciseId, Long memberId) {
-        Diets diets = dietRepository.findById(exerciseId)
-            .orElseThrow(() -> DietException.DIET_NOT_EXIST);
-        Member member = validateMemberId(memberId);
-
-        if (!diets.getMember().getId().equals(member.getId())) {
-            throw ExerciseException.EXERCISE_NOT_BELONG_TO_MEMBER;
-        }
-        return diets;
+    private void handleDietUpdate(SaveDietRequest request, List<MultipartFile> files, Member member, Diets diets) {
+        DietNutritionalStatistics<DietFoodRequest> statistics = DietNutritionalStatistics.getStatisticsBy(request.getDietFoods());
+        diets.addTotalNutritionalStatistics(statistics);
+        addDietInfo(request, files, statistics, member, diets);
     }
 
-    private void addDietInfo(SaveDietRequest request, List<MultipartFile> files, Member member, Diets diets) {
+    private void addDietInfo(SaveDietRequest request, List<MultipartFile> files, DietNutritionalStatistics<DietFoodRequest> statistics, Member member,
+        Diets diets) {
+        List<DietFood> dietFoods = request.getDietFoods().stream()
+            .map(DietFoodRequest::toEntity)
+            .collect(Collectors.toList());
 
-        Summary summary = request.getDietFoods().stream().collect(
-            Summary::new,
-            Summary::accept,
-            Summary::combine
+        DietInfo saveDietInfo = dietInfoRepository.save(
+            createDietInfo(request, diets, statistics, dietFoods)
         );
 
-        DietInfo dietInfo = DietInfo.builder()
-            .diets(diets)
-            .mealCategory(request.getMealCategory())
-            .mealTime(LocalDateTime.of(request.getUploadDate(), request.getMealTime()))
-            .totalCalorie(summary.getTotalCalories())
-            .totalCarbohydrate(summary.getTotalCarbohydrate())
-            .totalProtein(summary.getTotalProtein())
-            .totalFat(summary.getTotalFat())
-            .build();
-
-        // 식단 상세 추가하기
-        for (DietFoodRequest foodRequest : request.getDietFoods()) {
-            DietFood dietFood = foodRequest.toEntity(dietInfo);
-            dietInfo.addDietFood(dietFood);
-        }
-        DietInfo saveDietInfo = dietInfoRepository.save(dietInfo);
-
-        log.info("files {}", files);
-
         if (files != null) {
-            imageUploader.uploadAndSaveImages(files, Usages.MEAL,
+            imageUploader.uploadAndSaveImages(files, Usages.DIET,
                 "DIET_" + diets.getId() + "/DIETINFO_" + saveDietInfo.getId(), member);
         }
     }
 
+    private DietInfo createDietInfo(SaveDietRequest request, Diets diets, DietNutritionalStatistics<DietFoodRequest> statistics,
+        List<DietFood> dietFoods) {
+        return DietInfo.builder()
+            .diets(diets)
+            .dietCategory(request.getDietCategory())
+            .dietTime(LocalDateTime.of(request.getUploadDate(), request.getDietTime()))
+            .totalCalorie(statistics.getTotalCalories())
+            .totalCarbohydrate(statistics.getTotalCarbohydrate())
+            .totalProtein(statistics.getTotalProtein())
+            .totalFat(statistics.getTotalFat())
+            .dietFoods(dietFoods)
+            .build();
+    }
+
+    private void removeDietFoods(EditDietInfoRequest request, Diets diets, DietInfo dietInfo) {
+        List<Long> deletedFoodIds = request.getDeletedFoodIds();
+
+        if (!deletedFoodIds.isEmpty()) {
+            List<DietFood> deletedFoods = dietFoodRepository.findAllByIdInAndDietInfo(request.getDeletedFoodIds(), dietInfo);
+            DietNutritionalStatistics<DietFood> statistics = DietNutritionalStatistics.getStatisticsBy(deletedFoods);
+
+            diets.subtractTotalNutritionalStatistics(statistics);
+            dietInfo.subtractTotalNutritionalStatistics(statistics);
+
+            dietFoodRepository.deleteAllByIdInAndDietInfo(request.getDeletedFoodIds(), dietInfo);
+        }
+    }
+
+    private void addDietFood(EditDietInfoRequest request, Diets diets, DietInfo dietInfo) {
+        List<DietFoodRequest> dietFoods = request.getDietFoods();
+        if (!dietFoods.isEmpty()) {
+            DietNutritionalStatistics<DietFoodRequest> statistics = DietNutritionalStatistics.getStatisticsBy(request.getDietFoods());
+
+            request.getDietFoods().forEach(foodRequest -> {
+                DietFood dietFood = foodRequest.toEntity();
+                dietInfo.addDietFood(dietFood);
+            });
+
+            diets.addTotalNutritionalStatistics(statistics);
+            dietInfo.addTotalNutritionalStatistics(statistics);
+        }
+    }
+
+    private void imageUpload(List<MultipartFile> files, Member member, Diets diets, DietInfo dietInfo) {
+        if (files != null && !files.isEmpty()) {
+            imageUploader.uploadAndSaveImages(files, Usages.DIET,
+                "DIET_" + diets.getId() + "/DIETINFO_" + dietInfo.getId(), member);
+        }
+    }
+
+    private void imageDeletion(EditDietInfoRequest request) {
+        if (!request.getDeletedImageIds().isEmpty()) {
+            request.getDeletedImageIds().forEach(imageUploader::deleteImage);
+        }
+    }
 }

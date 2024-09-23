@@ -1,6 +1,7 @@
 package com.sideproject.withpt.application.record.diet.service.response;
 
 import com.sideproject.withpt.application.record.diet.repository.response.DietFoodDto;
+import com.sideproject.withpt.domain.record.diet.DietFood;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -41,6 +42,19 @@ public class DietFoodResponse {
             .carbohydrate(dietFoodDto.getCarbohydrate())
             .protein(dietFoodDto.getProtein())
             .fat(dietFoodDto.getFat())
+            .build();
+    }
+
+    public static DietFoodResponse of(DietFood dietFood) {
+        return DietFoodResponse.builder()
+            .id(dietFood.getId())
+            .name(dietFood.getName())
+            .capacity(dietFood.getCapacity())
+            .units(dietFood.getUnits())
+            .calories(dietFood.getCalories())
+            .carbohydrate(dietFood.getCarbohydrate())
+            .protein(dietFood.getProtein())
+            .fat(dietFood.getFat())
             .build();
     }
 }

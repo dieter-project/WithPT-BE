@@ -2,12 +2,15 @@ package com.sideproject.withpt.application.record.exercise.controller.response;
 
 import com.sideproject.withpt.application.type.BodyPart;
 import com.sideproject.withpt.application.type.ExerciseType;
+import com.sideproject.withpt.domain.record.exercise.BodyCategory;
 import com.sideproject.withpt.domain.record.exercise.Exercise;
 import com.sideproject.withpt.domain.record.exercise.ExerciseInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,18 +38,32 @@ public class ExerciseInfoResponse {
         private Long id;
         private String title;
         private ExerciseType exerciseType;
-        private List<BodyPart> bodyParts = new ArrayList<>();
+        private BodyPart bodyPart;
+        private List<BodyPart> specificBodyParts;
         private int weight;
         private int exerciseSet;
         private int times;
         private int exerciseTime;
 
         public static ExerciseInformation of(ExerciseInfo exerciseInfo) {
+            BodyPart bodyPart = Optional.ofNullable(exerciseInfo.getBodyCategory())
+                .map(BodyCategory::getName)
+                .orElse(null);
+
+            List<BodyPart> specificBodyParts = Optional.ofNullable(exerciseInfo.getBodyCategory())
+                .map(BodyCategory::getChildren)
+                .filter(children -> !children.isEmpty())
+                .map(children -> children.stream()
+                    .map(BodyCategory::getName)
+                    .collect(Collectors.toList()))
+                .orElse(null);
+
             return ExerciseInformation.builder()
                 .id(exerciseInfo.getId())
                 .title(exerciseInfo.getTitle())
                 .exerciseType(exerciseInfo.getExerciseType())
-                .bodyParts(exerciseInfo.getBodyParts())
+                .bodyPart(bodyPart)
+                .specificBodyParts(specificBodyParts)
                 .weight(exerciseInfo.getWeight())
                 .exerciseSet(exerciseInfo.getExerciseSet())
                 .times(exerciseInfo.getTimes())

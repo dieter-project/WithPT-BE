@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sideproject.withpt.common.exception.validator.CustomEnumDeserializer;
 
 @JsonDeserialize(using = CustomEnumDeserializer.class)
-public enum MealCategory {
+public enum DietCategory {
 
     BREAKFAST("아침"), // 아침
     BRUNCH("아점"),    // 아점
@@ -17,7 +17,7 @@ public enum MealCategory {
 
     private final String description;
 
-    MealCategory(String description) {
+    DietCategory(String description) {
         this.description = description;
     }
 
