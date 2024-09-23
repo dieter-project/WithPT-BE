@@ -27,8 +27,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
+//@Transactional
 @ActiveProfiles("test")
 @SpringBootTest
 class DietQueryRepositoryTest {
@@ -49,6 +52,7 @@ class DietQueryRepositoryTest {
     private DietQueryRepository dietQueryRepository;
 
     @DisplayName("식단으로 하위에 있는 식단 정보, 식단 음식, 음식 이미지를 조회할 수 있다.")
+    @Rollback(value = false)
     @Test
     void findAllDietInfoAndDietFoodByDiets() {
         // given
@@ -56,16 +60,23 @@ class DietQueryRepositoryTest {
         LocalDate uploadDate = LocalDate.of(2024, 9, 7);
 
         Member member = saveMember(dietType);
-        Diets diets = saveDiets(dietType, member, uploadDate);
+        Diets diets = createDiets(dietType, member, uploadDate);
+        dietRepository.save(diets);
 
         DietFood dietFood1 = createDietFood("음식1");
         DietFood dietFood2 = createDietFood("음식2");
         DietFood dietFood3 = createDietFood("음식3");
-        List<DietFood> dietFoods = List.of(dietFood1, dietFood2, dietFood3);
+        DietFood dietFood4 = createDietFood("음식4");
+        DietFood dietFood5 = createDietFood("음식5");
+        DietFood dietFood6 = createDietFood("음식6");
+        List<DietFood> dietFoods1 = List.of(dietFood1, dietFood2);
+        List<DietFood> dietFoods2 = List.of(dietFood3, dietFood4);
+        List<DietFood> dietFoods3 = List.of(dietFood5, dietFood6);
 
-        DietInfo dietInfo1 = saveDietInfo(diets, BREAKFAST, LocalDateTime.of(2024, 9, 7, 8, 30), dietFoods);
-        DietInfo dietInfo2 = saveDietInfo(diets, LUNCH, LocalDateTime.of(2024, 9, 7, 12, 0), dietFoods);
-        DietInfo dietInfo3 = saveDietInfo(diets, DINNER, LocalDateTime.of(2024, 9, 7, 19, 20), dietFoods);
+        DietInfo dietInfo1 = createDietInfo(diets, BREAKFAST, LocalDateTime.of(2024, 9, 7, 8, 30), dietFoods1);
+        DietInfo dietInfo2 = createDietInfo(diets, LUNCH, LocalDateTime.of(2024, 9, 7, 12, 0), dietFoods2);
+        DietInfo dietInfo3 = createDietInfo(diets, DINNER, LocalDateTime.of(2024, 9, 7, 19, 20), dietFoods3);
+        dietInfoRepository.saveAll(List.of(dietInfo1, dietInfo2, dietInfo3));
 
         String targetUsageIdentificationId = "DIET_" + diets.getId() + "/DIETINFO_" + dietInfo1.getId();
 
@@ -87,10 +98,10 @@ class DietQueryRepositoryTest {
             );
 
         List<DietFoodDto> dietFoodDtos = dietInfoDtos.get(0).getDietFoods();
-        assertThat(dietFoodDtos).hasSize(3)
+        assertThat(dietFoodDtos).hasSize(2)
             .extracting("name")
             .containsExactly(
-                "음식1", "음식2", "음식3"
+                "음식1", "음식2"
             );
 
         List<ImageDto> imageDtos = dietInfoDtos.get(0).getImages();
@@ -110,33 +121,29 @@ class DietQueryRepositoryTest {
         );
     }
 
-    private Diets saveDiets(DietType dietType, Member member, LocalDate uploadDate) {
-        return dietRepository.save(
-            Diets.builder()
-                .member(member)
-                .uploadDate(uploadDate)
-                .totalCalorie(1200)
-                .totalProtein(200)
-                .totalCarbohydrate(300)
-                .totalFat(400)
-                .targetDietType(dietType)
-                .build()
-        );
+    private Diets createDiets(DietType dietType, Member member, LocalDate uploadDate) {
+        return Diets.builder()
+            .member(member)
+            .uploadDate(uploadDate)
+            .totalCalorie(1200)
+            .totalProtein(200)
+            .totalCarbohydrate(300)
+            .totalFat(400)
+            .targetDietType(dietType)
+            .build();
     }
 
-    private DietInfo saveDietInfo(Diets diets, MealCategory mealCategory, LocalDateTime mealTime, List<DietFood> dietFoods) {
-        return dietInfoRepository.save(
-            DietInfo.builder()
-                .diets(diets)
-                .mealCategory(mealCategory)
-                .mealTime(mealTime)
-                .totalCalorie(1000)
-                .totalProtein(300)
-                .totalCarbohydrate(200)
-                .totalFat(100)
-                .dietFoods(dietFoods)
-                .build()
-        );
+    private DietInfo createDietInfo(Diets diets, MealCategory mealCategory, LocalDateTime mealTime, List<DietFood> dietFoods) {
+        return DietInfo.builder()
+            .diets(diets)
+            .mealCategory(mealCategory)
+            .mealTime(mealTime)
+            .totalCalorie(1000)
+            .totalProtein(300)
+            .totalCarbohydrate(200)
+            .totalFat(100)
+            .dietFoods(dietFoods)
+            .build();
     }
 
     private DietFood createDietFood(String name) {

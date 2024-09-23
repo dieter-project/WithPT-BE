@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.record.diet.controller.request;
 
 import com.sideproject.withpt.domain.record.diet.DietFood;
-import com.sideproject.withpt.domain.record.diet.DietInfo;
+import com.sideproject.withpt.domain.record.diet.utils.NutritionalInfo;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +14,7 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class DietFoodRequest {
+public class DietFoodRequest implements NutritionalInfo {
 
     private String name;
 
@@ -30,9 +30,8 @@ public class DietFoodRequest {
 
     private double fat;    // 지방
 
-    public DietFood toEntity(DietInfo dietInfo) {
+    public DietFood toEntity() {
         return DietFood.builder()
-            .dietInfo(dietInfo)
             .name(name)
             .capacity(capacity)
             .units(units)

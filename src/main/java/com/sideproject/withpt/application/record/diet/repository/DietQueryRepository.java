@@ -19,6 +19,8 @@ import com.sideproject.withpt.application.record.diet.repository.response.QDietF
 import com.sideproject.withpt.application.record.diet.repository.response.QDietInfoDto;
 import com.sideproject.withpt.application.record.diet.repository.response.QImageDto;
 import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.record.diet.DietFood;
+import com.sideproject.withpt.domain.record.diet.DietInfo;
 import com.sideproject.withpt.domain.record.diet.Diets;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -38,27 +40,12 @@ public class DietQueryRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     public Optional<Diets> findByMemberAndUploadDate(Member member, LocalDate uploadDate) {
-
-        DateTemplate<LocalDate> selectedDateTemplate = Expressions.dateTemplate(
-            LocalDate.class,
-            "DATE_FORMAT({0}, {1})",
-            uploadDate,
-            ConstantImpl.create("%Y-%m-%d")
-        );
-
-        DateTemplate<LocalDate> createdDateTemplate = Expressions.dateTemplate(
-            LocalDate.class,
-            "DATE_FORMAT({0}, {1})",
-            diets.uploadDate,
-            Expressions.constant("%Y-%m-%d")
-        );
-
         return Optional.ofNullable(
             jpaQueryFactory
                 .selectFrom(diets)
                 .where(
                     diets.member.eq(member)
-                        .and(createdDateTemplate.eq(selectedDateTemplate))
+                        .and(diets.uploadDate.eq(uploadDate))
                 )
                 .fetchOne()
         );
@@ -121,68 +108,6 @@ public class DietQueryRepository {
 
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    public DietInfoDto findDietInfoById(Member member, Long dietInfoId) {
-
-        try {
-            StringTemplate imageUsageIdentificationId = Expressions.stringTemplate(
-                "CONCAT('DIET_', {0}, '/DIETINFO_', {1})",
-                dietInfo.diets.id.stringValue(),
-                dietInfo.id.stringValue()
-            );
-
-            List<DietInfoDto> dietInfoDtos = jpaQueryFactory
-                .select(dietInfo)
-                .from(dietInfo)
-                .leftJoin(dietFood).on(dietFood.dietInfo.eq(dietInfo))
-                .where(dietInfo.id.eq(dietInfoId))
-                .orderBy(dietInfo.mealTime.asc(), dietFood.id.asc())
-                .transform(groupBy(dietInfo.id)
-                    .list(new QDietInfoDto(
-                        dietInfo.id,
-                        dietInfo.mealCategory,
-                        dietInfo.mealTime,
-                        dietInfo.totalCalorie,
-                        dietInfo.totalProtein,
-                        dietInfo.totalCarbohydrate,
-                        dietInfo.totalFat,
-                        list(new QDietFoodDto(
-                            dietFood.id,
-                            dietFood.name,
-                            dietFood.capacity,
-                            dietFood.units,
-                            dietFood.calories,
-                            dietFood.carbohydrate,
-                            dietFood.protein,
-                            dietFood.fat
-                        ))
-                    ))
-                );
-
-            DietInfoDto dietInfoDto = dietInfoDtos.get(0);
-            dietInfoDto.setImages(
-                jpaQueryFactory
-                    .select(
-                        new QImageDto(
-                            image.id,
-                            image.usageIdentificationId,
-                            image.usages,
-                            image.uploadDate,
-                            image.url,
-                            image.attachType
-                        )
-                    )
-                    .from(image)
-                    .where(image.member.eq(member).and(
-                        image.usageIdentificationId.eq(imageUsageIdentificationId)
-                    )).fetch()
-            );
-
-            return dietInfoDto;
-        } catch (Exception e) {
-            throw new DietException(DietErrorCode.DIET_NOT_EXIST);
         }
     }
 

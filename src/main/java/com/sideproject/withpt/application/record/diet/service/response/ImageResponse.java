@@ -2,6 +2,7 @@ package com.sideproject.withpt.application.record.diet.service.response;
 
 import com.sideproject.withpt.application.record.diet.repository.response.ImageDto;
 import com.sideproject.withpt.application.type.Usages;
+import com.sideproject.withpt.domain.record.Image;
 import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -37,6 +38,17 @@ public class ImageResponse {
             .uploadDate(imageDto.getUploadDate())
             .url(imageDto.getUrl())
             .attachType(imageDto.getAttachType())
+            .build();
+    }
+
+    public static ImageResponse of(Image image) {
+        return ImageResponse.builder()
+            .id(image.getId())
+            .usageIdentificationId(image.getUsageIdentificationId())
+            .usages(image.getUsages())
+            .uploadDate(image.getUploadDate())
+            .url(image.getUrl())
+            .attachType(image.getAttachType())
             .build();
     }
 }

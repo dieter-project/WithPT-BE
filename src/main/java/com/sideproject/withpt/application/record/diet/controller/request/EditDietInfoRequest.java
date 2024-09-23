@@ -3,6 +3,7 @@ package com.sideproject.withpt.application.record.diet.controller.request;
 import com.sideproject.withpt.application.type.MealCategory;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import javax.validation.constraints.NotNull;
@@ -35,33 +36,7 @@ public class EditDietInfoRequest {
 
     private List<DietFoodRequest> dietFoods;
 
-    @Getter
-    public static class Summary {
-
-        private double totalCalories;
-        private double totalCarbohydrate;
-        private double totalProtein;
-        private double totalFat;
-
-        public Summary() {
-            this.totalCalories = 0;
-            this.totalCarbohydrate = 0;
-            this.totalProtein = 0;
-            this.totalFat = 0;
-        }
-
-        public void accept(DietFoodRequest request) {
-            this.totalCalories += request.getCalories();
-            this.totalCarbohydrate += request.getCarbohydrate();
-            this.totalProtein += request.getProtein();
-            this.totalFat += request.getFat();
-        }
-
-        public void combine(Summary other) {
-            this.totalCalories += other.totalCalories;
-            this.totalCarbohydrate += other.totalCarbohydrate;
-            this.totalProtein += other.totalProtein;
-            this.totalFat += other.totalFat;
-        }
+    public LocalDateTime getDietDateTime() {
+        return LocalDateTime.of(uploadDate, mealTime);
     }
 }
