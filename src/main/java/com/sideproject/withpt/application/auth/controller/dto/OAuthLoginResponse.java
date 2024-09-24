@@ -3,6 +3,7 @@ package com.sideproject.withpt.application.auth.controller.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.sideproject.withpt.application.auth.infra.OAuthInfoResponse;
+import com.sideproject.withpt.application.trainer.service.dto.TrainerSignUpResponse;
 import com.sideproject.withpt.application.type.OAuthProvider;
 import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
@@ -62,6 +63,21 @@ public class OAuthLoginResponse {
             .name(trainer.getName())
             .oAuthProvider(trainer.getOauthProvider())
             .role(trainer.getRole())
+            .grantType(tokenSetDto.getGrantType())
+            .accessToken(tokenSetDto.getAccessToken())
+            .accessExpiredAt(tokenSetDto.getAccessExpiredAt())
+            .refreshToken(tokenSetDto.getRefreshToken())
+            .refreshExpiredAt(tokenSetDto.getRefreshExpiredAt())
+            .build();
+    }
+
+    public static OAuthLoginResponse of(TrainerSignUpResponse signUpResponse, TokenSetDto tokenSetDto) {
+        return OAuthLoginResponse.builder()
+            .id(signUpResponse.getId())
+            .email(signUpResponse.getEmail())
+            .name(signUpResponse.getName())
+            .oAuthProvider(signUpResponse.getOAuthProvider())
+            .role(signUpResponse.getRole())
             .grantType(tokenSetDto.getGrantType())
             .accessToken(tokenSetDto.getAccessToken())
             .accessExpiredAt(tokenSetDto.getAccessExpiredAt())

@@ -7,6 +7,7 @@ import com.sideproject.withpt.application.gym.service.GymService;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
 import com.sideproject.withpt.application.schedule.service.WorkScheduleService;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
+import com.sideproject.withpt.application.trainer.service.dto.TrainerSignUpResponse;
 import com.sideproject.withpt.application.trainer.service.dto.complex.TrainerSignUpDto;
 import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.common.exception.GlobalException;
@@ -39,22 +40,22 @@ public class TrainerAuthenticationService {
 
     public OAuthLoginResponse signUp(TrainerSignUpDto signUpDto) {
 
-        Trainer trainer = registerTrainerWithGymsAndSchedules(signUpDto);
+        TrainerSignUpResponse trainerSignUpResponse = registerTrainerWithGymsAndSchedules(signUpDto);
 
-        TokenSetDto tokenSetDto = authTokenGenerator.generateTokenSet(trainer.getId(), Role.TRAINER);
+        TokenSetDto tokenSetDto = authTokenGenerator.generateTokenSet(trainerSignUpResponse.getId(), Role.TRAINER);
 
         redisClient.put(
-            TRAINER_REFRESH_TOKEN_PREFIX + trainer.getId(),
+            TRAINER_REFRESH_TOKEN_PREFIX + trainerSignUpResponse.getId(),
             tokenSetDto.getRefreshToken(),
             TimeUnit.SECONDS,
             tokenSetDto.getRefreshExpiredAt()
         );
 
-        return OAuthLoginResponse.of(trainer, tokenSetDto);
+        return OAuthLoginResponse.of(trainerSignUpResponse, tokenSetDto);
     }
 
     @Transactional
-    public Trainer registerTrainerWithGymsAndSchedules(TrainerSignUpDto signUpDto) {
+    public TrainerSignUpResponse registerTrainerWithGymsAndSchedules(TrainerSignUpDto signUpDto) {
         if (trainerRepository.existsByEmail(signUpDto.getEmail())) {
             throw GlobalException.ALREADY_REGISTERED_USER;
         }
@@ -64,7 +65,7 @@ public class TrainerAuthenticationService {
         List<GymTrainer> gymTrainers = registerGymTrainers(savedGym, trainer);
         workScheduleService.registerWorkSchedules(signUpDto.getGyms(), gymTrainers);
 
-        return trainer;
+        return TrainerSignUpResponse.of(trainer);
     }
 
     private List<GymTrainer> registerGymTrainers(List<Gym> gyms, Trainer trainer) {
