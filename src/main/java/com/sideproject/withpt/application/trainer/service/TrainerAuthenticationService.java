@@ -4,7 +4,7 @@ import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.TRA
 
 import com.sideproject.withpt.application.auth.controller.dto.OAuthLoginResponse;
 import com.sideproject.withpt.application.gym.service.GymService;
-import com.sideproject.withpt.application.gymtrainer.GymTrainerService;
+import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
 import com.sideproject.withpt.application.schedule.service.WorkScheduleService;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.application.trainer.service.dto.complex.TrainerSignUpDto;
@@ -18,6 +18,7 @@ import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ public class TrainerAuthenticationService {
 
     private final TrainerRepository trainerRepository;
     private final GymService gymService;
-    private final GymTrainerService gymTrainerService;
+    private final GymTrainerRepository gymTrainerRepository;
     private final WorkScheduleService workScheduleService;
 
     private final AuthTokenGenerator authTokenGenerator;
@@ -60,10 +61,18 @@ public class TrainerAuthenticationService {
 
         Trainer trainer = trainerRepository.save(signUpDto.toTrainerEntity());
         List<Gym> savedGym = gymService.registerGyms(signUpDto.getGyms());
-        List<GymTrainer> gymTrainers = gymTrainerService.registerGymTrainers(savedGym, trainer);
+        List<GymTrainer> gymTrainers = registerGymTrainers(savedGym, trainer);
         workScheduleService.registerWorkSchedules(signUpDto.getGyms(), gymTrainers);
 
         return trainer;
+    }
+
+    private List<GymTrainer> registerGymTrainers(List<Gym> gyms, Trainer trainer) {
+        return gymTrainerRepository.saveAll(
+            gyms.stream()
+                .map(gym -> GymTrainer.createGymTrainer(gym, trainer))
+                .collect(Collectors.toList())
+        );
     }
 
 }
