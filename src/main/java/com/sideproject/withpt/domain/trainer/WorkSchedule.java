@@ -3,6 +3,7 @@ package com.sideproject.withpt.domain.trainer;
 import com.sideproject.withpt.application.type.Day;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.domain.gym.Gym;
+import com.sideproject.withpt.domain.gym.GymTrainer;
 import java.time.LocalTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -42,6 +43,10 @@ public class WorkSchedule extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "gym_id")
     private Gym gym;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gym_trainer_id")
+    private GymTrainer gymTrainer;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "\"DAY\"")

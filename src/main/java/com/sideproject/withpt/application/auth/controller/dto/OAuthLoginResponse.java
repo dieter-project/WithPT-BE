@@ -6,6 +6,7 @@ import com.sideproject.withpt.application.auth.infra.OAuthInfoResponse;
 import com.sideproject.withpt.application.type.OAuthProvider;
 import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
+import com.sideproject.withpt.domain.trainer.Trainer;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -54,4 +55,18 @@ public class OAuthLoginResponse {
             .build();
     }
 
+    public static OAuthLoginResponse of(Trainer trainer, TokenSetDto tokenSetDto) {
+        return OAuthLoginResponse.builder()
+            .id(trainer.getId())
+            .email(trainer.getEmail())
+            .name(trainer.getName())
+            .oAuthProvider(trainer.getOauthProvider())
+            .role(trainer.getRole())
+            .grantType(tokenSetDto.getGrantType())
+            .accessToken(tokenSetDto.getAccessToken())
+            .accessExpiredAt(tokenSetDto.getAccessExpiredAt())
+            .refreshToken(tokenSetDto.getRefreshToken())
+            .refreshExpiredAt(tokenSetDto.getRefreshExpiredAt())
+            .build();
+    }
 }

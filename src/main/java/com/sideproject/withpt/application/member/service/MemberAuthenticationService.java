@@ -58,8 +58,7 @@ public class MemberAuthenticationService {
         );
 
         return OAuthLoginResponse.of(userId, params.getEmail(), params.getName(), params.getOauthProvider(),
-            params.toMemberEntity()
-                .getRole(), tokenSetDto);
+            params.toMemberEntity().getRole(), tokenSetDto);
     }
 
     @Transactional

@@ -2,18 +2,24 @@ package com.sideproject.withpt.application.trainer.service.dto.single;
 
 import com.sideproject.withpt.domain.trainer.Certificate;
 import java.time.YearMonth;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
-@Builder
+@ToString
 public class CertificateDto {
 
-    private String name;
-    private String institution;
-    private YearMonth acquisitionYearMonth;
+    private final String name;
+    private final String institution;
+    private final YearMonth acquisitionYearMonth;
+
+    @Builder
+    private CertificateDto(String name, String institution, YearMonth acquisitionYearMonth) {
+        this.name = name;
+        this.institution = institution;
+        this.acquisitionYearMonth = acquisitionYearMonth;
+    }
 
     public Certificate toEntity() {
         return Certificate.builder()
@@ -23,9 +29,4 @@ public class CertificateDto {
             .build();
     }
 
-    public static List<Certificate> toEntities(List<CertificateDto> certificateDtos) {
-        return certificateDtos.stream()
-            .map(CertificateDto::toEntity)
-            .collect(Collectors.toList());
-    }
 }

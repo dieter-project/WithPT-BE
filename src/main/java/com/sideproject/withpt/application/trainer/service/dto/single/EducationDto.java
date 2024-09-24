@@ -2,18 +2,24 @@ package com.sideproject.withpt.application.trainer.service.dto.single;
 
 import com.sideproject.withpt.domain.trainer.Education;
 import java.time.YearMonth;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
-@Builder
+@ToString
 public class EducationDto {
 
-    private String name;
-    private String institution;
-    private YearMonth acquisitionYearMonth;
+    private final String name;
+    private final String institution;
+    private final YearMonth acquisitionYearMonth;
+
+    @Builder
+    private EducationDto(String name, String institution, YearMonth acquisitionYearMonth) {
+        this.name = name;
+        this.institution = institution;
+        this.acquisitionYearMonth = acquisitionYearMonth;
+    }
 
     public Education toEntity() {
         return Education.builder()
@@ -23,9 +29,4 @@ public class EducationDto {
             .build();
     }
 
-    public static List<Education> toEntities(List<EducationDto> educationDtos) {
-        return educationDtos.stream()
-            .map(EducationDto::toEntity)
-            .collect(Collectors.toList());
-    }
 }

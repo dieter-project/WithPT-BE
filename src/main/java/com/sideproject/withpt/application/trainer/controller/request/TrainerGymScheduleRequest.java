@@ -1,7 +1,6 @@
 package com.sideproject.withpt.application.trainer.controller.request;
 
-import com.sideproject.withpt.application.trainer.service.dto.complex.TrainerGymScheduleDto;
-import java.util.ArrayList;
+import com.sideproject.withpt.application.trainer.service.dto.complex.GymScheduleDto;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
@@ -32,8 +31,8 @@ public class TrainerGymScheduleRequest {
     @Valid
     private List<WorkScheduleRequest> workSchedules;
 
-    public TrainerGymScheduleDto toGymScheduleSDto() {
-        return TrainerGymScheduleDto.builder()
+    public GymScheduleDto toGymScheduleSDto() {
+        return GymScheduleDto.builder()
             .name(this.name)
             .address(this.address)
             .latitude(this.latitude)
@@ -42,7 +41,7 @@ public class TrainerGymScheduleRequest {
             .build();
     }
 
-    public static List<TrainerGymScheduleDto> toTrainerGymScheduleDtos(List<TrainerGymScheduleRequest> gyms) {
+    public static List<GymScheduleDto> toTrainerGymScheduleDtos(List<TrainerGymScheduleRequest> gyms) {
         return gyms.stream()
             .map(TrainerGymScheduleRequest::toGymScheduleSDto)
             .collect(Collectors.toList());

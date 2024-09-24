@@ -5,12 +5,12 @@ import com.sideproject.withpt.application.type.OAuthProvider;
 import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.application.type.Sex;
 import com.sideproject.withpt.domain.BaseEntity;
-import com.sideproject.withpt.domain.gym.GymTrainer;
 import io.jsonwebtoken.lang.Assert;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -61,12 +61,6 @@ public class Trainer extends BaseEntity {
     private LocalDateTime joinDate;
 
     @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<GymTrainer> gymTrainers = new ArrayList<>();
-
-    @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<WorkSchedule> workSchedules = new ArrayList<>();
-
-    @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Career> careers = new ArrayList<>();
 
     @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -108,16 +102,22 @@ public class Trainer extends BaseEntity {
         this.educations = new ArrayList<>();
     }
 
-    // == 연관 관계 메서드 == //
-    public void addGymTrainer(GymTrainer gymTrainer) {
-        gymTrainer.addTrainer(this);
-        this.gymTrainers.add(gymTrainer);
+    @Builder(builderClassName = "signUpBuilder", builderMethodName = "signUpBuilder")
+    public Trainer(Long id, String email, String name, String imageUrl, LocalDate birth, Sex sex, LoginType loginType, OAuthProvider oauthProvider,
+        Role role, LocalDateTime joinDate) {
+        this.id = id;
+        this.email = email;
+        this.name = name;
+        this.imageUrl = imageUrl;
+        this.birth = birth;
+        this.sex = sex;
+        this.loginType = loginType;
+        this.oauthProvider = oauthProvider;
+        this.role = role;
+        this.joinDate = joinDate;
     }
 
-    public void addWorkSchedule(WorkSchedule workSchedule) {
-        workSchedule.setTrainer(this);
-        this.workSchedules.add(workSchedule);
-    }
+    // == 연관 관계 메서드 == //
     public void addCareer(Career career) {
         career.setTrainer(this);
         this.careers.add(career);
@@ -141,23 +141,6 @@ public class Trainer extends BaseEntity {
     public void addEducation(Education education) {
         education.setTrainer(this);
         this.educations.add(education);
-    }
-
-
-    public static Trainer createSignUpTrainer(Trainer trainer,
-        List<WorkSchedule> workSchedules, List<GymTrainer> gymTrainers, List<Career> careers,
-        List<Academic> academics, List<Certificate> certificates,
-        List<Award> awards, List<Education> educations) {
-
-        workSchedules.forEach(trainer::addWorkSchedule);
-        gymTrainers.forEach(trainer::addGymTrainer);
-        careers.forEach(trainer::addCareer);
-        academics.forEach(trainer::addAcademic);
-        certificates.forEach(trainer::addCertificate);
-        awards.forEach(trainer::addAward);
-        educations.forEach(trainer::addEducation);
-
-        return trainer;
     }
 
     public static String getProfileImageUrlBySex(Sex sex) {
