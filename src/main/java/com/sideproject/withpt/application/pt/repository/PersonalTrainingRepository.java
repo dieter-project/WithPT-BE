@@ -14,7 +14,5 @@ public interface PersonalTrainingRepository extends JpaRepository<PersonalTraini
 
     Optional<PersonalTraining> findByMemberAndTrainerAndGym(Member member, Trainer trainer, Gym gym);
 
-    boolean existsByMemberAndTrainerAndGym(Member member, Trainer trainer, Gym gym);
-
     boolean existsByMemberAndGymTrainer(Member member, GymTrainer gymTrainer);
 }

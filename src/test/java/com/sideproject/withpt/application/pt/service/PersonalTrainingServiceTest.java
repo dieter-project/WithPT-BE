@@ -108,7 +108,7 @@ class PersonalTrainingServiceTest {
 
         @DisplayName("회원이 존재하지 않을 때.")
         @Test
-        void registerPersonalTrainingWhenMemberNotFound() {
+        void WhenMemberNotFound() {
             // given
             Trainer trainer = trainerRepository.save(createTrainer("test 트레이너"));
             Gym gym = gymRepository.save(createGym("체육관1"));
@@ -129,7 +129,7 @@ class PersonalTrainingServiceTest {
 
         @DisplayName("트레이너가 존재하지 않을 때.")
         @Test
-        void registerPersonalTrainingWhenTrainerNotFound() {
+        void WhenTrainerNotFound() {
             // given
             Member member = memberRepository.save(createMember("회원"));
             Gym gym = gymRepository.save(createGym("체육관1"));
@@ -150,7 +150,7 @@ class PersonalTrainingServiceTest {
 
         @DisplayName("체육관이 존재하지 않을 때.")
         @Test
-        void registerPersonalTrainingWhenGymNotFound() {
+        void WhenGymNotFound() {
             // given
             Member member = memberRepository.save(createMember("회원"));
             Trainer trainer = trainerRepository.save(createTrainer("test 트레이너"));
@@ -170,7 +170,7 @@ class PersonalTrainingServiceTest {
 
         @DisplayName("트레이너가 소속된 체육관이 아닐 때")
         @Test
-        void registerPersonalTrainingWhenGymTrainerNotFound() {
+        void WhenGymTrainerNotFound() {
             // given
             Member member = memberRepository.save(createMember("회원"));
             Trainer trainer = trainerRepository.save(createTrainer("test 트레이너"));
@@ -192,7 +192,7 @@ class PersonalTrainingServiceTest {
 
         @DisplayName("이미 PT 등록된 회원일 때")
         @Test
-        void registerPersonalTrainingWhenAlreadyPTMember() {
+        void WhenAlreadyPTMember() {
             // given
             Member member = memberRepository.save(createMember("회원"));
             Trainer trainer = trainerRepository.save(createTrainer("test 트레이너"));
@@ -201,7 +201,7 @@ class PersonalTrainingServiceTest {
             GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 27)));
 
             LocalDateTime ptRegistrationRequestDate = LocalDateTime.of(2024, 9, 27, 12, 45);
-            personalTrainingRepository.save(registerNewPersonalTraining(member, gymTrainer, ptRegistrationRequestDate));
+            personalTrainingRepository.save(createPersonalTraining(member, gymTrainer, ptRegistrationRequestDate, PTInfoInputStatus.INFO_EMPTY, PtRegistrationStatus.ALLOWED_BEFORE, PtRegistrationAllowedStatus.WAITING));
 
             final Long gymId = gym.getId();
             final Long memberId = member.getId();
@@ -214,16 +214,16 @@ class PersonalTrainingServiceTest {
         }
     }
 
-    public PersonalTraining registerNewPersonalTraining(Member member, GymTrainer gymTrainer, LocalDateTime registrationRequestDate) {
+    public PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, LocalDateTime registrationRequestDate, PTInfoInputStatus infoInputStatus, PtRegistrationStatus ptRegistrationStatus, PtRegistrationAllowedStatus ptRegistrationAllowedStatus) {
         return PersonalTraining.builder()
             .member(member)
             .gymTrainer(gymTrainer)
             .totalPtCount(0)
             .remainingPtCount(0)
             .registrationRequestDate(registrationRequestDate)
-            .infoInputStatus(PTInfoInputStatus.INFO_EMPTY)
-            .registrationStatus(PtRegistrationStatus.ALLOWED_BEFORE)
-            .registrationAllowedStatus(PtRegistrationAllowedStatus.WAITING)
+            .infoInputStatus(infoInputStatus)
+            .registrationStatus(ptRegistrationStatus)
+            .registrationAllowedStatus(ptRegistrationAllowedStatus)
             .build();
     }
 
