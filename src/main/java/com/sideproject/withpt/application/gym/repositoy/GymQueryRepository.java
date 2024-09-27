@@ -87,7 +87,7 @@ public class GymQueryRepository {
             .where(
                 trainerEq(trainer),
                 gymEq(gym),
-                personalTraining.registrationAllowedStatus.eq(PtRegistrationAllowedStatus.APPROVED),
+                personalTraining.registrationAllowedStatus.eq(PtRegistrationAllowedStatus.ALLOWED),
                 memberNameContains(name)
             )
             .offset(pageable.getOffset())

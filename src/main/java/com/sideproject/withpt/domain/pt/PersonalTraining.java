@@ -5,6 +5,7 @@ import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.application.type.PtRegistrationStatus;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.domain.gym.Gym;
+import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDateTime;
@@ -39,6 +40,10 @@ public class PersonalTraining extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gym_trainer_id")
+    private GymTrainer gymTrainer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trainer_id")
@@ -83,8 +88,21 @@ public class PersonalTraining extends BaseEntity {
             .build();
     }
 
+    public static PersonalTraining registerPersonalTraining(Member member, GymTrainer gymTrainer) {
+        return PersonalTraining.builder()
+            .member(member)
+            .gymTrainer(gymTrainer)
+            .totalPtCount(0)
+            .remainingPtCount(0)
+            .registrationRequestDate(LocalDateTime.now())
+            .infoInputStatus(PTInfoInputStatus.INFO_EMPTY)
+            .registrationStatus(PtRegistrationStatus.ALLOWED_BEFORE)
+            .registrationAllowedStatus(PtRegistrationAllowedStatus.WAITING)
+            .build();
+    }
+
     public static void allowPTRegistration(PersonalTraining personalTraining) {
-        personalTraining.setRegistrationAllowedStatus(PtRegistrationAllowedStatus.APPROVED);
+        personalTraining.setRegistrationAllowedStatus(PtRegistrationAllowedStatus.ALLOWED);
         personalTraining.setRegistrationStatus(PtRegistrationStatus.ALLOWED);
     }
 

@@ -75,7 +75,7 @@ public class GymPersonalTrainingController {
         @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId, Pageable pageable) {
         return ApiSuccessResponse.from(
             personalTrainingService.listOfPtMembersByRegistrationAllowedStatus(gymId, trainerId,
-                PtRegistrationAllowedStatus.APPROVED, pageable)
+                PtRegistrationAllowedStatus.ALLOWED, pageable)
         );
     }
 

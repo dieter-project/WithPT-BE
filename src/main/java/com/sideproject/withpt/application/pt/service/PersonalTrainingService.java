@@ -156,7 +156,7 @@ public class PersonalTrainingService {
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
         // 이미 등록을 허용한 상태면 에러
-        if (personalTraining.getRegistrationAllowedStatus() == PtRegistrationAllowedStatus.APPROVED) {
+        if (personalTraining.getRegistrationAllowedStatus() == PtRegistrationAllowedStatus.ALLOWED) {
             throw PTException.AlREADY_ALLOWED_PT_REGISTRATION;
         }
 
