@@ -5,6 +5,7 @@ import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.application.type.PtRegistrationStatus;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.domain.gym.Gym;
+import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDateTime;
@@ -41,6 +42,10 @@ public class PersonalTraining extends BaseEntity {
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gym_trainer_id")
+    private GymTrainer gymTrainer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trainer_id")
     private Trainer trainer;
 
@@ -54,11 +59,13 @@ public class PersonalTraining extends BaseEntity {
 
     private String note;
 
-    private LocalDateTime firstRegistrationDate;
+    private LocalDateTime firstRegistrationDate; // 센터 등록월
 
-    private LocalDateTime lastRegistrationDate;
+    private LocalDateTime lastRegistrationDate; // 센터 마지막 재등록월
 
-    private LocalDateTime registrationRequestDate;
+    private LocalDateTime registrationRequestDate; // 등록 요청 날짜
+
+    private LocalDateTime registrationAllowedDate; // 등록 승인 날짜
 
     @Enumerated(EnumType.STRING)
     private PtRegistrationStatus registrationStatus;
@@ -69,23 +76,23 @@ public class PersonalTraining extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PtRegistrationAllowedStatus registrationAllowedStatus;
 
-    public static PersonalTraining registerPersonalTraining(Member member, Trainer trainer, Gym gym) {
+    public static PersonalTraining registerNewPersonalTraining(Member member, GymTrainer gymTrainer, LocalDateTime ptRegistrationRequestDate) {
         return PersonalTraining.builder()
             .member(member)
-            .trainer(trainer)
-            .gym(gym)
+            .gymTrainer(gymTrainer)
             .totalPtCount(0)
             .remainingPtCount(0)
-            .registrationRequestDate(LocalDateTime.now())
+            .registrationRequestDate(ptRegistrationRequestDate)
             .infoInputStatus(PTInfoInputStatus.INFO_EMPTY)
             .registrationStatus(PtRegistrationStatus.ALLOWED_BEFORE)
             .registrationAllowedStatus(PtRegistrationAllowedStatus.WAITING)
             .build();
     }
 
-    public static void allowPTRegistration(PersonalTraining personalTraining) {
-        personalTraining.setRegistrationAllowedStatus(PtRegistrationAllowedStatus.APPROVED);
-        personalTraining.setRegistrationStatus(PtRegistrationStatus.ALLOWED);
+    public void approvedPersonalTrainingRegistration(LocalDateTime registrationAllowedDate) {
+        this.registrationAllowedStatus = PtRegistrationAllowedStatus.ALLOWED;
+        this.registrationStatus = PtRegistrationStatus.ALLOWED;
+        this.registrationAllowedDate = registrationAllowedDate;
     }
 
     public static void saveFirstPtDetailInfo(PersonalTraining pt, int ptCount, LocalDateTime firstRegistrationDate, String note) {

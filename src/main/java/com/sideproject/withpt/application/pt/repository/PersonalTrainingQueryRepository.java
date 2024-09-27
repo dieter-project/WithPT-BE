@@ -57,7 +57,7 @@ public class PersonalTrainingQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public List<GymMemberCountDto> findAllPTsPageableByGymAndTrainer(Slice<Gym> gyms, Trainer trainer) {
+    public List<GymMemberCountDto> findAllPersonalTrainingsPageableBy(Slice<Gym> gyms, Trainer trainer) {
 
         return jpaQueryFactory
             .select(
@@ -68,7 +68,7 @@ public class PersonalTrainingQueryRepository {
             .from(personalTraining)
             .leftJoin(personalTraining.gym)
             .where(trainerEq(trainer), gymsIn(gyms.getContent()),
-                personalTraining.registrationAllowedStatus.eq(PtRegistrationAllowedStatus.APPROVED))
+                personalTraining.registrationAllowedStatus.eq(PtRegistrationAllowedStatus.ALLOWED))
             .groupBy(personalTraining.gym)
             .fetch();
     }
@@ -85,7 +85,7 @@ public class PersonalTrainingQueryRepository {
                         .where(gymTrainer.trainer.id.eq(trainerId))
 
                 ),
-                personalTraining.registrationAllowedStatus.eq(PtRegistrationAllowedStatus.APPROVED)
+                personalTraining.registrationAllowedStatus.eq(PtRegistrationAllowedStatus.ALLOWED)
             ).fetchOne();
     }
 
