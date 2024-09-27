@@ -23,9 +23,10 @@ import com.sideproject.withpt.application.pt.repository.PersonalTrainingInfoRepo
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingQueryRepository;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
 import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
-import com.sideproject.withpt.application.trainer.service.TrainerService;
+import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.application.type.PtRegistrationStatus;
+import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.pt.PTCountLog;
@@ -56,7 +57,7 @@ public class PersonalTrainingService {
 
     private final GymService gymService;
     private final MemberService memberService;
-    private final TrainerService trainerService;
+    private final TrainerRepository trainerRepository;
 
     private final PersonalTrainingRepository trainingRepository;
     private final PersonalTrainingInfoRepository trainingInfoRepository;
@@ -65,30 +66,9 @@ public class PersonalTrainingService {
 
     private final PTCountLogRepository ptCountLogRepository;
 
-    @Transactional
-    public PersonalTrainingMemberResponse registerPersonalTrainingMember(Long gymId, Long memberId, Long trainerId) {
-        Member member = memberService.getMemberById(memberId);
-        Trainer trainer = trainerService.getTrainerById(trainerId);
-        Gym gym = gymService.getGymById(gymId);
-
-        // TODO : 이미 등록된 회원입니다 예외 추가
-        if (trainingRepository.existsByMemberAndTrainerAndGym(member, trainer, gym)) {
-            throw PTException.AlREADY_REGISTERED_PT_MEMBER;
-        }
-
-        trainingRepository.save(PersonalTraining.registerPersonalTraining(member, trainer, gym));
-
-        // TODO : PUSH 알림 전송
-        return PersonalTrainingMemberResponse.from(member.getName(), trainer.getName(), gym.getName());
-    }
-
-    @Transactional
-    public void deletePersonalTrainingMembers(List<Long> ptIds) {
-        trainingRepository.deleteAllByIdInBatch(ptIds);
-    }
-
     public Slice<CountOfMembersAndGymsResponse> listOfGymsAndNumberOfMembers(Long trainerId, Pageable pageable) {
-        Trainer trainer = trainerService.getTrainerById(trainerId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         Slice<Gym> gyms = gymQueryRepository.findAllTrainerGymsByPageable(trainer, pageable);
         List<GymMemberCountDto> gymMemberCountDtos = trainingQueryRepository.findAllPTsPageableByGymAndTrainer(gyms,
@@ -108,6 +88,29 @@ public class PersonalTrainingService {
         return new SliceImpl<>(contents, pageable, gyms.hasNext());
     }
 
+    @Transactional
+    public PersonalTrainingMemberResponse registerPersonalTrainingMember(Long gymId, Long memberId, Long trainerId) {
+        Member member = memberService.getMemberById(memberId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+        Gym gym = gymService.getGymById(gymId);
+
+        // TODO : 이미 등록된 회원입니다 예외 추가
+        if (trainingRepository.existsByMemberAndTrainerAndGym(member, trainer, gym)) {
+            throw PTException.AlREADY_REGISTERED_PT_MEMBER;
+        }
+
+        trainingRepository.save(PersonalTraining.registerPersonalTraining(member, trainer, gym));
+
+        // TODO : PUSH 알림 전송
+        return PersonalTrainingMemberResponse.from(member.getName(), trainer.getName(), gym.getName());
+    }
+
+    @Transactional
+    public void deletePersonalTrainingMembers(List<Long> ptIds) {
+        trainingRepository.deleteAllByIdInBatch(ptIds);
+    }
+
     public TotalPtsCountResponse countOfAllPtMembers(Long trainerId) {
         return TotalPtsCountResponse.from(
             trainingQueryRepository.countOfAllPtMembers(trainerId)
@@ -115,7 +118,8 @@ public class PersonalTrainingService {
     }
 
     public GymMemberCountDto getGymAndNumberOfMembers(Long trainerId, Long gymId) {
-        Trainer trainer = trainerService.getTrainerById(trainerId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
         Gym gym = gymService.getGymById(gymId);
 
         return GymMemberCountDto.builder()
@@ -126,7 +130,8 @@ public class PersonalTrainingService {
 
     public EachGymMemberListResponse listOfPtMembersByRegistrationAllowedStatus(Long gymId, Long trainerId,
         PtRegistrationAllowedStatus registrationAllowedStatus, Pageable pageable) {
-        Trainer trainer = trainerService.getTrainerById(trainerId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
         Gym gym = gymService.getGymById(gymId);
 
         return trainingQueryRepository.findAllPtMembersByRegistrationAllowedStatus(gym, trainer,
@@ -267,12 +272,14 @@ public class PersonalTrainingService {
     }
 
     public List<MemberDetailInfoResponse> getPtAssignedMemberInformation(Long trainerId) {
-        Trainer trainer = trainerService.getTrainerById(trainerId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
         return trainingQueryRepository.findPtAssignedMemberInformation(trainer);
     }
 
     public PtStatisticResponse getPtStatistics(Long trainerId, LocalDate current, int size) {
-        Trainer trainer = trainerService.getTrainerById(trainerId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         Map<YearMonth, Long> monthlyCountsMap = trainingQueryRepository.calculatePTStatistic(trainer, current)
             .stream()
