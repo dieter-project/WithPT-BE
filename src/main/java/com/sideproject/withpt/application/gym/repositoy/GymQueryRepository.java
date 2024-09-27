@@ -1,7 +1,6 @@
 package com.sideproject.withpt.application.gym.repositoy;
 
 import static com.sideproject.withpt.domain.gym.QGymTrainer.gymTrainer;
-import static com.sideproject.withpt.domain.pt.QLesson.lesson;
 import static com.sideproject.withpt.domain.pt.QPersonalTraining.personalTraining;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -57,7 +56,7 @@ public class GymQueryRepository {
 
         boolean hasNext = false;
 
-        if(contents.size() > pageable.getPageSize()) {
+        if (contents.size() > pageable.getPageSize()) {
             contents.remove(pageable.getPageSize());
             hasNext = true;
         }

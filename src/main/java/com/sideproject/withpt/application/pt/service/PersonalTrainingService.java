@@ -1,8 +1,11 @@
 package com.sideproject.withpt.application.pt.service;
 
+import com.sideproject.withpt.application.gym.exception.GymException;
 import com.sideproject.withpt.application.gym.repositoy.GymQueryRepository;
-import com.sideproject.withpt.application.gym.service.GymService;
-import com.sideproject.withpt.application.member.service.MemberService;
+import com.sideproject.withpt.application.gym.repositoy.GymRepository;
+import com.sideproject.withpt.application.gymtrainer.exception.GymTrainerException;
+import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
+import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.pt.controller.request.ExtendPtRequest;
 import com.sideproject.withpt.application.pt.controller.request.SavePtMemberDetailInfoRequest;
 import com.sideproject.withpt.application.pt.controller.request.UpdatePtMemberDetailInfoRequest;
@@ -28,6 +31,7 @@ import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.application.type.PtRegistrationStatus;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.gym.Gym;
+import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.pt.PTCountLog;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
@@ -55,11 +59,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class PersonalTrainingService {
 
-    private final GymService gymService;
-    private final MemberService memberService;
+    private final GymRepository gymRepository;
+    private final MemberRepository memberRepository;
     private final TrainerRepository trainerRepository;
+    private final GymTrainerRepository gymTrainerRepository;
 
-    private final PersonalTrainingRepository trainingRepository;
+    private final PersonalTrainingRepository personalTrainingRepository;
     private final PersonalTrainingInfoRepository trainingInfoRepository;
     private final PersonalTrainingQueryRepository trainingQueryRepository;
     private final GymQueryRepository gymQueryRepository;
@@ -71,8 +76,7 @@ public class PersonalTrainingService {
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         Slice<Gym> gyms = gymQueryRepository.findAllTrainerGymsByPageable(trainer, pageable);
-        List<GymMemberCountDto> gymMemberCountDtos = trainingQueryRepository.findAllPTsPageableByGymAndTrainer(gyms,
-            trainer);
+        List<GymMemberCountDto> gymMemberCountDtos = trainingQueryRepository.findAllPersonalTrainingsPageableBy(gyms, trainer);
 
         List<CountOfMembersAndGymsResponse> contents = gyms.stream()
             .map(gym -> {
@@ -90,17 +94,22 @@ public class PersonalTrainingService {
 
     @Transactional
     public PersonalTrainingMemberResponse registerPersonalTrainingMember(Long gymId, Long memberId, Long trainerId) {
-        Member member = memberService.getMemberById(memberId);
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
         Trainer trainer = trainerRepository.findById(trainerId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-        Gym gym = gymService.getGymById(gymId);
+        Gym gym = gymRepository.findById(gymId)
+            .orElseThrow(() -> GymException.GYM_NOT_FOUND);
+
+        GymTrainer gymTrainer = gymTrainerRepository.findByTrainerAndGym(trainer, gym)
+            .orElseThrow(() -> GymTrainerException.GYM_TRAINER_NOT_MAPPING);
 
         // TODO : 이미 등록된 회원입니다 예외 추가
-        if (trainingRepository.existsByMemberAndTrainerAndGym(member, trainer, gym)) {
+        if (personalTrainingRepository.existsByMemberAndGymTrainer(member, gymTrainer)) {
             throw PTException.AlREADY_REGISTERED_PT_MEMBER;
         }
 
-        trainingRepository.save(PersonalTraining.registerPersonalTraining(member, trainer, gym));
+        personalTrainingRepository.save(PersonalTraining.registerPersonalTraining(member, gymTrainer));
 
         // TODO : PUSH 알림 전송
         return PersonalTrainingMemberResponse.from(member.getName(), trainer.getName(), gym.getName());
@@ -108,7 +117,7 @@ public class PersonalTrainingService {
 
     @Transactional
     public void deletePersonalTrainingMembers(List<Long> ptIds) {
-        trainingRepository.deleteAllByIdInBatch(ptIds);
+        personalTrainingRepository.deleteAllByIdInBatch(ptIds);
     }
 
     public TotalPtsCountResponse countOfAllPtMembers(Long trainerId) {
@@ -120,7 +129,8 @@ public class PersonalTrainingService {
     public GymMemberCountDto getGymAndNumberOfMembers(Long trainerId, Long gymId) {
         Trainer trainer = trainerRepository.findById(trainerId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-        Gym gym = gymService.getGymById(gymId);
+        Gym gym = gymRepository.findById(gymId)
+            .orElseThrow(() -> GymException.GYM_NOT_FOUND);
 
         return GymMemberCountDto.builder()
             .gymName(gym.getName())
@@ -132,7 +142,8 @@ public class PersonalTrainingService {
         PtRegistrationAllowedStatus registrationAllowedStatus, Pageable pageable) {
         Trainer trainer = trainerRepository.findById(trainerId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-        Gym gym = gymService.getGymById(gymId);
+        Gym gym = gymRepository.findById(gymId)
+            .orElseThrow(() -> GymException.GYM_NOT_FOUND);
 
         return trainingQueryRepository.findAllPtMembersByRegistrationAllowedStatus(gym, trainer,
             registrationAllowedStatus, pageable);
@@ -141,7 +152,7 @@ public class PersonalTrainingService {
     @Transactional
     public void allowPtRegistrationNotification(Long ptId) {
 
-        PersonalTraining personalTraining = trainingRepository.findById(ptId)
+        PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
         // 이미 등록을 허용한 상태면 에러
@@ -153,7 +164,7 @@ public class PersonalTrainingService {
     }
 
     public MemberDetailInfoResponse getPtMemberDetailInfo(Long ptId) {
-        PersonalTraining personalTraining = trainingRepository.findById(ptId)
+        PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
         return trainingQueryRepository.findPtMemberDetailInfo(personalTraining);
@@ -161,7 +172,7 @@ public class PersonalTrainingService {
 
     @Transactional
     public void savePtMemberDetailInfo(Long ptId, SavePtMemberDetailInfoRequest request) {
-        PersonalTraining personalTraining = trainingRepository.findById(ptId)
+        PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
         // 등록 허용되지 않은 회원이면
@@ -197,7 +208,7 @@ public class PersonalTrainingService {
 
     public TotalAndRemainingPtCountResponse getPtTotalAndRemainingCount(Long ptId) {
 
-        PersonalTraining personalTraining = trainingRepository.findById(ptId)
+        PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
         return TotalAndRemainingPtCountResponse.of(
@@ -209,7 +220,7 @@ public class PersonalTrainingService {
 
     @Transactional
     public void updatePtMemberDetailInfo(Long ptId, UpdatePtMemberDetailInfoRequest request) {
-        PersonalTraining personalTraining = trainingRepository.findById(ptId)
+        PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
         int beforeTotalPtCount = personalTraining.getTotalPtCount();
@@ -232,7 +243,7 @@ public class PersonalTrainingService {
 
     @Transactional
     public void extendPt(Long ptId, ExtendPtRequest request) {
-        PersonalTraining personalTraining = trainingRepository.findById(ptId)
+        PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
         PersonalTraining.extendPt(personalTraining, request.getPtCount(), request.getPtCount(),
@@ -260,14 +271,15 @@ public class PersonalTrainingService {
     }
 
     public Slice<ReRegistrationHistoryResponse> getReRegistrationHistory(Long ptId, Pageable pageable) {
-        PersonalTraining personalTraining = trainingRepository.findById(ptId)
+        PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
         return trainingQueryRepository.findRegistrationHistory(personalTraining, pageable);
     }
 
     public List<AssignedPTInfoResponse> getPtAssignedTrainerInformation(Long memberId) {
-        Member member = memberService.getMemberById(memberId);
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
         return trainingQueryRepository.findPtAssignedTrainerInformation(member);
     }
 

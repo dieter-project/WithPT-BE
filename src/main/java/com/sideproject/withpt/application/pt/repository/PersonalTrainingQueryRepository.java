@@ -57,7 +57,7 @@ public class PersonalTrainingQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public List<GymMemberCountDto> findAllPTsPageableByGymAndTrainer(Slice<Gym> gyms, Trainer trainer) {
+    public List<GymMemberCountDto> findAllPersonalTrainingsPageableBy(Slice<Gym> gyms, Trainer trainer) {
 
         return jpaQueryFactory
             .select(

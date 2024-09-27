@@ -45,45 +45,32 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/gyms")
+@RequestMapping("")
 public class GymPersonalTrainingController {
 
     private final PersonalTrainingService personalTrainingService;
 
-    @Operation(summary = "체육관 회원 추가")
-    @PostMapping("/{gymId}/personal-trainings/members/{memberId}")
-    public ApiSuccessResponse<PersonalTrainingMemberResponse> registerPersonalTraining(@PathVariable Long gymId,
-        @PathVariable Long memberId, @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId) {
+//    @Operation(summary = "회원 관리 - 총 PT 회원 수 조회")
+//    @GetMapping("/api/v1/gyms/personal-trainings/members/count")
+//    public ApiSuccessResponse<TotalPtsCountResponse> countOfAllPtMembers(@Parameter(hidden = true) @AuthenticationPrincipal Long trainerId) {
+//        return ApiSuccessResponse.from(
+//            personalTrainingService.countOfAllPtMembers(trainerId)
+//        );
+//    }
 
-        return ApiSuccessResponse.from(
-            personalTrainingService.registerPersonalTrainingMember(gymId, memberId, trainerId)
-        );
-    }
-
-    @Operation(summary = "체육관 회원 해제하기")
-    @DeleteMapping("/personal-trainings/members")
-    public void deletePtMembers(@RequestBody RemovePtMembersRequest request) {
-        personalTrainingService.deletePersonalTrainingMembers(request.getPtIds());
-    }
-
-    @Operation(summary = "특정 체육관 - 등록 요청 대기 중 회원 리스트 조회")
-    @GetMapping("/{gymId}/personal-trainings/members/waiting")
-    public ApiSuccessResponse<EachGymMemberListResponse> listOfWaitingPtMembers(@PathVariable Long gymId,
+    // 1-1
+    @Operation(summary = "체육관 목록 및 PT 회원 수 조회", description = "체육관 목록과 각 회원 수 반환")
+//    @GetMapping("/api/v1/gyms/personal-trainings/members")
+    @GetMapping("/api/v1/gyms/personal-trainings/members/count")
+    public ApiSuccessResponse<Slice<CountOfMembersAndGymsResponse>> listOfGymsAndNumberOfMembers(
         @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId, Pageable pageable) {
         return ApiSuccessResponse.from(
-            personalTrainingService.listOfPtMembersByRegistrationAllowedStatus(gymId, trainerId,
-                PtRegistrationAllowedStatus.WAITING, pageable)
+            personalTrainingService.listOfGymsAndNumberOfMembers(trainerId, pageable)
         );
-    }
-
-    @Operation(summary = "알림 - 회원이 PT 등록 승인")
-    @PatchMapping("/personal-trainings/{ptId}/members/registration-acceptance")
-    public void allowPtRegistrationNotification (@PathVariable Long ptId) {
-        personalTrainingService.allowPtRegistrationNotification(ptId);
     }
 
     @Operation(summary = "특정 체육관 - 승인된 회원 리스트 조회")
-    @GetMapping("/{gymId}/personal-trainings/members/approved")
+    @GetMapping("/api/v1/gyms/{gymId}/personal-trainings/approved-members")
     public ApiSuccessResponse<EachGymMemberListResponse> listOfApprovedPtMembers(@PathVariable Long gymId,
         @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId, Pageable pageable) {
         return ApiSuccessResponse.from(
@@ -92,25 +79,18 @@ public class GymPersonalTrainingController {
         );
     }
 
-    @Operation(summary = "체육관 목록 및 PT 회원 수 조회", description = "체육관 목록과 각 회원 수 반환")
-    @GetMapping("/personal-trainings")
-    public ApiSuccessResponse<Slice<CountOfMembersAndGymsResponse>> listOfGymsAndNumberOfMembers(
+    @Operation(summary = "특정 체육관 - 등록 요청 대기 중 회원 리스트 조회")
+    @GetMapping("/api/v1/gyms/{gymId}/personal-trainings/waiting-members")
+    public ApiSuccessResponse<EachGymMemberListResponse> listOfWaitingPtMembers(@PathVariable Long gymId,
         @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId, Pageable pageable) {
         return ApiSuccessResponse.from(
-            personalTrainingService.listOfGymsAndNumberOfMembers(trainerId, pageable)
-        );
-    }
-
-    @Operation(summary = "회원 관리 - 총 PT 회원 수 조회")
-    @GetMapping("/personal-trainings/members/count")
-    public ApiSuccessResponse<TotalPtsCountResponse> countOfAllPtMembers(@Parameter(hidden = true) @AuthenticationPrincipal Long trainerId) {
-        return ApiSuccessResponse.from(
-            personalTrainingService.countOfAllPtMembers(trainerId)
+            personalTrainingService.listOfPtMembersByRegistrationAllowedStatus(gymId, trainerId,
+                PtRegistrationAllowedStatus.WAITING, pageable)
         );
     }
 
     @Operation(summary = "특정 체육관 이름과 회원 수 조회")
-    @GetMapping("/{gymId}/personal-trainings")
+    @GetMapping("/api/v1/gyms/{gymId}/personal-trainings")
     public ApiSuccessResponse<GymMemberCountDto> getGymAndNumberOfMembers(@Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
         @PathVariable Long gymId) {
         return ApiSuccessResponse.from(
@@ -118,8 +98,35 @@ public class GymPersonalTrainingController {
         );
     }
 
+    // 00체육관 신규 회원 등록
+    @Operation(summary = "체육관 회원 추가")
+    @PostMapping("/api/v1/gyms/{gymId}/personal-trainings/members/{memberId}")
+    public ApiSuccessResponse<PersonalTrainingMemberResponse> registerPersonalTraining(@PathVariable Long gymId,
+        @PathVariable Long memberId, @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId) {
+
+        return ApiSuccessResponse.from(
+            personalTrainingService.registerPersonalTrainingMember(gymId, memberId, trainerId)
+        );
+    }
+
+    // 00체육관 회원 등록 해제
+    @Operation(summary = "체육관 회원 해제하기")
+//    @DeleteMapping("/api/v1/gyms/personal-trainings/members")
+    @DeleteMapping("/api/v1/gyms/{gymId}/pt-members")
+    public void deletePtMembers(@RequestBody RemovePtMembersRequest request) {
+        personalTrainingService.deletePersonalTrainingMembers(request.getPtIds());
+    }
+
+    // 등록 대기 회원 리스트 조회?
+
+    @Operation(summary = "알림 - 회원이 PT 등록 승인")
+    @PatchMapping("/api/v1/gyms/personal-trainings/{ptId}/members/registration-acceptance")
+    public void allowPtRegistrationNotification (@PathVariable Long ptId) {
+        personalTrainingService.allowPtRegistrationNotification(ptId);
+    }
+
     @Operation(summary = "세부 정보 입력 필요 상태일 때 - 회원 정보 조회")
-    @GetMapping("/personal-trainings/{ptId}/member/info")
+    @GetMapping("/api/v1/gyms/personal-trainings/{ptId}/member/info")
     public ApiSuccessResponse<MemberDetailInfoResponse> getPtMemberDetailInfo(@PathVariable Long ptId) {
         return ApiSuccessResponse.from(
             personalTrainingService.getPtMemberDetailInfo(ptId)
@@ -127,13 +134,13 @@ public class GymPersonalTrainingController {
     }
 
     @Operation(summary = "PT 회원 세부 정보 초기 입력")
-    @PostMapping("/personal-trainings/{ptId}/member/info")
+    @PostMapping("/api/v1/gyms/personal-trainings/{ptId}/member/info")
     public void savePtMemberDetailInfo(@PathVariable Long ptId, @Valid @RequestBody SavePtMemberDetailInfoRequest request) {
         personalTrainingService.savePtMemberDetailInfo(ptId, request);
     }
 
     @Operation(summary = "회원 PT 잔여 및 전체 횟수 조회")
-    @GetMapping("/personal-trainings/{ptId}/member/info/pt-count")
+    @GetMapping("/api/v1/gyms/personal-trainings/{ptId}/member/info/pt-count")
     public ApiSuccessResponse<TotalAndRemainingPtCountResponse> getPtTotalAndRemainingCount(@PathVariable Long ptId) {
         return ApiSuccessResponse.from(
             personalTrainingService.getPtTotalAndRemainingCount(ptId)
@@ -141,19 +148,19 @@ public class GymPersonalTrainingController {
     }
 
     @Operation(summary = "PT 회원 세부 정보 수정")
-    @PatchMapping("/personal-trainings/{ptId}/member/info")
+    @PatchMapping("/api/v1/gyms/personal-trainings/{ptId}/member/info")
     public void updatePtMemberDetailInfo(@PathVariable Long ptId, @RequestBody UpdatePtMemberDetailInfoRequest request) {
         personalTrainingService.updatePtMemberDetailInfo(ptId, request);
     }
 
     @Operation(summary = "PT 횟수 연장하기")
-    @PatchMapping("/personal-trainings/{ptId}")
+    @PatchMapping("/api/v1/gyms/personal-trainings/{ptId}")
     public void extendPt(@PathVariable Long ptId, @Valid @RequestBody ExtendPtRequest request) {
         personalTrainingService.extendPt(ptId, request);
     }
 
     @Operation(summary = "PT 재등록 히스토리")
-    @GetMapping("/personal-trainings/{ptId}/member/info/history")
+    @GetMapping("/api/v1/gyms/personal-trainings/{ptId}/member/info/history")
     public ApiSuccessResponse<Slice<ReRegistrationHistoryResponse>> getReRegistrationHistory(@PathVariable Long ptId, Pageable pageable) {
         return ApiSuccessResponse.from(
             personalTrainingService.getReRegistrationHistory(ptId, pageable)
@@ -161,7 +168,7 @@ public class GymPersonalTrainingController {
     }
 
     @Operation(summary = "담당 트레이너 정보 조회")
-    @GetMapping("/personal-trainings/members/{memberId}/trainers")
+    @GetMapping("/api/v1/gyms/personal-trainings/members/{memberId}/trainers")
     public ApiSuccessResponse<List<AssignedPTInfoResponse>> getPtAssignedTrainerInformation(@PathVariable Long memberId) {
         return ApiSuccessResponse.from(
             personalTrainingService.getPtAssignedTrainerInformation(memberId)
@@ -169,7 +176,7 @@ public class GymPersonalTrainingController {
     }
 
     @Operation(summary = "트레이너의 모든 담당 회원 정보 조회")
-    @GetMapping("/personal-trainings/trainers/{trainerId}/members")
+    @GetMapping("/api/v1/gyms/personal-trainings/trainers/{trainerId}/members")
     public ApiSuccessResponse<List<MemberDetailInfoResponse>> getPtAssignedMemberInformation(@PathVariable Long trainerId) {
         return ApiSuccessResponse.from(
             personalTrainingService.getPtAssignedMemberInformation(trainerId)
@@ -177,7 +184,7 @@ public class GymPersonalTrainingController {
     }
 
     @Operation(summary = "회원 통계 정보 조회")
-    @GetMapping("/personal-trainings/statistics")
+    @GetMapping("/api/v1/gyms/personal-trainings/statistics")
     public ApiSuccessResponse<PtStatisticResponse> getPtStatistics(@Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam LocalDate date,
         @RequestParam(defaultValue = "12") int size) {
