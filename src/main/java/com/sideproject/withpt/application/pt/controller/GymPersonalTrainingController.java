@@ -14,7 +14,6 @@ import com.sideproject.withpt.application.pt.controller.response.PersonalTrainin
 import com.sideproject.withpt.application.pt.controller.response.PtStatisticResponse;
 import com.sideproject.withpt.application.pt.controller.response.ReRegistrationHistoryResponse;
 import com.sideproject.withpt.application.pt.controller.response.TotalAndRemainingPtCountResponse;
-import com.sideproject.withpt.application.pt.controller.response.TotalPtsCountResponse;
 import com.sideproject.withpt.application.pt.exception.PTErrorCode;
 import com.sideproject.withpt.application.pt.exception.PTException;
 import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
@@ -24,6 +23,7 @@ import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -105,7 +105,7 @@ public class GymPersonalTrainingController {
         @PathVariable Long memberId, @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId) {
 
         return ApiSuccessResponse.from(
-            personalTrainingService.registerPersonalTrainingMember(gymId, memberId, trainerId)
+            personalTrainingService.registerPersonalTraining(gymId, memberId, trainerId, LocalDateTime.now())
         );
     }
 

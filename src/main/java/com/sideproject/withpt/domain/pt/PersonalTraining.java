@@ -74,27 +74,13 @@ public class PersonalTraining extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PtRegistrationAllowedStatus registrationAllowedStatus;
 
-    public static PersonalTraining registerPersonalTraining(Member member, Trainer trainer, Gym gym) {
-        return PersonalTraining.builder()
-            .member(member)
-            .trainer(trainer)
-            .gym(gym)
-            .totalPtCount(0)
-            .remainingPtCount(0)
-            .registrationRequestDate(LocalDateTime.now())
-            .infoInputStatus(PTInfoInputStatus.INFO_EMPTY)
-            .registrationStatus(PtRegistrationStatus.ALLOWED_BEFORE)
-            .registrationAllowedStatus(PtRegistrationAllowedStatus.WAITING)
-            .build();
-    }
-
-    public static PersonalTraining registerPersonalTraining(Member member, GymTrainer gymTrainer) {
+    public static PersonalTraining registerNewPersonalTraining(Member member, GymTrainer gymTrainer, LocalDateTime ptRegistrationRequestDate) {
         return PersonalTraining.builder()
             .member(member)
             .gymTrainer(gymTrainer)
             .totalPtCount(0)
             .remainingPtCount(0)
-            .registrationRequestDate(LocalDateTime.now())
+            .registrationRequestDate(ptRegistrationRequestDate)
             .infoInputStatus(PTInfoInputStatus.INFO_EMPTY)
             .registrationStatus(PtRegistrationStatus.ALLOWED_BEFORE)
             .registrationAllowedStatus(PtRegistrationAllowedStatus.WAITING)

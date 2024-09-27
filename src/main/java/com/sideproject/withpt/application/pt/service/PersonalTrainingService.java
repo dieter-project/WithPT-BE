@@ -93,7 +93,7 @@ public class PersonalTrainingService {
     }
 
     @Transactional
-    public PersonalTrainingMemberResponse registerPersonalTrainingMember(Long gymId, Long memberId, Long trainerId) {
+    public PersonalTrainingMemberResponse registerPersonalTraining(Long gymId, Long memberId, Long trainerId, LocalDateTime ptRegistrationRequestDate) {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
         Trainer trainer = trainerRepository.findById(trainerId)
@@ -104,12 +104,11 @@ public class PersonalTrainingService {
         GymTrainer gymTrainer = gymTrainerRepository.findByTrainerAndGym(trainer, gym)
             .orElseThrow(() -> GymTrainerException.GYM_TRAINER_NOT_MAPPING);
 
-        // TODO : 이미 등록된 회원입니다 예외 추가
         if (personalTrainingRepository.existsByMemberAndGymTrainer(member, gymTrainer)) {
             throw PTException.AlREADY_REGISTERED_PT_MEMBER;
         }
 
-        personalTrainingRepository.save(PersonalTraining.registerPersonalTraining(member, gymTrainer));
+        personalTrainingRepository.save(PersonalTraining.registerNewPersonalTraining(member, gymTrainer, ptRegistrationRequestDate));
 
         // TODO : PUSH 알림 전송
         return PersonalTrainingMemberResponse.from(member.getName(), trainer.getName(), gym.getName());
