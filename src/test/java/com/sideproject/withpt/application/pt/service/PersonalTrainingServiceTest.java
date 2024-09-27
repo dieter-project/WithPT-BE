@@ -63,12 +63,38 @@ class PersonalTrainingServiceTest {
     private PersonalTrainingService personalTrainingService;
 
 
-    @DisplayName("체육관 목록 및 PT 회원 수 조회 시 PT 등록된 회원이 없으면 회원 수들을 0으로 응답한다.")
+    @DisplayName("체육관 목록 및 PT 회원 수 조회 시 등록 허용된 PT 회원들만 조회된다.")
     @Test
     void listOfGymsAndNumberOfMembers() {
         // given
+        Trainer trainer = trainerRepository.save(createTrainer("test 트레이너"));
+
+        Gym gym1 = gymRepository.save(createGym("체육관1"));
+        Gym gym2 = gymRepository.save(createGym("체육관2"));
+        Gym gym3 = gymRepository.save(createGym("체육관3"));
+
+        GymTrainer gymTrainer1 = gymTrainerRepository.save(createGymTrainer(gym1, trainer, LocalDate.of(2024, 9, 27)));
+        Member member1 = memberRepository.save(createMember("회원1"));
+        Member member2 = memberRepository.save(createMember("회원2"));
+        Member member3 = memberRepository.save(createMember("회원3"));
+        personalTrainingRepository.save(createPersonalTraining(member1, gymTrainer1, LocalDateTime.of(2024, 9, 27, 12, 45), PTInfoInputStatus.INFO_EMPTY, PtRegistrationStatus.ALLOWED, PtRegistrationAllowedStatus.ALLOWED));
+        personalTrainingRepository.save(createPersonalTraining(member2, gymTrainer1, LocalDateTime.of(2024, 9, 27, 12, 45), PTInfoInputStatus.INFO_EMPTY, PtRegistrationStatus.ALLOWED, PtRegistrationAllowedStatus.ALLOWED));
+        personalTrainingRepository.save(createPersonalTraining(member3, gymTrainer1, LocalDateTime.of(2024, 9, 27, 12, 45), PTInfoInputStatus.INFO_EMPTY, PtRegistrationStatus.ALLOWED, PtRegistrationAllowedStatus.ALLOWED));
+
+        GymTrainer gymTrainer2 = gymTrainerRepository.save(createGymTrainer(gym2, trainer, LocalDate.of(2024, 9, 27)));
+        Member member4 = memberRepository.save(createMember("회원4"));
+        Member member5 = memberRepository.save(createMember("회원5"));
+        personalTrainingRepository.save(createPersonalTraining(member4, gymTrainer2, LocalDateTime.of(2024, 9, 27, 12, 45), PTInfoInputStatus.INFO_EMPTY, PtRegistrationStatus.ALLOWED, PtRegistrationAllowedStatus.ALLOWED));
+        personalTrainingRepository.save(createPersonalTraining(member5, gymTrainer2, LocalDateTime.of(2024, 9, 27, 12, 45), PTInfoInputStatus.INFO_EMPTY, PtRegistrationStatus.ALLOWED, PtRegistrationAllowedStatus.ALLOWED));
+
+        GymTrainer gymTrainer3 = gymTrainerRepository.save(createGymTrainer(gym3, trainer, LocalDate.of(2024, 9, 27)));
+        Member member6 = memberRepository.save(createMember("회원6"));
+        Member member7 = memberRepository.save(createMember("회원7"));
+        personalTrainingRepository.save(createPersonalTraining(member6, gymTrainer3, LocalDateTime.of(2024, 9, 27, 12, 45), PTInfoInputStatus.INFO_EMPTY, PtRegistrationStatus.ALLOWED, PtRegistrationAllowedStatus.ALLOWED));
+        personalTrainingRepository.save(createPersonalTraining(member7, gymTrainer3, LocalDateTime.of(2024, 9, 27, 12, 45), PTInfoInputStatus.INFO_EMPTY, PtRegistrationStatus.ALLOWED, PtRegistrationAllowedStatus.ALLOWED));
 
         // when
+
         // then
     }
 
@@ -212,6 +238,50 @@ class PersonalTrainingServiceTest {
                 .isInstanceOf(PTException.class)
                 .hasMessage("이미 등록된 PT 회원입니다.");
         }
+    }
+
+    @DisplayName("회원 측에서 PT 등록을 허용한다.")
+    @Test
+    void approvedPersonalTrainingRegistration() {
+        // given
+        Member member = memberRepository.save(createMember("회원"));
+        Trainer trainer = trainerRepository.save(createTrainer("test 트레이너"));
+        Gym gym = gymRepository.save(createGym("체육관1"));
+
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 27)));
+        PersonalTraining personalTraining = personalTrainingRepository.save(createPersonalTraining(member, gymTrainer, LocalDateTime.of(2024, 9, 27, 12, 45), PTInfoInputStatus.INFO_EMPTY, PtRegistrationStatus.ALLOWED_BEFORE, PtRegistrationAllowedStatus.WAITING));
+
+        final Long personalTrainingId = personalTraining.getId();
+        final LocalDateTime registrationAllowedDate = LocalDateTime.of(2024, 9, 27, 9, 51);
+
+        // when
+        personalTrainingService.approvedPersonalTrainingRegistration(personalTrainingId, registrationAllowedDate);
+
+        // then
+        PersonalTraining savedPersonalTraining = personalTrainingRepository.findAll().get(0);
+        assertThat(savedPersonalTraining)
+            .extracting("registrationAllowedStatus", "registrationStatus", "registrationAllowedDate")
+            .contains(PtRegistrationAllowedStatus.ALLOWED, PtRegistrationStatus.ALLOWED, registrationAllowedDate);
+    }
+
+    @DisplayName("이미 PT 등록이 승인 됐으면 에러를 응답한다.")
+    @Test
+    void approvedPersonalTrainingRegistrationThrow_AlREADY_ALLOWED_PT_REGISTRATION() {
+        // given
+        Member member = memberRepository.save(createMember("회원"));
+        Trainer trainer = trainerRepository.save(createTrainer("test 트레이너"));
+        Gym gym = gymRepository.save(createGym("체육관1"));
+
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 27)));
+        PersonalTraining personalTraining = personalTrainingRepository.save(createPersonalTraining(member, gymTrainer, LocalDateTime.of(2024, 9, 27, 12, 45), PTInfoInputStatus.INFO_EMPTY, PtRegistrationStatus.ALLOWED, PtRegistrationAllowedStatus.ALLOWED));
+
+        final Long personalTrainingId = personalTraining.getId();
+        final LocalDateTime registrationAllowedDate = LocalDateTime.of(2024, 9, 27, 9, 51);
+
+        // when // then
+        assertThatThrownBy(() -> personalTrainingService.approvedPersonalTrainingRegistration(personalTrainingId, registrationAllowedDate))
+            .isInstanceOf(PTException.class)
+            .hasMessage("이미 PT 등록을 허용한 상태입니다.");
     }
 
     public PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, LocalDateTime registrationRequestDate, PTInfoInputStatus infoInputStatus, PtRegistrationStatus ptRegistrationStatus, PtRegistrationAllowedStatus ptRegistrationAllowedStatus) {

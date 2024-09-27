@@ -71,11 +71,12 @@ public class PersonalTrainingService {
 
     private final PTCountLogRepository ptCountLogRepository;
 
-    public Slice<CountOfMembersAndGymsResponse> listOfGymsAndNumberOfMembers(Long trainerId, Pageable pageable) {
+    public Slice<CountOfMembersAndGymsResponse> listOfGymsAndNumberOfMembers(Long trainerId, LocalDate date, Pageable pageable) {
         Trainer trainer = trainerRepository.findById(trainerId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         Slice<Gym> gyms = gymQueryRepository.findAllTrainerGymsByPageable(trainer, pageable);
+
         List<GymMemberCountDto> gymMemberCountDtos = trainingQueryRepository.findAllPersonalTrainingsPageableBy(gyms, trainer);
 
         List<CountOfMembersAndGymsResponse> contents = gyms.stream()
@@ -149,7 +150,7 @@ public class PersonalTrainingService {
     }
 
     @Transactional
-    public void allowPtRegistrationNotification(Long ptId) {
+    public void approvedPersonalTrainingRegistration(Long ptId, LocalDateTime registrationAllowedDate) {
 
         PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
@@ -159,7 +160,7 @@ public class PersonalTrainingService {
             throw PTException.AlREADY_ALLOWED_PT_REGISTRATION;
         }
 
-        PersonalTraining.allowPTRegistration(personalTraining);
+        personalTraining.approvedPersonalTrainingRegistration(registrationAllowedDate);
     }
 
     public MemberDetailInfoResponse getPtMemberDetailInfo(Long ptId) {
