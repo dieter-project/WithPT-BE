@@ -1,5 +1,6 @@
 package com.sideproject.withpt.application.record.body.controller;
 
+import com.sideproject.withpt.application.record.body.controller.request.BodyImageRequest;
 import com.sideproject.withpt.application.record.body.controller.request.DeleteBodyImageRequest;
 import com.sideproject.withpt.application.record.body.controller.response.BodyImageInfoResponse;
 import com.sideproject.withpt.application.record.body.service.BodyImageService;
@@ -55,9 +56,9 @@ public class BodyImageController {
     @Operation(summary = "눈바디 이미지 업로드")
     @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void saveBodyImage(
-        @RequestPart(value = "files") List<MultipartFile> files, @RequestPart LocalDate uploadDate,
+        @RequestPart(value = "files") List<MultipartFile> files, @RequestPart(value = "request") BodyImageRequest request,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        bodyImageService.saveBodyImage(files, uploadDate, memberId);
+        bodyImageService.saveBodyImage(files, request.getUploadDate(), memberId);
     }
 
     @Operation(summary = "눈바디 이미지 삭제")
