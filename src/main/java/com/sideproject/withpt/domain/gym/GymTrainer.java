@@ -41,13 +41,10 @@ public class GymTrainer extends BaseEntity {
 
     private LocalDate retirementDate;
 
-    public void addTrainer(Trainer trainer) {
-        this.trainer = trainer;
-    }
-
-    public static GymTrainer createGymTrainer(Gym gym) {
+    public static GymTrainer createGymTrainer(Gym gym, Trainer trainer) {
         return GymTrainer.builder()
             .gym(gym)
+            .trainer(trainer)
             .hireDate(LocalDate.now())
             .build();
     }

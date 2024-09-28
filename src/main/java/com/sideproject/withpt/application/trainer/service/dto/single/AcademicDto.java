@@ -4,37 +4,46 @@ import com.sideproject.withpt.application.type.AcademicInstitution;
 import com.sideproject.withpt.application.type.Degree;
 import com.sideproject.withpt.domain.trainer.Academic;
 import java.time.Year;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import lombok.ToString;
 
 @Getter
-@Slf4j
-@Builder
+@ToString
 public class AcademicDto {
 
     private static final String NO_MAJOR = "전공 없음";
 
-    private String name;
+    private final String name;
     private String major;
-    private AcademicInstitution institution;
+    private final AcademicInstitution institution;
     private Degree degree;
-    private String country;
-    private Year enrollmentYear;
-    private Year graduationYear;
+    private final String country;
+    private final Year enrollmentYear;
+    private final Year graduationYear;
+
+    @Builder
+    private AcademicDto(String name, String major, AcademicInstitution institution, Degree degree, String country, Year enrollmentYear,
+        Year graduationYear) {
+        this.name = name;
+        this.major = major;
+        this.institution = institution;
+        this.degree = degree;
+        this.country = country;
+        this.enrollmentYear = enrollmentYear;
+        this.graduationYear = graduationYear;
+    }
 
     public Academic toEntity() {
         // 고등학교 -> 전공 없음
         // 학위 -> 고등학교 졸업장
-        if(institution == AcademicInstitution.HIGH_SCHOOL) {
+        if (institution == AcademicInstitution.HIGH_SCHOOL) {
             this.major = NO_MAJOR;
             this.degree = Degree.HIGH_SCHOOL_DIPLOMA;
         }
 
         // 기관이 국내 대학이면 degree는 학사
-        if(institution != AcademicInstitution.HIGH_SCHOOL && institution != AcademicInstitution.OVERSEAS_UNIVERSITY) {
+        if (institution != AcademicInstitution.HIGH_SCHOOL && institution != AcademicInstitution.OVERSEAS_UNIVERSITY) {
             this.degree = Degree.BACHELOR;
         }
 
@@ -47,11 +56,5 @@ public class AcademicDto {
             .enrollmentYear(this.enrollmentYear)
             .graduationYear(this.graduationYear)
             .build();
-    }
-
-    public static List<Academic> toEntities(List<AcademicDto> academicDtos) {
-        return academicDtos.stream()
-            .map(AcademicDto::toEntity)
-            .collect(Collectors.toList());
     }
 }

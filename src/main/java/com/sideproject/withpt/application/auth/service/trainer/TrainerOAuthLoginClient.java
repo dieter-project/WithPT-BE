@@ -62,6 +62,6 @@ public class TrainerOAuthLoginClient implements OAuthLoginClient {
             TimeUnit.SECONDS,
             tokenSetDto.getRefreshExpiredAt());
 
-        return OAuthLoginResponse.of(trainer.getId(), trainer.getEmail(), trainer.getName(), trainer.getOauthProvider(), trainer.getRole(), tokenSetDto);
+        return OAuthLoginResponse.of(trainer, tokenSetDto);
     }
 }

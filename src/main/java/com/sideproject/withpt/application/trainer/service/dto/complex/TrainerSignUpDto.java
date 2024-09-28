@@ -14,52 +14,50 @@ import com.sideproject.withpt.application.type.Sex;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Getter
-@Builder
 @ToString
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TrainerSignUpDto {
 
     private String email;
-
     private String name;
-
     private LocalDate birth;
-
     private Sex sex;
-
     private OAuthProvider oauthProvider;
+    private List<CareerDto> careers;
+    private List<AcademicDto> academics;
+    private List<CertificateDto> certificates;
+    private List<AwardDto> awards;
+    private List<EducationDto> educations;
+    private List<GymScheduleDto> gyms;
 
-    @Builder.Default
-    private List<CareerDto> careers = new ArrayList<>();
+    @Builder
+    public TrainerSignUpDto(String email, String name, LocalDate birth, Sex sex, OAuthProvider oauthProvider, List<CareerDto> careers,
+        List<AcademicDto> academics, List<CertificateDto> certificates, List<AwardDto> awards, List<EducationDto> educations,
+        List<GymScheduleDto> gyms) {
+        this.email = email;
+        this.name = name;
+        this.birth = birth;
+        this.sex = sex;
+        this.oauthProvider = oauthProvider;
+        this.careers = careers;
+        this.academics = academics;
+        this.certificates = certificates;
+        this.awards = awards;
+        this.educations = educations;
+        this.gyms = gyms;
+    }
 
-    @Builder.Default
-    private List<AcademicDto> academics = new ArrayList<>();
+    public Trainer toTrainerEntity() {
 
-    @Builder.Default
-    private List<CertificateDto> certificates = new ArrayList<>();
-
-    @Builder.Default
-    private List<AwardDto> awards = new ArrayList<>();
-
-    @Builder.Default
-    private List<EducationDto> educations = new ArrayList<>();
-
-    @Builder.Default
-    private List<TrainerGymScheduleDto> gyms = new ArrayList<>();
-
-    public Trainer toTrainerBasicEntity() {
-        return Trainer.BySignUpBuilder()
+        Trainer trainer = Trainer.signUpBuilder()
             .email(this.email)
             .name(this.name)
             .birth(this.birth)
@@ -70,6 +68,34 @@ public class TrainerSignUpDto {
             .role(Role.TRAINER)
             .joinDate(LocalDateTime.now())
             .build();
+
+        addCareerEntities(trainer);
+        addAcademicEntities(trainer);
+        addCertificateEntities(trainer);
+        addAwardEntities(trainer);
+        addEducationEntities(trainer);
+
+        return trainer;
+    }
+
+    private void addCareerEntities(Trainer trainer) {
+        careers.forEach(careerDto -> trainer.addCareer(careerDto.toEntity()));
+    }
+
+    private void addAcademicEntities(Trainer trainer) {
+        academics.forEach(academicDto -> trainer.addAcademic(academicDto.toEntity()));
+    }
+
+    private void addCertificateEntities(Trainer trainer) {
+        certificates.forEach(certificateDto -> trainer.addCertificate(certificateDto.toEntity()));
+    }
+
+    private void addAwardEntities(Trainer trainer) {
+        awards.forEach(awardDto -> trainer.addAward(awardDto.toEntity()));
+    }
+
+    private void addEducationEntities(Trainer trainer) {
+        educations.forEach(educationDto -> trainer.addEducation(educationDto.toEntity()));
     }
 
 }

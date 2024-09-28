@@ -3,17 +3,13 @@ package com.sideproject.withpt.application.trainer.service;
 import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.TRAINER_REFRESH_TOKEN_PREFIX;
 
 import com.sideproject.withpt.application.auth.controller.dto.OAuthLoginResponse;
-import com.sideproject.withpt.application.gym.repositoy.GymRepository;
+import com.sideproject.withpt.application.gym.service.GymService;
+import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
+import com.sideproject.withpt.application.schedule.service.WorkScheduleService;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
+import com.sideproject.withpt.application.trainer.service.dto.TrainerSignUpResponse;
 import com.sideproject.withpt.application.trainer.service.dto.complex.TrainerSignUpDto;
-import com.sideproject.withpt.application.trainer.service.dto.single.AcademicDto;
-import com.sideproject.withpt.application.trainer.service.dto.single.AwardDto;
-import com.sideproject.withpt.application.trainer.service.dto.single.CareerDto;
-import com.sideproject.withpt.application.trainer.service.dto.single.CertificateDto;
-import com.sideproject.withpt.application.trainer.service.dto.single.EducationDto;
-import com.sideproject.withpt.application.trainer.service.dto.single.WorkScheduleDto;
 import com.sideproject.withpt.application.type.Role;
-import com.sideproject.withpt.application.type.Sex;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.jwt.AuthTokenGenerator;
 import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
@@ -21,7 +17,6 @@ import com.sideproject.withpt.common.redis.RedisClient;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.trainer.Trainer;
-import com.sideproject.withpt.domain.trainer.WorkSchedule;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -33,63 +28,52 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class TrainerAuthenticationService {
 
     private final TrainerRepository trainerRepository;
-    private final GymRepository gymRepository;
+    private final GymService gymService;
+    private final GymTrainerRepository gymTrainerRepository;
+    private final WorkScheduleService workScheduleService;
 
     private final AuthTokenGenerator authTokenGenerator;
     private final RedisClient redisClient;
 
-    @Transactional
     public OAuthLoginResponse signUp(TrainerSignUpDto signUpDto) {
 
-        trainerRepository.findByEmail(signUpDto.getEmail())
-            .ifPresent(member -> {
-                throw GlobalException.ALREADY_REGISTERED_USER;
-            });
+        TrainerSignUpResponse trainerSignUpResponse = registerTrainerWithGymsAndSchedules(signUpDto);
 
-        List<Gym> savedGym = signUpDto.getGyms().stream()
-            .map(trainerGymScheduleDto ->
-                gymRepository.findByName(trainerGymScheduleDto.getName())
-                    .orElseGet(() -> gymRepository.save(trainerGymScheduleDto.toGymEntity())))
-            .collect(Collectors.toList());
+        TokenSetDto tokenSetDto = authTokenGenerator.generateTokenSet(trainerSignUpResponse.getId(), Role.TRAINER);
 
-        List<WorkSchedule> workSchedules = signUpDto.getGyms().stream()
-            .flatMap(trainerGymScheduleDto -> savedGym.stream()
-                .filter(gym -> gym.getName().equals(trainerGymScheduleDto.getName()))
-                .flatMap(gym -> trainerGymScheduleDto.getWorkSchedules().stream()
-                    .map(WorkScheduleDto::toEntity)
-                    .map(workScheduleDto -> WorkSchedule.createWorkSchedule(gym, workScheduleDto))))
-            .collect(Collectors.toList());
-
-        List<GymTrainer> gymTrainers = savedGym.stream()
-            .map(GymTrainer::createGymTrainer)
-            .collect(Collectors.toList());
-
-        Long userId = trainerRepository.save(
-            Trainer.createSignUpTrainer(
-                signUpDto.toTrainerBasicEntity(),
-                workSchedules,
-                gymTrainers,
-                CareerDto.toEntities(signUpDto.getCareers()),
-                AcademicDto.toEntities(signUpDto.getAcademics()),
-                CertificateDto.toEntities(signUpDto.getCertificates()),
-                AwardDto.toEntities(signUpDto.getAwards()),
-                EducationDto.toEntities(signUpDto.getEducations()))
-        ).getId();
-
-        TokenSetDto tokenSetDto = authTokenGenerator.generateTokenSet(userId, Role.TRAINER);
         redisClient.put(
-            TRAINER_REFRESH_TOKEN_PREFIX + userId,
+            TRAINER_REFRESH_TOKEN_PREFIX + trainerSignUpResponse.getId(),
             tokenSetDto.getRefreshToken(),
             TimeUnit.SECONDS,
             tokenSetDto.getRefreshExpiredAt()
         );
 
-        return OAuthLoginResponse.of(userId, signUpDto.getEmail(), signUpDto.getName(), signUpDto.getOauthProvider(),
-            signUpDto.toTrainerBasicEntity().getRole(), tokenSetDto);
+        return OAuthLoginResponse.of(trainerSignUpResponse, tokenSetDto);
+    }
+
+    @Transactional
+    public TrainerSignUpResponse registerTrainerWithGymsAndSchedules(TrainerSignUpDto signUpDto) {
+        if (trainerRepository.existsByEmail(signUpDto.getEmail())) {
+            throw GlobalException.ALREADY_REGISTERED_USER;
+        }
+
+        Trainer trainer = trainerRepository.save(signUpDto.toTrainerEntity());
+        List<Gym> savedGym = gymService.registerGyms(signUpDto.getGyms());
+        List<GymTrainer> gymTrainers = registerGymTrainers(savedGym, trainer);
+        workScheduleService.registerWorkSchedules(signUpDto.getGyms(), gymTrainers);
+
+        return TrainerSignUpResponse.of(trainer);
+    }
+
+    private List<GymTrainer> registerGymTrainers(List<Gym> gyms, Trainer trainer) {
+        return gymTrainerRepository.saveAll(
+            gyms.stream()
+                .map(gym -> GymTrainer.createGymTrainer(gym, trainer))
+                .collect(Collectors.toList())
+        );
     }
 
 }

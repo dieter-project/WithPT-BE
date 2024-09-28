@@ -39,23 +39,23 @@ public class TrainerSignUpRequest {
     private OAuthProvider oauthProvider;
 
     @Valid
-    private List<CareerRequest> careers;
+    private List<CareerRequest> careers = new ArrayList<>();
 
     @Valid
-    private List<AcademicRequest> academics;
+    private List<AcademicRequest> academics = new ArrayList<>();
 
     @Valid
-    private List<CertificateRequest> certificates;
+    private List<CertificateRequest> certificates = new ArrayList<>();
 
     @Valid
-    private List<AwardRequest> awards;
+    private List<AwardRequest> awards = new ArrayList<>();
 
     @Valid
-    private List<EducationRequest> educations;
+    private List<EducationRequest> educations = new ArrayList<>();
 
     @Valid
-    private List<TrainerGymScheduleRequest> gyms;
-    
+    private List<TrainerGymScheduleRequest> gyms = new ArrayList<>();;
+
     public TrainerSignUpDto toServiceTrainerSignUpDto() {
         return TrainerSignUpDto.builder()
             .email(this.email)

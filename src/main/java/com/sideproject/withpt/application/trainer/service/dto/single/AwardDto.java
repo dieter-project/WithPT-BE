@@ -2,18 +2,24 @@ package com.sideproject.withpt.application.trainer.service.dto.single;
 
 import com.sideproject.withpt.domain.trainer.Award;
 import java.time.Year;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
-@Builder
+@ToString
 public class AwardDto {
 
-    private String name;
-    private String institution;
-    private Year acquisitionYear;
+    private final String name;
+    private final String institution;
+    private final Year acquisitionYear;
+
+    @Builder
+    private AwardDto(String name, String institution, Year acquisitionYear) {
+        this.name = name;
+        this.institution = institution;
+        this.acquisitionYear = acquisitionYear;
+    }
 
     public Award toEntity() {
         return Award.builder()
@@ -23,9 +29,4 @@ public class AwardDto {
             .build();
     }
 
-    public static List<Award> toEntities(List<AwardDto> awardDtos) {
-        return awardDtos.stream()
-            .map(AwardDto::toEntity)
-            .collect(Collectors.toList());
-    }
 }
