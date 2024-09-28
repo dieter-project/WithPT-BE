@@ -60,8 +60,8 @@ public class BodyImageController {
         @RequestPart(value = "request") BodyImageRequest request,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
         log.info("요청 json {}", request);
-        log.info("요청 files {}", test.getClass());
         log.info("요청 files {}", test);
+        log.info("요청 files {}", test.getClass());
 
         for (MultipartFile file : test) {
             log.info("파일 명 {}", file.getOriginalFilename());
