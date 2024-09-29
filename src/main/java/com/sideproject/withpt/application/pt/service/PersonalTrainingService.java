@@ -12,6 +12,7 @@ import com.sideproject.withpt.application.pt.controller.request.UpdatePtMemberDe
 import com.sideproject.withpt.application.pt.controller.response.AssignedPTInfoResponse;
 import com.sideproject.withpt.application.pt.controller.response.CountOfMembersAndGymsResponse;
 import com.sideproject.withpt.application.pt.controller.response.EachGymMemberListResponse;
+import com.sideproject.withpt.application.pt.controller.response.GymResponse;
 import com.sideproject.withpt.application.pt.controller.response.MemberDetailInfoResponse;
 import com.sideproject.withpt.application.pt.controller.response.PersonalTrainingMemberResponse;
 import com.sideproject.withpt.application.pt.controller.response.PtStatisticResponse;
@@ -71,26 +72,24 @@ public class PersonalTrainingService {
 
     private final PTCountLogRepository ptCountLogRepository;
 
-    public Slice<CountOfMembersAndGymsResponse> listOfGymsAndNumberOfMembers(Long trainerId, LocalDate date, Pageable pageable) {
+    public CountOfMembersAndGymsResponse listOfGymsAndNumberOfMembers(Long trainerId, LocalDateTime currentDateTime, Pageable pageable) {
         Trainer trainer = trainerRepository.findById(trainerId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
-        Slice<Gym> gyms = gymQueryRepository.findAllTrainerGymsByPageable(trainer, pageable);
+        Slice<GymTrainer> gymTrainersByPageable = gymTrainerRepository.findAllPageableByTrainer(trainer, pageable);
 
-        List<GymMemberCountDto> gymMemberCountDtos = trainingQueryRepository.findAllPersonalTrainingsPageableBy(gyms, trainer);
+        Map<String, Long> gymMemberCountMap = createGymMemberCountMapBy(gymTrainersByPageable, currentDateTime);
 
-        List<CountOfMembersAndGymsResponse> contents = gyms.stream()
-            .map(gym -> {
-                Long memberCount = gymMemberCountDtos.stream()
-                    .filter(dto -> gym.getName().equals(dto.getGymName()))
-                    .findFirst()
-                    .map(GymMemberCountDto::getMemberCount)
-                    .orElse(0L);
-                return CountOfMembersAndGymsResponse.from(gym, memberCount);
-            })
-            .collect(Collectors.toList());
+        List<Gym> gyms = extractGymsBy(gymTrainersByPageable);
 
-        return new SliceImpl<>(contents, pageable, gyms.hasNext());
+        int totalMemberCount = calculateTotalPTMembersCountBy(gymMemberCountMap);
+
+        List<GymResponse> contents = mappingGymAndMemberCount(gymMemberCountMap, gyms);
+
+        return CountOfMembersAndGymsResponse.from(
+            totalMemberCount, currentDateTime.toLocalDate(),
+            new SliceImpl<>(contents, pageable, gymTrainersByPageable.hasNext())
+        );
     }
 
     @Transactional
@@ -113,6 +112,20 @@ public class PersonalTrainingService {
 
         // TODO : PUSH 알림 전송
         return PersonalTrainingMemberResponse.from(member.getName(), trainer.getName(), gym.getName());
+    }
+
+    @Transactional
+    public void approvedPersonalTrainingRegistration(Long ptId, LocalDateTime registrationAllowedDate) {
+
+        PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
+            .orElseThrow(() -> PTException.PT_NOT_FOUND);
+
+        // 이미 등록을 허용한 상태면 에러
+        if (personalTraining.getRegistrationAllowedStatus() == PtRegistrationAllowedStatus.ALLOWED) {
+            throw PTException.AlREADY_ALLOWED_PT_REGISTRATION;
+        }
+
+        personalTraining.approvedPersonalTrainingRegistration(registrationAllowedDate);
     }
 
     @Transactional
@@ -147,20 +160,6 @@ public class PersonalTrainingService {
 
         return trainingQueryRepository.findAllPtMembersByRegistrationAllowedStatus(gym, trainer,
             registrationAllowedStatus, pageable);
-    }
-
-    @Transactional
-    public void approvedPersonalTrainingRegistration(Long ptId, LocalDateTime registrationAllowedDate) {
-
-        PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
-            .orElseThrow(() -> PTException.PT_NOT_FOUND);
-
-        // 이미 등록을 허용한 상태면 에러
-        if (personalTraining.getRegistrationAllowedStatus() == PtRegistrationAllowedStatus.ALLOWED) {
-            throw PTException.AlREADY_ALLOWED_PT_REGISTRATION;
-        }
-
-        personalTraining.approvedPersonalTrainingRegistration(registrationAllowedDate);
     }
 
     public MemberDetailInfoResponse getPtMemberDetailInfo(Long ptId) {
@@ -328,5 +327,38 @@ public class PersonalTrainingService {
                 .build(),
             statistic
         );
+    }
+
+    private Map<String, Long> createGymMemberCountMapBy(Slice<GymTrainer> gymTrainersByPageable, LocalDateTime currentDateTime) {
+        List<GymMemberCountDto> gymMemberCount = trainingQueryRepository.getGymMemberCountBy(gymTrainersByPageable.getContent(), currentDateTime);
+        return gymMemberCount.stream()
+            .collect(Collectors.toMap(
+                GymMemberCountDto::getGymName,
+                GymMemberCountDto::getMemberCount
+            ));
+    }
+
+    private List<Gym> extractGymsBy(Slice<GymTrainer> gymTrainersByPageable) {
+        return gymTrainersByPageable.stream()
+            .map(GymTrainer::getGym)
+            .collect(Collectors.toList());
+    }
+
+    private int calculateTotalPTMembersCountBy(Map<String, Long> gymMemberCountMap) {
+        return gymMemberCountMap.values().stream()
+            .mapToInt(Long::intValue)
+            .sum();
+    }
+
+    private List<GymResponse> mappingGymAndMemberCount(Map<String, Long> gymMemberCountMap, List<Gym> gyms) {
+        return gyms.stream()
+            .map(gym -> {
+                Long memberCount = 0L;
+                if (gymMemberCountMap.containsKey(gym.getName())) {
+                    memberCount = gymMemberCountMap.get(gym.getName());
+                }
+                return GymResponse.from(gym, memberCount);
+            })
+            .collect(Collectors.toList());
     }
 }
