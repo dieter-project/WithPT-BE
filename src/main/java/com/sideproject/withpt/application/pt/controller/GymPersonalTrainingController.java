@@ -58,19 +58,24 @@ public class GymPersonalTrainingController {
 //        );
 //    }
 
-    // 1-1
+
     @Operation(summary = "체육관 목록 및 PT 회원 수 조회", description = "체육관 목록과 각 회원 수 반환")
-//    @GetMapping("/api/v1/gyms/personal-trainings/members")
     @GetMapping("/api/v1/gyms/personal-trainings/members/count")
-    public ApiSuccessResponse<Slice<CountOfMembersAndGymsResponse>> listOfGymsAndNumberOfMembers(
+    public ApiSuccessResponse<CountOfMembersAndGymsResponse> listOfGymsAndNumberOfMembers(
         @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
         @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date, Pageable pageable) {
+        // LocalDate를 LocalDateTime으로 변환하여 현재 시간을 포함
+        LocalDateTime currentDateTime = date.atStartOfDay(); // 시작 시간으로 변환
+        currentDateTime = currentDateTime.plusHours(LocalDateTime.now().getHour()) // 현재 시간
+            .plusMinutes(LocalDateTime.now().getMinute()) // 현재 분
+            .plusSeconds(LocalDateTime.now().getSecond()); // 현재 초
+
         return ApiSuccessResponse.from(
-            personalTrainingService.listOfGymsAndNumberOfMembers(trainerId, date, pageable)
+            personalTrainingService.listOfGymsAndNumberOfMembers(trainerId, currentDateTime, pageable)
         );
     }
 
-    @Operation(summary = "체육관 회원 추가")
+    @Operation(summary = "체육관 PT 신규 회원 추가")
     @PostMapping("/api/v1/gyms/{gymId}/personal-trainings/members/{memberId}")
     public ApiSuccessResponse<PersonalTrainingMemberResponse> registerPersonalTraining(@PathVariable Long gymId,
         @PathVariable Long memberId, @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId) {

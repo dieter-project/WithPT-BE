@@ -1,5 +1,6 @@
 package com.sideproject.withpt.application.pt.repository;
 
+import static com.sideproject.withpt.domain.gym.QGym.gym;
 import static com.sideproject.withpt.domain.gym.QGymTrainer.gymTrainer;
 import static com.sideproject.withpt.domain.pt.QPersonalTraining.personalTraining;
 import static com.sideproject.withpt.domain.pt.QPersonalTrainingInfo.personalTrainingInfo;
@@ -34,10 +35,12 @@ import com.sideproject.withpt.application.pt.repository.dto.QPtMemberListDto_PtI
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.application.type.PtRegistrationStatus;
 import com.sideproject.withpt.domain.gym.Gym;
+import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -57,19 +60,20 @@ public class PersonalTrainingQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public List<GymMemberCountDto> findAllPersonalTrainingsPageableBy(Slice<Gym> gyms, Trainer trainer) {
-
+    public List<GymMemberCountDto> getGymMemberCountBy(List<GymTrainer> gymTrainers, LocalDateTime currentDateTime) {
         return jpaQueryFactory
             .select(
                 new QGymMemberCountDto(
-                    personalTraining.gym.name,
+                    gym.name,
                     personalTraining.count())
             )
             .from(personalTraining)
-            .leftJoin(personalTraining.gym)
-            .where(trainerEq(trainer), gymsIn(gyms.getContent()),
-                personalTraining.registrationAllowedStatus.eq(PtRegistrationAllowedStatus.ALLOWED))
-            .groupBy(personalTraining.gym)
+            .leftJoin(gymTrainer).on(personalTraining.gymTrainer.eq(gymTrainer))
+            .leftJoin(gym).on(gymTrainer.gym.eq(gym))
+            .where(gymTrainersIn(gymTrainers),
+                personalTraining.registrationAllowedStatus.eq(PtRegistrationAllowedStatus.ALLOWED),
+                personalTraining.registrationAllowedDate.loe(currentDateTime))
+            .groupBy(gym.name)
             .fetch();
     }
 
@@ -416,20 +420,20 @@ public class PersonalTrainingQueryRepository {
 
         return Optional.ofNullable(
             jpaQueryFactory
-            .select(
-                personalTrainingInfo.count()
-            ).from(personalTrainingInfo)
-            .where(
-                localDateDateTemplate.lt(endDate),
-                personalTrainingInfo.personalTraining.id.in(
-                    JPAExpressions
-                        .select(personalTraining.id)
-                        .from(personalTraining)
-                        .where(
-                            personalTraining.trainer.eq(trainer)
-                        )
-                )
-            ).fetchOne()
+                .select(
+                    personalTrainingInfo.count()
+                ).from(personalTrainingInfo)
+                .where(
+                    localDateDateTemplate.lt(endDate),
+                    personalTrainingInfo.personalTraining.id.in(
+                        JPAExpressions
+                            .select(personalTraining.id)
+                            .from(personalTraining)
+                            .where(
+                                personalTraining.trainer.eq(trainer)
+                            )
+                    )
+                ).fetchOne()
         );
     }
 
@@ -439,6 +443,10 @@ public class PersonalTrainingQueryRepository {
 
     private BooleanExpression memberEq(Member member) {
         return ObjectUtils.isEmpty(member) ? null : personalTraining.member.eq(member);
+    }
+
+    private BooleanExpression gymTrainersIn(List<GymTrainer> gymTrainers) {
+        return CollectionUtils.isEmpty(gymTrainers) ? null : personalTraining.gymTrainer.in(gymTrainers);
     }
 
     private BooleanExpression gymsIn(List<Gym> gyms) {

@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface GymTrainerRepository extends JpaRepository<GymTrainer, Long> {
+public interface GymTrainerRepository extends JpaRepository<GymTrainer, Long>, GymTrainerQueryRepository {
 
     Optional<GymTrainer> findByTrainerAndGym(Trainer trainer, Gym gym);
 }
