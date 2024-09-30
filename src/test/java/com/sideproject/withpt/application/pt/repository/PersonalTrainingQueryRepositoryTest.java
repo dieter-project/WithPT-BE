@@ -6,6 +6,7 @@ import static org.assertj.core.groups.Tuple.tuple;
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
+import com.sideproject.withpt.application.pt.controller.response.MemberDetailInfoResponse;
 import com.sideproject.withpt.application.pt.repository.dto.EachGymMemberListResponse;
 import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
 import com.sideproject.withpt.application.pt.repository.dto.PtMemberListDto;
@@ -21,6 +22,7 @@ import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.member.Authentication;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
+import com.sideproject.withpt.domain.pt.PersonalTrainingInfo;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -32,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,6 +59,8 @@ class PersonalTrainingQueryRepositoryTest {
     @Autowired
     private PersonalTrainingRepository personalTrainingRepository;
 
+    @Autowired
+    private PersonalTrainingInfoRepository personalTrainingInfoRepository;
 
     @DisplayName("체육관 목록(페이징)과 트레이너로 승인된(PtRegistrationAllowedStatus.APPROVED) PT 목록들을 가져온다.")
     @Test
@@ -185,6 +190,43 @@ class PersonalTrainingQueryRepositoryTest {
             );
     }
 
+    @DisplayName("신규 회원 PT 정보 입력 직후 정보 조회")
+    @Test
+    void findPtMemberDetailInfoWhenInitStatus() {
+        // given
+        Gym gym = gymRepository.save(createGym("체육관"));
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 30)));
+
+        Member member = memberRepository.save(createMember("회원"));
+        LocalDateTime firstRegistrationDate = LocalDateTime.of(2024, 9, 1, 0, 0, 0);
+
+        PersonalTraining savedPersonalTraining = personalTrainingRepository.save(
+            createPersonalTraining(member, gymTrainer, "노트", 30, 30, LocalDateTime.of(2024, 9, 27, 12, 45, 1),
+                PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.NEW_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED,
+                firstRegistrationDate, null, LocalDateTime.of(2024, 9, 29, 0, 0, 0))
+        );
+
+        personalTrainingInfoRepository.save(
+            PersonalTrainingInfo.createPTInfo(30, firstRegistrationDate, PtRegistrationStatus.NEW_REGISTRATION, savedPersonalTraining)
+        );
+
+        // when
+        MemberDetailInfoResponse response = personalTrainingRepository.findPtMemberDetailInfo(savedPersonalTraining);
+
+        // then
+        assertThat(response.getMember())
+            .extracting("name", "imageUrl", "birth", "sex", "height", "weight", "dietType")
+            .contains("회원", "imageURL.jpa", LocalDate.parse("1994-07-19"), Sex.MAN, 173.0, 73.5, DietType.Carb_Protein_Fat);
+
+        assertThat(response.getGym().getName()).isEqualTo("체육관");
+
+        assertThat(response.getPt())
+            .extracting("registrationStatus", "infoInputStatus", "totalPtCount", "remainingPtCount", "note", "firstRegistrationDate", "lastRegistrationDate")
+            .contains(PtRegistrationStatus.NEW_REGISTRATION, PTInfoInputStatus.INFO_REGISTERED, 30, 30, "노트", firstRegistrationDate, null);
+
+    }
+
     public PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, LocalDateTime registrationAllowedDate, PtRegistrationAllowedStatus registrationAllowedStatus) {
         return PersonalTraining.builder()
             .member(member)
@@ -196,16 +238,20 @@ class PersonalTrainingQueryRepositoryTest {
             .build();
     }
 
-    public PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, LocalDateTime registrationRequestDate, PTInfoInputStatus infoInputStatus, PtRegistrationStatus ptRegistrationStatus, PtRegistrationAllowedStatus ptRegistrationAllowedStatus) {
+    public PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, String note, int totalPtCount, int remainingPtCount, LocalDateTime registrationRequestDate, PTInfoInputStatus infoInputStatus, PtRegistrationStatus registrationStatus, PtRegistrationAllowedStatus registrationAllowedStatus, LocalDateTime firstRegistrationDate, LocalDateTime lastRegistrationDate, LocalDateTime registrationAllowedDate) {
         return PersonalTraining.builder()
             .member(member)
             .gymTrainer(gymTrainer)
-            .totalPtCount(0)
-            .remainingPtCount(0)
+            .totalPtCount(totalPtCount)
+            .remainingPtCount(remainingPtCount)
+            .note(note)
+            .firstRegistrationDate(firstRegistrationDate)
+            .lastRegistrationDate(lastRegistrationDate)
             .registrationRequestDate(registrationRequestDate)
+            .registrationAllowedDate(registrationAllowedDate)
+            .registrationStatus(registrationStatus)
             .infoInputStatus(infoInputStatus)
-            .registrationStatus(ptRegistrationStatus)
-            .registrationAllowedStatus(ptRegistrationAllowedStatus)
+            .registrationAllowedStatus(registrationAllowedStatus)
             .build();
     }
 
@@ -220,6 +266,7 @@ class PersonalTrainingQueryRepositoryTest {
             .authentication(authentication)
             .height(173.0)
             .weight(73.5)
+            .imageUrl("imageURL.jpa")
             .dietType(DietType.Carb_Protein_Fat)
             .exerciseFrequency(ExerciseFrequency.EVERYDAY)
             .targetWeight(65.0)

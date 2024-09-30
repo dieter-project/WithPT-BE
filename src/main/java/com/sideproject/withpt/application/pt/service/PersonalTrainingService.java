@@ -20,7 +20,6 @@ import com.sideproject.withpt.application.pt.controller.response.PtStatisticResp
 import com.sideproject.withpt.application.pt.controller.response.ReRegistrationHistoryResponse;
 import com.sideproject.withpt.application.pt.controller.response.TotalAndRemainingPtCountResponse;
 import com.sideproject.withpt.application.pt.controller.response.TotalPtsCountResponse;
-import com.sideproject.withpt.application.pt.exception.PTErrorCode;
 import com.sideproject.withpt.application.pt.exception.PTException;
 import com.sideproject.withpt.application.pt.repository.PTCountLogRepository;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingInfoRepository;
@@ -145,6 +144,64 @@ public class PersonalTrainingService {
         personalTrainingRepository.deleteAllByIdInBatch(ptIds);
     }
 
+    @Transactional
+    public void savePtMemberDetailInfo(Long ptId, SavePtMemberDetailInfoRequest request) {
+        PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
+            .orElseThrow(() -> PTException.PT_NOT_FOUND);
+
+        // 등록 허용되지 않은 회원이면
+        if (personalTraining.getRegistrationAllowedStatus() == PtRegistrationAllowedStatus.WAITING) {
+            throw PTException.PT_REGISTRATION_NOT_ALLOWED;
+        }
+
+        // 이미 초기 입력이 됐으면 에러
+        if (personalTraining.getRegistrationStatus() == PtRegistrationStatus.NEW_REGISTRATION) {
+            throw PTException.AlREADY_REGISTERED_FIRST_PT_INFO;
+        }
+
+        personalTraining.saveFirstPtDetailInfo(request.getPtCount(), request.getFirstRegistrationDate(), request.getNote());
+
+        trainingInfoRepository.save(
+            PersonalTrainingInfo.createPTInfo(request.getPtCount(), request.getFirstRegistrationDate(), PtRegistrationStatus.NEW_REGISTRATION, personalTraining)
+        );
+
+        ptCountLogRepository.save(
+            PTCountLog.recordPTCountLog(request.getPtCount(), request.getPtCount(), request.getFirstRegistrationDate(), PtRegistrationStatus.NEW_REGISTRATION, personalTraining
+            )
+        );
+    }
+
+    public MemberDetailInfoResponse getPtMemberDetailInfo(Long ptId) {
+        PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
+            .orElseThrow(() -> PTException.PT_NOT_FOUND);
+
+        return personalTrainingRepository.findPtMemberDetailInfo(personalTraining);
+    }
+
+    @Transactional
+    public void extendPt(Long ptId, ExtendPtRequest request) {
+        PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
+            .orElseThrow(() -> PTException.PT_NOT_FOUND);
+
+        PersonalTraining.extendPt(personalTraining, request.getPtCount(), request.getPtCount(),
+            request.getReRegistrationDate());
+
+        trainingInfoRepository.save(
+            PersonalTrainingInfo.createPTInfo(request.getPtCount(), request.getReRegistrationDate(), PtRegistrationStatus.RE_REGISTRATION, personalTraining)
+        );
+
+        // 로그 기록
+        ptCountLogRepository.save(
+            PTCountLog.recordPTCountLog(
+                request.getPtCount(),
+                request.getPtCount(),
+                request.getReRegistrationDate(),
+                PtRegistrationStatus.RE_REGISTRATION,
+                personalTraining
+            )
+        );
+    }
+
     public TotalPtsCountResponse countOfAllPtMembers(Long trainerId) {
         return TotalPtsCountResponse.from(
             personalTrainingRepository.countOfAllPtMembers(trainerId)
@@ -161,49 +218,6 @@ public class PersonalTrainingService {
             .gymName(gym.getName())
             .memberCount(personalTrainingRepository.countByGymAndTrainer(gym, trainer))
             .build();
-    }
-
-    public MemberDetailInfoResponse getPtMemberDetailInfo(Long ptId) {
-        PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
-            .orElseThrow(() -> PTException.PT_NOT_FOUND);
-
-        return personalTrainingRepository.findPtMemberDetailInfo(personalTraining);
-    }
-
-    @Transactional
-    public void savePtMemberDetailInfo(Long ptId, SavePtMemberDetailInfoRequest request) {
-        PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
-            .orElseThrow(() -> PTException.PT_NOT_FOUND);
-
-        // 등록 허용되지 않은 회원이면
-        if (personalTraining.getRegistrationAllowedStatus() == PtRegistrationAllowedStatus.WAITING) {
-            throw PTException.PT_REGISTRATION_NOT_ALLOWED;
-        }
-
-        // 이미 초기 입력이 됐으면 에러
-        if (personalTraining.getRegistrationStatus() == PtRegistrationStatus.NEW_REGISTRATION) {
-            throw PTException.AlREADY_REGISTERED_FIRST_PT_INFO;
-        }
-
-        PersonalTraining.saveFirstPtDetailInfo(personalTraining, request.getPtCount(),
-            request.getFirstRegistrationDate(), request.getNote());
-
-        trainingInfoRepository.save(
-            PersonalTrainingInfo.saveTrainingInfo(
-                personalTraining,
-                request.getPtCount(),
-                request.getFirstRegistrationDate(),
-                PtRegistrationStatus.NEW_REGISTRATION
-            )
-        );
-
-        ptCountLogRepository.save(
-            PTCountLog.recordPTCountLog(
-                personalTraining,
-                request.getPtCount(),
-                request.getPtCount(),
-                request.getFirstRegistrationDate(), PtRegistrationStatus.NEW_REGISTRATION)
-        );
     }
 
     public TotalAndRemainingPtCountResponse getPtTotalAndRemainingCount(Long ptId) {
@@ -232,40 +246,11 @@ public class PersonalTrainingService {
         // 로그 기록
         ptCountLogRepository.save(
             PTCountLog.recordPTCountLog(
-                personalTraining,
                 request.getTotalPtCount() - beforeTotalPtCount,
                 request.getRemainingPtCount() - beforeRemainingPtCount,
                 LocalDateTime.now(),
-                PtRegistrationStatus.PT_COUNT_UPDATE
-            )
-        );
-    }
-
-    @Transactional
-    public void extendPt(Long ptId, ExtendPtRequest request) {
-        PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
-            .orElseThrow(() -> PTException.PT_NOT_FOUND);
-
-        PersonalTraining.extendPt(personalTraining, request.getPtCount(), request.getPtCount(),
-            request.getReRegistrationDate());
-
-        trainingInfoRepository.save(
-            PersonalTrainingInfo.saveTrainingInfo(
-                personalTraining,
-                request.getPtCount(),
-                request.getReRegistrationDate(),
-                PtRegistrationStatus.RE_REGISTRATION
-            )
-        );
-
-        // 로그 기록
-        ptCountLogRepository.save(
-            PTCountLog.recordPTCountLog(
-                personalTraining,
-                request.getPtCount(),
-                request.getPtCount(),
-                request.getReRegistrationDate(),
-                PtRegistrationStatus.RE_REGISTRATION
+                PtRegistrationStatus.PT_COUNT_UPDATE,
+                personalTraining
             )
         );
     }

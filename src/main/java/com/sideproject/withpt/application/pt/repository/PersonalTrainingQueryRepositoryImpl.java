@@ -2,6 +2,7 @@ package com.sideproject.withpt.application.pt.repository;
 
 import static com.sideproject.withpt.domain.gym.QGym.gym;
 import static com.sideproject.withpt.domain.gym.QGymTrainer.gymTrainer;
+import static com.sideproject.withpt.domain.member.QMember.member;
 import static com.sideproject.withpt.domain.pt.QPersonalTraining.personalTraining;
 import static com.sideproject.withpt.domain.pt.QPersonalTrainingInfo.personalTrainingInfo;
 
@@ -37,6 +38,7 @@ import com.sideproject.withpt.application.type.PtRegistrationStatus;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.member.QMember;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
@@ -181,18 +183,18 @@ public class PersonalTrainingQueryRepositoryImpl implements PersonalTrainingQuer
             .select(
                 new QMemberDetailInfoResponse(
                     new QMemberDetailInfoResponse_MemberInfo(
-                        personalTraining.member.id,
-                        personalTraining.member.name,
-                        personalTraining.member.imageUrl,
-                        personalTraining.member.authentication.birth,
-                        personalTraining.member.authentication.sex,
-                        personalTraining.member.height,
-                        personalTraining.member.weight,
-                        personalTraining.member.dietType
+                        member.id,
+                        member.name,
+                        member.imageUrl,
+                        member.authentication.birth,
+                        member.authentication.sex,
+                        member.height,
+                        member.weight,
+                        member.dietType
                     ),
                     new QMemberDetailInfoResponse_GymInfo(
-                        personalTraining.gym.id,
-                        personalTraining.gym.name
+                        gym.id,
+                        gym.name
                     ),
                     new QMemberDetailInfoResponse_PtInfo(
                         personalTraining.id,
@@ -207,12 +209,13 @@ public class PersonalTrainingQueryRepositoryImpl implements PersonalTrainingQuer
                 )
             )
             .from(personalTraining)
-            .join(personalTraining.member)
-            .join(personalTraining.gym)
+            .leftJoin(member).on(member.eq(personalTraining.member))
+            .leftJoin(gym).on(gym.eq(personalTraining.gymTrainer.gym))
             .where(
                 personalTraining.eq(pt)
             )
             .fetchOne();
+
     }
 
     @Override
