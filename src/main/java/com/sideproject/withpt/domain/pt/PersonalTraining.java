@@ -95,13 +95,13 @@ public class PersonalTraining extends BaseEntity {
         this.registrationAllowedDate = registrationAllowedDate;
     }
 
-    public static void saveFirstPtDetailInfo(PersonalTraining pt, int ptCount, LocalDateTime firstRegistrationDate, String note) {
-        pt.setTotalPtCount(ptCount);
-        pt.setRemainingPtCount(ptCount);
-        pt.setFirstRegistrationDate(firstRegistrationDate);
-        pt.setNote(note);
-        pt.setInfoInputStatus(PTInfoInputStatus.INFO_REGISTERED);
-        pt.setRegistrationStatus(PtRegistrationStatus.NEW_REGISTRATION);
+    public void saveFirstPtDetailInfo(int ptCount, LocalDateTime firstRegistrationDate, String note) {
+        this.totalPtCount = ptCount;
+        this.remainingPtCount = ptCount;
+        this.firstRegistrationDate = firstRegistrationDate;
+        this.note = note;
+        this.infoInputStatus = PTInfoInputStatus.INFO_REGISTERED;
+        this.registrationStatus = PtRegistrationStatus.NEW_REGISTRATION;
     }
 
     public static void updatePtDetailInfo(PersonalTraining pt, int totalPtCount, int remainingPtCount, String note) {

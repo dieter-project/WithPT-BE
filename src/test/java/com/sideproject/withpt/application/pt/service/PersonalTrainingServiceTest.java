@@ -5,14 +5,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 
 import com.sideproject.withpt.application.gym.exception.GymException;
-import com.sideproject.withpt.application.gym.repositoy.GymQueryRepository;
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.gymtrainer.exception.GymTrainerException;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
+import com.sideproject.withpt.application.pt.controller.request.SavePtMemberDetailInfoRequest;
 import com.sideproject.withpt.application.pt.controller.response.CountOfMembersAndGymsResponse;
 import com.sideproject.withpt.application.pt.controller.response.PersonalTrainingMemberResponse;
 import com.sideproject.withpt.application.pt.exception.PTException;
+import com.sideproject.withpt.application.pt.repository.PersonalTrainingInfoRepository;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.application.type.DietType;
@@ -27,11 +28,11 @@ import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.member.Authentication;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
+import com.sideproject.withpt.domain.pt.PersonalTrainingInfo;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -63,7 +64,7 @@ class PersonalTrainingServiceTest {
     private PersonalTrainingRepository personalTrainingRepository;
 
     @Autowired
-    private GymQueryRepository gymQueryRepository;
+    private PersonalTrainingInfoRepository personalTrainingInfoRepository;
 
     @Autowired
     private PersonalTrainingService personalTrainingService;
@@ -395,7 +396,104 @@ class PersonalTrainingServiceTest {
             .hasMessage("4번 PT는 잔여 PT 횟수가 남아 있습니다. 정말 해제하시겠습니까?");
     }
 
-    public PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, PtRegistrationAllowedStatus registrationAllowedStatus, int totalPtCount, int remainingPtCount) {
+    @DisplayName("신규 PT 회원 세부 정보 입력")
+    @Test
+    void savePtMemberDetailInfo() {
+        // given
+        Gym gym = gymRepository.save(createGym("체육관"));
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 30)));
+
+        Member member1 = memberRepository.save(createMember("회원1"));
+        PersonalTraining savedPersonalTraining = personalTrainingRepository.save(
+            createPersonalTraining(member1, gymTrainer, LocalDateTime.of(2024, 9, 27, 12, 45, 1),
+                PTInfoInputStatus.INFO_EMPTY, PtRegistrationStatus.ALLOWED, PtRegistrationAllowedStatus.ALLOWED)
+        );
+
+        final Long ptId = savedPersonalTraining.getId();
+        final SavePtMemberDetailInfoRequest request = SavePtMemberDetailInfoRequest.builder()
+            .ptCount(30)
+            .firstRegistrationDate("2023-11")
+            .note("다이어트를 원하심. 척추 측만증이 있음.")
+            .build();
+
+        // when
+        personalTrainingService.savePtMemberDetailInfo(ptId, request);
+
+        // then
+        PersonalTraining personalTraining = personalTrainingRepository.findById(ptId).get();
+        assertThat(personalTraining)
+            .extracting("totalPtCount", "remainingPtCount", "note", "registrationStatus", "infoInputStatus")
+            .contains(30, 30, "다이어트를 원하심. 척추 측만증이 있음.", PtRegistrationStatus.NEW_REGISTRATION, PTInfoInputStatus.INFO_REGISTERED);
+        assertThat(personalTraining.getFirstRegistrationDate().toLocalDate()).isEqualTo(LocalDate.of(2023, 11, 1));
+
+        List<PersonalTrainingInfo> personalTrainingInfoList = personalTrainingInfoRepository.findAll();
+        assertThat(personalTrainingInfoList).hasSize(1)
+            .extracting("ptCount", "registrationStatus")
+            .containsOnly(
+                tuple(30, PtRegistrationStatus.NEW_REGISTRATION)
+            );
+
+        PersonalTrainingInfo personalTrainingInfo = personalTrainingInfoList.get(0);
+        assertThat(personalTrainingInfo.getPersonalTraining()).isNotNull();
+    }
+
+    @DisplayName("등록 허용되지 않은 회원이면 신규 PT 회원 세부 정보 입력이 불가능하다.")
+    @Test
+    void savePtMemberDetailInfoWhen_PT_REGISTRATION_NOT_ALLOWED() {
+        // given
+        Gym gym = gymRepository.save(createGym("체육관"));
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 30)));
+
+        Member member1 = memberRepository.save(createMember("회원1"));
+        PersonalTraining savedPersonalTraining = personalTrainingRepository.save(
+            createPersonalTraining(member1, gymTrainer, LocalDateTime.of(2024, 9, 27, 12, 45, 1),
+                PTInfoInputStatus.INFO_EMPTY, null, PtRegistrationAllowedStatus.WAITING)
+        );
+
+        final Long ptId = savedPersonalTraining.getId();
+        final SavePtMemberDetailInfoRequest request = SavePtMemberDetailInfoRequest.builder()
+            .ptCount(30)
+            .firstRegistrationDate("2023-11")
+            .note("다이어트를 원하심. 척추 측만증이 있음.")
+            .build();
+
+        // when // then
+        assertThatThrownBy(() -> personalTrainingService.savePtMemberDetailInfo(ptId, request))
+            .isInstanceOf(PTException.class)
+            .hasMessage("아직 PT 등록을 허용하지 않은 회원입니다.");
+    }
+
+    @DisplayName("이미 초기 정보가 입력된 회원이면 신규 PT 회원 세부 정보 입력이 불가능하다.")
+    @Test
+    void savePtMemberDetailInfoWhen_AlREADY_REGISTERED_FIRST_PT_INFO() {
+        // given
+        Gym gym = gymRepository.save(createGym("체육관"));
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 30)));
+
+        Member member1 = memberRepository.save(createMember("회원1"));
+        PersonalTraining savedPersonalTraining = personalTrainingRepository.save(
+            createPersonalTraining(member1, gymTrainer, LocalDateTime.of(2024, 9, 27, 12, 45, 1),
+                PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.NEW_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED)
+        );
+
+        final Long ptId = savedPersonalTraining.getId();
+        final SavePtMemberDetailInfoRequest request = SavePtMemberDetailInfoRequest.builder()
+            .ptCount(30)
+            .firstRegistrationDate("2023-11")
+            .note("다이어트를 원하심. 척추 측만증이 있음.")
+            .build();
+
+        // when // then
+        assertThatThrownBy(() -> personalTrainingService.savePtMemberDetailInfo(ptId, request))
+            .isInstanceOf(PTException.class)
+            .hasMessage("이미 초기 PT 정보가 등록되어 있습니다.");
+    }
+
+
+    private PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, PtRegistrationAllowedStatus registrationAllowedStatus, int totalPtCount, int remainingPtCount) {
         return PersonalTraining.builder()
             .member(member)
             .gymTrainer(gymTrainer)
@@ -405,7 +503,7 @@ class PersonalTrainingServiceTest {
             .build();
     }
 
-    public PersonalTraining createRegistrationAllowedPersonalTraining(Member member, GymTrainer gymTrainer, LocalDateTime registrationAllowedDate, PtRegistrationAllowedStatus registrationAllowedStatus) {
+    private PersonalTraining createRegistrationAllowedPersonalTraining(Member member, GymTrainer gymTrainer, LocalDateTime registrationAllowedDate, PtRegistrationAllowedStatus registrationAllowedStatus) {
         return PersonalTraining.builder()
             .member(member)
             .gymTrainer(gymTrainer)
@@ -416,7 +514,7 @@ class PersonalTrainingServiceTest {
             .build();
     }
 
-    public PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, LocalDateTime registrationRequestDate, PTInfoInputStatus infoInputStatus, PtRegistrationStatus ptRegistrationStatus, PtRegistrationAllowedStatus ptRegistrationAllowedStatus) {
+    private PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, LocalDateTime registrationRequestDate, PTInfoInputStatus infoInputStatus, PtRegistrationStatus ptRegistrationStatus, PtRegistrationAllowedStatus ptRegistrationAllowedStatus) {
         return PersonalTraining.builder()
             .member(member)
             .gymTrainer(gymTrainer)
