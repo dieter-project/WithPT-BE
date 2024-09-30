@@ -11,7 +11,6 @@ import com.sideproject.withpt.application.pt.controller.request.SavePtMemberDeta
 import com.sideproject.withpt.application.pt.controller.request.UpdatePtMemberDetailInfoRequest;
 import com.sideproject.withpt.application.pt.controller.response.AssignedPTInfoResponse;
 import com.sideproject.withpt.application.pt.controller.response.CountOfMembersAndGymsResponse;
-import com.sideproject.withpt.application.pt.controller.response.EachGymMemberListResponse;
 import com.sideproject.withpt.application.pt.controller.response.GymResponse;
 import com.sideproject.withpt.application.pt.controller.response.MemberDetailInfoResponse;
 import com.sideproject.withpt.application.pt.controller.response.PersonalTrainingMemberResponse;
@@ -21,11 +20,12 @@ import com.sideproject.withpt.application.pt.controller.response.PtStatisticResp
 import com.sideproject.withpt.application.pt.controller.response.ReRegistrationHistoryResponse;
 import com.sideproject.withpt.application.pt.controller.response.TotalAndRemainingPtCountResponse;
 import com.sideproject.withpt.application.pt.controller.response.TotalPtsCountResponse;
+import com.sideproject.withpt.application.pt.exception.PTErrorCode;
 import com.sideproject.withpt.application.pt.exception.PTException;
 import com.sideproject.withpt.application.pt.repository.PTCountLogRepository;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingInfoRepository;
-import com.sideproject.withpt.application.pt.repository.PersonalTrainingQueryRepository;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
+import com.sideproject.withpt.application.pt.repository.dto.EachGymMemberListResponse;
 import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
@@ -51,6 +51,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,7 +68,6 @@ public class PersonalTrainingService {
 
     private final PersonalTrainingRepository personalTrainingRepository;
     private final PersonalTrainingInfoRepository trainingInfoRepository;
-    private final PersonalTrainingQueryRepository trainingQueryRepository;
     private final GymQueryRepository gymQueryRepository;
 
     private final PTCountLogRepository ptCountLogRepository;
@@ -96,13 +96,8 @@ public class PersonalTrainingService {
     public PersonalTrainingMemberResponse registerPersonalTraining(Long gymId, Long memberId, Long trainerId, LocalDateTime ptRegistrationRequestDate) {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-        Trainer trainer = trainerRepository.findById(trainerId)
-            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-        Gym gym = gymRepository.findById(gymId)
-            .orElseThrow(() -> GymException.GYM_NOT_FOUND);
 
-        GymTrainer gymTrainer = gymTrainerRepository.findByTrainerAndGym(trainer, gym)
-            .orElseThrow(() -> GymTrainerException.GYM_TRAINER_NOT_MAPPING);
+        GymTrainer gymTrainer = getGymTrainerBy(gymId, trainerId);
 
         if (personalTrainingRepository.existsByMemberAndGymTrainer(member, gymTrainer)) {
             throw PTException.AlREADY_REGISTERED_PT_MEMBER;
@@ -111,7 +106,7 @@ public class PersonalTrainingService {
         personalTrainingRepository.save(PersonalTraining.registerNewPersonalTraining(member, gymTrainer, ptRegistrationRequestDate));
 
         // TODO : PUSH 알림 전송
-        return PersonalTrainingMemberResponse.from(member.getName(), trainer.getName(), gym.getName());
+        return PersonalTrainingMemberResponse.from(member.getName(), gymTrainer.getTrainer().getName(), gymTrainer.getGym().getName());
     }
 
     @Transactional
@@ -128,14 +123,31 @@ public class PersonalTrainingService {
         personalTraining.approvedPersonalTrainingRegistration(registrationAllowedDate);
     }
 
+    public EachGymMemberListResponse listOfPtMembersByRegistrationAllowedStatus(Long gymId, Long trainerId, PtRegistrationAllowedStatus allowedStatus, LocalDateTime allowedDate, Pageable pageable) {
+        GymTrainer gymTrainer = getGymTrainerBy(gymId, trainerId);
+        return personalTrainingRepository.findAllPtMembersByRegistrationAllowedStatusAndDate(gymTrainer, allowedStatus, allowedDate, pageable);
+    }
+
     @Transactional
-    public void deletePersonalTrainingMembers(List<Long> ptIds) {
+    public void deletePersonalTrainingMembers(List<Long> ptIds, PtRegistrationAllowedStatus status) {
+
+        if (status == PtRegistrationAllowedStatus.ALLOWED) {
+            ptIds.forEach(id -> {
+                PersonalTraining personalTraining = personalTrainingRepository.findById(id)
+                    .orElseThrow(() -> PTException.PT_NOT_FOUND);
+
+                if (personalTraining.getRemainingPtCount() > 0) {
+                    throw new GlobalException(HttpStatus.BAD_REQUEST, id + "번 PT는 잔여 PT 횟수가 남아 있습니다. 정말 해제하시겠습니까?");
+                }
+            });
+        }
+
         personalTrainingRepository.deleteAllByIdInBatch(ptIds);
     }
 
     public TotalPtsCountResponse countOfAllPtMembers(Long trainerId) {
         return TotalPtsCountResponse.from(
-            trainingQueryRepository.countOfAllPtMembers(trainerId)
+            personalTrainingRepository.countOfAllPtMembers(trainerId)
         );
     }
 
@@ -147,26 +159,15 @@ public class PersonalTrainingService {
 
         return GymMemberCountDto.builder()
             .gymName(gym.getName())
-            .memberCount(trainingQueryRepository.countByGymAndTrainer(gym, trainer))
+            .memberCount(personalTrainingRepository.countByGymAndTrainer(gym, trainer))
             .build();
-    }
-
-    public EachGymMemberListResponse listOfPtMembersByRegistrationAllowedStatus(Long gymId, Long trainerId,
-        PtRegistrationAllowedStatus registrationAllowedStatus, Pageable pageable) {
-        Trainer trainer = trainerRepository.findById(trainerId)
-            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-        Gym gym = gymRepository.findById(gymId)
-            .orElseThrow(() -> GymException.GYM_NOT_FOUND);
-
-        return trainingQueryRepository.findAllPtMembersByRegistrationAllowedStatus(gym, trainer,
-            registrationAllowedStatus, pageable);
     }
 
     public MemberDetailInfoResponse getPtMemberDetailInfo(Long ptId) {
         PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
-        return trainingQueryRepository.findPtMemberDetailInfo(personalTraining);
+        return personalTrainingRepository.findPtMemberDetailInfo(personalTraining);
     }
 
     @Transactional
@@ -273,26 +274,26 @@ public class PersonalTrainingService {
         PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
-        return trainingQueryRepository.findRegistrationHistory(personalTraining, pageable);
+        return personalTrainingRepository.findRegistrationHistory(personalTraining, pageable);
     }
 
     public List<AssignedPTInfoResponse> getPtAssignedTrainerInformation(Long memberId) {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-        return trainingQueryRepository.findPtAssignedTrainerInformation(member);
+        return personalTrainingRepository.findPtAssignedTrainerInformation(member);
     }
 
     public List<MemberDetailInfoResponse> getPtAssignedMemberInformation(Long trainerId) {
         Trainer trainer = trainerRepository.findById(trainerId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-        return trainingQueryRepository.findPtAssignedMemberInformation(trainer);
+        return personalTrainingRepository.findPtAssignedMemberInformation(trainer);
     }
 
     public PtStatisticResponse getPtStatistics(Long trainerId, LocalDate current, int size) {
         Trainer trainer = trainerRepository.findById(trainerId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
-        Map<YearMonth, Long> monthlyCountsMap = trainingQueryRepository.calculatePTStatistic(trainer, current)
+        Map<YearMonth, Long> monthlyCountsMap = personalTrainingRepository.calculatePTStatistic(trainer, current)
             .stream()
             .collect(Collectors.toMap(
                 monthlyMemberCount -> YearMonth.parse(monthlyMemberCount.getDate()),
@@ -313,15 +314,15 @@ public class PersonalTrainingService {
             MonthStatistics.builder()
                 .currentDate(current)
                 .existingMemberCount(
-                    trainingQueryRepository.getExistingMemberCount(trainer, current)
+                    personalTrainingRepository.getExistingMemberCount(trainer, current)
                         .orElse(0L)
                 )
                 .reEnrolledMemberCount(
-                    trainingQueryRepository.getMemberCountThisMonthByRegistrationStatus(trainer, current, PtRegistrationStatus.RE_REGISTRATION)
+                    personalTrainingRepository.getMemberCountThisMonthByRegistrationStatus(trainer, current, PtRegistrationStatus.RE_REGISTRATION)
                         .orElse(0L)
                 )
                 .newMemberCount(
-                    trainingQueryRepository.getMemberCountThisMonthByRegistrationStatus(trainer, current, PtRegistrationStatus.NEW_REGISTRATION)
+                    personalTrainingRepository.getMemberCountThisMonthByRegistrationStatus(trainer, current, PtRegistrationStatus.NEW_REGISTRATION)
                         .orElse(0L)
                 )
                 .build(),
@@ -330,7 +331,7 @@ public class PersonalTrainingService {
     }
 
     private Map<String, Long> createGymMemberCountMapBy(Slice<GymTrainer> gymTrainersByPageable, LocalDateTime currentDateTime) {
-        List<GymMemberCountDto> gymMemberCount = trainingQueryRepository.getGymMemberCountBy(gymTrainersByPageable.getContent(), currentDateTime);
+        List<GymMemberCountDto> gymMemberCount = personalTrainingRepository.getGymMemberCountBy(gymTrainersByPageable.getContent(), currentDateTime);
         return gymMemberCount.stream()
             .collect(Collectors.toMap(
                 GymMemberCountDto::getGymName,
@@ -360,5 +361,14 @@ public class PersonalTrainingService {
                 return GymResponse.from(gym, memberCount);
             })
             .collect(Collectors.toList());
+    }
+
+    private GymTrainer getGymTrainerBy(Long gymId, Long trainerId) {
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+        Gym gym = gymRepository.findById(gymId)
+            .orElseThrow(() -> GymException.GYM_NOT_FOUND);
+        return gymTrainerRepository.findByTrainerAndGym(trainer, gym)
+            .orElseThrow(() -> GymTrainerException.GYM_TRAINER_NOT_MAPPING);
     }
 }

@@ -1,6 +1,7 @@
 package com.sideproject.withpt.common.exception;
 
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 //@RequiredArgsConstructor
@@ -22,11 +23,31 @@ public class GlobalException extends RuntimeException {
     public static final GlobalException EMPTY_DELETE_FILE = new GlobalException(CommonErrorCode.EMPTY_DELETE_FILE);
     public static final GlobalException AT_LEAST_ONE_DATA_MUST_BE_INCLUDED = new GlobalException(CommonErrorCode.AT_LEAST_ONE_DATA_MUST_BE_INCLUDED);
 
-    private final ErrorCode errorCode;
+    private ErrorCode errorCode;
 
     protected GlobalException(ErrorCode errorCode) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
+    }
+
+    public GlobalException(HttpStatus httpStatus, String message) {
+        super(message);
+        this.errorCode = new ErrorCode() {
+            @Override
+            public String name() {
+                return null;
+            }
+
+            @Override
+            public HttpStatus getHttpStatus() {
+                return httpStatus;
+            }
+
+            @Override
+            public String getMessage() {
+                return message;
+            }
+        };
     }
 
     // 의도적인 예외이므로 stack trace 제거(불필요한 예외처리 비용 제거)

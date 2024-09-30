@@ -30,6 +30,7 @@ import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -336,6 +337,72 @@ class PersonalTrainingServiceTest {
         assertThatThrownBy(() -> personalTrainingService.approvedPersonalTrainingRegistration(personalTrainingId, registrationAllowedDate))
             .isInstanceOf(PTException.class)
             .hasMessage("이미 PT 등록을 허용한 상태입니다.");
+    }
+
+    @DisplayName("잔여 PT 횟수가 모두 0일때 등록된 PT 삭제하기 - ALLOWED")
+    @Test
+    void deleteAllByIdInBatch() {
+        // given
+        Gym gym = gymRepository.save(createGym("체육관"));
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 30)));
+
+        Member member1 = memberRepository.save(createMember("회원1"));
+        Member member2 = memberRepository.save(createMember("회원2"));
+        Member member3 = memberRepository.save(createMember("회원3"));
+        Member member4 = memberRepository.save(createMember("회원4"));
+        Member member5 = memberRepository.save(createMember("회원5"));
+        Member member6 = memberRepository.save(createMember("회원6"));
+        personalTrainingRepository.save(createPersonalTraining(member1, gymTrainer, PtRegistrationAllowedStatus.ALLOWED, 30, 0));
+        personalTrainingRepository.save(createPersonalTraining(member2, gymTrainer, PtRegistrationAllowedStatus.ALLOWED, 25, 0));
+        personalTrainingRepository.save(createPersonalTraining(member3, gymTrainer, PtRegistrationAllowedStatus.ALLOWED, 25, 0));
+        personalTrainingRepository.save(createPersonalTraining(member4, gymTrainer, PtRegistrationAllowedStatus.ALLOWED, 25, 0));
+        personalTrainingRepository.save(createPersonalTraining(member5, gymTrainer, PtRegistrationAllowedStatus.ALLOWED, 10, 0));
+        personalTrainingRepository.save(createPersonalTraining(member6, gymTrainer, PtRegistrationAllowedStatus.ALLOWED, 10, 0));
+
+        // when
+        personalTrainingService.deletePersonalTrainingMembers(List.of(1L, 2L, 3L, 4L, 5L, 6L), PtRegistrationAllowedStatus.ALLOWED);
+
+        // then
+        List<PersonalTraining> personalTrainings = personalTrainingRepository.findAll();
+        assertThat(personalTrainings.size()).isZero();
+    }
+
+    @DisplayName("등록된 PT 삭제하기 - ALLOWED")
+    @Test
+    void deleteAllByIdInBatchWhenPtRegistrationAllowedStatusIsALLOWED() {
+        // given
+        Gym gym = gymRepository.save(createGym("체육관"));
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 30)));
+
+        Member member1 = memberRepository.save(createMember("회원1"));
+        Member member2 = memberRepository.save(createMember("회원2"));
+        Member member3 = memberRepository.save(createMember("회원3"));
+        Member member4 = memberRepository.save(createMember("회원4"));
+        Member member5 = memberRepository.save(createMember("회원5"));
+        Member member6 = memberRepository.save(createMember("회원6"));
+        personalTrainingRepository.save(createPersonalTraining(member1, gymTrainer, PtRegistrationAllowedStatus.ALLOWED, 30, 0));
+        personalTrainingRepository.save(createPersonalTraining(member2, gymTrainer, PtRegistrationAllowedStatus.ALLOWED, 25, 0));
+        personalTrainingRepository.save(createPersonalTraining(member3, gymTrainer, PtRegistrationAllowedStatus.ALLOWED, 25, 0));
+        personalTrainingRepository.save(createPersonalTraining(member4, gymTrainer, PtRegistrationAllowedStatus.ALLOWED, 25, 10));
+        personalTrainingRepository.save(createPersonalTraining(member5, gymTrainer, PtRegistrationAllowedStatus.ALLOWED, 10, 0));
+        personalTrainingRepository.save(createPersonalTraining(member6, gymTrainer, PtRegistrationAllowedStatus.ALLOWED, 10, 0));
+
+        // when // then
+        assertThatThrownBy(() -> personalTrainingService.deletePersonalTrainingMembers(List.of(1L, 2L, 3L, 4L, 5L, 6L), PtRegistrationAllowedStatus.ALLOWED))
+            .isInstanceOf(GlobalException.class)
+            .hasMessage("4번 PT는 잔여 PT 횟수가 남아 있습니다. 정말 해제하시겠습니까?");
+    }
+
+    public PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, PtRegistrationAllowedStatus registrationAllowedStatus, int totalPtCount, int remainingPtCount) {
+        return PersonalTraining.builder()
+            .member(member)
+            .gymTrainer(gymTrainer)
+            .totalPtCount(totalPtCount)
+            .remainingPtCount(remainingPtCount)
+            .registrationAllowedStatus(registrationAllowedStatus)
+            .build();
     }
 
     public PersonalTraining createRegistrationAllowedPersonalTraining(Member member, GymTrainer gymTrainer, LocalDateTime registrationAllowedDate, PtRegistrationAllowedStatus registrationAllowedStatus) {

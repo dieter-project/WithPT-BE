@@ -1,5 +1,8 @@
 package com.sideproject.withpt.application.pt.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
@@ -10,6 +13,7 @@ import com.sideproject.withpt.application.type.PTInfoInputStatus;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.application.type.PtRegistrationStatus;
 import com.sideproject.withpt.application.type.Sex;
+import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.member.Authentication;
@@ -18,7 +22,7 @@ import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import org.assertj.core.api.Assertions;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +66,7 @@ class PersonalTrainingRepositoryTest {
         boolean result = personalTrainingRepository.existsByMemberAndGymTrainer(member, gymTrainer);
 
         // then
-        Assertions.assertThat(result).isTrue();
+        assertThat(result).isTrue();
     }
 
     @DisplayName("이미 PT 가 등록되어 있으면 True 반환")
@@ -79,7 +83,46 @@ class PersonalTrainingRepositoryTest {
         boolean result = personalTrainingRepository.existsByMemberAndGymTrainer(member, gymTrainer);
 
         // then
-        Assertions.assertThat(result).isFalse();
+        assertThat(result).isFalse();
+    }
+
+    @DisplayName("등록된 PT 삭제하기")
+    @Test
+    void deleteAllByIdInBatch() {
+        // given
+        Gym gym = gymRepository.save(createGym("체육관"));
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 30)));
+
+        Member member1 = memberRepository.save(createMember("회원1"));
+        Member member2 = memberRepository.save(createMember("회원2"));
+        Member member3 = memberRepository.save(createMember("회원3"));
+        Member member4 = memberRepository.save(createMember("회원4"));
+        Member member5 = memberRepository.save(createMember("회원5"));
+        Member member6 = memberRepository.save(createMember("회원6"));
+        personalTrainingRepository.save(createPersonalTraining(member1, gymTrainer, PtRegistrationAllowedStatus.WAITING));
+        personalTrainingRepository.save(createPersonalTraining(member2, gymTrainer, PtRegistrationAllowedStatus.WAITING));
+        personalTrainingRepository.save(createPersonalTraining(member3, gymTrainer, PtRegistrationAllowedStatus.WAITING));
+        personalTrainingRepository.save(createPersonalTraining(member4, gymTrainer, PtRegistrationAllowedStatus.WAITING));
+        personalTrainingRepository.save(createPersonalTraining(member5, gymTrainer, PtRegistrationAllowedStatus.WAITING));
+        personalTrainingRepository.save(createPersonalTraining(member6, gymTrainer, PtRegistrationAllowedStatus.WAITING));
+
+        // when
+        personalTrainingRepository.deleteAllByIdInBatch(List.of(1L, 2L, 3L, 4L, 5L));
+
+        // then
+        List<PersonalTraining> result = personalTrainingRepository.findAll();
+        assertThat(result).hasSize(1);
+    }
+
+    public PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, PtRegistrationAllowedStatus registrationAllowedStatus) {
+        return PersonalTraining.builder()
+            .member(member)
+            .gymTrainer(gymTrainer)
+            .totalPtCount(0)
+            .remainingPtCount(0)
+            .registrationAllowedStatus(registrationAllowedStatus)
+            .build();
     }
 
     public PersonalTraining registerNewPersonalTraining(Member member, GymTrainer gymTrainer, LocalDateTime registrationRequestDate) {
