@@ -38,7 +38,6 @@ import com.sideproject.withpt.application.type.PtRegistrationStatus;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.member.QMember;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
@@ -231,17 +230,8 @@ public class PersonalTrainingQueryRepositoryImpl implements PersonalTrainingQuer
                 )
             )
             .from(personalTrainingInfo)
-            .leftJoin(personalTrainingInfo.personalTraining)
-            .where(
-                personalTrainingInfo.personalTraining.id.eq(
-                    JPAExpressions
-                        .select(personalTraining.id)
-                        .from(personalTraining)
-                        .where(
-                            personalTraining.eq(pt)
-                        )
-                )
-            )
+            .join(personalTrainingInfo.personalTraining)
+            .where(personalTrainingInfo.personalTraining.eq(pt))
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize() + 1)
             .orderBy(personalTrainingInfo.registrationDate.asc())
