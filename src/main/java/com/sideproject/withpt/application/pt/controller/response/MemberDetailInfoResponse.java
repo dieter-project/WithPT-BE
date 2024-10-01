@@ -75,11 +75,11 @@ public class MemberDetailInfoResponse {
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class PtInfo {
         private Long id;
-        private PtRegistrationStatus registrationStatus;
-        private PTInfoInputStatus infoInputStatus;
         private int totalPtCount;
         private int remainingPtCount;
         private String note;
+        private PtRegistrationStatus registrationStatus;
+        private PTInfoInputStatus infoInputStatus;
         private LocalDateTime centerFirstRegistrationMonth;
         private LocalDateTime centerLastReRegistrationMonth;
 
@@ -88,11 +88,11 @@ public class MemberDetailInfoResponse {
             String note,
             LocalDateTime centerFirstRegistrationMonth, LocalDateTime centerLastReRegistrationMonth) {
             this.id = id;
-            this.registrationStatus = registrationStatus;
-            this.infoInputStatus = infoInputStatus;
             this.totalPtCount = totalPtCount;
             this.remainingPtCount = remainingPtCount;
             this.note = note;
+            this.registrationStatus = registrationStatus;
+            this.infoInputStatus = infoInputStatus;
             this.centerFirstRegistrationMonth = centerFirstRegistrationMonth;
             this.centerLastReRegistrationMonth = centerLastReRegistrationMonth;
         }

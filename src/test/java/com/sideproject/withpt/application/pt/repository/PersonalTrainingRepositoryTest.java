@@ -100,15 +100,17 @@ class PersonalTrainingRepositoryTest {
         Member member4 = memberRepository.save(createMember("회원4"));
         Member member5 = memberRepository.save(createMember("회원5"));
         Member member6 = memberRepository.save(createMember("회원6"));
-        personalTrainingRepository.save(createPersonalTraining(member1, gymTrainer, PtRegistrationAllowedStatus.WAITING));
-        personalTrainingRepository.save(createPersonalTraining(member2, gymTrainer, PtRegistrationAllowedStatus.WAITING));
-        personalTrainingRepository.save(createPersonalTraining(member3, gymTrainer, PtRegistrationAllowedStatus.WAITING));
-        personalTrainingRepository.save(createPersonalTraining(member4, gymTrainer, PtRegistrationAllowedStatus.WAITING));
-        personalTrainingRepository.save(createPersonalTraining(member5, gymTrainer, PtRegistrationAllowedStatus.WAITING));
-        personalTrainingRepository.save(createPersonalTraining(member6, gymTrainer, PtRegistrationAllowedStatus.WAITING));
+        PersonalTraining personalTraining1 = personalTrainingRepository.save(createPersonalTraining(member1, gymTrainer, PtRegistrationAllowedStatus.WAITING));
+        PersonalTraining personalTraining2 = personalTrainingRepository.save(createPersonalTraining(member2, gymTrainer, PtRegistrationAllowedStatus.WAITING));
+        PersonalTraining personalTraining3 = personalTrainingRepository.save(createPersonalTraining(member3, gymTrainer, PtRegistrationAllowedStatus.WAITING));
+        PersonalTraining personalTraining4 = personalTrainingRepository.save(createPersonalTraining(member4, gymTrainer, PtRegistrationAllowedStatus.WAITING));
+        PersonalTraining personalTraining5 = personalTrainingRepository.save(createPersonalTraining(member5, gymTrainer, PtRegistrationAllowedStatus.WAITING));
+        PersonalTraining personalTraining6 = personalTrainingRepository.save(createPersonalTraining(member6, gymTrainer, PtRegistrationAllowedStatus.WAITING));
+
+        List<Long> ptIds = List.of(personalTraining1.getId(), personalTraining2.getId(), personalTraining3.getId(), personalTraining4.getId(), personalTraining5.getId());
 
         // when
-        personalTrainingRepository.deleteAllByIdInBatch(List.of(1L, 2L, 3L, 4L, 5L));
+        personalTrainingRepository.deleteAllByIdInBatch(ptIds);
 
         // then
         List<PersonalTraining> result = personalTrainingRepository.findAll();

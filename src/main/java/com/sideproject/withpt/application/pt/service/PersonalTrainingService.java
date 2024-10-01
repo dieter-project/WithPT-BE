@@ -177,7 +177,7 @@ public class PersonalTrainingService {
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
         if (request.getReRegistrationDate().isBefore(personalTraining.getCenterFirstRegistrationMonth())
-        || request.getReRegistrationDate().isEqual(personalTraining.getCenterFirstRegistrationMonth())) {
+            || request.getReRegistrationDate().isEqual(personalTraining.getCenterFirstRegistrationMonth())) {
             throw PTException.INVALID_RE_REGISTRATION_DATE;
         }
 
@@ -221,17 +221,15 @@ public class PersonalTrainingService {
     @Transactional
     public void updatePtMemberDetailInfo(Long ptId, UpdatePtMemberDetailInfoRequest request) {
 
-        if(request.getRemainingPtCount() > request.getTotalPtCount()) {
+        if (request.getRemainingPtCount() > request.getTotalPtCount()) {
             throw PTException.REMAINING_PT_CANNOT_EXCEED_THE_TOTAL_PT_NUMBER;
         }
 
         PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
-
         personalTraining.updatePtDetailInfo(personalTraining, request.getTotalPtCount(), request.getRemainingPtCount(),
             request.getNote());
-
 
         int beforeTotalPtCount = personalTraining.getTotalPtCount();
         int beforeRemainingPtCount = personalTraining.getRemainingPtCount();
@@ -273,9 +271,15 @@ public class PersonalTrainingService {
         return personalTrainingRepository.findPtAssignedTrainerInformation(member);
     }
 
-    public List<MemberDetailInfoResponse> getPtAssignedMemberInformation(Long trainerId) {
+    public List<MemberDetailInfoResponse> getPtAssignedMembersInformation(Long trainerId, Long gymId) {
         Trainer trainer = trainerRepository.findById(trainerId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+
+        Gym gym = gymRepository.findById(gymId)
+            .orElse(null);
+
+        gymTrainerRepository.findAllTrainerAndOptionalGym(trainer, gym);
+
         return personalTrainingRepository.findPtAssignedMemberInformation(trainer);
     }
 
