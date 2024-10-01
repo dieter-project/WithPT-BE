@@ -37,13 +37,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
-//@Transactional
-//@ActiveProfiles("test")
+@Transactional
+@ActiveProfiles("test")
 @SpringBootTest
 class PersonalTrainingQueryRepositoryTest {
 
@@ -323,7 +322,6 @@ class PersonalTrainingQueryRepositoryTest {
     }
 
     @DisplayName("담당 트레이너 정보 조회")
-    @Rollback(value = false)
     @Test
     void findPtAssignedTrainerInformation() {
         // given
@@ -358,7 +356,7 @@ class PersonalTrainingQueryRepositoryTest {
                 centerFirstRegistrationMonth, null, registrationAllowedDate)
         );
 
-         personalTrainingRepository.save(
+        personalTrainingRepository.save(
             createPersonalTraining(member, gymTrainer2, "노트", 40, 20, registrationRequestDate,
                 PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED,
                 centerFirstRegistrationMonth, centerLastReRegistrationMonth, registrationAllowedDate)
@@ -388,6 +386,7 @@ class PersonalTrainingQueryRepositoryTest {
                 tuple("트레이너3", "체육관3", 30, 5, PtRegistrationStatus.RE_REGISTRATION)
             );
     }
+
     public PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, LocalDateTime registrationAllowedDate, PtRegistrationAllowedStatus registrationAllowedStatus) {
         return PersonalTraining.builder()
             .member(member)

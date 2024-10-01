@@ -38,7 +38,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 @ActiveProfiles("test")
 @SpringBootTest
 class DietServiceTest {
@@ -61,14 +63,14 @@ class DietServiceTest {
     @Autowired
     private ImageRepository imageRepository;
 
-    @AfterEach
-    void tearDown() {
-        dietFoodRepository.deleteAllInBatch();
-        dietInfoRepository.deleteAllInBatch();
-        dietRepository.deleteAllInBatch();
-        imageRepository.deleteAllInBatch();
-        memberRepository.deleteAllInBatch();
-    }
+//    @AfterEach
+//    void tearDown() {
+//        dietFoodRepository.deleteAllInBatch();
+//        dietInfoRepository.deleteAllInBatch();
+//        dietRepository.deleteAllInBatch();
+//        imageRepository.deleteAllInBatch();
+//        memberRepository.deleteAllInBatch();
+//    }
 
     @DisplayName("DB에 식단 데이터가 존재하지 않을 떄 식단 정보가 신규 생성된다.")
     @Test
