@@ -5,6 +5,7 @@ import static com.sideproject.withpt.domain.gym.QGymTrainer.gymTrainer;
 import static com.sideproject.withpt.domain.member.QMember.member;
 import static com.sideproject.withpt.domain.pt.QPersonalTraining.personalTraining;
 import static com.sideproject.withpt.domain.pt.QPersonalTrainingInfo.personalTrainingInfo;
+import static com.sideproject.withpt.domain.trainer.QTrainer.trainer;
 
 import com.querydsl.core.types.ConstantImpl;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -39,6 +40,7 @@ import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
+import com.sideproject.withpt.domain.trainer.QTrainer;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -202,8 +204,8 @@ public class PersonalTrainingQueryRepositoryImpl implements PersonalTrainingQuer
                         personalTraining.totalPtCount,
                         personalTraining.remainingPtCount,
                         personalTraining.note,
-                        personalTraining.firstRegistrationDate,
-                        personalTraining.lastRegistrationDate
+                        personalTraining.centerFirstRegistrationMonth,
+                        personalTraining.centerLastReRegistrationMonth
                     )
                 )
             )
@@ -253,31 +255,30 @@ public class PersonalTrainingQueryRepositoryImpl implements PersonalTrainingQuer
             .select(
                 new QAssignedPTInfoResponse(
                     new QAssignedPTInfoResponse_TrainerInfo(
-                        personalTraining.trainer.id,
-                        personalTraining.trainer.name,
-                        personalTraining.trainer.imageUrl
+                        trainer.id,
+                        trainer.name,
+                        trainer.imageUrl
                     ),
                     new QAssignedPTInfoResponse_GymInfo(
-                        personalTraining.gym.id,
-                        personalTraining.gym.name
+                        gym.id,
+                        gym.name
                     ),
                     new QAssignedPTInfoResponse_PtInfo(
                         personalTraining.id,
                         personalTraining.totalPtCount,
                         personalTraining.remainingPtCount,
+                        personalTraining.registrationStatus,
                         personalTraining.registrationAllowedStatus,
                         personalTraining.infoInputStatus,
-                        personalTraining.firstRegistrationDate,
-                        personalTraining.lastRegistrationDate
+                        personalTraining.centerFirstRegistrationMonth,
+                        personalTraining.centerLastReRegistrationMonth
                     )
                 )
             )
             .from(personalTraining)
-            .join(personalTraining.trainer)
-            .join(personalTraining.gym)
-            .where(
-                personalTraining.member.eq(member)
-            )
+            .join(personalTraining.gymTrainer, gymTrainer).on(personalTraining.member.eq(member))
+            .join(trainer).on(gymTrainer.trainer.eq(trainer))
+            .join(gym).on(gymTrainer.gym.eq(gym))
             .fetch();
     }
 
@@ -307,8 +308,8 @@ public class PersonalTrainingQueryRepositoryImpl implements PersonalTrainingQuer
                         personalTraining.totalPtCount,
                         personalTraining.remainingPtCount,
                         personalTraining.note,
-                        personalTraining.firstRegistrationDate,
-                        personalTraining.lastRegistrationDate
+                        personalTraining.centerFirstRegistrationMonth,
+                        personalTraining.centerLastReRegistrationMonth
                     )
                 )
             )

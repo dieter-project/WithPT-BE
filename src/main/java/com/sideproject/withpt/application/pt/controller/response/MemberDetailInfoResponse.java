@@ -80,21 +80,21 @@ public class MemberDetailInfoResponse {
         private int totalPtCount;
         private int remainingPtCount;
         private String note;
-        private LocalDateTime firstRegistrationDate;
-        private LocalDateTime lastRegistrationDate;
+        private LocalDateTime centerFirstRegistrationMonth;
+        private LocalDateTime centerLastReRegistrationMonth;
 
         @QueryProjection
         public PtInfo(Long id, PtRegistrationStatus registrationStatus, PTInfoInputStatus infoInputStatus, int totalPtCount, int remainingPtCount,
             String note,
-            LocalDateTime firstRegistrationDate, LocalDateTime lastRegistrationDate) {
+            LocalDateTime centerFirstRegistrationMonth, LocalDateTime centerLastReRegistrationMonth) {
             this.id = id;
             this.registrationStatus = registrationStatus;
             this.infoInputStatus = infoInputStatus;
             this.totalPtCount = totalPtCount;
             this.remainingPtCount = remainingPtCount;
             this.note = note;
-            this.firstRegistrationDate = firstRegistrationDate;
-            this.lastRegistrationDate = lastRegistrationDate;
+            this.centerFirstRegistrationMonth = centerFirstRegistrationMonth;
+            this.centerLastReRegistrationMonth = centerLastReRegistrationMonth;
         }
     }
 

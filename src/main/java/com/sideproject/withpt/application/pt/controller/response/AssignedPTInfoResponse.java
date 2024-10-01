@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.querydsl.core.annotations.QueryProjection;
 import com.sideproject.withpt.application.type.PTInfoInputStatus;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
+import com.sideproject.withpt.application.type.PtRegistrationStatus;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -70,23 +71,26 @@ public class AssignedPTInfoResponse {
         private Long id;
         private int totalPtCount;
         private int remainingPtCount;
+        private PtRegistrationStatus registrationStatus;
         private PtRegistrationAllowedStatus registrationAllowedStatus;
         private PTInfoInputStatus infoInputStatus;
-        private LocalDateTime firstRegistrationDate;
-        private LocalDateTime lastRegistrationDate;
+        private LocalDateTime centerFirstRegistrationMonth;
+        private LocalDateTime centerLastReRegistrationMonth;
 
         @QueryProjection
         public PtInfo(Long id, int totalPtCount, int remainingPtCount,
+            PtRegistrationStatus registrationStatus,
             PtRegistrationAllowedStatus registrationAllowedStatus,
             PTInfoInputStatus infoInputStatus,
-            LocalDateTime firstRegistrationDate, LocalDateTime lastRegistrationDate) {
+            LocalDateTime centerFirstRegistrationMonth, LocalDateTime centerLastReRegistrationMonth) {
             this.id = id;
             this.totalPtCount = totalPtCount;
             this.remainingPtCount = remainingPtCount;
+            this.registrationStatus = registrationStatus;
             this.registrationAllowedStatus = registrationAllowedStatus;
             this.infoInputStatus = infoInputStatus;
-            this.firstRegistrationDate = firstRegistrationDate;
-            this.lastRegistrationDate = lastRegistrationDate;
+            this.centerFirstRegistrationMonth = centerFirstRegistrationMonth;
+            this.centerLastReRegistrationMonth = centerLastReRegistrationMonth;
         }
     }
 }

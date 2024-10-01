@@ -152,14 +152,14 @@ public class PersonalTrainingService {
             throw PTException.AlREADY_REGISTERED_FIRST_PT_INFO;
         }
 
-        personalTraining.saveFirstPtDetailInfo(request.getPtCount(), request.getFirstRegistrationDate(), request.getNote());
+        personalTraining.saveFirstPtDetailInfo(request.getPtCount(), request.getcenterFirstRegistrationMonth(), request.getNote());
 
         trainingInfoRepository.save(
-            PersonalTrainingInfo.createPTInfo(request.getPtCount(), request.getFirstRegistrationDate(), PtRegistrationStatus.NEW_REGISTRATION, personalTraining)
+            PersonalTrainingInfo.createPTInfo(request.getPtCount(), request.getcenterFirstRegistrationMonth(), PtRegistrationStatus.NEW_REGISTRATION, personalTraining)
         );
 
         ptCountLogRepository.save(
-            PTCountLog.recordPTCountLog(request.getPtCount(), request.getPtCount(), request.getFirstRegistrationDate(), PtRegistrationStatus.NEW_REGISTRATION, personalTraining
+            PTCountLog.recordPTCountLog(request.getPtCount(), request.getPtCount(), request.getcenterFirstRegistrationMonth(), PtRegistrationStatus.NEW_REGISTRATION, personalTraining
             )
         );
     }
@@ -176,8 +176,8 @@ public class PersonalTrainingService {
         PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
-        if (request.getReRegistrationDate().isBefore(personalTraining.getFirstRegistrationDate())
-        || request.getReRegistrationDate().isEqual(personalTraining.getFirstRegistrationDate())) {
+        if (request.getReRegistrationDate().isBefore(personalTraining.getCenterFirstRegistrationMonth())
+        || request.getReRegistrationDate().isEqual(personalTraining.getCenterFirstRegistrationMonth())) {
             throw PTException.INVALID_RE_REGISTRATION_DATE;
         }
 

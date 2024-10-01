@@ -16,18 +16,18 @@ public class SavePtMemberDetailInfoRequest {
     private final int ptCount;
 
     @YearMonthType
-    private final String firstRegistrationDate;
+    private final String centerFirstRegistrationMonth;
     private final String note;
 
     @Builder
-    private SavePtMemberDetailInfoRequest(int ptCount, String firstRegistrationDate, String note) {
+    private SavePtMemberDetailInfoRequest(int ptCount, String centerFirstRegistrationMonth, String note) {
         this.ptCount = ptCount;
-        this.firstRegistrationDate = firstRegistrationDate;
+        this.centerFirstRegistrationMonth = centerFirstRegistrationMonth;
         this.note = note;
     }
 
-    public LocalDateTime getFirstRegistrationDate() {
-        int[] registrationDate = Arrays.stream(firstRegistrationDate.split("-")).mapToInt(Integer::parseInt).toArray();
+    public LocalDateTime getcenterFirstRegistrationMonth() {
+        int[] registrationDate = Arrays.stream(centerFirstRegistrationMonth.split("-")).mapToInt(Integer::parseInt).toArray();
         return LocalDateTime.of(registrationDate[0], registrationDate[1], 1, 0, 0, 0);
     }
 }

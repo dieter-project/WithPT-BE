@@ -6,6 +6,7 @@ import static org.assertj.core.groups.Tuple.tuple;
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
+import com.sideproject.withpt.application.pt.controller.response.AssignedPTInfoResponse;
 import com.sideproject.withpt.application.pt.controller.response.MemberDetailInfoResponse;
 import com.sideproject.withpt.application.pt.controller.response.ReRegistrationHistoryResponse;
 import com.sideproject.withpt.application.pt.repository.dto.EachGymMemberListResponse;
@@ -41,8 +42,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
-@Transactional
-@ActiveProfiles("test")
+//@Transactional
+//@ActiveProfiles("test")
 @SpringBootTest
 class PersonalTrainingQueryRepositoryTest {
 
@@ -201,16 +202,16 @@ class PersonalTrainingQueryRepositoryTest {
         GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 30)));
 
         Member member = memberRepository.save(createMember("회원"));
-        LocalDateTime firstRegistrationDate = LocalDateTime.of(2024, 9, 1, 0, 0, 0);
+        LocalDateTime centerFirstRegistrationMonth = LocalDateTime.of(2024, 9, 1, 0, 0, 0);
 
         PersonalTraining savedPersonalTraining = personalTrainingRepository.save(
             createPersonalTraining(member, gymTrainer, "노트", 30, 30, LocalDateTime.of(2024, 9, 27, 12, 45, 1),
                 PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.NEW_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED,
-                firstRegistrationDate, null, LocalDateTime.of(2024, 9, 29, 0, 0, 0))
+                centerFirstRegistrationMonth, null, LocalDateTime.of(2024, 9, 29, 0, 0, 0))
         );
 
         personalTrainingInfoRepository.save(
-            PersonalTrainingInfo.createPTInfo(30, firstRegistrationDate, PtRegistrationStatus.NEW_REGISTRATION, savedPersonalTraining)
+            PersonalTrainingInfo.createPTInfo(30, centerFirstRegistrationMonth, PtRegistrationStatus.NEW_REGISTRATION, savedPersonalTraining)
         );
 
         // when
@@ -224,8 +225,8 @@ class PersonalTrainingQueryRepositoryTest {
         assertThat(response.getGym().getName()).isEqualTo("체육관");
 
         assertThat(response.getPt())
-            .extracting("registrationStatus", "infoInputStatus", "totalPtCount", "remainingPtCount", "note", "firstRegistrationDate", "lastRegistrationDate")
-            .contains(PtRegistrationStatus.NEW_REGISTRATION, PTInfoInputStatus.INFO_REGISTERED, 30, 30, "노트", firstRegistrationDate, null);
+            .extracting("registrationStatus", "infoInputStatus", "totalPtCount", "remainingPtCount", "note", "centerFirstRegistrationMonth", "centerLastReRegistrationMonth")
+            .contains(PtRegistrationStatus.NEW_REGISTRATION, PTInfoInputStatus.INFO_REGISTERED, 30, 30, "노트", centerFirstRegistrationMonth, null);
 
     }
 
@@ -241,17 +242,17 @@ class PersonalTrainingQueryRepositoryTest {
         LocalDateTime registrationRequestDate = LocalDateTime.of(2024, 9, 27, 12, 45, 1);
         LocalDateTime registrationAllowedDate = LocalDateTime.of(2024, 9, 29, 0, 0, 0);
 
-        LocalDateTime firstRegistrationDate = LocalDateTime.of(2024, 9, 1, 0, 0, 0);
-        LocalDateTime lastRegistrationDate = LocalDateTime.of(2024, 12, 1, 0, 0, 0);
+        LocalDateTime centerFirstRegistrationMonth = LocalDateTime.of(2024, 9, 1, 0, 0, 0);
+        LocalDateTime centerLastReRegistrationMonth = LocalDateTime.of(2024, 12, 1, 0, 0, 0);
 
         PersonalTraining savedPersonalTraining = personalTrainingRepository.save(
             createPersonalTraining(member, gymTrainer, "노트", 50, 32, registrationRequestDate,
                 PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED,
-                firstRegistrationDate, lastRegistrationDate, registrationAllowedDate)
+                centerFirstRegistrationMonth, centerLastReRegistrationMonth, registrationAllowedDate)
         );
 
-        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, firstRegistrationDate, PtRegistrationStatus.NEW_REGISTRATION, savedPersonalTraining));
-        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(20, lastRegistrationDate, PtRegistrationStatus.RE_REGISTRATION, savedPersonalTraining));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, centerFirstRegistrationMonth, PtRegistrationStatus.NEW_REGISTRATION, savedPersonalTraining));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(20, centerLastReRegistrationMonth, PtRegistrationStatus.RE_REGISTRATION, savedPersonalTraining));
 
         // when
         MemberDetailInfoResponse response = personalTrainingRepository.findPtMemberDetailInfo(savedPersonalTraining);
@@ -264,8 +265,8 @@ class PersonalTrainingQueryRepositoryTest {
         assertThat(response.getGym().getName()).isEqualTo("체육관");
 
         assertThat(response.getPt())
-            .extracting("registrationStatus", "infoInputStatus", "totalPtCount", "remainingPtCount", "note", "firstRegistrationDate", "lastRegistrationDate")
-            .contains(PtRegistrationStatus.RE_REGISTRATION, PTInfoInputStatus.INFO_REGISTERED, 50, 32, "노트", firstRegistrationDate, lastRegistrationDate);
+            .extracting("registrationStatus", "infoInputStatus", "totalPtCount", "remainingPtCount", "note", "centerFirstRegistrationMonth", "centerLastReRegistrationMonth")
+            .contains(PtRegistrationStatus.RE_REGISTRATION, PTInfoInputStatus.INFO_REGISTERED, 50, 32, "노트", centerFirstRegistrationMonth, centerLastReRegistrationMonth);
     }
 
     @DisplayName("PT 등록 관련 정보 리스트만 조회")
@@ -280,16 +281,16 @@ class PersonalTrainingQueryRepositoryTest {
         LocalDateTime registrationRequestDate = LocalDateTime.of(2024, 9, 27, 12, 45, 1);
         LocalDateTime registrationAllowedDate = LocalDateTime.of(2024, 9, 29, 0, 0, 0);
 
-        LocalDateTime firstRegistrationDate = LocalDateTime.of(2024, 9, 1, 0, 0, 0);
-        LocalDateTime lastRegistrationDate = LocalDateTime.of(2024, 12, 1, 0, 0, 0);
+        LocalDateTime centerFirstRegistrationMonth = LocalDateTime.of(2024, 9, 1, 0, 0, 0);
+        LocalDateTime centerLastReRegistrationMonth = LocalDateTime.of(2024, 12, 1, 0, 0, 0);
 
         PersonalTraining savedPersonalTraining = personalTrainingRepository.save(
             createPersonalTraining(member, gymTrainer, "노트", 50, 32, registrationRequestDate,
                 PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED,
-                firstRegistrationDate, lastRegistrationDate, registrationAllowedDate)
+                centerFirstRegistrationMonth, centerLastReRegistrationMonth, registrationAllowedDate)
         );
 
-        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, firstRegistrationDate, PtRegistrationStatus.NEW_REGISTRATION, savedPersonalTraining));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, centerFirstRegistrationMonth, PtRegistrationStatus.NEW_REGISTRATION, savedPersonalTraining));
         personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(20, LocalDateTime.of(2024, 12, 1, 0, 0, 0), PtRegistrationStatus.RE_REGISTRATION, savedPersonalTraining));
         personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(10, LocalDateTime.of(2025, 1, 1, 0, 0, 0), PtRegistrationStatus.RE_REGISTRATION, savedPersonalTraining));
         personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2025, 3, 1, 0, 0, 0), PtRegistrationStatus.RE_REGISTRATION, savedPersonalTraining));
@@ -298,10 +299,10 @@ class PersonalTrainingQueryRepositoryTest {
         PersonalTraining savedPersonalTraining2 = personalTrainingRepository.save(
             createPersonalTraining(member, gymTrainer, "노트", 50, 32, registrationRequestDate,
                 PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED,
-                firstRegistrationDate, lastRegistrationDate, registrationAllowedDate)
+                centerFirstRegistrationMonth, centerLastReRegistrationMonth, registrationAllowedDate)
         );
 
-        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(44, firstRegistrationDate, PtRegistrationStatus.NEW_REGISTRATION, savedPersonalTraining2));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(44, centerFirstRegistrationMonth, PtRegistrationStatus.NEW_REGISTRATION, savedPersonalTraining2));
         personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(22, LocalDateTime.of(2024, 12, 1, 0, 0, 0), PtRegistrationStatus.RE_REGISTRATION, savedPersonalTraining2));
 
         Pageable pageable = PageRequest.of(0, 10);
@@ -313,7 +314,7 @@ class PersonalTrainingQueryRepositoryTest {
         assertThat(responses.getContent()).hasSize(5)
             .extracting("ptCount", "registrationDate", "registrationStatus")
             .containsExactly(
-                tuple(30, firstRegistrationDate, PtRegistrationStatus.NEW_REGISTRATION),
+                tuple(30, centerFirstRegistrationMonth, PtRegistrationStatus.NEW_REGISTRATION),
                 tuple(20, LocalDateTime.of(2024, 12, 1, 0, 0, 0), PtRegistrationStatus.RE_REGISTRATION),
                 tuple(10, LocalDateTime.of(2025, 1, 1, 0, 0, 0), PtRegistrationStatus.RE_REGISTRATION),
                 tuple(30, LocalDateTime.of(2025, 3, 1, 0, 0, 0), PtRegistrationStatus.RE_REGISTRATION),
@@ -321,6 +322,72 @@ class PersonalTrainingQueryRepositoryTest {
             );
     }
 
+    @DisplayName("담당 트레이너 정보 조회")
+    @Rollback(value = false)
+    @Test
+    void findPtAssignedTrainerInformation() {
+        // given
+        Member member = memberRepository.save(createMember("회원"));
+        Member member2 = memberRepository.save(createMember("회원2"));
+
+        Gym gym1 = gymRepository.save(createGym("체육관1"));
+        Trainer trainer1 = trainerRepository.save(createTrainer("트레이너1"));
+        GymTrainer gymTrainer1 = gymTrainerRepository.save(createGymTrainer(gym1, trainer1, LocalDate.of(2024, 9, 30)));
+
+        Gym gym2 = gymRepository.save(createGym("체육관2"));
+        Trainer trainer2 = trainerRepository.save(createTrainer("트레이너2"));
+        GymTrainer gymTrainer2 = gymTrainerRepository.save(createGymTrainer(gym2, trainer2, LocalDate.of(2024, 9, 30)));
+
+        Gym gym3 = gymRepository.save(createGym("체육관3"));
+        Trainer trainer3 = trainerRepository.save(createTrainer("트레이너3"));
+        GymTrainer gymTrainer3 = gymTrainerRepository.save(createGymTrainer(gym3, trainer3, LocalDate.of(2024, 9, 30)));
+
+        Gym gym4 = gymRepository.save(createGym("체육관4"));
+        Trainer trainer4 = trainerRepository.save(createTrainer("트레이너4"));
+        GymTrainer gymTrainer4 = gymTrainerRepository.save(createGymTrainer(gym4, trainer4, LocalDate.of(2024, 9, 30)));
+
+        LocalDateTime registrationRequestDate = LocalDateTime.of(2024, 9, 27, 12, 45, 1);
+        LocalDateTime registrationAllowedDate = LocalDateTime.of(2024, 9, 29, 0, 0, 0);
+
+        LocalDateTime centerFirstRegistrationMonth = LocalDateTime.of(2024, 9, 1, 0, 0, 0);
+        LocalDateTime centerLastReRegistrationMonth = LocalDateTime.of(2024, 12, 1, 0, 0, 0);
+
+        personalTrainingRepository.save(
+            createPersonalTraining(member, gymTrainer1, "노트", 50, 32, registrationRequestDate,
+                PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.NEW_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED,
+                centerFirstRegistrationMonth, null, registrationAllowedDate)
+        );
+
+         personalTrainingRepository.save(
+            createPersonalTraining(member, gymTrainer2, "노트", 40, 20, registrationRequestDate,
+                PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED,
+                centerFirstRegistrationMonth, centerLastReRegistrationMonth, registrationAllowedDate)
+        );
+
+        personalTrainingRepository.save(
+            createPersonalTraining(member, gymTrainer3, "노트", 30, 5, registrationRequestDate,
+                PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED,
+                centerFirstRegistrationMonth, centerLastReRegistrationMonth, registrationAllowedDate)
+        );
+
+        personalTrainingRepository.save(
+            createPersonalTraining(member2, gymTrainer4, "노트", 30, 5, registrationRequestDate,
+                PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED,
+                centerFirstRegistrationMonth, centerLastReRegistrationMonth, registrationAllowedDate)
+        );
+
+        // when
+        List<AssignedPTInfoResponse> responses = personalTrainingRepository.findPtAssignedTrainerInformation(member);
+
+        // then
+        assertThat(responses).hasSize(3)
+            .extracting("trainer.name", "gym.name", "pt.totalPtCount", "pt.remainingPtCount", "pt.registrationStatus")
+            .containsExactly(
+                tuple("트레이너1", "체육관1", 50, 32, PtRegistrationStatus.NEW_REGISTRATION),
+                tuple("트레이너2", "체육관2", 40, 20, PtRegistrationStatus.RE_REGISTRATION),
+                tuple("트레이너3", "체육관3", 30, 5, PtRegistrationStatus.RE_REGISTRATION)
+            );
+    }
     public PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, LocalDateTime registrationAllowedDate, PtRegistrationAllowedStatus registrationAllowedStatus) {
         return PersonalTraining.builder()
             .member(member)
@@ -332,15 +399,15 @@ class PersonalTrainingQueryRepositoryTest {
             .build();
     }
 
-    public PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, String note, int totalPtCount, int remainingPtCount, LocalDateTime registrationRequestDate, PTInfoInputStatus infoInputStatus, PtRegistrationStatus registrationStatus, PtRegistrationAllowedStatus registrationAllowedStatus, LocalDateTime firstRegistrationDate, LocalDateTime lastRegistrationDate, LocalDateTime registrationAllowedDate) {
+    public PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, String note, int totalPtCount, int remainingPtCount, LocalDateTime registrationRequestDate, PTInfoInputStatus infoInputStatus, PtRegistrationStatus registrationStatus, PtRegistrationAllowedStatus registrationAllowedStatus, LocalDateTime centerFirstRegistrationMonth, LocalDateTime centerLastReRegistrationMonth, LocalDateTime registrationAllowedDate) {
         return PersonalTraining.builder()
             .member(member)
             .gymTrainer(gymTrainer)
             .totalPtCount(totalPtCount)
             .remainingPtCount(remainingPtCount)
             .note(note)
-            .firstRegistrationDate(firstRegistrationDate)
-            .lastRegistrationDate(lastRegistrationDate)
+            .centerFirstRegistrationMonth(centerFirstRegistrationMonth)
+            .centerLastReRegistrationMonth(centerLastReRegistrationMonth)
             .registrationRequestDate(registrationRequestDate)
             .registrationAllowedDate(registrationAllowedDate)
             .registrationStatus(registrationStatus)

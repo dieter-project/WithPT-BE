@@ -53,15 +53,16 @@ public class PersonalTraining extends BaseEntity {
     @JoinColumn(name = "gym_id")
     private Gym gym;
 
+
     private int totalPtCount;
 
     private int remainingPtCount;
 
     private String note;
 
-    private LocalDateTime firstRegistrationDate; // 센터 등록월
+    private LocalDateTime centerFirstRegistrationMonth; // 센터 등록월
 
-    private LocalDateTime lastRegistrationDate; // 센터 마지막 재등록월
+    private LocalDateTime centerLastReRegistrationMonth; // 센터 마지막 재등록월
 
     private LocalDateTime registrationRequestDate; // 등록 요청 날짜
 
@@ -95,10 +96,10 @@ public class PersonalTraining extends BaseEntity {
         this.registrationAllowedDate = registrationAllowedDate;
     }
 
-    public void saveFirstPtDetailInfo(int ptCount, LocalDateTime firstRegistrationDate, String note) {
+    public void saveFirstPtDetailInfo(int ptCount, LocalDateTime centerFirstRegistrationMonth, String note) {
         this.totalPtCount = ptCount;
         this.remainingPtCount = ptCount;
-        this.firstRegistrationDate = firstRegistrationDate;
+        this.centerFirstRegistrationMonth = centerFirstRegistrationMonth;
         this.note = note;
         this.infoInputStatus = PTInfoInputStatus.INFO_REGISTERED;
         this.registrationStatus = PtRegistrationStatus.NEW_REGISTRATION;
@@ -107,7 +108,7 @@ public class PersonalTraining extends BaseEntity {
     public void extendPtCount(PersonalTraining pt, int totalPtCount, int remainingPtCount, LocalDateTime registrationDate) {
         this.totalPtCount += totalPtCount;
         this.remainingPtCount += remainingPtCount;
-        this.lastRegistrationDate = registrationDate;
+        this.centerLastReRegistrationMonth = registrationDate;
         this.registrationStatus = PtRegistrationStatus.RE_REGISTRATION;
     }
 
