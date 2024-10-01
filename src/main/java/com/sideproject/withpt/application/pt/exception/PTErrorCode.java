@@ -18,6 +18,8 @@ public enum PTErrorCode implements ErrorCode {
     AlREADY_ALLOWED_PT_REGISTRATION(HttpStatus.BAD_REQUEST, "이미 PT 등록을 허용한 상태입니다."),
     AlREADY_REGISTERED_PT_MEMBER(HttpStatus.BAD_REQUEST, "이미 등록된 PT 회원입니다."),
     REMAINING_PT(HttpStatus.BAD_REQUEST, "잔여 PT 횟수가 남아 있습니다. 정말 해제하시겠습니까?"),
+    INVALID_RE_REGISTRATION_DATE(HttpStatus.BAD_REQUEST, "재 등록일을 잘못 입력하셨습니다"),
+    REMAINING_PT_CANNOT_EXCEED_THE_TOTAL_PT_NUMBER(HttpStatus.BAD_REQUEST, "PT 잔여 횟수는 전체 횟수보다 많을 수 없습니다."),
     PT_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당 PT 정보는 존재하지 않습니다");
 
     private final HttpStatus httpStatus;

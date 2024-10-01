@@ -131,14 +131,7 @@ public class PersonalTrainingService {
     public void deletePersonalTrainingMembers(List<Long> ptIds, PtRegistrationAllowedStatus status) {
 
         if (status == PtRegistrationAllowedStatus.ALLOWED) {
-            ptIds.forEach(id -> {
-                PersonalTraining personalTraining = personalTrainingRepository.findById(id)
-                    .orElseThrow(() -> PTException.PT_NOT_FOUND);
-
-                if (personalTraining.getRemainingPtCount() > 0) {
-                    throw new GlobalException(HttpStatus.BAD_REQUEST, id + "번 PT는 잔여 PT 횟수가 남아 있습니다. 정말 해제하시겠습니까?");
-                }
-            });
+            ptIds.forEach(this::checkRemainingPtCount);
         }
 
         personalTrainingRepository.deleteAllByIdInBatch(ptIds);
@@ -179,11 +172,16 @@ public class PersonalTrainingService {
     }
 
     @Transactional
-    public void extendPt(Long ptId, ExtendPtRequest request) {
+    public void extendPtCount(Long ptId, ExtendPtRequest request) {
         PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
-        PersonalTraining.extendPt(personalTraining, request.getPtCount(), request.getPtCount(),
+        if (request.getReRegistrationDate().isBefore(personalTraining.getFirstRegistrationDate())
+        || request.getReRegistrationDate().isEqual(personalTraining.getFirstRegistrationDate())) {
+            throw PTException.INVALID_RE_REGISTRATION_DATE;
+        }
+
+        personalTraining.extendPtCount(personalTraining, request.getPtCount(), request.getPtCount(),
             request.getReRegistrationDate());
 
         trainingInfoRepository.save(
@@ -220,28 +218,23 @@ public class PersonalTrainingService {
             .build();
     }
 
-    public TotalAndRemainingPtCountResponse getPtTotalAndRemainingCount(Long ptId) {
-
-        PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
-            .orElseThrow(() -> PTException.PT_NOT_FOUND);
-
-        return TotalAndRemainingPtCountResponse.of(
-            ptId,
-            personalTraining.getTotalPtCount(),
-            personalTraining.getRemainingPtCount()
-        );
-    }
-
     @Transactional
     public void updatePtMemberDetailInfo(Long ptId, UpdatePtMemberDetailInfoRequest request) {
+
+        if(request.getRemainingPtCount() > request.getTotalPtCount()) {
+            throw PTException.REMAINING_PT_CANNOT_EXCEED_THE_TOTAL_PT_NUMBER;
+        }
+
         PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
+
+
+        personalTraining.updatePtDetailInfo(personalTraining, request.getTotalPtCount(), request.getRemainingPtCount(),
+            request.getNote());
+
 
         int beforeTotalPtCount = personalTraining.getTotalPtCount();
         int beforeRemainingPtCount = personalTraining.getRemainingPtCount();
-
-        PersonalTraining.updatePtDetailInfo(personalTraining, request.getTotalPtCount(), request.getRemainingPtCount(),
-            request.getNote());
 
         // 로그 기록
         ptCountLogRepository.save(
@@ -260,6 +253,18 @@ public class PersonalTrainingService {
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
         return personalTrainingRepository.findRegistrationHistory(personalTraining, pageable);
+    }
+
+    public TotalAndRemainingPtCountResponse getPtTotalAndRemainingCount(Long ptId) {
+
+        PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
+            .orElseThrow(() -> PTException.PT_NOT_FOUND);
+
+        return TotalAndRemainingPtCountResponse.of(
+            ptId,
+            personalTraining.getTotalPtCount(),
+            personalTraining.getRemainingPtCount()
+        );
     }
 
     public List<AssignedPTInfoResponse> getPtAssignedTrainerInformation(Long memberId) {
@@ -355,5 +360,14 @@ public class PersonalTrainingService {
             .orElseThrow(() -> GymException.GYM_NOT_FOUND);
         return gymTrainerRepository.findByTrainerAndGym(trainer, gym)
             .orElseThrow(() -> GymTrainerException.GYM_TRAINER_NOT_MAPPING);
+    }
+
+    private void checkRemainingPtCount(Long id) {
+        PersonalTraining personalTraining = personalTrainingRepository.findById(id)
+            .orElseThrow(() -> PTException.PT_NOT_FOUND);
+
+        if (personalTraining.getRemainingPtCount() > 0) {
+            throw new GlobalException(HttpStatus.BAD_REQUEST, id + "번 PT는 잔여 PT 횟수가 남아 있습니다. 정말 해제하시겠습니까?");
+        }
     }
 }

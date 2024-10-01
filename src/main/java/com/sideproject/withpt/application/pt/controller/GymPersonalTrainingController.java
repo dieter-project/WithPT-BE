@@ -136,15 +136,23 @@ public class GymPersonalTrainingController {
     }
 
     @Operation(summary = "PT 횟수 연장하기")
-    @PatchMapping("/api/v1/gyms/personal-trainings/{ptId}")
+    @PatchMapping("/api/v1/personal-trainings/{ptId}/extend-sessions")
     public void extendPt(@PathVariable Long ptId, @Valid @RequestBody ExtendPtRequest request) {
-        personalTrainingService.extendPt(ptId, request);
+        personalTrainingService.extendPtCount(ptId, request);
     }
 
     @Operation(summary = "PT 회원 세부 정보 수정")
-    @PatchMapping("/api/v1/gyms/personal-trainings/{ptId}/member/info")
+    @PatchMapping("/api/v1/personal-trainings/{ptId}/member-info")
     public void updatePtMemberDetailInfo(@PathVariable Long ptId, @RequestBody UpdatePtMemberDetailInfoRequest request) {
         personalTrainingService.updatePtMemberDetailInfo(ptId, request);
+    }
+
+    @Operation(summary = "PT 재등록 히스토리")
+    @GetMapping("/api/v1/personal-trainings/{ptId}/member/info/history")
+    public ApiSuccessResponse<Slice<ReRegistrationHistoryResponse>> getReRegistrationHistory(@PathVariable Long ptId, Pageable pageable) {
+        return ApiSuccessResponse.from(
+            personalTrainingService.getReRegistrationHistory(ptId, pageable)
+        );
     }
 
     @Operation(summary = "회원 PT 잔여 및 전체 횟수 조회")
@@ -155,14 +163,6 @@ public class GymPersonalTrainingController {
         );
     }
 
-
-    @Operation(summary = "PT 재등록 히스토리")
-    @GetMapping("/api/v1/personal-trainings/{ptId}/member/info/history")
-    public ApiSuccessResponse<Slice<ReRegistrationHistoryResponse>> getReRegistrationHistory(@PathVariable Long ptId, Pageable pageable) {
-        return ApiSuccessResponse.from(
-            personalTrainingService.getReRegistrationHistory(ptId, pageable)
-        );
-    }
 
     @Operation(summary = "담당 트레이너 정보 조회")
     @GetMapping("/api/v1/personal-trainings/members/{memberId}/trainers")

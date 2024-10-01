@@ -227,6 +227,45 @@ class PersonalTrainingQueryRepositoryTest {
 
     }
 
+    @DisplayName("PT 연장한 후 정보 조회")
+    @Test
+    void findPtMemberDetailInfoWhenPtExtend() {
+        // given
+        Gym gym = gymRepository.save(createGym("체육관"));
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 30)));
+
+        Member member = memberRepository.save(createMember("회원"));
+        LocalDateTime registrationRequestDate = LocalDateTime.of(2024, 9, 27, 12, 45, 1);
+        LocalDateTime registrationAllowedDate = LocalDateTime.of(2024, 9, 29, 0, 0, 0);
+
+        LocalDateTime firstRegistrationDate = LocalDateTime.of(2024, 9, 1, 0, 0, 0);
+        LocalDateTime lastRegistrationDate = LocalDateTime.of(2024, 12, 1, 0, 0, 0);
+
+        PersonalTraining savedPersonalTraining = personalTrainingRepository.save(
+            createPersonalTraining(member, gymTrainer, "노트", 50, 32, registrationRequestDate,
+                PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED,
+                firstRegistrationDate, lastRegistrationDate, registrationAllowedDate)
+        );
+
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, firstRegistrationDate, PtRegistrationStatus.NEW_REGISTRATION, savedPersonalTraining));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(20, lastRegistrationDate, PtRegistrationStatus.RE_REGISTRATION, savedPersonalTraining));
+
+        // when
+        MemberDetailInfoResponse response = personalTrainingRepository.findPtMemberDetailInfo(savedPersonalTraining);
+
+        // then
+        assertThat(response.getMember())
+            .extracting("name", "imageUrl", "birth", "sex", "height", "weight", "dietType")
+            .contains("회원", "imageURL.jpa", LocalDate.parse("1994-07-19"), Sex.MAN, 173.0, 73.5, DietType.Carb_Protein_Fat);
+
+        assertThat(response.getGym().getName()).isEqualTo("체육관");
+
+        assertThat(response.getPt())
+            .extracting("registrationStatus", "infoInputStatus", "totalPtCount", "remainingPtCount", "note", "firstRegistrationDate", "lastRegistrationDate")
+            .contains(PtRegistrationStatus.RE_REGISTRATION, PTInfoInputStatus.INFO_REGISTERED, 50, 32, "노트", firstRegistrationDate, lastRegistrationDate);
+    }
+
     public PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, LocalDateTime registrationAllowedDate, PtRegistrationAllowedStatus registrationAllowedStatus) {
         return PersonalTraining.builder()
             .member(member)
