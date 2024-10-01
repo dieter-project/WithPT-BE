@@ -13,6 +13,7 @@ import com.sideproject.withpt.application.pt.controller.request.ExtendPtRequest;
 import com.sideproject.withpt.application.pt.controller.request.SavePtMemberDetailInfoRequest;
 import com.sideproject.withpt.application.pt.controller.request.UpdatePtMemberDetailInfoRequest;
 import com.sideproject.withpt.application.pt.controller.response.CountOfMembersAndGymsResponse;
+import com.sideproject.withpt.application.pt.controller.response.MemberDetailInfoResponse;
 import com.sideproject.withpt.application.pt.controller.response.PersonalTrainingMemberResponse;
 import com.sideproject.withpt.application.pt.exception.PTException;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingInfoRepository;
@@ -648,6 +649,292 @@ class PersonalTrainingServiceTest {
             .isInstanceOf(PTException.class)
             .hasMessage("PT 잔여 횟수는 전체 횟수보다 많을 수 없습니다.");
     }
+
+    @Nested
+    @DisplayName("트레이너의 담당 회원 조회")
+    class getPtAssignedMembers {
+
+        @DisplayName("특정 체육관 필터링, 이름X")
+        @Test
+        void getPtAssignedMembersInformationWhenSelectGym() {
+            // given
+            LocalDateTime registrationRequestDate = LocalDateTime.of(2024, 9, 27, 12, 45, 1);
+            LocalDateTime registrationAllowedDate = LocalDateTime.of(2024, 9, 29, 0, 0, 0);
+
+            LocalDateTime centerFirstRegistrationMonth = LocalDateTime.of(2024, 9, 1, 0, 0, 0);
+            LocalDateTime centerLastReRegistrationMonth = LocalDateTime.of(2024, 12, 1, 0, 0, 0);
+
+            Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+
+            Member member1 = memberRepository.save(createMember("회원1"));
+            Member member2 = memberRepository.save(createMember("회원2"));
+
+            Gym gym1 = gymRepository.save(createGym("체육관1"));
+            GymTrainer gymTrainer1 = gymTrainerRepository.save(createGymTrainer(gym1, trainer, LocalDate.of(2024, 9, 30)));
+
+            personalTrainingRepository.save(createPersonalTraining(member1, gymTrainer1, "노트", 50, 32, registrationRequestDate, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.NEW_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED, centerFirstRegistrationMonth, null, registrationAllowedDate));
+            personalTrainingRepository.save(createPersonalTraining(member2, gymTrainer1, "노트", 50, 32, registrationRequestDate, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.NEW_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED, centerFirstRegistrationMonth, null, registrationAllowedDate));
+
+            Member member3 = memberRepository.save(createMember("회원3"));
+            Member member4 = memberRepository.save(createMember("회원4"));
+            Member member5 = memberRepository.save(createMember("회원5"));
+
+            Gym gym2 = gymRepository.save(createGym("체육관2"));
+            GymTrainer gymTrainer2 = gymTrainerRepository.save(createGymTrainer(gym2, trainer, LocalDate.of(2024, 9, 30)));
+
+            personalTrainingRepository.save(createPersonalTraining(member3, gymTrainer2, "노트", 40, 20, registrationRequestDate, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED, centerFirstRegistrationMonth, centerLastReRegistrationMonth, registrationAllowedDate));
+            personalTrainingRepository.save(createPersonalTraining(member4, gymTrainer2, "노트", 40, 20, registrationRequestDate, PTInfoInputStatus.INFO_EMPTY, null, PtRegistrationAllowedStatus.ALLOWED, null, null, registrationAllowedDate));
+            personalTrainingRepository.save(createPersonalTraining(member5, gymTrainer2, "노트", 40, 20, registrationRequestDate, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED, centerFirstRegistrationMonth, centerLastReRegistrationMonth, registrationAllowedDate));
+
+            final Long trainerId = trainer.getId();
+            final Long gymId = gym2.getId();
+            final String name = null;
+
+            // when
+            List<MemberDetailInfoResponse> responses = personalTrainingService.getPtAssignedMembersInformation(trainerId, gymId, name);
+
+            // then
+            assertThat(responses).hasSize(3)
+                .extracting("member.name", "gym.name", "pt.infoInputStatus")
+                .containsExactly(
+                    tuple("회원4", "체육관2", PTInfoInputStatus.INFO_EMPTY),
+                    tuple("회원3", "체육관2", PTInfoInputStatus.INFO_REGISTERED),
+                    tuple("회원5", "체육관2", PTInfoInputStatus.INFO_REGISTERED)
+                );
+        }
+
+        @DisplayName("특정 체육관 필터링, 이름 검색")
+        @Test
+        void getPtAssignedMembersInformationWhenSelectGymAndSearchName() {
+            // given
+            LocalDateTime registrationRequestDate = LocalDateTime.of(2024, 9, 27, 12, 45, 1);
+            LocalDateTime registrationAllowedDate = LocalDateTime.of(2024, 9, 29, 0, 0, 0);
+
+            LocalDateTime centerFirstRegistrationMonth = LocalDateTime.of(2024, 9, 1, 0, 0, 0);
+            LocalDateTime centerLastReRegistrationMonth = LocalDateTime.of(2024, 12, 1, 0, 0, 0);
+
+            Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+
+            Member member1 = memberRepository.save(createMember("회원1"));
+            Member member2 = memberRepository.save(createMember("회원2"));
+
+            Gym gym1 = gymRepository.save(createGym("체육관1"));
+            GymTrainer gymTrainer1 = gymTrainerRepository.save(createGymTrainer(gym1, trainer, LocalDate.of(2024, 9, 30)));
+
+            personalTrainingRepository.save(createPersonalTraining(member1, gymTrainer1, "노트", 50, 32, registrationRequestDate, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.NEW_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED, centerFirstRegistrationMonth, null, registrationAllowedDate));
+            personalTrainingRepository.save(createPersonalTraining(member2, gymTrainer1, "노트", 50, 32, registrationRequestDate, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.NEW_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED, centerFirstRegistrationMonth, null, registrationAllowedDate));
+
+            Member member3 = memberRepository.save(createMember("회원3"));
+            Member member4 = memberRepository.save(createMember("회원4"));
+            Member member5 = memberRepository.save(createMember("회원5"));
+
+            Gym gym2 = gymRepository.save(createGym("체육관2"));
+            GymTrainer gymTrainer2 = gymTrainerRepository.save(createGymTrainer(gym2, trainer, LocalDate.of(2024, 9, 30)));
+
+            personalTrainingRepository.save(createPersonalTraining(member3, gymTrainer2, "노트", 40, 20, registrationRequestDate, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED, centerFirstRegistrationMonth, centerLastReRegistrationMonth, registrationAllowedDate));
+            personalTrainingRepository.save(createPersonalTraining(member4, gymTrainer2, "노트", 40, 20, registrationRequestDate, PTInfoInputStatus.INFO_EMPTY, null, PtRegistrationAllowedStatus.ALLOWED, null, null, registrationAllowedDate));
+            personalTrainingRepository.save(createPersonalTraining(member5, gymTrainer2, "노트", 40, 20, registrationRequestDate, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED, centerFirstRegistrationMonth, centerLastReRegistrationMonth, registrationAllowedDate));
+
+            final Long trainerId = trainer.getId();
+            final Long gymId = gym2.getId();
+            final String name = "회원5";
+
+            // when
+            List<MemberDetailInfoResponse> responses = personalTrainingService.getPtAssignedMembersInformation(trainerId, gymId, name);
+
+            // then
+            assertThat(responses).hasSize(1)
+                .extracting("member.name", "gym.name", "pt.infoInputStatus")
+                .containsExactly(
+                    tuple("회원5", "체육관2", PTInfoInputStatus.INFO_REGISTERED)
+                );
+        }
+
+        @DisplayName("특정 체육관 필터링, 이름 검색(검색 결과 X)")
+        @Test
+        void getPtAssignedMembersInformationWhenSelectGymAndSearchNameNotFound() {
+            // given
+            LocalDateTime registrationRequestDate = LocalDateTime.of(2024, 9, 27, 12, 45, 1);
+            LocalDateTime registrationAllowedDate = LocalDateTime.of(2024, 9, 29, 0, 0, 0);
+
+            LocalDateTime centerFirstRegistrationMonth = LocalDateTime.of(2024, 9, 1, 0, 0, 0);
+            LocalDateTime centerLastReRegistrationMonth = LocalDateTime.of(2024, 12, 1, 0, 0, 0);
+
+            Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+
+            Member member1 = memberRepository.save(createMember("회원1"));
+            Member member2 = memberRepository.save(createMember("회원2"));
+
+            Gym gym1 = gymRepository.save(createGym("체육관1"));
+            GymTrainer gymTrainer1 = gymTrainerRepository.save(createGymTrainer(gym1, trainer, LocalDate.of(2024, 9, 30)));
+
+            personalTrainingRepository.save(createPersonalTraining(member1, gymTrainer1, "노트", 50, 32, registrationRequestDate, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.NEW_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED, centerFirstRegistrationMonth, null, registrationAllowedDate));
+            personalTrainingRepository.save(createPersonalTraining(member2, gymTrainer1, "노트", 50, 32, registrationRequestDate, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.NEW_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED, centerFirstRegistrationMonth, null, registrationAllowedDate));
+
+            Member member3 = memberRepository.save(createMember("회원3"));
+            Member member4 = memberRepository.save(createMember("회원4"));
+            Member member5 = memberRepository.save(createMember("회원5"));
+
+            Gym gym2 = gymRepository.save(createGym("체육관2"));
+            GymTrainer gymTrainer2 = gymTrainerRepository.save(createGymTrainer(gym2, trainer, LocalDate.of(2024, 9, 30)));
+
+            personalTrainingRepository.save(createPersonalTraining(member3, gymTrainer2, "노트", 40, 20, registrationRequestDate, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED, centerFirstRegistrationMonth, centerLastReRegistrationMonth, registrationAllowedDate));
+            personalTrainingRepository.save(createPersonalTraining(member4, gymTrainer2, "노트", 40, 20, registrationRequestDate, PTInfoInputStatus.INFO_EMPTY, null, PtRegistrationAllowedStatus.ALLOWED, null, null, registrationAllowedDate));
+            personalTrainingRepository.save(createPersonalTraining(member5, gymTrainer2, "노트", 40, 20, registrationRequestDate, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED, centerFirstRegistrationMonth, centerLastReRegistrationMonth, registrationAllowedDate));
+
+            final Long trainerId = trainer.getId();
+            final Long gymId = gym2.getId();
+            final String name = "회원11";
+
+            // when
+            List<MemberDetailInfoResponse> responses = personalTrainingService.getPtAssignedMembersInformation(trainerId, gymId, name);
+
+            // then
+            assertThat(responses).hasSize(0);
+        }
+
+        @DisplayName("체육관 필터링 X, 이름X")
+        @Test
+        void getPtAssignedMembersInformation() {
+            // given
+            LocalDateTime registrationRequestDate = LocalDateTime.of(2024, 9, 27, 12, 45, 1);
+            LocalDateTime registrationAllowedDate = LocalDateTime.of(2024, 9, 29, 0, 0, 0);
+
+            LocalDateTime centerFirstRegistrationMonth = LocalDateTime.of(2024, 9, 1, 0, 0, 0);
+            LocalDateTime centerLastReRegistrationMonth = LocalDateTime.of(2024, 12, 1, 0, 0, 0);
+
+            Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+
+            Member member1 = memberRepository.save(createMember("회원1"));
+            Member member2 = memberRepository.save(createMember("회원2"));
+
+            Gym gym1 = gymRepository.save(createGym("체육관1"));
+            GymTrainer gymTrainer1 = gymTrainerRepository.save(createGymTrainer(gym1, trainer, LocalDate.of(2024, 9, 30)));
+
+            personalTrainingRepository.save(createPersonalTraining(member1, gymTrainer1, "노트", 50, 32, registrationRequestDate, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.NEW_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED, centerFirstRegistrationMonth, null, registrationAllowedDate));
+            personalTrainingRepository.save(createPersonalTraining(member2, gymTrainer1, "노트", 50, 32, registrationRequestDate, PTInfoInputStatus.INFO_EMPTY, null, PtRegistrationAllowedStatus.ALLOWED, null, null, registrationAllowedDate));
+
+            Member member3 = memberRepository.save(createMember("회원3"));
+            Member member4 = memberRepository.save(createMember("회원4"));
+            Member member5 = memberRepository.save(createMember("회원5"));
+
+            Gym gym2 = gymRepository.save(createGym("체육관2"));
+            GymTrainer gymTrainer2 = gymTrainerRepository.save(createGymTrainer(gym2, trainer, LocalDate.of(2024, 9, 30)));
+
+            personalTrainingRepository.save(createPersonalTraining(member3, gymTrainer2, "노트", 40, 20, registrationRequestDate, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED, centerFirstRegistrationMonth, centerLastReRegistrationMonth, registrationAllowedDate));
+            personalTrainingRepository.save(createPersonalTraining(member4, gymTrainer2, "노트", 40, 20, registrationRequestDate, PTInfoInputStatus.INFO_EMPTY, null, PtRegistrationAllowedStatus.ALLOWED, null, null, registrationAllowedDate));
+            personalTrainingRepository.save(createPersonalTraining(member5, gymTrainer2, "노트", 40, 20, registrationRequestDate, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED, centerFirstRegistrationMonth, centerLastReRegistrationMonth, registrationAllowedDate));
+
+            final Long trainerId = trainer.getId();
+            final Long gymId = -1L;
+            final String name = null;
+
+            // when
+            List<MemberDetailInfoResponse> responses = personalTrainingService.getPtAssignedMembersInformation(trainerId, gymId, name);
+
+            // then
+            assertThat(responses).hasSize(5)
+                .extracting("member.name", "gym.name", "pt.infoInputStatus")
+                .containsExactly(
+                    tuple("회원2", "체육관1", PTInfoInputStatus.INFO_EMPTY),
+                    tuple("회원4", "체육관2", PTInfoInputStatus.INFO_EMPTY),
+                    tuple("회원1", "체육관1", PTInfoInputStatus.INFO_REGISTERED),
+                    tuple("회원3", "체육관2", PTInfoInputStatus.INFO_REGISTERED),
+                    tuple("회원5", "체육관2", PTInfoInputStatus.INFO_REGISTERED)
+                );
+        }
+
+        @DisplayName("체육관 필터링 X, 이름 검색")
+        @Test
+        void getPtAssignedMembersInformationSearchName() {
+            // given
+            LocalDateTime registrationRequestDate = LocalDateTime.of(2024, 9, 27, 12, 45, 1);
+            LocalDateTime registrationAllowedDate = LocalDateTime.of(2024, 9, 29, 0, 0, 0);
+
+            LocalDateTime centerFirstRegistrationMonth = LocalDateTime.of(2024, 9, 1, 0, 0, 0);
+            LocalDateTime centerLastReRegistrationMonth = LocalDateTime.of(2024, 12, 1, 0, 0, 0);
+
+            Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+
+            Member member1 = memberRepository.save(createMember("회원1"));
+            Member member2 = memberRepository.save(createMember("회원2"));
+
+            Gym gym1 = gymRepository.save(createGym("체육관1"));
+            GymTrainer gymTrainer1 = gymTrainerRepository.save(createGymTrainer(gym1, trainer, LocalDate.of(2024, 9, 30)));
+
+            personalTrainingRepository.save(createPersonalTraining(member1, gymTrainer1, "노트", 50, 32, registrationRequestDate, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.NEW_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED, centerFirstRegistrationMonth, null, registrationAllowedDate));
+            personalTrainingRepository.save(createPersonalTraining(member2, gymTrainer1, "노트", 50, 32, registrationRequestDate, PTInfoInputStatus.INFO_EMPTY, null, PtRegistrationAllowedStatus.ALLOWED, null, null, registrationAllowedDate));
+
+            Member member3 = memberRepository.save(createMember("회원3"));
+            Member member4 = memberRepository.save(createMember("회원4"));
+            Member member5 = memberRepository.save(createMember("회원5"));
+
+            Gym gym2 = gymRepository.save(createGym("체육관2"));
+            GymTrainer gymTrainer2 = gymTrainerRepository.save(createGymTrainer(gym2, trainer, LocalDate.of(2024, 9, 30)));
+
+            personalTrainingRepository.save(createPersonalTraining(member3, gymTrainer2, "노트", 40, 20, registrationRequestDate, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED, centerFirstRegistrationMonth, centerLastReRegistrationMonth, registrationAllowedDate));
+            personalTrainingRepository.save(createPersonalTraining(member4, gymTrainer2, "노트", 40, 20, registrationRequestDate, PTInfoInputStatus.INFO_EMPTY, null, PtRegistrationAllowedStatus.ALLOWED, null, null, registrationAllowedDate));
+            personalTrainingRepository.save(createPersonalTraining(member5, gymTrainer2, "노트", 40, 20, registrationRequestDate, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED, centerFirstRegistrationMonth, centerLastReRegistrationMonth, registrationAllowedDate));
+
+            final Long trainerId = trainer.getId();
+            final Long gymId = -1L;
+            final String name = "회원3";
+
+            // when
+            List<MemberDetailInfoResponse> responses = personalTrainingService.getPtAssignedMembersInformation(trainerId, gymId, name);
+
+            // then
+            assertThat(responses).hasSize(1)
+                .extracting("member.name", "gym.name", "pt.infoInputStatus")
+                .containsExactly(
+                    tuple("회원3", "체육관2", PTInfoInputStatus.INFO_REGISTERED)
+                );
+        }
+
+        @DisplayName("체육관 필터링 X, 이름 검색(검색 결과 X)")
+        @Test
+        void getPtAssignedMembersInformationAndSearchNameNotFound() {
+            // given
+            LocalDateTime registrationRequestDate = LocalDateTime.of(2024, 9, 27, 12, 45, 1);
+            LocalDateTime registrationAllowedDate = LocalDateTime.of(2024, 9, 29, 0, 0, 0);
+
+            LocalDateTime centerFirstRegistrationMonth = LocalDateTime.of(2024, 9, 1, 0, 0, 0);
+            LocalDateTime centerLastReRegistrationMonth = LocalDateTime.of(2024, 12, 1, 0, 0, 0);
+
+            Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+
+            Member member1 = memberRepository.save(createMember("회원1"));
+            Member member2 = memberRepository.save(createMember("회원2"));
+
+            Gym gym1 = gymRepository.save(createGym("체육관1"));
+            GymTrainer gymTrainer1 = gymTrainerRepository.save(createGymTrainer(gym1, trainer, LocalDate.of(2024, 9, 30)));
+
+            personalTrainingRepository.save(createPersonalTraining(member1, gymTrainer1, "노트", 50, 32, registrationRequestDate, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.NEW_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED, centerFirstRegistrationMonth, null, registrationAllowedDate));
+            personalTrainingRepository.save(createPersonalTraining(member2, gymTrainer1, "노트", 50, 32, registrationRequestDate, PTInfoInputStatus.INFO_EMPTY, null, PtRegistrationAllowedStatus.ALLOWED, null, null, registrationAllowedDate));
+
+            Member member3 = memberRepository.save(createMember("회원3"));
+            Member member4 = memberRepository.save(createMember("회원4"));
+            Member member5 = memberRepository.save(createMember("회원5"));
+
+            Gym gym2 = gymRepository.save(createGym("체육관2"));
+            GymTrainer gymTrainer2 = gymTrainerRepository.save(createGymTrainer(gym2, trainer, LocalDate.of(2024, 9, 30)));
+
+            personalTrainingRepository.save(createPersonalTraining(member3, gymTrainer2, "노트", 40, 20, registrationRequestDate, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED, centerFirstRegistrationMonth, centerLastReRegistrationMonth, registrationAllowedDate));
+            personalTrainingRepository.save(createPersonalTraining(member4, gymTrainer2, "노트", 40, 20, registrationRequestDate, PTInfoInputStatus.INFO_EMPTY, null, PtRegistrationAllowedStatus.ALLOWED, null, null, registrationAllowedDate));
+            personalTrainingRepository.save(createPersonalTraining(member5, gymTrainer2, "노트", 40, 20, registrationRequestDate, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED, centerFirstRegistrationMonth, centerLastReRegistrationMonth, registrationAllowedDate));
+
+            final Long trainerId = trainer.getId();
+            final Long gymId = -1L;
+            final String name = "회원43";
+
+            // when
+            List<MemberDetailInfoResponse> responses = personalTrainingService.getPtAssignedMembersInformation(trainerId, gymId, name);
+
+            // then
+            assertThat(responses).hasSize(0);
+        }
+    }
+
 
     public PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, String note, int totalPtCount, int remainingPtCount, LocalDateTime registrationRequestDate, PTInfoInputStatus infoInputStatus, PtRegistrationStatus registrationStatus, PtRegistrationAllowedStatus registrationAllowedStatus, LocalDateTime centerFirstRegistrationMonth, LocalDateTime centerLastReRegistrationMonth, LocalDateTime registrationAllowedDate) {
         return PersonalTraining.builder()

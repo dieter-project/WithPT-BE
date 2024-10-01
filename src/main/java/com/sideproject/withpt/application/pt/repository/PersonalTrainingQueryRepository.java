@@ -39,7 +39,7 @@ public interface PersonalTrainingQueryRepository {
 
     List<AssignedPTInfoResponse> findPtAssignedTrainerInformation(Member member);
 
-    List<MemberDetailInfoResponse> findPtAssignedMemberInformation(Trainer trainer);
+    List<MemberDetailInfoResponse> findAllPTMembersInfoBy(List<GymTrainer> gymTrainers, String name);
 
     List<MonthlyMemberCount> calculatePTStatistic(Trainer trainer, LocalDate date);
 

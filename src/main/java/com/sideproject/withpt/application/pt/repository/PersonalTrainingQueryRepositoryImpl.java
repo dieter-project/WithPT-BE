@@ -40,7 +40,6 @@ import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
-import com.sideproject.withpt.domain.trainer.QTrainer;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -55,6 +54,7 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 @Repository
@@ -283,23 +283,23 @@ public class PersonalTrainingQueryRepositoryImpl implements PersonalTrainingQuer
     }
 
     @Override
-    public List<MemberDetailInfoResponse> findPtAssignedMemberInformation(Trainer trainer) {
+    public List<MemberDetailInfoResponse> findAllPTMembersInfoBy(List<GymTrainer> gymTrainers, String name) {
         return jpaQueryFactory
             .select(
                 new QMemberDetailInfoResponse(
                     new QMemberDetailInfoResponse_MemberInfo(
-                        personalTraining.member.id,
-                        personalTraining.member.name,
-                        personalTraining.member.imageUrl,
-                        personalTraining.member.authentication.birth,
-                        personalTraining.member.authentication.sex,
-                        personalTraining.member.height,
-                        personalTraining.member.weight,
-                        personalTraining.member.dietType
+                        member.id,
+                        member.name,
+                        member.imageUrl,
+                        member.authentication.birth,
+                        member.authentication.sex,
+                        member.height,
+                        member.weight,
+                        member.dietType
                     ),
                     new QMemberDetailInfoResponse_GymInfo(
-                        personalTraining.gym.id,
-                        personalTraining.gym.name
+                        gym.id,
+                        gym.name
                     ),
                     new QMemberDetailInfoResponse_PtInfo(
                         personalTraining.id,
@@ -314,11 +314,16 @@ public class PersonalTrainingQueryRepositoryImpl implements PersonalTrainingQuer
                 )
             )
             .from(personalTraining)
-            .join(personalTraining.member)
-            .join(personalTraining.gym)
+            .join(personalTraining.gymTrainer, gymTrainer)
+            .join(personalTraining.member, member)
+            .join(gym).on(gymTrainer.gym.eq(gym))
             .where(
-                personalTraining.trainer.eq(trainer)
+                personalTraining.gymTrainer.in(gymTrainers),
+                memberNameEq(name)
             )
+            .orderBy(
+                personalTraining.infoInputStatus.asc(),
+                member.name.asc(), gym.name.asc())
             .fetch();
     }
 
@@ -445,6 +450,10 @@ public class PersonalTrainingQueryRepositoryImpl implements PersonalTrainingQuer
 
     private BooleanExpression membersIn(List<Member> members) {
         return CollectionUtils.isEmpty(members) ? null : personalTraining.member.in(members);
+    }
+
+    private BooleanExpression memberNameEq(String name) {
+        return StringUtils.hasText(name) ? personalTraining.member.name.eq(name) : null;
     }
 
     private BooleanExpression memberEq(Member member) {

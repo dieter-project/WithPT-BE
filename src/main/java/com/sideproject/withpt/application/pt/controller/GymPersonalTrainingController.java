@@ -172,11 +172,12 @@ public class GymPersonalTrainingController {
     }
 
     // TODO : TEST 작성 필요
-    @Operation(summary = "트레이너의 담당 회원 목록 조회 - 체육관 필터링 가능")
+    @Operation(summary = "트레이너의 담당 회원 조회 - 체육관 필터링 가능")
     @GetMapping("/api/v1/personal-trainings/trainers/{trainerId}/members")
-    public ApiSuccessResponse<List<MemberDetailInfoResponse>> getPtAssignedMemberInformation(@PathVariable Long trainerId, @RequestParam(required = false) Long gymId) {
+    public ApiSuccessResponse<List<MemberDetailInfoResponse>> getPtAssignedMemberInformation(
+        @PathVariable Long trainerId, @RequestParam(required = false, defaultValue = "-1") Long gymId, @RequestParam(required = false) String name) {
         return ApiSuccessResponse.from(
-            personalTrainingService.getPtAssignedMembersInformation(trainerId, gymId)
+            personalTrainingService.getPtAssignedMembersInformation(trainerId, gymId, name)
         );
     }
 

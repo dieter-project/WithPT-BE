@@ -271,16 +271,16 @@ public class PersonalTrainingService {
         return personalTrainingRepository.findPtAssignedTrainerInformation(member);
     }
 
-    public List<MemberDetailInfoResponse> getPtAssignedMembersInformation(Long trainerId, Long gymId) {
+    public List<MemberDetailInfoResponse> getPtAssignedMembersInformation(Long trainerId, Long gymId, String name) {
         Trainer trainer = trainerRepository.findById(trainerId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         Gym gym = gymRepository.findById(gymId)
             .orElse(null);
 
-        gymTrainerRepository.findAllTrainerAndOptionalGym(trainer, gym);
+        List<GymTrainer> gymTrainers = gymTrainerRepository.findAllTrainerAndOptionalGym(trainer, gym);
 
-        return personalTrainingRepository.findPtAssignedMemberInformation(trainer);
+        return personalTrainingRepository.findAllPTMembersInfoBy(gymTrainers, name);
     }
 
     public PtStatisticResponse getPtStatistics(Long trainerId, LocalDate current, int size) {
