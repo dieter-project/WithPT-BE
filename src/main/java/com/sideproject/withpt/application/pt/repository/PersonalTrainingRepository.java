@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PersonalTrainingRepository extends JpaRepository<PersonalTraining, Long> {
+public interface PersonalTrainingRepository extends JpaRepository<PersonalTraining, Long>, PersonalTrainingQueryRepository {
 
     Optional<PersonalTraining> findByMemberAndTrainerAndGym(Member member, Trainer trainer, Gym gym);
 

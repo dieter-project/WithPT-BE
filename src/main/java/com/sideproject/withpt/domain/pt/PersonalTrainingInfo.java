@@ -42,13 +42,7 @@ public class PersonalTrainingInfo extends BaseEntity {
     @JoinColumn(name = "personal_training_id")
     private PersonalTraining personalTraining;
 
-    public void addTraining(PersonalTraining personalTraining) {
-        this.personalTraining = personalTraining;
-    }
-
-    public static PersonalTrainingInfo saveTrainingInfo(
-        PersonalTraining personalTraining, int ptCount, LocalDateTime registrationDate, PtRegistrationStatus registrationStatus
-    ) {
+    public static PersonalTrainingInfo createPTInfo(int ptCount, LocalDateTime registrationDate, PtRegistrationStatus registrationStatus, PersonalTraining personalTraining) {
         return PersonalTrainingInfo.builder()
             .ptCount(ptCount)
             .registrationDate(registrationDate)
