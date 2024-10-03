@@ -2,10 +2,10 @@ package com.sideproject.withpt.application.pt.repository;
 
 import com.sideproject.withpt.application.pt.controller.response.AssignedPTInfoResponse;
 import com.sideproject.withpt.application.pt.controller.response.MemberDetailInfoResponse;
-import com.sideproject.withpt.application.pt.controller.response.PtStatisticResponse.MonthlyMemberCount;
 import com.sideproject.withpt.application.pt.controller.response.ReRegistrationHistoryResponse;
 import com.sideproject.withpt.application.pt.repository.dto.EachGymMemberListResponse;
 import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
+import com.sideproject.withpt.application.pt.repository.dto.MonthlyMemberCount;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.application.type.PtRegistrationStatus;
 import com.sideproject.withpt.domain.gym.Gym;
@@ -41,11 +41,9 @@ public interface PersonalTrainingQueryRepository {
 
     List<MemberDetailInfoResponse> findAllPTMembersInfoBy(List<GymTrainer> gymTrainers, String name);
 
-    List<MonthlyMemberCount> calculatePTStatistic(Trainer trainer, LocalDate date);
+    List<MonthlyMemberCount> getPTMemberCountByRegistrationStatus(List<GymTrainer> gymTrainers, LocalDate date, int size, PtRegistrationStatus status);
 
-    Optional<Long> getMemberCountThisMonthByRegistrationStatus(Trainer trainer, LocalDate date, PtRegistrationStatus status);
-
-    Optional<Long> getExistingMemberCount(Trainer trainer, LocalDate date);
+    List<MonthlyMemberCount> getExistingMemberCount(List<GymTrainer> gymTrainers, LocalDate date, int size);
 
 
 }

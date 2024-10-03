@@ -8,15 +8,13 @@ import com.sideproject.withpt.application.pt.controller.request.SavePtMemberDeta
 import com.sideproject.withpt.application.pt.controller.request.UpdatePtMemberDetailInfoRequest;
 import com.sideproject.withpt.application.pt.controller.response.AssignedPTInfoResponse;
 import com.sideproject.withpt.application.pt.controller.response.CountOfMembersAndGymsResponse;
-import com.sideproject.withpt.application.pt.repository.dto.EachGymMemberListResponse;
 import com.sideproject.withpt.application.pt.controller.response.MemberDetailInfoResponse;
+import com.sideproject.withpt.application.pt.controller.response.MonthlyStatisticsResponse;
 import com.sideproject.withpt.application.pt.controller.response.PersonalTrainingMemberResponse;
-import com.sideproject.withpt.application.pt.controller.response.PtStatisticResponse;
 import com.sideproject.withpt.application.pt.controller.response.ReRegistrationHistoryResponse;
-import com.sideproject.withpt.application.pt.controller.response.TotalAndRemainingPtCountResponse;
 import com.sideproject.withpt.application.pt.exception.PTErrorCode;
 import com.sideproject.withpt.application.pt.exception.PTException;
-import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
+import com.sideproject.withpt.application.pt.repository.dto.EachGymMemberListResponse;
 import com.sideproject.withpt.application.pt.service.PersonalTrainingService;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
@@ -59,22 +57,22 @@ public class GymPersonalTrainingController {
 //    }
 
     // ?? 어디 사용,,,
-    @Operation(summary = "특정 체육관 이름과 회원 수 조회")
-    @GetMapping("/api/v1/personal-trainings/gyms/{gymId}")
-    public ApiSuccessResponse<GymMemberCountDto> getGymAndNumberOfMembers(@Parameter(hidden = true) @AuthenticationPrincipal Long trainerId, @PathVariable Long gymId) {
-        return ApiSuccessResponse.from(
-            personalTrainingService.getGymAndNumberOfMembers(trainerId, gymId)
-        );
-    }
+//    @Operation(summary = "특정 체육관 이름과 회원 수 조회")
+//    @GetMapping("/api/v1/personal-trainings/gyms/{gymId}")
+//    public ApiSuccessResponse<GymMemberCountDto> getGymAndNumberOfMembers(@Parameter(hidden = true) @AuthenticationPrincipal Long trainerId, @PathVariable Long gymId) {
+//        return ApiSuccessResponse.from(
+//            personalTrainingService.getGymAndNumberOfMembers(trainerId, gymId)
+//        );
+//    }
 
     // ??
-    @Operation(summary = "회원 PT 잔여 및 전체 횟수 조회")
-    @GetMapping("/api/v1/personal-trainings/{ptId}/member/info/pt-count")
-    public ApiSuccessResponse<TotalAndRemainingPtCountResponse> getPtTotalAndRemainingCount(@PathVariable Long ptId) {
-        return ApiSuccessResponse.from(
-            personalTrainingService.getPtTotalAndRemainingCount(ptId)
-        );
-    }
+//    @Operation(summary = "회원 PT 잔여 및 전체 횟수 조회")
+//    @GetMapping("/api/v1/personal-trainings/{ptId}/member/info/pt-count")
+//    public ApiSuccessResponse<TotalAndRemainingPtCountResponse> getPtTotalAndRemainingCount(@PathVariable Long ptId) {
+//        return ApiSuccessResponse.from(
+//            personalTrainingService.getPtTotalAndRemainingCount(ptId)
+//        );
+//    }
 
     @Operation(summary = "체육관 목록 및 PT 회원 수 조회", description = "체육관 목록과 각 회원 수 반환")
     @GetMapping("/api/v1/personal-trainings/gyms/members/count")
@@ -171,20 +169,19 @@ public class GymPersonalTrainingController {
         );
     }
 
-    // TODO : TEST 작성 필요
-    @Operation(summary = "트레이너의 담당 회원 조회 - 체육관 필터링 가능")
+    @Operation(summary = "트레이너의 담당 회원 조회 - 체육관 필터링, 이름 검색")
     @GetMapping("/api/v1/personal-trainings/trainers/{trainerId}/members")
     public ApiSuccessResponse<List<MemberDetailInfoResponse>> getPtAssignedMemberInformation(
         @PathVariable Long trainerId, @RequestParam(required = false, defaultValue = "-1") Long gymId, @RequestParam(required = false) String name) {
         return ApiSuccessResponse.from(
-            personalTrainingService.getPtAssignedMembersInformation(trainerId, gymId, name)
+            personalTrainingService.searchPtMembersInformation(trainerId, gymId, name)
         );
     }
 
     // TODO : TEST 작성 필요
-    @Operation(summary = "회원 통계 정보 조회")
-    @GetMapping("/api/v1/gyms/personal-trainings/statistics")
-    public ApiSuccessResponse<PtStatisticResponse> getPtStatistics(@Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
+    @Operation(summary = "PT 회원 통계 정보 조회")
+    @GetMapping("/api/v1/personal-trainings/members-statistics")
+    public ApiSuccessResponse<MonthlyStatisticsResponse> getPtStatistics(@Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam LocalDate date,
         @RequestParam(defaultValue = "12") int size) {
 

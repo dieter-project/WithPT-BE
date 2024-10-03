@@ -11,6 +11,7 @@ import com.sideproject.withpt.application.pt.controller.response.MemberDetailInf
 import com.sideproject.withpt.application.pt.controller.response.ReRegistrationHistoryResponse;
 import com.sideproject.withpt.application.pt.repository.dto.EachGymMemberListResponse;
 import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
+import com.sideproject.withpt.application.pt.repository.dto.MonthlyMemberCount;
 import com.sideproject.withpt.application.pt.repository.dto.PtMemberListDto;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.application.type.DietType;
@@ -29,6 +30,7 @@ import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,12 +39,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
-@Transactional
-@ActiveProfiles("test")
+//@Transactional
+//@ActiveProfiles("test")
 @SpringBootTest
 class PersonalTrainingQueryRepositoryTest {
 
@@ -385,6 +388,211 @@ class PersonalTrainingQueryRepositoryTest {
                 tuple("트레이너2", "체육관2", 40, 20, PtRegistrationStatus.RE_REGISTRATION),
                 tuple("트레이너3", "체육관3", 30, 5, PtRegistrationStatus.RE_REGISTRATION)
             );
+    }
+
+    @DisplayName("NEW_REGISTRATION 상태일 때 기간 별 PT 회원 수")
+    @Test
+    void getPTMemberCountByRegistrationStatusWhen_NEW_REGISTRATION() {
+        // given
+
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+        Trainer trainer2 = trainerRepository.save(createTrainer("트레이너2"));
+
+        Member member1 = memberRepository.save(createMember("회원1"));
+        Member member2 = memberRepository.save(createMember("회원2"));
+
+        Gym gym1 = gymRepository.save(createGym("체육관1"));
+        GymTrainer gymTrainer_ = gymTrainerRepository.save(createGymTrainer(gym1, trainer2, LocalDate.of(2024, 9, 30)));
+        personalTrainingRepository.save(createPersonalTraining(member1, gymTrainer_, PtRegistrationStatus.NEW_REGISTRATION, LocalDateTime.of(2024, 9, 1, 0, 0), null));
+        GymTrainer gymTrainer1 = gymTrainerRepository.save(createGymTrainer(gym1, trainer, LocalDate.of(2024, 9, 30)));
+
+        // 신규 PT 등록
+        PersonalTraining personalTraining1 = personalTrainingRepository.save(createPersonalTraining(member1, gymTrainer1, PtRegistrationStatus.NEW_REGISTRATION, LocalDateTime.of(2024, 9, 1, 0, 0), null));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 9, 1, 0, 0), PtRegistrationStatus.NEW_REGISTRATION, personalTraining1));
+
+        // 2회 재등록
+        PersonalTraining personalTraining2 = personalTrainingRepository.save(createPersonalTraining(member2, gymTrainer1, PtRegistrationStatus.RE_REGISTRATION, LocalDateTime.of(2024, 7, 1, 0, 0), LocalDateTime.of(2024, 9, 1, 0, 0)));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 7, 1, 0, 0), PtRegistrationStatus.NEW_REGISTRATION, personalTraining2));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 9, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining2));
+
+        Member member3 = memberRepository.save(createMember("회원3"));
+        Member member4 = memberRepository.save(createMember("회원4"));
+        Member member5 = memberRepository.save(createMember("회원5"));
+
+        Gym gym2 = gymRepository.save(createGym("체육관2"));
+        GymTrainer gymTrainer2 = gymTrainerRepository.save(createGymTrainer(gym2, trainer, LocalDate.of(2024, 9, 30)));
+
+        // 2회 재등록
+        PersonalTraining personalTraining3 = personalTrainingRepository.save(createPersonalTraining(member3, gymTrainer2, PtRegistrationStatus.RE_REGISTRATION, LocalDateTime.of(2024, 7, 1, 0, 0), LocalDateTime.of(2024, 9, 1, 0, 0)));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 7, 1, 0, 0), PtRegistrationStatus.NEW_REGISTRATION, personalTraining3));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 9, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining3));
+
+        // 3회 재등록
+        PersonalTraining personalTraining4 = personalTrainingRepository.save(createPersonalTraining(member4, gymTrainer2, PtRegistrationStatus.RE_REGISTRATION, LocalDateTime.of(2024, 2, 1, 0, 0), LocalDateTime.of(2024, 7, 1, 0, 0)));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 2, 1, 0, 0), PtRegistrationStatus.NEW_REGISTRATION, personalTraining4));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 6, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining4));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 7, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining4));
+
+        // 3회 재등록
+        PersonalTraining personalTraining5 = personalTrainingRepository.save(createPersonalTraining(member5, gymTrainer2, PtRegistrationStatus.RE_REGISTRATION, LocalDateTime.of(2023, 12, 1, 0, 0), LocalDateTime.of(2024, 8, 1, 0, 0)));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2023, 12, 1, 0, 0), PtRegistrationStatus.NEW_REGISTRATION, personalTraining5));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 6, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining5));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 8, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining5));
+
+        LocalDate date = LocalDate.of(2024, 9, 10);
+        int size = 12;
+        PtRegistrationStatus registrationStatus = PtRegistrationStatus.NEW_REGISTRATION;
+
+        // when
+        List<MonthlyMemberCount> result = personalTrainingRepository.getPTMemberCountByRegistrationStatus(List.of(gymTrainer1, gymTrainer2), date, size, registrationStatus);
+
+        log.info("결과 {}", result);
+        // then
+        assertThat(result).hasSize(4)
+            .extracting("date", "count")
+            .containsExactly(
+                tuple("2024-09", 1),
+                tuple("2024-07", 2),
+                tuple("2024-02", 1),
+                tuple("2023-12", 1)
+            );
+    }
+
+    @DisplayName("RE_REGISTRATION 상태일 때 기간 별 PT 회원 수")
+    @Test
+    void getPTMemberCountByRegistrationStatusWhen_RE_REGISTRATION() {
+        // given
+
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+        Trainer trainer2 = trainerRepository.save(createTrainer("트레이너2"));
+
+        Member member1 = memberRepository.save(createMember("회원1"));
+        Member member2 = memberRepository.save(createMember("회원2"));
+
+        Gym gym1 = gymRepository.save(createGym("체육관1"));
+        GymTrainer gymTrainer_ = gymTrainerRepository.save(createGymTrainer(gym1, trainer2, LocalDate.of(2024, 9, 30)));
+        personalTrainingRepository.save(createPersonalTraining(member1, gymTrainer_, PtRegistrationStatus.NEW_REGISTRATION, LocalDateTime.of(2024, 9, 1, 0, 0), null));
+        GymTrainer gymTrainer1 = gymTrainerRepository.save(createGymTrainer(gym1, trainer, LocalDate.of(2024, 9, 30)));
+
+        // 신규 PT 등록
+        PersonalTraining personalTraining1 = personalTrainingRepository.save(createPersonalTraining(member1, gymTrainer1, PtRegistrationStatus.NEW_REGISTRATION, LocalDateTime.of(2024, 9, 1, 0, 0), null));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 9, 1, 0, 0), PtRegistrationStatus.NEW_REGISTRATION, personalTraining1));
+
+        // 2회 재등록
+        PersonalTraining personalTraining2 = personalTrainingRepository.save(createPersonalTraining(member2, gymTrainer1, PtRegistrationStatus.RE_REGISTRATION, LocalDateTime.of(2024, 7, 1, 0, 0), LocalDateTime.of(2024, 9, 1, 0, 0)));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 7, 1, 0, 0), PtRegistrationStatus.NEW_REGISTRATION, personalTraining2));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 9, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining2));
+
+        Member member3 = memberRepository.save(createMember("회원3"));
+        Member member4 = memberRepository.save(createMember("회원4"));
+        Member member5 = memberRepository.save(createMember("회원5"));
+
+        Gym gym2 = gymRepository.save(createGym("체육관2"));
+        GymTrainer gymTrainer2 = gymTrainerRepository.save(createGymTrainer(gym2, trainer, LocalDate.of(2024, 9, 30)));
+
+        // 2회 재등록
+        PersonalTraining personalTraining3 = personalTrainingRepository.save(createPersonalTraining(member3, gymTrainer2, PtRegistrationStatus.RE_REGISTRATION, LocalDateTime.of(2024, 7, 1, 0, 0), LocalDateTime.of(2024, 9, 1, 0, 0)));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 7, 1, 0, 0), PtRegistrationStatus.NEW_REGISTRATION, personalTraining3));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 9, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining3));
+
+        // 3회 재등록
+        PersonalTraining personalTraining4 = personalTrainingRepository.save(createPersonalTraining(member4, gymTrainer2, PtRegistrationStatus.RE_REGISTRATION, LocalDateTime.of(2024, 2, 1, 0, 0), LocalDateTime.of(2024, 7, 1, 0, 0)));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 2, 1, 0, 0), PtRegistrationStatus.NEW_REGISTRATION, personalTraining4));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 6, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining4));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 7, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining4));
+
+        // 3회 재등록
+        PersonalTraining personalTraining5 = personalTrainingRepository.save(createPersonalTraining(member5, gymTrainer2, PtRegistrationStatus.RE_REGISTRATION, LocalDateTime.of(2023, 12, 1, 0, 0), LocalDateTime.of(2024, 8, 1, 0, 0)));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2023, 12, 1, 0, 0), PtRegistrationStatus.NEW_REGISTRATION, personalTraining5));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 6, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining5));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 8, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining5));
+
+        LocalDate date = LocalDate.of(2024, 9, 10);
+        int size = 12;
+        PtRegistrationStatus registrationStatus = PtRegistrationStatus.RE_REGISTRATION;
+
+        // when
+        List<MonthlyMemberCount> result = personalTrainingRepository.getPTMemberCountByRegistrationStatus(List.of(gymTrainer1, gymTrainer2), date, size, registrationStatus);
+
+        log.info("결과 {}", result);
+        // then
+        assertThat(result).hasSize(4)
+            .extracting("date", "count")
+            .containsExactly(
+                tuple("2024-09", 2),
+                tuple("2024-08", 1),
+                tuple("2024-07", 1),
+                tuple("2024-06", 2)
+            );
+    }
+
+    @DisplayName("getExistingMemberCount")
+    @Rollback(value = false)
+    @Test
+    void getExistingMemberCount() {
+        // given
+
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+
+        Member member1 = memberRepository.save(createMember("회원1"));
+        Member member2 = memberRepository.save(createMember("회원2"));
+
+        Gym gym1 = gymRepository.save(createGym("체육관1"));
+
+        Trainer trainer2 = trainerRepository.save(createTrainer("트레이너2"));
+        GymTrainer gymTrainer_ = gymTrainerRepository.save(createGymTrainer(gym1, trainer2, LocalDate.of(2024, 9, 30)));
+        PersonalTraining personalTraining_ = personalTrainingRepository.save(createPersonalTraining(member1, gymTrainer_, PtRegistrationStatus.NEW_REGISTRATION, LocalDateTime.of(2024, 9, 1, 0, 0), null));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 7, 1, 0, 0), PtRegistrationStatus.NEW_REGISTRATION, personalTraining_));
+
+        GymTrainer gymTrainer1 = gymTrainerRepository.save(createGymTrainer(gym1, trainer, LocalDate.of(2024, 9, 30)));
+
+        // 신규 PT 등록
+        PersonalTraining personalTraining1 = personalTrainingRepository.save(createPersonalTraining(member1, gymTrainer1, PtRegistrationStatus.NEW_REGISTRATION, LocalDateTime.of(2024, 9, 1, 0, 0), null));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 9, 1, 0, 0), PtRegistrationStatus.NEW_REGISTRATION, personalTraining1));
+
+        // 2회 재등록
+        PersonalTraining personalTraining2 = personalTrainingRepository.save(createPersonalTraining(member2, gymTrainer1, PtRegistrationStatus.RE_REGISTRATION, LocalDateTime.of(2024, 7, 1, 0, 0), LocalDateTime.of(2024, 9, 1, 0, 0)));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 7, 1, 0, 0), PtRegistrationStatus.NEW_REGISTRATION, personalTraining2));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 9, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining2));
+
+        Member member3 = memberRepository.save(createMember("회원3"));
+        Member member4 = memberRepository.save(createMember("회원4"));
+        Member member5 = memberRepository.save(createMember("회원5"));
+
+        Gym gym2 = gymRepository.save(createGym("체육관2"));
+        GymTrainer gymTrainer2 = gymTrainerRepository.save(createGymTrainer(gym2, trainer, LocalDate.of(2024, 9, 30)));
+
+        // 2회 재등록
+        PersonalTraining personalTraining3 = personalTrainingRepository.save(createPersonalTraining(member3, gymTrainer2, PtRegistrationStatus.RE_REGISTRATION, LocalDateTime.of(2024, 7, 1, 0, 0), LocalDateTime.of(2024, 9, 1, 0, 0)));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 7, 1, 0, 0), PtRegistrationStatus.NEW_REGISTRATION, personalTraining3));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 9, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining3));
+
+        // 3회 재등록
+        PersonalTraining personalTraining4 = personalTrainingRepository.save(createPersonalTraining(member4, gymTrainer2, PtRegistrationStatus.RE_REGISTRATION, LocalDateTime.of(2024, 2, 1, 0, 0), LocalDateTime.of(2024, 7, 1, 0, 0)));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 2, 1, 0, 0), PtRegistrationStatus.NEW_REGISTRATION, personalTraining4));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 6, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining4));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 7, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining4));
+
+        // 3회 재등록
+        PersonalTraining personalTraining5 = personalTrainingRepository.save(createPersonalTraining(member5, gymTrainer2, PtRegistrationStatus.RE_REGISTRATION, LocalDateTime.of(2023, 12, 1, 0, 0), LocalDateTime.of(2024, 8, 1, 0, 0)));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2023, 12, 1, 0, 0), PtRegistrationStatus.NEW_REGISTRATION, personalTraining5));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 6, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining5));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 8, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining5));
+
+        LocalDate date = LocalDate.of(2024, 9, 10);
+        int size = 12;
+        PtRegistrationStatus registrationStatus = PtRegistrationStatus.RE_REGISTRATION;
+
+        // when
+        List<MonthlyMemberCount> existingMemberCount = personalTrainingRepository.getExistingMemberCount(List.of(gymTrainer1, gymTrainer2), date, size);
+
+        log.info("결과 {}", existingMemberCount);
+        // then
+
+    }
+
+    private PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, PtRegistrationStatus registrationStatus, LocalDateTime centerFirstRegistrationMonth, LocalDateTime centerLastReRegistrationMonth) {
+        return createPersonalTraining(member, gymTrainer, null, 0, 0, null, null, registrationStatus, null, centerFirstRegistrationMonth, centerLastReRegistrationMonth, null);
     }
 
     public PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, LocalDateTime registrationAllowedDate, PtRegistrationAllowedStatus registrationAllowedStatus) {
