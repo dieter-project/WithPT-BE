@@ -3,7 +3,7 @@ package com.sideproject.withpt.application.lesson.controller;
 import com.sideproject.withpt.application.lesson.controller.request.LessonChangeRequest;
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
-import com.sideproject.withpt.application.lesson.controller.response.LessonInfo;
+import com.sideproject.withpt.application.lesson.repository.dto.LessonInfoResponse;
 import com.sideproject.withpt.application.lesson.controller.response.LessonMembersResponse;
 import com.sideproject.withpt.application.lesson.controller.response.PendingLessonInfo;
 import com.sideproject.withpt.application.lesson.service.LessonLockFacade;
@@ -46,7 +46,7 @@ public class LessonController {
     private final LessonService lessonService;
     private final LessonLockFacade lessonLockFacade;
 
-    @Operation(summary = "수업관리/스케줄 - 수업등록")
+    @Operation(summary = "신규 수업 등록")
     @PostMapping("/lessons/gyms/{gymId}")
     public ApiSuccessResponse<LessonRegistrationResponse> registrationPtLesson(@PathVariable Long gymId,
         @Valid @RequestBody LessonRegistrationRequest request) {
@@ -61,7 +61,28 @@ public class LessonController {
         return ApiSuccessResponse.from(response);
     }
 
-    @Operation(summary = "예약 가능한 수업 시간표 조회")
+    @Operation(summary = "확정/취소 수업 스케줄 조회")
+    @GetMapping("/lessons/{lessonId}")
+    public ApiSuccessResponse<LessonInfoResponse> getLessonSchedule(@PathVariable Long lessonId) {
+        return ApiSuccessResponse.from(
+            lessonService.getLessonSchedule(lessonId)
+        );
+    }
+
+    @Operation(summary = "수업 스케줄 변경")
+    @PatchMapping("/lessons/{lessonId}")
+    public void changePtLesson(@PathVariable Long lessonId, @Valid @RequestBody LessonChangeRequest request) {
+
+        String loginRole = getLoginRole();
+        log.info("로그인 role = {}", loginRole);
+
+        lessonLockFacade.lessonConcurrencyCheck(() ->
+                lessonService.changePTLesson(lessonId, loginRole, request),
+            lessonLockFacade.generateKey(request.getDate(), request.getTime())
+        );
+    }
+
+    @Operation(summary = "예약 가능한 수업 시간 조회")
     @GetMapping("/gyms/{gymId}/trainers/{trainerId}/schedule")
     public ApiSuccessResponse<AvailableLessonScheduleResponse> getTrainerWorkSchedule(@PathVariable Long gymId,
         @PathVariable Long trainerId,
@@ -70,6 +91,17 @@ public class LessonController {
     ) {
         return ApiSuccessResponse.from(
             lessonService.getTrainerWorkSchedule(gymId, trainerId, weekday, date)
+        );
+    }
+
+    @Operation(summary = "수업관리/메인 - 대기 수업 조회")
+    @GetMapping("/lessons/pending-lessons")
+    public ApiSuccessResponse<Map<LessonRequestStatus, Map<LessonRequestStatus, List<PendingLessonInfo>>>> getPendingLessons(
+        @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId
+    ) {
+
+        return ApiSuccessResponse.from(
+            lessonService.getPendingLessons(trainerId)
         );
     }
 
@@ -88,26 +120,7 @@ public class LessonController {
         );
     }
 
-    @Operation(summary = "수업관리/메인 - 대기 수업 조회")
-    @GetMapping("/lessons/pending-lessons")
-    public ApiSuccessResponse<Map<LessonRequestStatus, Map<LessonRequestStatus, List<PendingLessonInfo>>>> getPendingLessons(
-        @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId
-    ) {
-
-        return ApiSuccessResponse.from(
-            lessonService.getPendingLessons(trainerId)
-        );
-    }
-
-    @Operation(summary = "단일 수업 스케줄 조회")
-    @GetMapping("/lessons/{lessonId}")
-    public ApiSuccessResponse<LessonInfo> getLessonSchedule(@PathVariable Long lessonId) {
-        return ApiSuccessResponse.from(
-            lessonService.getLessonSchedule(lessonId)
-        );
-    }
-
-    @Operation(summary = "수업관리/메인 - 해당 월(Month) 체육관 수업 일정 조회")
+    @Operation(summary = "수업관리/메인 - 해당 월(Month) 체육관 수업 일정 달력 날짜 조회")
     @GetMapping("/lessons/days")
     public ApiSuccessResponse<List<LocalDate>> getLessonScheduleOfMonth(
         @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
@@ -130,19 +143,6 @@ public class LessonController {
     @PatchMapping("/lessons/{lessonId}/cancel")
     public void cancelDecidedLesson(@PathVariable Long lessonId) {
         lessonService.changeLessonStatus(lessonId, LessonStatus.CANCELED);
-    }
-
-    @Operation(summary = "수업관리/스케줄 - 수업변경")
-    @PatchMapping("/lessons/{lessonId}")
-    public void changePtLesson(@PathVariable Long lessonId, @Valid @RequestBody LessonChangeRequest request) {
-
-        String loginRole = getLoginRole();
-        log.info("로그인 role = {}", loginRole);
-
-        lessonLockFacade.lessonConcurrencyCheck(() ->
-                lessonService.changePtLesson(lessonId, loginRole, request),
-            lessonLockFacade.generateKey(request.getDate(), request.getTime())
-        );
     }
 
     private String getLoginRole() {

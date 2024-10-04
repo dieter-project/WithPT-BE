@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.lesson.controller.response;
+package com.sideproject.withpt.application.lesson.repository.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
 import com.sideproject.withpt.application.type.LessonStatus;
@@ -12,27 +12,30 @@ import lombok.ToString;
 @Getter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class LessonInfo {
+public class LessonInfoResponse {
 
     private Long lessonId;
     private LocalDate date;
     private LocalTime startTime;
     private LessonStatus status;
+    private String registeredBy;
     private Member member;
     private Gym gym;
 
     @QueryProjection
-    public LessonInfo(Long lessonId, LocalDate date, LocalTime startTime, LessonStatus status, Member member, Gym gym) {
+    public LessonInfoResponse(Long lessonId, LocalDate date, LocalTime startTime, LessonStatus status, String registeredBy, Member member, Gym gym) {
         this.lessonId = lessonId;
         this.date = date;
         this.startTime = startTime;
         this.status = status;
+        this.registeredBy = registeredBy;
         this.member = member;
         this.gym = gym;
     }
 
     @Getter
     public static class Member {
+
         private final Long id;
         private final String name;
 
@@ -45,6 +48,7 @@ public class LessonInfo {
 
     @Getter
     public static class Gym {
+
         private final Long id;
         private final String name;
 

@@ -4,6 +4,7 @@ public enum LessonStatus {
     RESERVED("예약"),
     PENDING_APPROVAL("승인 대기 중"),
     COMPLETION("완료"),
+    TIME_OUT_CANCELED("자동 취소"),
     CANCELED("취소");
 
     private final String status;

@@ -2,13 +2,7 @@ package com.sideproject.withpt.application.lesson.controller.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sideproject.withpt.application.type.Day;
-import com.sideproject.withpt.application.type.LessonStatus;
-import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
-import com.sideproject.withpt.domain.gym.GymTrainer;
-import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.pt.Lesson;
-import com.sideproject.withpt.domain.pt.LessonSchedule;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import javax.validation.constraints.NotNull;
@@ -45,25 +39,5 @@ public class LessonRegistrationRequest {
         this.date = date;
         this.weekday = weekday;
         this.time = time;
-    }
-
-    public Lesson toEntity(Member member, GymTrainer gymTrainer, String loginRole) {
-        LessonSchedule firstRegisteredLesson = LessonSchedule.builder()
-            .date(this.date)
-            .time(this.time)
-            .weekday(this.weekday)
-            .build();
-
-        return Lesson.builder()
-            .member(member)
-            .gymTrainer(gymTrainer)
-            .schedule(firstRegisteredLesson)
-            .status(determineLessonStatusByRole(loginRole))
-            .registeredBy(loginRole)
-            .build();
-    }
-
-    private LessonStatus determineLessonStatusByRole(String loginRole) {
-        return loginRole.equals(Role.TRAINER.name()) ? LessonStatus.RESERVED : LessonStatus.PENDING_APPROVAL;
     }
 }

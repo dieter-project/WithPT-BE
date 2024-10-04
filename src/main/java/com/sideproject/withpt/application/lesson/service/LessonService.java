@@ -11,7 +11,7 @@ import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerReposi
 import com.sideproject.withpt.application.lesson.controller.request.LessonChangeRequest;
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
-import com.sideproject.withpt.application.lesson.controller.response.LessonInfo;
+import com.sideproject.withpt.application.lesson.repository.dto.LessonInfoResponse;
 import com.sideproject.withpt.application.lesson.controller.response.LessonMembersResponse;
 import com.sideproject.withpt.application.lesson.controller.response.PendingLessonInfo;
 import com.sideproject.withpt.application.lesson.exception.LessonException;
@@ -81,6 +81,21 @@ public class LessonService {
         return LessonRegistrationResponse.of(lesson, request.getRegistrationRequestId(), request.getRegistrationReceiverId());
     }
 
+    public LessonInfoResponse getLessonSchedule(Long lessonId) {
+        return lessonRepository.findLessonScheduleInfoBy(lessonId);
+    }
+
+    @Transactional
+    public void changePTLesson(Long lessonId, String loginRole, LessonChangeRequest request) {
+
+        Lesson lesson = lessonRepository.findById(lessonId)
+            .orElseThrow(() -> new LessonException(LESSON_NOT_FOUND));
+
+        validationLessonTime(lesson.getGymTrainer(), request.getDate(), request.getTime());
+
+        lesson.changeLessonSchedule(request.getDate(), request.getTime(), request.getWeekday(), loginRole);
+    }
+
     public AvailableLessonScheduleResponse getTrainerWorkSchedule(Long gymId, Long trainerId, Day weekday, LocalDate date) {
         Gym gym = gymService.getGymById(gymId);
 
@@ -131,10 +146,6 @@ public class LessonService {
         }
     }
 
-    public LessonInfo getLessonSchedule(Long lessonId) {
-        return lessonRepository.getLessonSchedule(lessonId);
-    }
-
     public List<LocalDate> getLessonScheduleOfMonth(Long trainerId, Long gymId, YearMonth date) {
         return lessonRepository.getLessonScheduleOfMonth(trainerId, gymId, date);
     }
@@ -159,17 +170,6 @@ public class LessonService {
                     throw new LessonException(LESSON_NOT_FOUND);
                 }
             );
-    }
-
-    @Transactional
-    public void changePtLesson(Long lessonId, String loginRole, LessonChangeRequest request) {
-
-        Lesson lesson = lessonRepository.findById(lessonId)
-            .orElseThrow(() -> new LessonException(LESSON_NOT_FOUND));
-
-        validationLessonTime(lesson.getGymTrainer(), request.getDate(), request.getTime());
-
-        lesson.changeLessonSchedule(request.getDate(), request.getTime(), request.getWeekday(), loginRole);
     }
 
     private Member getMemberBasedOnRole(LessonRegistrationRequest request, String loginRole) {

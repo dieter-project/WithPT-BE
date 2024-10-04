@@ -1,5 +1,7 @@
 package com.sideproject.withpt.application.lesson.repository;
 
+import static com.sideproject.withpt.domain.gym.QGym.gym;
+import static com.sideproject.withpt.domain.member.QMember.member;
 import static com.sideproject.withpt.domain.pt.QLesson.lesson;
 import static com.sideproject.withpt.domain.trainer.QWorkSchedule.workSchedule;
 
@@ -8,10 +10,10 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.DateTemplate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sideproject.withpt.application.lesson.controller.response.LessonInfo;
-import com.sideproject.withpt.application.lesson.controller.response.QLessonInfo;
-import com.sideproject.withpt.application.lesson.controller.response.QLessonInfo_Gym;
-import com.sideproject.withpt.application.lesson.controller.response.QLessonInfo_Member;
+import com.sideproject.withpt.application.lesson.repository.dto.LessonInfoResponse;
+import com.sideproject.withpt.application.lesson.repository.dto.QLessonInfoResponse;
+import com.sideproject.withpt.application.lesson.repository.dto.QLessonInfoResponse_Gym;
+import com.sideproject.withpt.application.lesson.repository.dto.QLessonInfoResponse_Member;
 import com.sideproject.withpt.application.type.Day;
 import com.sideproject.withpt.application.type.LessonStatus;
 import com.sideproject.withpt.domain.gym.Gym;
@@ -90,19 +92,20 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
     }
 
     @Override
-    public List<LessonInfo> getLessonScheduleMembers(Long trainerId, Long gymId, LocalDate date, LessonStatus status) {
+    public List<LessonInfoResponse> getLessonScheduleMembers(Long trainerId, Long gymId, LocalDate date, LessonStatus status) {
         return jpaQueryFactory
             .select(
-                new QLessonInfo(
+                new QLessonInfoResponse(
                     lesson.id,
                     lesson.schedule.date,
                     lesson.schedule.time,
                     lesson.status,
-                    new QLessonInfo_Member(
+                    lesson.registeredBy,
+                    new QLessonInfoResponse_Member(
                         lesson.member.id,
                         lesson.member.name
                     ),
-                    new QLessonInfo_Gym(
+                    new QLessonInfoResponse_Gym(
                         lesson.gym.id,
                         lesson.gym.name
                     )
@@ -125,27 +128,28 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
     }
 
     @Override
-    public LessonInfo getLessonSchedule(Long lessonId) {
+    public LessonInfoResponse findLessonScheduleInfoBy(Long lessonId) {
         return jpaQueryFactory
             .select(
-                new QLessonInfo(
+                new QLessonInfoResponse(
                     lesson.id,
                     lesson.schedule.date,
                     lesson.schedule.time,
                     lesson.status,
-                    new QLessonInfo_Member(
-                        lesson.member.id,
-                        lesson.member.name
+                    lesson.registeredBy,
+                    new QLessonInfoResponse_Member(
+                        member.id,
+                        member.name
                     ),
-                    new QLessonInfo_Gym(
-                        lesson.gym.id,
-                        lesson.gym.name
+                    new QLessonInfoResponse_Gym(
+                        gym.id,
+                        gym.name
                     )
                 )
             )
             .from(lesson)
-            .join(lesson.member)
-            .join(lesson.gym)
+            .join(lesson.member, member)
+            .join(lesson.gymTrainer.gym, gym)
             .where(
                 lesson.id.eq(lessonId)
             )
