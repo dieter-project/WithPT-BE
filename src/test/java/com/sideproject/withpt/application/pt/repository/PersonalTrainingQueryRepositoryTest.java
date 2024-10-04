@@ -29,8 +29,10 @@ import com.sideproject.withpt.domain.pt.PersonalTrainingInfo;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,13 +41,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
-//@Transactional
-//@ActiveProfiles("test")
+@Transactional
+@ActiveProfiles("test")
 @SpringBootTest
 class PersonalTrainingQueryRepositoryTest {
 
@@ -441,20 +442,23 @@ class PersonalTrainingQueryRepositoryTest {
 
         LocalDate date = LocalDate.of(2024, 9, 10);
         int size = 12;
+        YearMonth startDate = YearMonth.of(date.minusMonths(size).getYear(), date.minusMonths(size).getMonth());
+        YearMonth endDate = YearMonth.of(date.getYear(), date.getMonth());
+
         PtRegistrationStatus registrationStatus = PtRegistrationStatus.NEW_REGISTRATION;
 
         // when
-        List<MonthlyMemberCount> result = personalTrainingRepository.getPTMemberCountByRegistrationStatus(List.of(gymTrainer1, gymTrainer2), date, size, registrationStatus);
+        List<MonthlyMemberCount> result = personalTrainingRepository.getPTMemberCountByRegistrationStatus(List.of(gymTrainer1, gymTrainer2), startDate, endDate, registrationStatus);
 
         log.info("결과 {}", result);
         // then
         assertThat(result).hasSize(4)
             .extracting("date", "count")
             .containsExactly(
-                tuple("2024-09", 1),
-                tuple("2024-07", 2),
-                tuple("2024-02", 1),
-                tuple("2023-12", 1)
+                tuple("2024-09", 1L),
+                tuple("2024-07", 2L),
+                tuple("2024-02", 1L),
+                tuple("2023-12", 1L)
             );
     }
 
@@ -510,32 +514,30 @@ class PersonalTrainingQueryRepositoryTest {
         LocalDate date = LocalDate.of(2024, 9, 10);
         int size = 12;
         PtRegistrationStatus registrationStatus = PtRegistrationStatus.RE_REGISTRATION;
-
+        YearMonth startDate = YearMonth.of(date.minusMonths(size).getYear(), date.minusMonths(size).getMonth());
+        YearMonth endDate = YearMonth.of(date.getYear(), date.getMonth());
         // when
-        List<MonthlyMemberCount> result = personalTrainingRepository.getPTMemberCountByRegistrationStatus(List.of(gymTrainer1, gymTrainer2), date, size, registrationStatus);
+        List<MonthlyMemberCount> result = personalTrainingRepository.getPTMemberCountByRegistrationStatus(List.of(gymTrainer1, gymTrainer2), startDate, endDate, registrationStatus);
 
         log.info("결과 {}", result);
         // then
         assertThat(result).hasSize(4)
             .extracting("date", "count")
             .containsExactly(
-                tuple("2024-09", 2),
-                tuple("2024-08", 1),
-                tuple("2024-07", 1),
-                tuple("2024-06", 2)
+                tuple("2024-09", 2L),
+                tuple("2024-08", 1L),
+                tuple("2024-07", 1L),
+                tuple("2024-06", 2L)
             );
     }
 
-    @DisplayName("getExistingMemberCount")
-    @Rollback(value = false)
+    @DisplayName("기존 회원 수 조회")
     @Test
     void getExistingMemberCount() {
         // given
-
         Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
 
         Member member1 = memberRepository.save(createMember("회원1"));
-        Member member2 = memberRepository.save(createMember("회원2"));
 
         Gym gym1 = gymRepository.save(createGym("체육관1"));
 
@@ -551,13 +553,18 @@ class PersonalTrainingQueryRepositoryTest {
         personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 9, 1, 0, 0), PtRegistrationStatus.NEW_REGISTRATION, personalTraining1));
 
         // 2회 재등록
+        Member member2 = memberRepository.save(createMember("회원2"));
+
         PersonalTraining personalTraining2 = personalTrainingRepository.save(createPersonalTraining(member2, gymTrainer1, PtRegistrationStatus.RE_REGISTRATION, LocalDateTime.of(2024, 7, 1, 0, 0), LocalDateTime.of(2024, 9, 1, 0, 0)));
         personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 7, 1, 0, 0), PtRegistrationStatus.NEW_REGISTRATION, personalTraining2));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 9, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining2));
         personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 9, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining2));
 
         Member member3 = memberRepository.save(createMember("회원3"));
         Member member4 = memberRepository.save(createMember("회원4"));
         Member member5 = memberRepository.save(createMember("회원5"));
+        Member member6 = memberRepository.save(createMember("회원6"));
+        Member member7 = memberRepository.save(createMember("회원7"));
 
         Gym gym2 = gymRepository.save(createGym("체육관2"));
         GymTrainer gymTrainer2 = gymTrainerRepository.save(createGymTrainer(gym2, trainer, LocalDate.of(2024, 9, 30)));
@@ -574,21 +581,42 @@ class PersonalTrainingQueryRepositoryTest {
         personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 7, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining4));
 
         // 3회 재등록
-        PersonalTraining personalTraining5 = personalTrainingRepository.save(createPersonalTraining(member5, gymTrainer2, PtRegistrationStatus.RE_REGISTRATION, LocalDateTime.of(2023, 12, 1, 0, 0), LocalDateTime.of(2024, 8, 1, 0, 0)));
+        PersonalTraining personalTraining5 = personalTrainingRepository.save(createPersonalTraining(member5, gymTrainer2, PtRegistrationStatus.RE_REGISTRATION, LocalDateTime.of(2023, 12, 1, 0, 0), LocalDateTime.of(2024, 2, 1, 0, 0)));
         personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2023, 12, 1, 0, 0), PtRegistrationStatus.NEW_REGISTRATION, personalTraining5));
-        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 6, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining5));
-        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 8, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining5));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 1, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining5));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 2, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining5));
+
+        PersonalTraining personalTraining6 = personalTrainingRepository.save(createPersonalTraining(member6, gymTrainer2, PtRegistrationStatus.RE_REGISTRATION, LocalDateTime.of(2023, 10, 1, 0, 0), LocalDateTime.of(2024, 5, 1, 0, 0)));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2023, 10, 1, 0, 0), PtRegistrationStatus.NEW_REGISTRATION, personalTraining6));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 3, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining6));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 5, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining6));
+
+        PersonalTraining personalTraining7 = personalTrainingRepository.save(createPersonalTraining(member7, gymTrainer2, PtRegistrationStatus.RE_REGISTRATION, LocalDateTime.of(2023, 9, 1, 0, 0), LocalDateTime.of(2024, 11, 1, 0, 0)));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2023, 9, 1, 0, 0), PtRegistrationStatus.NEW_REGISTRATION, personalTraining7));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 2, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining7));
+        personalTrainingInfoRepository.save(PersonalTrainingInfo.createPTInfo(30, LocalDateTime.of(2024, 11, 1, 0, 0), PtRegistrationStatus.RE_REGISTRATION, personalTraining7));
 
         LocalDate date = LocalDate.of(2024, 9, 10);
-        int size = 12;
-        PtRegistrationStatus registrationStatus = PtRegistrationStatus.RE_REGISTRATION;
+        int size = 5;
+        YearMonth startDate = YearMonth.of(date.minusMonths(size).getYear(), date.minusMonths(size).getMonth());
+        YearMonth endDate = YearMonth.of(date.getYear(), date.getMonth());
 
         // when
-        List<MonthlyMemberCount> existingMemberCount = personalTrainingRepository.getExistingMemberCount(List.of(gymTrainer1, gymTrainer2), date, size);
+        Map<String, Long> existingMemberCount = personalTrainingRepository.getExistingMemberCount(List.of(gymTrainer1, gymTrainer2), startDate, endDate);
 
         log.info("결과 {}", existingMemberCount);
-        // then
 
+        // then
+        Map<String, Long> actualResult = new HashMap<>();
+        actualResult.put("2024-04", 4L);
+        actualResult.put("2024-05", 3L);
+        actualResult.put("2024-06", 3L);
+        actualResult.put("2024-07", 3L);
+        actualResult.put("2024-08", 6L);
+        actualResult.put("2024-09", 4L);
+
+        assertThat(existingMemberCount).hasSize(actualResult.size());
+        assertThat(existingMemberCount).isEqualTo(actualResult);
     }
 
     private PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, PtRegistrationStatus registrationStatus, LocalDateTime centerFirstRegistrationMonth, LocalDateTime centerLastReRegistrationMonth) {

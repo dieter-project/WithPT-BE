@@ -1,5 +1,7 @@
 package com.sideproject.withpt.application.pt.service;
 
+import static com.sideproject.withpt.application.pt.exception.PtConstants.MAX_QUERY_MONTHS;
+
 import com.sideproject.withpt.application.gym.exception.GymException;
 import com.sideproject.withpt.application.gym.repositoy.GymQueryRepository;
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
@@ -13,19 +15,20 @@ import com.sideproject.withpt.application.pt.controller.response.AssignedPTInfoR
 import com.sideproject.withpt.application.pt.controller.response.CountOfMembersAndGymsResponse;
 import com.sideproject.withpt.application.pt.controller.response.GymResponse;
 import com.sideproject.withpt.application.pt.controller.response.MemberDetailInfoResponse;
+import com.sideproject.withpt.application.pt.controller.response.MonthlyStatisticsResponse;
+import com.sideproject.withpt.application.pt.controller.response.MonthlyStatisticsResponse.MonthStatistic;
 import com.sideproject.withpt.application.pt.controller.response.PersonalTrainingMemberResponse;
-import com.sideproject.withpt.application.pt.controller.response.PtStatisticResponse;
-import com.sideproject.withpt.application.pt.controller.response.PtStatisticResponse.MonthStatistics;
-import com.sideproject.withpt.application.pt.controller.response.PtStatisticResponse.MonthlyMemberCount;
 import com.sideproject.withpt.application.pt.controller.response.ReRegistrationHistoryResponse;
 import com.sideproject.withpt.application.pt.controller.response.TotalAndRemainingPtCountResponse;
 import com.sideproject.withpt.application.pt.controller.response.TotalPtsCountResponse;
+import com.sideproject.withpt.application.pt.exception.PTErrorCode;
 import com.sideproject.withpt.application.pt.exception.PTException;
 import com.sideproject.withpt.application.pt.repository.PTCountLogRepository;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingInfoRepository;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
 import com.sideproject.withpt.application.pt.repository.dto.EachGymMemberListResponse;
 import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
+import com.sideproject.withpt.application.pt.repository.dto.MonthlyMemberCount;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.application.type.PtRegistrationStatus;
@@ -40,11 +43,11 @@ import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -67,7 +70,6 @@ public class PersonalTrainingService {
 
     private final PersonalTrainingRepository personalTrainingRepository;
     private final PersonalTrainingInfoRepository trainingInfoRepository;
-    private final GymQueryRepository gymQueryRepository;
 
     private final PTCountLogRepository ptCountLogRepository;
 
@@ -200,24 +202,6 @@ public class PersonalTrainingService {
         );
     }
 
-    public TotalPtsCountResponse countOfAllPtMembers(Long trainerId) {
-        return TotalPtsCountResponse.from(
-            personalTrainingRepository.countOfAllPtMembers(trainerId)
-        );
-    }
-
-    public GymMemberCountDto getGymAndNumberOfMembers(Long trainerId, Long gymId) {
-        Trainer trainer = trainerRepository.findById(trainerId)
-            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-        Gym gym = gymRepository.findById(gymId)
-            .orElseThrow(() -> GymException.GYM_NOT_FOUND);
-
-        return GymMemberCountDto.builder()
-            .gymName(gym.getName())
-            .memberCount(personalTrainingRepository.countByGymAndTrainer(gym, trainer))
-            .build();
-    }
-
     @Transactional
     public void updatePtMemberDetailInfo(Long ptId, UpdatePtMemberDetailInfoRequest request) {
 
@@ -228,8 +212,7 @@ public class PersonalTrainingService {
         PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
-        personalTraining.updatePtDetailInfo(personalTraining, request.getTotalPtCount(), request.getRemainingPtCount(),
-            request.getNote());
+        personalTraining.updatePtDetailInfo(personalTraining, request.getTotalPtCount(), request.getRemainingPtCount(), request.getNote());
 
         int beforeTotalPtCount = personalTraining.getTotalPtCount();
         int beforeRemainingPtCount = personalTraining.getRemainingPtCount();
@@ -271,56 +254,38 @@ public class PersonalTrainingService {
         return personalTrainingRepository.findPtAssignedTrainerInformation(member);
     }
 
-    public List<MemberDetailInfoResponse> getPtAssignedMembersInformation(Long trainerId, Long gymId, String name) {
+    public List<MemberDetailInfoResponse> searchPtMembersInformation(Long trainerId, Long gymId, String name) {
         Trainer trainer = trainerRepository.findById(trainerId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         Gym gym = gymRepository.findById(gymId)
             .orElse(null);
 
-        List<GymTrainer> gymTrainers = gymTrainerRepository.findAllTrainerAndOptionalGym(trainer, gym);
+        List<GymTrainer> gymTrainers = gymTrainerRepository.findAllTrainerAndGym(trainer, gym);
 
         return personalTrainingRepository.findAllPTMembersInfoBy(gymTrainers, name);
     }
 
-    public PtStatisticResponse getPtStatistics(Long trainerId, LocalDate current, int size) {
+    public MonthlyStatisticsResponse getPtStatistics(Long trainerId, LocalDate date, int size) {
+        if (size > MAX_QUERY_MONTHS) {
+            throw new PTException(PTErrorCode.MAX_QUERY_MONTHS);
+        }
+
         Trainer trainer = trainerRepository.findById(trainerId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
-        Map<YearMonth, Long> monthlyCountsMap = personalTrainingRepository.calculatePTStatistic(trainer, current)
-            .stream()
-            .collect(Collectors.toMap(
-                monthlyMemberCount -> YearMonth.parse(monthlyMemberCount.getDate()),
-                PtStatisticResponse.MonthlyMemberCount::getCount,
-                (existing, replacement) -> replacement,
-                LinkedHashMap::new
-            ));
+        List<GymTrainer> gymTrainers = gymTrainerRepository.findAllByTrainer(trainer);
 
-        List<MonthlyMemberCount> statistic = IntStream.range(0, size)
-            .mapToObj(i -> {
-                YearMonth yearMonth = YearMonth.from(current.minusMonths(i));
-                long count = monthlyCountsMap.getOrDefault(yearMonth, 0L);
-                return new MonthlyMemberCount(yearMonth.toString(), count);
-            })
-            .collect(Collectors.toList());
+        LocalDate startLocalDate = date.minusMonths(size - 1);
+        YearMonth startDate = YearMonth.of(startLocalDate.getYear(), startLocalDate.getMonth());
+        YearMonth endDate = YearMonth.of(date.getYear(), date.getMonth());
 
-        return PtStatisticResponse.of(
-            MonthStatistics.builder()
-                .currentDate(current)
-                .existingMemberCount(
-                    personalTrainingRepository.getExistingMemberCount(trainer, current)
-                        .orElse(0L)
-                )
-                .reEnrolledMemberCount(
-                    personalTrainingRepository.getMemberCountThisMonthByRegistrationStatus(trainer, current, PtRegistrationStatus.RE_REGISTRATION)
-                        .orElse(0L)
-                )
-                .newMemberCount(
-                    personalTrainingRepository.getMemberCountThisMonthByRegistrationStatus(trainer, current, PtRegistrationStatus.NEW_REGISTRATION)
-                        .orElse(0L)
-                )
-                .build(),
-            statistic
+        Map<String, Long> newRegistrationPTMemberCountMap = getPtMemberCountMap(gymTrainers, startDate, endDate, PtRegistrationStatus.NEW_REGISTRATION);
+        Map<String, Long> reRegistrationPTMemberCountMap = getPtMemberCountMap(gymTrainers, startDate, endDate, PtRegistrationStatus.RE_REGISTRATION);
+        Map<String, Long> existingMemberCountMap = personalTrainingRepository.getExistingMemberCount(gymTrainers, startDate, endDate);
+
+        return MonthlyStatisticsResponse.of(
+            mergeMonthStatistics(startDate, endDate, newRegistrationPTMemberCountMap, reRegistrationPTMemberCountMap, existingMemberCountMap)
         );
     }
 
@@ -373,5 +338,68 @@ public class PersonalTrainingService {
         if (personalTraining.getRemainingPtCount() > 0) {
             throw new GlobalException(HttpStatus.BAD_REQUEST, id + "번 PT는 잔여 PT 횟수가 남아 있습니다. 정말 해제하시겠습니까?");
         }
+    }
+
+    private Map<String, Long> getPtMemberCountMap(List<GymTrainer> gymTrainers, YearMonth startDate, YearMonth endDate, PtRegistrationStatus ptRegistrationStatus) {
+        List<MonthlyMemberCount> newRegistrationPTMembers = personalTrainingRepository.getPTMemberCountByRegistrationStatus(gymTrainers, startDate, endDate, ptRegistrationStatus);
+        return fillMissingMonths(newRegistrationPTMembers, startDate, endDate);
+    }
+
+    public Map<String, Long> fillMissingMonths(List<MonthlyMemberCount> memberCounts, YearMonth startDate, YearMonth endDate) {
+
+        Map<String, Long> originalMap = memberCounts.stream()
+            .collect(Collectors.toMap(
+                MonthlyMemberCount::getDate,
+                MonthlyMemberCount::getCount
+            ));
+
+        LinkedHashMap<String, Long> resultMap = new LinkedHashMap<>();
+
+        YearMonth current = startDate;
+        while (!current.isAfter(endDate)) {
+            String yearMonthString = current.toString();
+            resultMap.put(yearMonthString, originalMap.getOrDefault(yearMonthString, 0L));
+            current = current.plusMonths(1);
+        }
+
+        return resultMap;
+    }
+
+    private static List<MonthStatistic> mergeMonthStatistics(YearMonth startDate, YearMonth endDate, Map<String, Long> newRegistrationPTMemberCountMap, Map<String, Long> reRegistrationPTMemberCountMap, Map<String, Long> existingMemberCountMap) {
+        List<MonthStatistic> result = new ArrayList<>();
+        for (YearMonth month = endDate; month.isAfter(startDate) || month.equals(startDate); month = month.minusMonths(1)) {
+            String key = month.toString();
+
+            Long existingMemberCount = existingMemberCountMap.get(key);
+            Long reMemberCount = reRegistrationPTMemberCountMap.get(key);
+            Long newMembersCount = newRegistrationPTMemberCountMap.get(key);
+
+            result.add(
+                MonthStatistic.builder()
+                    .date(month)
+                    .existingMemberCount(existingMemberCount)
+                    .reEnrolledMemberCount(reMemberCount)
+                    .newMemberCount(newMembersCount)
+                    .build());
+        }
+        return result;
+    }
+
+    public TotalPtsCountResponse countOfAllPtMembers(Long trainerId) {
+        return TotalPtsCountResponse.from(
+            personalTrainingRepository.countOfAllPtMembers(trainerId)
+        );
+    }
+
+    public GymMemberCountDto getGymAndNumberOfMembers(Long trainerId, Long gymId) {
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+        Gym gym = gymRepository.findById(gymId)
+            .orElseThrow(() -> GymException.GYM_NOT_FOUND);
+
+        return GymMemberCountDto.builder()
+            .gymName(gym.getName())
+            .memberCount(personalTrainingRepository.countByGymAndTrainer(gym, trainer))
+            .build();
     }
 }

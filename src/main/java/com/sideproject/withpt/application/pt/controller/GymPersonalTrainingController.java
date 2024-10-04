@@ -1,7 +1,5 @@
 package com.sideproject.withpt.application.pt.controller;
 
-import static com.sideproject.withpt.application.pt.exception.PtConstants.MAX_QUERY_MONTHS;
-
 import com.sideproject.withpt.application.pt.controller.request.ExtendPtRequest;
 import com.sideproject.withpt.application.pt.controller.request.RemovePtMembersRequest;
 import com.sideproject.withpt.application.pt.controller.request.SavePtMemberDetailInfoRequest;
@@ -12,8 +10,6 @@ import com.sideproject.withpt.application.pt.controller.response.MemberDetailInf
 import com.sideproject.withpt.application.pt.controller.response.MonthlyStatisticsResponse;
 import com.sideproject.withpt.application.pt.controller.response.PersonalTrainingMemberResponse;
 import com.sideproject.withpt.application.pt.controller.response.ReRegistrationHistoryResponse;
-import com.sideproject.withpt.application.pt.exception.PTErrorCode;
-import com.sideproject.withpt.application.pt.exception.PTException;
 import com.sideproject.withpt.application.pt.repository.dto.EachGymMemberListResponse;
 import com.sideproject.withpt.application.pt.service.PersonalTrainingService;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
@@ -178,16 +174,11 @@ public class GymPersonalTrainingController {
         );
     }
 
-    // TODO : TEST 작성 필요
     @Operation(summary = "PT 회원 통계 정보 조회")
     @GetMapping("/api/v1/personal-trainings/members-statistics")
     public ApiSuccessResponse<MonthlyStatisticsResponse> getPtStatistics(@Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam LocalDate date,
         @RequestParam(defaultValue = "12") int size) {
-
-        if (size > MAX_QUERY_MONTHS) {
-            throw new PTException(PTErrorCode.MAX_QUERY_MONTHS);
-        }
 
         return ApiSuccessResponse.from(
             personalTrainingService.getPtStatistics(trainerId, date, size)

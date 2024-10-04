@@ -10,5 +10,5 @@ import org.springframework.data.domain.Slice;
 public interface GymTrainerQueryRepository {
 
     Slice<GymTrainer> findAllPageableByTrainer(Trainer trainer, Pageable pageable);
-    List<GymTrainer> findAllTrainerAndOptionalGym(Trainer trainer, Gym gym);
+    List<GymTrainer> findAllTrainerAndGym(Trainer trainer, Gym gym);
 }

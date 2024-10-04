@@ -75,7 +75,7 @@ class GymTrainerQueryRepositoryTest {
 
     @DisplayName("트레이너가 소속된 특정 하나의 체육관만 조회할 수 있다.")
     @Test
-    void findAllTrainerAndOptionalGym() {
+    void findAllTrainerAndGym() {
         // given
         Trainer trainer = trainerRepository.save(createTrainer("test 트레이너"));
 
@@ -91,7 +91,7 @@ class GymTrainerQueryRepositoryTest {
         gymTrainerRepository.saveAll(gymTrainers);
 
         // when
-        List<GymTrainer> result = gymTrainerRepository.findAllTrainerAndOptionalGym(trainer, gym1);
+        List<GymTrainer> result = gymTrainerRepository.findAllTrainerAndGym(trainer, gym1);
 
         // then
         assertThat(result).hasSize(1);
@@ -103,7 +103,7 @@ class GymTrainerQueryRepositoryTest {
 
     @DisplayName("Gym 이 NULL 일 때 트레이너가 소속된 체육관 전체가 조회된다.")
     @Test
-    void findAllTrainerAndOptionalGymWhenGymIsNULL() {
+    void findAllTrainerAndGymWhenGymIsNULL() {
         // given
         Trainer trainer = trainerRepository.save(createTrainer("test 트레이너"));
 
@@ -119,7 +119,7 @@ class GymTrainerQueryRepositoryTest {
         gymTrainerRepository.saveAll(gymTrainers);
 
         // when
-        List<GymTrainer> result = gymTrainerRepository.findAllTrainerAndOptionalGym(trainer, null);
+        List<GymTrainer> result = gymTrainerRepository.findAllTrainerAndGym(trainer, null);
 
         // then
         assertThat(result).hasSize(3)

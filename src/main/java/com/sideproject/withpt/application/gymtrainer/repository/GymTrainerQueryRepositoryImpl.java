@@ -43,7 +43,7 @@ public class GymTrainerQueryRepositoryImpl implements GymTrainerQueryRepository 
     }
 
     @Override
-    public List<GymTrainer> findAllTrainerAndOptionalGym(Trainer trainer, Gym gym) {
+    public List<GymTrainer> findAllTrainerAndGym(Trainer trainer, Gym gym) {
         return jpaQueryFactory
             .selectFrom(gymTrainer)
             .where(

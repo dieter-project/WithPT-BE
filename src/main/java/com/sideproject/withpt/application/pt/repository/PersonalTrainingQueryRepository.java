@@ -13,10 +13,10 @@ import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
@@ -41,9 +41,9 @@ public interface PersonalTrainingQueryRepository {
 
     List<MemberDetailInfoResponse> findAllPTMembersInfoBy(List<GymTrainer> gymTrainers, String name);
 
-    List<MonthlyMemberCount> getPTMemberCountByRegistrationStatus(List<GymTrainer> gymTrainers, LocalDate date, int size, PtRegistrationStatus status);
+    List<MonthlyMemberCount> getPTMemberCountByRegistrationStatus(List<GymTrainer> gymTrainers, YearMonth startDate, YearMonth endDate, PtRegistrationStatus status);
 
-    List<MonthlyMemberCount> getExistingMemberCount(List<GymTrainer> gymTrainers, LocalDate date, int size);
+    Map<String, Long> getExistingMemberCount(List<GymTrainer> gymTrainers, YearMonth startDate, YearMonth endDate);
 
 
 }
