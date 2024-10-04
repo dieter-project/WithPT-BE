@@ -8,11 +8,11 @@ import com.sideproject.withpt.application.lesson.controller.response.LessonMembe
 import com.sideproject.withpt.application.lesson.controller.response.PendingLessonInfo;
 import com.sideproject.withpt.application.lesson.service.LessonLockFacade;
 import com.sideproject.withpt.application.lesson.service.LessonService;
+import com.sideproject.withpt.application.lesson.service.response.LessonRegistrationResponse;
 import com.sideproject.withpt.application.type.Day;
 import com.sideproject.withpt.application.type.LessonRequestStatus;
 import com.sideproject.withpt.application.type.LessonStatus;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
-import com.sideproject.withpt.domain.pt.Lesson;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import java.time.LocalDate;
@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -48,18 +47,18 @@ public class LessonController {
     private final LessonLockFacade lessonLockFacade;
 
     @Operation(summary = "수업관리/스케줄 - 수업등록")
-    @PostMapping("/gyms/{gymId}/lessons")
-    public void registrationPtLesson(@PathVariable Long gymId,
-        @Parameter(hidden = true) @AuthenticationPrincipal Long loginId,
+    @PostMapping("/lessons/gyms/{gymId}")
+    public ApiSuccessResponse<LessonRegistrationResponse> registrationPtLesson(@PathVariable Long gymId,
         @Valid @RequestBody LessonRegistrationRequest request) {
 
         String loginRole = getLoginRole();
         log.info("로그인 role = {}", loginRole);
 
-        lessonLockFacade.lessonConcurrencyCheck(() ->
-                lessonService.registrationPtLesson(gymId, loginId, loginRole, request),
+        LessonRegistrationResponse response = lessonLockFacade.lessonConcurrencyCheck(() ->
+                lessonService.registrationPTLesson(gymId, loginRole, request),
             lessonLockFacade.generateKey(request.getDate(), request.getTime())
         );
+        return ApiSuccessResponse.from(response);
     }
 
     @Operation(summary = "예약 가능한 수업 시간표 조회")

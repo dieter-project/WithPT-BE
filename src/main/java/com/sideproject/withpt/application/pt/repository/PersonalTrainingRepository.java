@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PersonalTrainingRepository extends JpaRepository<PersonalTraining, Long>, PersonalTrainingQueryRepository {
 
-    Optional<PersonalTraining> findByMemberAndTrainerAndGym(Member member, Trainer trainer, Gym gym);
+    Optional<PersonalTraining> findByMemberAndGymTrainer(Member member, GymTrainer gymTrainer);
 
     boolean existsByMemberAndGymTrainer(Member member, GymTrainer gymTrainer);
 }

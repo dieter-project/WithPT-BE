@@ -2,8 +2,10 @@ package com.sideproject.withpt.domain.pt;
 
 import com.sideproject.withpt.application.type.Day;
 import com.sideproject.withpt.application.type.LessonStatus;
+import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.domain.gym.Gym;
+import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
@@ -22,19 +24,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Entity
 @Getter
-@Setter(AccessLevel.PROTECTED)
-@ToString(exclude = {"member", "trainer", "gym"})
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Lesson extends BaseEntity {
 
@@ -54,6 +50,10 @@ public class Lesson extends BaseEntity {
     @JoinColumn(name = "gym_id")
     private Gym gym;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gym_trainer_id")
+    private GymTrainer gymTrainer;
+
     @Embedded
     private LessonSchedule schedule;
 
@@ -71,6 +71,17 @@ public class Lesson extends BaseEntity {
     private String registeredBy;
 
     private String modifiedBy;
+
+    @Builder
+    private Lesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonSchedule beforeSchedule, LessonStatus status, String registeredBy, String modifiedBy) {
+        this.member = member;
+        this.gymTrainer = gymTrainer;
+        this.schedule = schedule;
+        this.beforeSchedule = beforeSchedule;
+        this.status = status;
+        this.registeredBy = registeredBy;
+        this.modifiedBy = modifiedBy;
+    }
 
     public void changeLessonStatus(LessonStatus status) {
         this.status = status;
@@ -91,5 +102,23 @@ public class Lesson extends BaseEntity {
                 .build());
         this.status = LessonStatus.PENDING_APPROVAL;
         this.modifiedBy = loginRole;
+    }
+
+    public static Lesson createNewLessonRegistration(Member member, GymTrainer gymTrainer, LocalDate date, LocalTime time, Day weekday, String loginRole) {
+        LessonSchedule firstRegisteredLesson = LessonSchedule.builder()
+            .date(date)
+            .time(time)
+            .weekday(weekday)
+            .build();
+
+        return Lesson.builder()
+            .member(member)
+            .gymTrainer(gymTrainer)
+            .schedule(firstRegisteredLesson)
+            .status(
+                loginRole.equals(Role.TRAINER.name()) ? LessonStatus.RESERVED : LessonStatus.PENDING_APPROVAL
+            )
+            .registeredBy(loginRole)
+            .build();
     }
 }

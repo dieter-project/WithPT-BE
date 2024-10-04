@@ -15,4 +15,12 @@ public enum LessonStatus {
     public String getStatus() {
         return status;
     }
+
+    public static boolean isReserved(LessonStatus status) {
+        return status == RESERVED;
+    }
+
+    public static boolean isPendingApproval(LessonStatus status) {
+        return status == PENDING_APPROVAL;
+    }
 }

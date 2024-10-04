@@ -7,8 +7,9 @@ import java.time.LocalTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface LessonRepository extends JpaRepository<Lesson, Long> {
+public interface LessonRepository extends JpaRepository<Lesson, Long>, LessonQueryRepository {
 
     List<Lesson> findAllByScheduleDateAndScheduleTimeAndStatus(LocalDate date, LocalTime time, LessonStatus status);
+
     List<Lesson> findAllByTrainerIdAndStatus(Long trainerId, LessonStatus status);
 }
