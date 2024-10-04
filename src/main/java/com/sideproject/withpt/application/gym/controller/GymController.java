@@ -31,16 +31,16 @@ public class GymController {
         );
     }
 
-    @Operation(summary = "체육관에 등록된 회원이름 검색")
-    @GetMapping("/{gymId}/members/search")
-    public ApiSuccessResponse<Slice<SearchMemberResponse>> searchPtMemberInGym(
-        @PathVariable Long gymId,
-        @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
-        @RequestParam(required = false) String name,
-        Pageable pageable) {
-
-        return ApiSuccessResponse.from(
-            gymQueryService.searchMembersByGymIdAndName(gymId, trainerId, name, pageable)
-        );
-    }
+//    @Operation(summary = "체육관에 등록된 회원이름 검색")
+//    @GetMapping("/{gymId}/members/search")
+//    public ApiSuccessResponse<Slice<SearchMemberResponse>> searchPtMemberInGym(
+//        @PathVariable Long gymId,
+//        @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
+//        @RequestParam(required = false) String name,
+//        Pageable pageable) {
+//
+//        return ApiSuccessResponse.from(
+//            gymQueryService.searchMembersByGymIdAndName(gymId, trainerId, name, pageable)
+//        );
+//    }
 }
