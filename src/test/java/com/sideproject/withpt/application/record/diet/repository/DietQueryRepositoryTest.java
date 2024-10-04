@@ -11,8 +11,8 @@ import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.record.diet.repository.response.DietFoodDto;
 import com.sideproject.withpt.application.record.diet.repository.response.DietInfoDto;
 import com.sideproject.withpt.application.record.diet.repository.response.ImageDto;
-import com.sideproject.withpt.application.type.DietType;
 import com.sideproject.withpt.application.type.DietCategory;
+import com.sideproject.withpt.application.type.DietType;
 import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.application.type.Usages;
 import com.sideproject.withpt.domain.member.Member;
@@ -27,10 +27,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
-//@Transactional
+@Transactional
 @ActiveProfiles("test")
 @SpringBootTest
 class DietQueryRepositoryTest {
@@ -51,7 +51,6 @@ class DietQueryRepositoryTest {
     private DietQueryRepository dietQueryRepository;
 
     @DisplayName("식단으로 하위에 있는 식단 정보, 식단 음식, 음식 이미지를 조회할 수 있다.")
-    @Rollback(value = false)
     @Test
     void findAllDietInfoAndDietFoodByDiets() {
         // given

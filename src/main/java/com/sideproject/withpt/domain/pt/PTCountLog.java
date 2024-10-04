@@ -2,9 +2,6 @@ package com.sideproject.withpt.domain.pt;
 
 import com.sideproject.withpt.application.type.PtRegistrationStatus;
 import com.sideproject.withpt.domain.BaseEntity;
-import com.sideproject.withpt.domain.gym.Gym;
-import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDateTime;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -44,16 +41,13 @@ public class PTCountLog extends BaseEntity {
     @JoinColumn(name = "personal_training_id")
     private PersonalTraining personalTraining;
 
-    public static PTCountLog recordPTCountLog(
-        PersonalTraining personalTraining,
-        int totalPtCount, int remainingPtCount, LocalDateTime registrationDate, PtRegistrationStatus registrationStatus
-    ) {
+    public static PTCountLog recordPTCountLog(int totalPtCount, int remainingPtCount, LocalDateTime registrationDate, PtRegistrationStatus registrationStatus, PersonalTraining personalTraining) {
         return PTCountLog.builder()
-            .personalTraining(personalTraining)
             .totalPtCount(totalPtCount)
             .remainingPtCount(remainingPtCount)
             .registrationDate(registrationDate)
             .registrationStatus(registrationStatus)
+            .personalTraining(personalTraining)
             .build();
     }
 }

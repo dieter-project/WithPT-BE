@@ -37,6 +37,7 @@ public enum CommonErrorCode implements ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "특정할 수 없는 서버 에러 입니다."),
     FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 전송에 실패하였습니다."),
     FILE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 삭제에 실패하였습니다.");
+
     private final HttpStatus httpStatus;
     private final String message;
 }

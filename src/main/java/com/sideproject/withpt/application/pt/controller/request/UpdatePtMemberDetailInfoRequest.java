@@ -1,5 +1,6 @@
 package com.sideproject.withpt.application.pt.controller.request;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -7,7 +8,14 @@ import lombok.ToString;
 @ToString
 public class UpdatePtMemberDetailInfoRequest {
 
-    private int totalPtCount;
-    private int remainingPtCount;
-    private String note;
+    private final int totalPtCount;
+    private final int remainingPtCount;
+    private final String note;
+
+    @Builder
+    private UpdatePtMemberDetailInfoRequest(int totalPtCount, int remainingPtCount, String note) {
+        this.totalPtCount = totalPtCount;
+        this.remainingPtCount = remainingPtCount;
+        this.note = note;
+    }
 }

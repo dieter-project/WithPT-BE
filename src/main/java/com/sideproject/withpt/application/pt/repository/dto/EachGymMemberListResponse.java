@@ -1,6 +1,5 @@
-package com.sideproject.withpt.application.pt.controller.response;
+package com.sideproject.withpt.application.pt.repository.dto;
 
-import com.sideproject.withpt.application.pt.repository.dto.PtMemberListDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

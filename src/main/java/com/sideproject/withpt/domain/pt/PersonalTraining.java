@@ -53,15 +53,16 @@ public class PersonalTraining extends BaseEntity {
     @JoinColumn(name = "gym_id")
     private Gym gym;
 
+
     private int totalPtCount;
 
     private int remainingPtCount;
 
     private String note;
 
-    private LocalDateTime firstRegistrationDate; // 센터 등록월
+    private LocalDateTime centerFirstRegistrationMonth; // 센터 등록월
 
-    private LocalDateTime lastRegistrationDate; // 센터 마지막 재등록월
+    private LocalDateTime centerLastReRegistrationMonth; // 센터 마지막 재등록월
 
     private LocalDateTime registrationRequestDate; // 등록 요청 날짜
 
@@ -95,25 +96,26 @@ public class PersonalTraining extends BaseEntity {
         this.registrationAllowedDate = registrationAllowedDate;
     }
 
-    public static void saveFirstPtDetailInfo(PersonalTraining pt, int ptCount, LocalDateTime firstRegistrationDate, String note) {
-        pt.setTotalPtCount(ptCount);
-        pt.setRemainingPtCount(ptCount);
-        pt.setFirstRegistrationDate(firstRegistrationDate);
-        pt.setNote(note);
-        pt.setInfoInputStatus(PTInfoInputStatus.INFO_REGISTERED);
-        pt.setRegistrationStatus(PtRegistrationStatus.NEW_REGISTRATION);
+    public void saveFirstPtDetailInfo(int ptCount, LocalDateTime centerFirstRegistrationMonth, String note) {
+        this.totalPtCount = ptCount;
+        this.remainingPtCount = ptCount;
+        this.centerFirstRegistrationMonth = centerFirstRegistrationMonth;
+        this.note = note;
+        this.infoInputStatus = PTInfoInputStatus.INFO_REGISTERED;
+        this.registrationStatus = PtRegistrationStatus.NEW_REGISTRATION;
     }
 
-    public static void updatePtDetailInfo(PersonalTraining pt, int totalPtCount, int remainingPtCount, String note) {
-        pt.setTotalPtCount(pt.getTotalPtCount() + (totalPtCount - pt.getTotalPtCount()));
-        pt.setRemainingPtCount(pt.getRemainingPtCount() + (remainingPtCount - pt.getRemainingPtCount()));
-        pt.setNote(note);
+    public void extendPtCount(PersonalTraining pt, int totalPtCount, int remainingPtCount, LocalDateTime registrationDate) {
+        this.totalPtCount += totalPtCount;
+        this.remainingPtCount += remainingPtCount;
+        this.centerLastReRegistrationMonth = registrationDate;
+        this.registrationStatus = PtRegistrationStatus.RE_REGISTRATION;
     }
 
-    public static void extendPt(PersonalTraining pt, int totalPtCount, int remainingPtCount, LocalDateTime registrationDate) {
-        pt.setTotalPtCount(pt.getTotalPtCount() + totalPtCount);
-        pt.setRemainingPtCount(pt.getRemainingPtCount() + remainingPtCount);
-        pt.setLastRegistrationDate(registrationDate);
-        pt.setRegistrationStatus(PtRegistrationStatus.RE_REGISTRATION);
+    public void updatePtDetailInfo(PersonalTraining pt, int totalPtCount, int remainingPtCount, String note) {
+        this.totalPtCount = totalPtCount;
+        this.remainingPtCount = remainingPtCount;
+        this.note = note;
     }
+
 }

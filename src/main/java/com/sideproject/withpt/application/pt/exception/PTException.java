@@ -14,6 +14,9 @@ public class PTException extends GlobalException {
     public static final PTException PT_NOT_FOUND = new PTException(PTErrorCode.PT_NOT_FOUND);
     public static final PTException AlREADY_ALLOWED_PT_REGISTRATION = new PTException(PTErrorCode.AlREADY_ALLOWED_PT_REGISTRATION);
     public static final PTException AlREADY_REGISTERED_FIRST_PT_INFO = new PTException(PTErrorCode.AlREADY_REGISTERED_FIRST_PT_INFO);
+    public static final PTException REMAINING_PT = new PTException(PTErrorCode.REMAINING_PT);
+    public static final PTException INVALID_RE_REGISTRATION_DATE = new PTException(PTErrorCode.INVALID_RE_REGISTRATION_DATE);
+    public static final PTException REMAINING_PT_CANNOT_EXCEED_THE_TOTAL_PT_NUMBER = new PTException(PTErrorCode.REMAINING_PT_CANNOT_EXCEED_THE_TOTAL_PT_NUMBER);
 
     private final PTErrorCode errorCode;
 
