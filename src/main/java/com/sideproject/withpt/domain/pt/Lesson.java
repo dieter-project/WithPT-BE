@@ -94,7 +94,7 @@ public class Lesson extends BaseEntity {
         this.status = status;
     }
 
-    public void changeLessonSchedule(LocalDate date, LocalTime time, Day weekday, Role loginRole) {
+    public void changeLessonSchedule(LocalDate date, LocalTime time, Day weekday, Role requestByRole) {
         this.beforeSchedule = LessonSchedule.builder()
             .date(this.schedule.getDate())
             .time(this.schedule.getTime())
@@ -107,7 +107,7 @@ public class Lesson extends BaseEntity {
             .weekday(weekday)
             .build();
         this.status = LessonStatus.PENDING_APPROVAL;
-        this.modifiedBy = loginRole;
+        this.modifiedBy = requestByRole;
     }
 
     public static Lesson createNewLessonRegistration(Member member, GymTrainer gymTrainer, LocalDate date, LocalTime time, Day weekday, Role requestByRole, Long registrationRequestId, Long registrationReceiverId) {

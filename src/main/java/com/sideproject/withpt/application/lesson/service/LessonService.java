@@ -87,14 +87,16 @@ public class LessonService {
     }
 
     @Transactional
-    public void changePTLesson(Long lessonId, Role loginRole, LessonChangeRequest request) {
+    public LessonResponse changePTLesson(Long lessonId, Role requestByRole, LessonChangeRequest request) {
 
         Lesson lesson = lessonRepository.findById(lessonId)
             .orElseThrow(() -> new LessonException(LESSON_NOT_FOUND));
 
         validationLessonTime(lesson.getGymTrainer(), request.getDate(), request.getTime());
 
-        lesson.changeLessonSchedule(request.getDate(), request.getTime(), request.getWeekday(), loginRole);
+        lesson.changeLessonSchedule(request.getDate(), request.getTime(), request.getWeekday(), requestByRole);
+
+        return LessonResponse.of(lesson);
     }
 
     public AvailableLessonScheduleResponse getTrainerWorkSchedule(Long gymId, Long trainerId, Day weekday, LocalDate date) {

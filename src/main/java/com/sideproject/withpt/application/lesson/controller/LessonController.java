@@ -72,15 +72,17 @@ public class LessonController {
 
     @Operation(summary = "수업 스케줄 변경")
     @PatchMapping("/lessons/{lessonId}")
-    public void changePtLesson(@PathVariable Long lessonId, @Valid @RequestBody LessonChangeRequest request) {
+    public ApiSuccessResponse<LessonResponse> changePtLesson(@PathVariable Long lessonId, @Valid @RequestBody LessonChangeRequest request) {
 
-        Role loginRole = getLoginRole();
-        log.info("로그인 role = {}", loginRole);
+        Role registrationRequestByRole = getLoginRole();
+        log.info("로그인 role = {}", registrationRequestByRole);
 
-//        lessonLockFacade.lessonConcurrencyCheck(() ->
-//                lessonService.changePTLesson(lessonId, loginRole, request),
-//            lessonLockFacade.generateKey(request.getDate(), request.getTime())
-//        );
+        LessonResponse response = lessonLockFacade.lessonConcurrencyCheck(() ->
+                lessonService.changePTLesson(lessonId, registrationRequestByRole, request),
+            lessonLockFacade.generateKey(request.getDate(), request.getTime())
+        );
+
+        return ApiSuccessResponse.from(response);
     }
 
     @Operation(summary = "예약 가능한 수업 시간 조회")

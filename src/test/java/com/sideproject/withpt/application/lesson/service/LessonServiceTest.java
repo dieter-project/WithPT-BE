@@ -287,6 +287,9 @@ class LessonServiceTest {
                 PtRegistrationAllowedStatus.ALLOWED)
         );
 
+        String requester = Lesson.getRequester(trainer.getId(), Role.MEMBER);
+        String receiver = Lesson.getReceiver(member.getId(), Role.MEMBER);
+
         LessonSchedule lessonSchedule = LessonSchedule.builder()
             .date(LocalDate.of(2024, 10, 4))
             .time(LocalTime.of(20, 44))
@@ -294,31 +297,49 @@ class LessonServiceTest {
             .build();
 
         Lesson lesson = lessonRepository.save(
-            createLesson(member, gymTrainer, lessonSchedule, LessonStatus.RESERVED, Role.TRAINER)
+            createLesson(member, gymTrainer, lessonSchedule, null, LessonStatus.RESERVED, requester, receiver, Role.TRAINER, null)
         );
 
+        Role registrationRequestByRole = Role.MEMBER;
         LessonChangeRequest request = LessonChangeRequest.builder()
             .date(LocalDate.of(2024, 10, 5))
             .weekday(Day.SAT)
             .time(LocalTime.of(16, 0))
             .build();
 
-        Long lessonId = lesson.getId();
-        String loginRole = Role.MEMBER.name();
-
         // when
+        LessonResponse response = lessonService.changePTLesson(lesson.getId(), registrationRequestByRole, request);
 
         // then
+        assertThat(response)
+            .extracting("requester", "receiver", "status", "registeredBy", "modifiedBy")
+            .contains(requester, receiver, LessonStatus.PENDING_APPROVAL, Role.TRAINER, Role.MEMBER);
+
+        assertThat(response.getBeforeSchedule())
+            .extracting("date", "time", "weekday")
+            .contains(LocalDate.of(2024, 10, 4), LocalTime.of(20, 44), Day.FRI);
+
+        assertThat(response.getSchedule())
+            .extracting("date", "time", "weekday")
+            .contains(request.getDate(), request.getTime(), request.getWeekday());
     }
 
-    public Lesson createLesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonStatus status, Role registeredBy) {
+    public Lesson createLesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonSchedule beforeSchedule, LessonStatus status, String requester, String receiver, Role registeredBy, Role modifiedBy) {
         return Lesson.builder()
             .member(member)
             .gymTrainer(gymTrainer)
             .schedule(schedule)
+            .beforeSchedule(beforeSchedule)
             .status(status)
+            .requester(requester)
+            .receiver(receiver)
             .registeredBy(registeredBy)
+            .modifiedBy(modifiedBy)
             .build();
+    }
+
+    public Lesson createLesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonStatus status, Role registeredBy) {
+        return createLesson(member, gymTrainer, schedule, null, status, null, null, registeredBy, null);
     }
 
     public PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, int totalPtCount, int remainingPtCount, PTInfoInputStatus infoInputStatus, PtRegistrationStatus registrationStatus, PtRegistrationAllowedStatus registrationAllowedStatus) {
