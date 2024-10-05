@@ -94,6 +94,10 @@ public class LessonService {
 
         validationLessonTime(lesson.getGymTrainer(), request.getDate(), request.getTime());
 
+        if (LessonStatus.isScheduleChangeNotAllowed(lesson.getStatus())) {
+            throw LessonException.NON_BOOKED_SESSION;
+        }
+
         lesson.changeLessonSchedule(request.getDate(), request.getTime(), request.getWeekday(), requestByRole);
 
         return LessonResponse.of(lesson);

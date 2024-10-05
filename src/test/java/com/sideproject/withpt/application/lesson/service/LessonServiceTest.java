@@ -324,6 +324,47 @@ class LessonServiceTest {
             .contains(request.getDate(), request.getTime(), request.getWeekday());
     }
 
+    @DisplayName("예약 상태가 아닌 수업은 스케줄 변경이 불가능합니다.")
+    @EnumSource(mode = Mode.EXCLUDE, names = "RESERVED")
+    @ParameterizedTest
+    void changePTLessonWhenNonBook(LessonStatus lessonStatus) {
+        Member member = memberRepository.save(createMember("회원"));
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+        Gym gym = gymRepository.save(createGym("체육관"));
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer));
+        personalTrainingRepository.save(
+            createPersonalTraining(member, gymTrainer, 30, 10,
+                PTInfoInputStatus.INFO_REGISTERED,
+                PtRegistrationStatus.ALLOWED,
+                PtRegistrationAllowedStatus.ALLOWED)
+        );
+
+        String requester = Lesson.getRequester(trainer.getId(), Role.MEMBER);
+        String receiver = Lesson.getReceiver(member.getId(), Role.MEMBER);
+
+        LessonSchedule lessonSchedule = LessonSchedule.builder()
+            .date(LocalDate.of(2024, 10, 4))
+            .time(LocalTime.of(20, 44))
+            .weekday(Day.FRI)
+            .build();
+
+        Lesson lesson = lessonRepository.save(
+            createLesson(member, gymTrainer, lessonSchedule, lessonStatus, Role.TRAINER)
+        );
+
+        Role registrationRequestByRole = Role.MEMBER;
+        LessonChangeRequest request = LessonChangeRequest.builder()
+            .date(LocalDate.of(2024, 10, 5))
+            .weekday(Day.SAT)
+            .time(LocalTime.of(16, 0))
+            .build();
+
+        // when // then
+        assertThatThrownBy(() -> lessonService.changePTLesson(lesson.getId(), registrationRequestByRole, request))
+            .isInstanceOf(LessonException.class)
+            .hasMessage("예약 상태가 아닌 수업은 스케줄 변경이 불가능합니다.");
+    }
+
     public Lesson createLesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonSchedule beforeSchedule, LessonStatus status, String requester, String receiver, Role registeredBy, Role modifiedBy) {
         return Lesson.builder()
             .member(member)

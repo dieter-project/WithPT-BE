@@ -17,6 +17,10 @@ public enum LessonStatus {
         return status;
     }
 
+    public static boolean isScheduleChangeNotAllowed(LessonStatus status) {
+        return status != RESERVED;
+    }
+
     public static boolean isReserved(LessonStatus status) {
         return status == RESERVED;
     }
