@@ -117,8 +117,8 @@ public class Lesson extends BaseEntity {
             .weekday(weekday)
             .build();
 
-        String requester = getRequester(registrationRequestId, registrationReceiverId, requestByRole);
-        String receiver = getReceiver(registrationRequestId, registrationReceiverId, requestByRole);
+        String requester = getRequester(registrationRequestId, requestByRole);
+        String receiver = getReceiver(registrationReceiverId, requestByRole);
         return Lesson.builder()
             .member(member)
             .gymTrainer(gymTrainer)
@@ -132,11 +132,11 @@ public class Lesson extends BaseEntity {
             .build();
     }
 
-    public static String getRequester(Long requestId, Long receiverId, Role requestByRole) {
-        return requestByRole == Role.MEMBER ? requestId + "_" + Role.MEMBER : receiverId + "_" + Role.TRAINER;
+    public static String getRequester(Long requestId, Role requestByRole) {
+        return requestByRole == Role.MEMBER ? requestId + "_" + Role.MEMBER : requestId + "_" + Role.TRAINER;
     }
 
-    public static String getReceiver(Long requestId, Long receiverId, Role requestByRole) {
-        return requestByRole == Role.MEMBER ? receiverId + "_" + Role.TRAINER : requestId + "_" + Role.MEMBER;
+    public static String getReceiver(Long receiverId, Role requestByRole) {
+        return requestByRole == Role.MEMBER ? receiverId + "_" + Role.TRAINER : receiverId + "_" + Role.MEMBER;
     }
 }

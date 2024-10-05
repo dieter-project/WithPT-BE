@@ -4,20 +4,23 @@ import com.sideproject.withpt.common.exception.validator.YearMonthType;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import javax.validation.constraints.Min;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Getter
 @ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SavePtMemberDetailInfoRequest {
 
     @Min(value = 1, message = "최소 1회 이상 등록해야 합니다.")
-    private final int ptCount;
+    private int ptCount;
 
     @YearMonthType
-    private final String centerFirstRegistrationMonth;
-    private final String note;
+    private String centerFirstRegistrationMonth;
+    private String note;
 
     @Builder
     private SavePtMemberDetailInfoRequest(int ptCount, String centerFirstRegistrationMonth, String note) {

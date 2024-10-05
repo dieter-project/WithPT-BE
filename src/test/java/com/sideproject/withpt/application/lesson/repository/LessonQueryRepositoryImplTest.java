@@ -69,8 +69,8 @@ class LessonQueryRepositoryImplTest {
             .build();
 
         Role registrationRequestByRole = Role.TRAINER;
-        String requester = Lesson.getRequester(trainer.getId(), member.getId(), registrationRequestByRole);
-        String receiver = Lesson.getReceiver(trainer.getId(), member.getId(), registrationRequestByRole);
+        String requester = Lesson.getRequester(trainer.getId(), registrationRequestByRole);
+        String receiver = Lesson.getReceiver(member.getId(), registrationRequestByRole);
 
         Lesson lesson = lessonRepository.save(
             createLesson(member, gymTrainer, lessonSchedule, null, LessonStatus.RESERVED, requester, receiver, registrationRequestByRole, null)
