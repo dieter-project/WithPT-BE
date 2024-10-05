@@ -40,11 +40,7 @@ public class LessonLockFacade {
         log.info("사용된 키 {} ", key);
 
         while (!redisClient.lock(key)) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            sleep(100);
         }
 
         try {
@@ -60,11 +56,7 @@ public class LessonLockFacade {
         log.info("사용된 키 {} ", key);
 
         while (!redisClient.lock(key)) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            sleep(100);
         }
 
         try {
@@ -79,6 +71,14 @@ public class LessonLockFacade {
 
     public String generateKey(LocalDate date, LocalTime time) {
         return date.toString() + time.toString();
+    }
+
+    private void sleep(final int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
