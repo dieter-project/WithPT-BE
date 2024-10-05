@@ -74,6 +74,8 @@ public class LessonService {
         validationLessonTime(gymTrainer, request.getDate(), request.getTime());
 
         // TODO TEST 작성 수업 등록 - 예약 시스템이므로 동시성 고려하기
+        // TODO : 회원이 수업 등록 요청을 했을 경우 "대기 중 수업 - 받은 요청" 에 표시
+        // TODO : 알림 기능 추가
         Lesson lesson = lessonRepository.save(
             Lesson.createNewLessonRegistration(member, gymTrainer,
                 request.getDate(), request.getTime(), request.getWeekday(), requestByRole, request.getRegistrationRequestId(), request.getRegistrationReceiverId())
@@ -98,7 +100,24 @@ public class LessonService {
             throw LessonException.NON_BOOKED_SESSION;
         }
 
+        // TODO 예약 시스템이므로 동시성 고려하기
+        // TODO : 알림 기능 추가
         lesson.changeLessonSchedule(request.getDate(), request.getTime(), request.getWeekday(), requestByRole);
+
+        return LessonResponse.of(lesson);
+    }
+
+    @Transactional
+    public LessonResponse cancelLesson(Long lessonId, LessonStatus status) {
+        // TODO 알림 기능
+        Lesson lesson = lessonRepository.findById(lessonId)
+            .orElseThrow(() -> LessonException.LESSON_NOT_FOUND);
+
+        if (LessonStatus.isScheduleChangeNotAllowed(lesson.getStatus())) {
+            throw LessonException.NON_CANCEL_SESSION;
+        }
+
+        lesson.cancel(status);
 
         return LessonResponse.of(lesson);
     }
@@ -162,17 +181,6 @@ public class LessonService {
         lessonRepository.findById(lessonId)
             .ifPresentOrElse(
                 lessonRepository::delete,
-                () -> {
-                    throw new LessonException(LESSON_NOT_FOUND);
-                }
-            );
-    }
-
-    @Transactional
-    public void changeLessonStatus(Long lessonId, LessonStatus status) {
-        lessonRepository.findById(lessonId)
-            .ifPresentOrElse(lesson ->
-                    lesson.changeLessonStatus(status),
                 () -> {
                     throw new LessonException(LESSON_NOT_FOUND);
                 }

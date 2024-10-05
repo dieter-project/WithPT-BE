@@ -85,6 +85,14 @@ public class LessonController {
         return ApiSuccessResponse.from(response);
     }
 
+    @Operation(summary = "수업관리/확정된 수업 - 수업 직접 취소하기")
+    @PatchMapping("/lessons/{lessonId}/cancel")
+    public ApiSuccessResponse<LessonResponse> cancelDecidedLesson(@PathVariable Long lessonId) {
+        return ApiSuccessResponse.from(
+            lessonService.cancelLesson(lessonId, LessonStatus.CANCELED)
+        );
+    }
+
     @Operation(summary = "예약 가능한 수업 시간 조회")
     @GetMapping("/gyms/{gymId}/trainers/{trainerId}/schedule")
     public ApiSuccessResponse<AvailableLessonScheduleResponse> getTrainerWorkSchedule(@PathVariable Long gymId,
@@ -96,6 +104,7 @@ public class LessonController {
             lessonService.getTrainerWorkSchedule(gymId, trainerId, weekday, date)
         );
     }
+    // 내가 보낸 요청 / 받은 요청 분리하기
 
     @Operation(summary = "수업관리/메인 - 대기 수업 조회")
     @GetMapping("/lessons/pending-lessons")
@@ -122,6 +131,7 @@ public class LessonController {
             lessonService.getLessonScheduleMembers(trainerId, gymId, date, status)
         );
     }
+    // 메인 화면 달력 표시를 위한 api
 
     @Operation(summary = "수업관리/메인 - 해당 월(Month) 체육관 수업 일정 달력 날짜 조회")
     @GetMapping("/lessons/days")
@@ -140,12 +150,6 @@ public class LessonController {
     @DeleteMapping("/lessons/{lessonId}")
     public void deleteDecidedLesson(@PathVariable Long lessonId) {
         lessonService.deleteLesson(lessonId);
-    }
-
-    @Operation(summary = "수업관리/확정된 수업 > 취소 알림 - 수업 취소하기")
-    @PatchMapping("/lessons/{lessonId}/cancel")
-    public void cancelDecidedLesson(@PathVariable Long lessonId) {
-        lessonService.changeLessonStatus(lessonId, LessonStatus.CANCELED);
     }
 
     private Role getLoginRole() {

@@ -365,6 +365,68 @@ class LessonServiceTest {
             .hasMessage("예약 상태가 아닌 수업은 스케줄 변경이 불가능합니다.");
     }
 
+    @DisplayName("수업관리/확정된 수업 - 수업 직접 취소하기")
+    @Test
+    void cancelLesson() {
+        Member member = memberRepository.save(createMember("회원"));
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+        Gym gym = gymRepository.save(createGym("체육관"));
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer));
+        personalTrainingRepository.save(
+            createPersonalTraining(member, gymTrainer, 30, 10,
+                PTInfoInputStatus.INFO_REGISTERED,
+                PtRegistrationStatus.ALLOWED,
+                PtRegistrationAllowedStatus.ALLOWED)
+        );
+
+        LessonSchedule lessonSchedule = LessonSchedule.builder()
+            .date(LocalDate.of(2024, 10, 4))
+            .time(LocalTime.of(20, 44))
+            .weekday(Day.FRI)
+            .build();
+
+        Lesson lesson = lessonRepository.save(
+            createLesson(member, gymTrainer, lessonSchedule, null, LessonStatus.RESERVED, Lesson.getRequester(trainer.getId(), Role.MEMBER), Lesson.getReceiver(member.getId(), Role.MEMBER), Role.TRAINER, null)
+        );
+
+        // when
+        LessonResponse response = lessonService.cancelLesson(lesson.getId(), LessonStatus.CANCELED);
+
+        // then
+        assertThat(response.getStatus()).isEqualTo(LessonStatus.CANCELED);
+    }
+
+    @DisplayName("예약 상태가 아닌 수업은 취소가 불가능합니다.")
+    @EnumSource(mode = Mode.EXCLUDE, names = "RESERVED")
+    @ParameterizedTest
+    void cancelLessonWhenNotCancel(LessonStatus lessonStatus) {
+        Member member = memberRepository.save(createMember("회원"));
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+        Gym gym = gymRepository.save(createGym("체육관"));
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer));
+        personalTrainingRepository.save(
+            createPersonalTraining(member, gymTrainer, 30, 10,
+                PTInfoInputStatus.INFO_REGISTERED,
+                PtRegistrationStatus.ALLOWED,
+                PtRegistrationAllowedStatus.ALLOWED)
+        );
+
+        LessonSchedule lessonSchedule = LessonSchedule.builder()
+            .date(LocalDate.of(2024, 10, 4))
+            .time(LocalTime.of(20, 44))
+            .weekday(Day.FRI)
+            .build();
+
+        Lesson lesson = lessonRepository.save(
+            createLesson(member, gymTrainer, lessonSchedule, null, lessonStatus, Lesson.getRequester(trainer.getId(), Role.MEMBER), Lesson.getReceiver(member.getId(), Role.MEMBER), Role.TRAINER, null)
+        );
+
+        // when
+        assertThatThrownBy(() -> lessonService.cancelLesson(lesson.getId(), LessonStatus.CANCELED))
+            .isInstanceOf(LessonException.class)
+            .hasMessage("예약 상태가 아닌 수업은 취소가 불가능합니다.");
+    }
+
     public Lesson createLesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonSchedule beforeSchedule, LessonStatus status, String requester, String receiver, Role registeredBy, Role modifiedBy) {
         return Lesson.builder()
             .member(member)

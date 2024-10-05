@@ -10,6 +10,7 @@ public class LessonException extends GlobalException {
     public static final LessonException ALREADY_PENDING_APPROVAL = new LessonException(LessonErrorCode.ALREADY_PENDING_APPROVAL);
     public static final LessonException LESSON_NOT_FOUND = new LessonException(LessonErrorCode.LESSON_NOT_FOUND);
     public static final LessonException NON_BOOKED_SESSION = new LessonException(LessonErrorCode.NON_BOOKED_SESSION);
+    public static final LessonException NON_CANCEL_SESSION = new LessonException(LessonErrorCode.NON_CANCEL_SESSION);
 
 
     private final LessonErrorCode errorCode;

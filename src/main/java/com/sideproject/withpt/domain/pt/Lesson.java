@@ -90,7 +90,7 @@ public class Lesson extends BaseEntity {
         this.modifiedBy = modifiedBy;
     }
 
-    public void changeLessonStatus(LessonStatus status) {
+    public void cancel(LessonStatus status) {
         this.status = status;
     }
 
