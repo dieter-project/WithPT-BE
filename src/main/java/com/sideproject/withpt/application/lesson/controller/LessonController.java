@@ -94,18 +94,18 @@ public class LessonController {
     }
 
     @Operation(summary = "예약 가능한 수업 시간 조회")
-    @GetMapping("/gyms/{gymId}/trainers/{trainerId}/schedule")
-    public ApiSuccessResponse<AvailableLessonScheduleResponse> getTrainerWorkSchedule(@PathVariable Long gymId,
-        @PathVariable Long trainerId,
+    @GetMapping("/lessons/available-times")
+    public ApiSuccessResponse<AvailableLessonScheduleResponse> getTrainerWorkSchedule(
+        @RequestParam Long gymId,
+        @RequestParam Long trainerId,
         @RequestParam Day weekday,
-        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date
-    ) {
+        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
         return ApiSuccessResponse.from(
-            lessonService.getTrainerWorkSchedule(gymId, trainerId, weekday, date)
+            lessonService.getTrainerAvailableLessonSchedule(gymId, trainerId, weekday, date)
         );
     }
-    // 내가 보낸 요청 / 받은 요청 분리하기
 
+    // 내가 보낸 요청 / 받은 요청 분리하기
     @Operation(summary = "수업관리/메인 - 대기 수업 조회")
     @GetMapping("/lessons/pending-lessons")
     public ApiSuccessResponse<Map<LessonRequestStatus, Map<LessonRequestStatus, List<PendingLessonInfo>>>> getPendingLessons(
@@ -131,8 +131,8 @@ public class LessonController {
             lessonService.getLessonScheduleMembers(trainerId, gymId, date, status)
         );
     }
-    // 메인 화면 달력 표시를 위한 api
 
+    // 메인 화면 달력 표시를 위한 api
     @Operation(summary = "수업관리/메인 - 해당 월(Month) 체육관 수업 일정 달력 날짜 조회")
     @GetMapping("/lessons/days")
     public ApiSuccessResponse<List<LocalDate>> getLessonScheduleOfMonth(

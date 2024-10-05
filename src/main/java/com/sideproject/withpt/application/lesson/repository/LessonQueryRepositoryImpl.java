@@ -3,7 +3,6 @@ package com.sideproject.withpt.application.lesson.repository;
 import static com.sideproject.withpt.domain.gym.QGym.gym;
 import static com.sideproject.withpt.domain.member.QMember.member;
 import static com.sideproject.withpt.domain.pt.QLesson.lesson;
-import static com.sideproject.withpt.domain.trainer.QWorkSchedule.workSchedule;
 
 import com.querydsl.core.types.ConstantImpl;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -14,20 +13,15 @@ import com.sideproject.withpt.application.lesson.repository.dto.LessonInfoRespon
 import com.sideproject.withpt.application.lesson.repository.dto.QLessonInfoResponse;
 import com.sideproject.withpt.application.lesson.repository.dto.QLessonInfoResponse_Gym;
 import com.sideproject.withpt.application.lesson.repository.dto.QLessonInfoResponse_Member;
-import com.sideproject.withpt.application.type.Day;
 import com.sideproject.withpt.application.type.LessonStatus;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.pt.Lesson;
 import com.sideproject.withpt.domain.trainer.Trainer;
-import com.sideproject.withpt.domain.trainer.WorkSchedule;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,40 +49,14 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
     }
 
     @Override
-    public Map<LocalTime, Boolean> getAvailableTrainerLessonSchedule(Long trainerId, Gym gym, Day weekday, LocalDate date) {
-        WorkSchedule schedule = jpaQueryFactory
-            .selectFrom(workSchedule)
+    public List<Lesson> getBookedLessonBy(GymTrainer gymTrainer, LocalDate date) {
+        return jpaQueryFactory
+            .selectFrom(lesson)
             .where(
-                workSchedule.trainer.id.eq(trainerId),
-                workSchedule.gym.eq(gym),
-                workSchedule.weekday.eq(weekday)
-            ).fetchOne();
-
-        LocalTime startTime = schedule.getInTime();
-        LocalTime endTime = schedule.getOutTime();
-        Duration interval = Duration.ofHours(1);
-
-        List<LocalTime> times = jpaQueryFactory
-            .select(lesson.schedule.time)
-            .from(lesson)
-            .where(
-                lesson.trainer.id.eq(trainerId),
+                lesson.gymTrainer.eq(gymTrainer),
                 lesson.schedule.date.eq(date),
-                lesson.status.eq(LessonStatus.RESERVED)
+                lesson.status.eq(LessonStatus.RESERVED).or(lesson.status.eq(LessonStatus.PENDING_APPROVAL))
             ).fetch();
-
-        Map<LocalTime, Boolean> lessonSchedule = new LinkedHashMap<>();
-
-        while (startTime.isBefore(endTime)) {
-            lessonSchedule.put(startTime, times.contains(startTime));
-            startTime = startTime.plus(interval);
-        }
-
-        log.info("{} 요일의 트레이너 일정 : {} ~ {}", weekday, startTime, endTime);
-        log.info("예약된 시간 = {}", times);
-        log.info("수업 스케줄 : {}", lessonSchedule);
-
-        return lessonSchedule;
     }
 
     @Override

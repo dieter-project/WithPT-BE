@@ -7,12 +7,14 @@ import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
 import com.sideproject.withpt.application.lesson.controller.request.LessonChangeRequest;
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
+import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
 import com.sideproject.withpt.application.lesson.service.response.LessonResponse;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.pt.exception.PTException;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
+import com.sideproject.withpt.application.schedule.repository.ScheduleRepository;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.application.type.Day;
 import com.sideproject.withpt.application.type.DietType;
@@ -31,8 +33,11 @@ import com.sideproject.withpt.domain.pt.Lesson;
 import com.sideproject.withpt.domain.pt.LessonSchedule;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
+import com.sideproject.withpt.domain.trainer.WorkSchedule;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -58,7 +63,8 @@ class LessonServiceTest {
     private GymTrainerRepository gymTrainerRepository;
     @Autowired
     private PersonalTrainingRepository personalTrainingRepository;
-
+    @Autowired
+    private ScheduleRepository scheduleRepository;
     @Autowired
     private LessonRepository lessonRepository;
 
@@ -427,6 +433,65 @@ class LessonServiceTest {
             .hasMessage("예약 상태가 아닌 수업은 취소가 불가능합니다.");
     }
 
+    @DisplayName("예약 가능한 수업 시간 조회")
+    @Test
+    void getTrainerAvailableLessonSchedule() {
+        // given
+        Member member = memberRepository.save(createMember("회원"));
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+        Gym gym = gymRepository.save(createGym("체육관"));
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer));
+
+        LocalDate date = LocalDate.of(2024, 10, 4);
+
+        LessonSchedule lessonSchedule1 = createLessonSchedule(date, LocalTime.of(9, 0), Day.FRI);
+        LessonSchedule lessonSchedule2 = createLessonSchedule(date, LocalTime.of(10, 0), Day.FRI);
+        LessonSchedule lessonSchedule3 = createLessonSchedule(date, LocalTime.of(12, 0), Day.FRI);
+        LessonSchedule lessonSchedule4 = createLessonSchedule(date, LocalTime.of(15, 0), Day.FRI);
+        LessonSchedule lessonSchedule5 = createLessonSchedule(date, LocalTime.of(17, 0), Day.FRI);
+        LessonSchedule lessonSchedule6 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(21, 35), Day.FRI);
+
+        lessonRepository.saveAll(List.of(
+                createLesson(member, gymTrainer, lessonSchedule1, LessonStatus.RESERVED),
+                createLesson(member, gymTrainer, lessonSchedule2, LessonStatus.PENDING_APPROVAL),
+                createLesson(member, gymTrainer, lessonSchedule3, LessonStatus.RESERVED),
+                createLesson(member, gymTrainer, lessonSchedule4, LessonStatus.RESERVED),
+                createLesson(member, gymTrainer, lessonSchedule5, LessonStatus.CANCELED),
+                createLesson(member, gymTrainer, lessonSchedule6, LessonStatus.RESERVED)
+            )
+        );
+
+        scheduleRepository.save(createWorkSchedule(Day.FRI, LocalTime.of(9, 0), LocalTime.of(18, 0), gymTrainer));
+
+        // when
+        AvailableLessonScheduleResponse response = lessonService.getTrainerAvailableLessonSchedule(gym.getId(), trainer.getId(), Day.FRI, date);
+
+        // then
+        assertThat(response.getDate()).isEqualTo(date);
+        assertThat(response.getDay()).isEqualTo(Day.FRI);
+        assertThat(response.getSchedules()).hasSize(9)
+            .extracting("time", "isBooked")
+            .containsExactly(
+                Tuple.tuple(LocalTime.of(9, 0), true),
+                Tuple.tuple(LocalTime.of(10, 0), true),
+                Tuple.tuple(LocalTime.of(11, 0), false),
+                Tuple.tuple(LocalTime.of(12, 0), true),
+                Tuple.tuple(LocalTime.of(13, 0), false),
+                Tuple.tuple(LocalTime.of(14, 0), false),
+                Tuple.tuple(LocalTime.of(15, 0), true),
+                Tuple.tuple(LocalTime.of(16, 0), false),
+                Tuple.tuple(LocalTime.of(17, 0), false)
+            );
+    }
+
+    private LessonSchedule createLessonSchedule(LocalDate date, LocalTime time, Day day) {
+        return LessonSchedule.builder()
+            .date(date)
+            .time(time)
+            .weekday(day)
+            .build();
+    }
+
     public Lesson createLesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonSchedule beforeSchedule, LessonStatus status, String requester, String receiver, Role registeredBy, Role modifiedBy) {
         return Lesson.builder()
             .member(member)
@@ -443,6 +508,10 @@ class LessonServiceTest {
 
     public Lesson createLesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonStatus status, Role registeredBy) {
         return createLesson(member, gymTrainer, schedule, null, status, null, null, registeredBy, null);
+    }
+
+    public Lesson createLesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonStatus status) {
+        return createLesson(member, gymTrainer, schedule, null, status, null, null, null, null);
     }
 
     public PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, int totalPtCount, int remainingPtCount, PTInfoInputStatus infoInputStatus, PtRegistrationStatus registrationStatus, PtRegistrationAllowedStatus registrationAllowedStatus) {
@@ -492,6 +561,15 @@ class LessonServiceTest {
         return GymTrainer.builder()
             .gym(gym)
             .trainer(trainer)
+            .build();
+    }
+
+    private WorkSchedule createWorkSchedule(Day day, LocalTime inTime, LocalTime outTime, GymTrainer gymTrainer) {
+        return WorkSchedule.builder()
+            .weekday(day)
+            .inTime(inTime)
+            .outTime(outTime)
+            .gymTrainer(gymTrainer)
             .build();
     }
 }

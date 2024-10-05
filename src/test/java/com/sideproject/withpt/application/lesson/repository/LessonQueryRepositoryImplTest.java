@@ -27,6 +27,7 @@ import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,11 +63,7 @@ class LessonQueryRepositoryImplTest {
         Gym gym = gymRepository.save(createGym("체육관"));
         GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer));
 
-        LessonSchedule lessonSchedule = LessonSchedule.builder()
-            .date(LocalDate.of(2024, 10, 4))
-            .time(LocalTime.of(21, 35))
-            .weekday(Day.FRI)
-            .build();
+        LessonSchedule lessonSchedule = createLessonSchedule(LocalDate.of(2024, 10, 4), LocalTime.of(21, 35), Day.FRI);
 
         Role registrationRequestByRole = Role.TRAINER;
         String requester = Lesson.getRequester(trainer.getId(), registrationRequestByRole);
@@ -91,6 +88,56 @@ class LessonQueryRepositoryImplTest {
         assertThat(response.getGym().getName()).isEqualTo("체육관");
     }
 
+    @DisplayName("요청 날짜에 예약된 수업 목록 조회")
+    @Test
+    void getBookedLessonBy() {
+        // given
+        Member member = memberRepository.save(createMember("회원"));
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+        Gym gym = gymRepository.save(createGym("체육관"));
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer));
+
+        LocalDate date = LocalDate.of(2024, 10, 4);
+
+        LessonSchedule lessonSchedule1 = createLessonSchedule(date, LocalTime.of(12, 0), Day.FRI);
+        LessonSchedule lessonSchedule2 = createLessonSchedule(date, LocalTime.of(15, 10), Day.FRI);
+        LessonSchedule lessonSchedule3 = createLessonSchedule(date, LocalTime.of(18, 0), Day.FRI);
+        LessonSchedule lessonSchedule4 = createLessonSchedule(date, LocalTime.of(21, 35), Day.FRI);
+        LessonSchedule lessonSchedule5 = createLessonSchedule(date, LocalTime.of(21, 35), Day.FRI);
+        LessonSchedule lessonSchedule6 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(21, 35), Day.FRI);
+
+        lessonRepository.saveAll(List.of(
+                createLesson(member, gymTrainer, lessonSchedule1, LessonStatus.RESERVED),
+                createLesson(member, gymTrainer, lessonSchedule2, LessonStatus.PENDING_APPROVAL),
+                createLesson(member, gymTrainer, lessonSchedule3, LessonStatus.RESERVED),
+                createLesson(member, gymTrainer, lessonSchedule4, LessonStatus.RESERVED),
+                createLesson(member, gymTrainer, lessonSchedule5, LessonStatus.CANCELED),
+                createLesson(member, gymTrainer, lessonSchedule6, LessonStatus.RESERVED)
+            )
+        );
+
+        // when
+        List<Lesson> bookedLesson = lessonRepository.getBookedLessonBy(gymTrainer, date);
+
+        // then
+        assertThat(bookedLesson).hasSize(4)
+            .extracting("schedule.time")
+            .contains(
+                LocalTime.of(12, 0),
+                LocalTime.of(15, 10),
+                LocalTime.of(18, 0),
+                LocalTime.of(21, 35)
+            );
+    }
+
+    private LessonSchedule createLessonSchedule(LocalDate date, LocalTime time, Day day) {
+        return LessonSchedule.builder()
+            .date(date)
+            .time(time)
+            .weekday(day)
+            .build();
+    }
+
     public Lesson createLesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonSchedule beforeSchedule, LessonStatus status, String requester, String receiver, Role registeredBy, Role modifiedBy) {
         return Lesson.builder()
             .member(member)
@@ -103,6 +150,10 @@ class LessonQueryRepositoryImplTest {
             .registeredBy(registeredBy)
             .modifiedBy(modifiedBy)
             .build();
+    }
+
+    public Lesson createLesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonStatus status) {
+        return createLesson(member, gymTrainer, schedule, null, status, null, null, null, null);
     }
 
     public PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, int totalPtCount, int remainingPtCount, PTInfoInputStatus infoInputStatus, PtRegistrationStatus registrationStatus, PtRegistrationAllowedStatus registrationAllowedStatus) {

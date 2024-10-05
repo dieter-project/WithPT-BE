@@ -1,16 +1,19 @@
 package com.sideproject.withpt.application.lesson.service;
 
 import static com.sideproject.withpt.application.lesson.exception.LessonErrorCode.LESSON_NOT_FOUND;
+import static com.sideproject.withpt.application.schedule.exception.ScheduleErrorCode.WORK_SCHEDULE_NOT_FOUND;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
-import com.sideproject.withpt.application.gym.service.GymService;
+import com.sideproject.withpt.application.gym.exception.GymException;
+import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.gymtrainer.exception.GymTrainerException;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
 import com.sideproject.withpt.application.lesson.controller.request.LessonChangeRequest;
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
+import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse.LessonTime;
 import com.sideproject.withpt.application.lesson.controller.response.LessonMembersResponse;
 import com.sideproject.withpt.application.lesson.controller.response.PendingLessonInfo;
 import com.sideproject.withpt.application.lesson.exception.LessonException;
@@ -20,6 +23,8 @@ import com.sideproject.withpt.application.lesson.service.response.LessonResponse
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.pt.exception.PTException;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
+import com.sideproject.withpt.application.schedule.exception.ScheduleException;
+import com.sideproject.withpt.application.schedule.repository.ScheduleRepository;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.application.type.Day;
 import com.sideproject.withpt.application.type.LessonRequestStatus;
@@ -34,9 +39,12 @@ import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.pt.Lesson;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
+import com.sideproject.withpt.domain.trainer.WorkSchedule;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -50,11 +58,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class LessonService {
 
-    private final GymService gymService;
+    private final GymRepository gymRepository;
     private final MemberRepository memberRepository;
     private final TrainerRepository trainerRepository;
 
     private final GymTrainerRepository gymTrainerRepository;
+    private final ScheduleRepository scheduleRepository;
     private final PersonalTrainingRepository personalTrainingRepository;
 
     private final LessonRepository lessonRepository;
@@ -64,7 +73,8 @@ public class LessonService {
         log.info("=================== 수업 등록 =======================\n");
         Member member = getMemberBasedOnRole(request, requestByRole);
         Trainer trainer = getTrainerBasedOnRole(request, requestByRole);
-        Gym gym = gymService.getGymById(gymId);
+        Gym gym = gymRepository.findById(gymId)
+            .orElseThrow(() -> GymException.GYM_NOT_FOUND);
 
         GymTrainer gymTrainer = gymTrainerRepository.findByTrainerAndGym(trainer, gym)
             .orElseThrow(() -> GymTrainerException.GYM_TRAINER_NOT_MAPPING);
@@ -122,14 +132,16 @@ public class LessonService {
         return LessonResponse.of(lesson);
     }
 
-    public AvailableLessonScheduleResponse getTrainerWorkSchedule(Long gymId, Long trainerId, Day weekday, LocalDate date) {
-        Gym gym = gymService.getGymById(gymId);
+    public AvailableLessonScheduleResponse getTrainerAvailableLessonSchedule(Long gymId, Long trainerId, Day weekday, LocalDate date) {
+        GymTrainer gymTrainer = getGymTrainerBy(gymId, trainerId);
 
-        return AvailableLessonScheduleResponse.of(
-            trainerId, gymId, date, weekday,
-            lessonRepository.getAvailableTrainerLessonSchedule(trainerId, gym, weekday, date)
-        );
+        List<LocalTime> times = findBookedLessonTimesBy(date, gymTrainer);
+
+        List<LessonTime> lessonTimes = generateLessonTimes(weekday, gymTrainer, times);
+
+        return AvailableLessonScheduleResponse.of(trainerId, gymId, date, weekday, lessonTimes);
     }
+
 
     public LessonMembersResponse getLessonScheduleMembers(Long trainerId, Long gymId, LocalDate date, LessonStatus status) {
         return new LessonMembersResponse(
@@ -237,5 +249,41 @@ public class LessonService {
                     throw LessonException.ALREADY_RESERVATION;
                 }
             });
+    }
+
+
+    private GymTrainer getGymTrainerBy(Long gymId, Long trainerId) {
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+
+        Gym gym = gymRepository.findById(gymId)
+            .orElseThrow(() -> GymException.GYM_NOT_FOUND);
+
+        return gymTrainerRepository.findByTrainerAndGym(trainer, gym)
+            .orElseThrow(() -> GymTrainerException.GYM_TRAINER_NOT_MAPPING);
+    }
+
+    private List<LocalTime> findBookedLessonTimesBy(LocalDate date, GymTrainer gymTrainer) {
+        return lessonRepository.getBookedLessonBy(gymTrainer, date).stream()
+            .map(lesson -> lesson.getSchedule().getTime())
+            .collect(toList());
+    }
+
+    private List<LessonTime> generateLessonTimes(Day weekday, GymTrainer gymTrainer, List<LocalTime> times) {
+        WorkSchedule workSchedule = scheduleRepository.findByGymTrainerAndWeekday(gymTrainer, weekday)
+            .orElseThrow(() -> new ScheduleException(WORK_SCHEDULE_NOT_FOUND));
+
+        LocalTime startTime = workSchedule.getInTime();
+        LocalTime endTime = workSchedule.getOutTime();
+        Duration interval = Duration.ofHours(1);
+
+        List<LessonTime> lessonTimes = new ArrayList<>();
+        while (startTime.isBefore(endTime)) {
+            lessonTimes.add(
+                LessonTime.of(startTime, times.contains(startTime))
+            );
+            startTime = startTime.plus(interval);
+        }
+        return lessonTimes;
     }
 }

@@ -3,7 +3,7 @@ package com.sideproject.withpt.application.lesson.controller.response;
 import com.sideproject.withpt.application.type.Day;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Map;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,15 +22,29 @@ public class AvailableLessonScheduleResponse {
     private Long gymId;
     private LocalDate date;
     private Day day;
-    private Map<LocalTime, Boolean> lessonSchedule;
+    private List<LessonTime> schedules;
 
-    public static AvailableLessonScheduleResponse of(Long trainerId, Long gymId, LocalDate date, Day day, Map<LocalTime, Boolean> lessonSchedule) {
+    @Getter
+    @ToString
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    @AllArgsConstructor
+    public static class LessonTime {
+
+        private LocalTime time;
+        private boolean isBooked;
+
+        public static LessonTime of(LocalTime time, boolean isBooked) {
+            return new LessonTime(time, isBooked);
+        }
+    }
+
+    public static AvailableLessonScheduleResponse of(Long trainerId, Long gymId, LocalDate date, Day day, List<LessonTime> times) {
         return AvailableLessonScheduleResponse.builder()
             .trainerId(trainerId)
             .gymId(gymId)
             .date(date)
             .day(day)
-            .lessonSchedule(lessonSchedule)
+            .schedules(times)
             .build();
     }
 }

@@ -58,11 +58,6 @@ public class WorkSchedule extends BaseEntity {
     @Column(name = "OUT_TIME", columnDefinition = "TIME")
     private LocalTime outTime;
 
-    public static WorkSchedule createWorkSchedule(Gym gym, WorkSchedule workSchedule) {
-        workSchedule.setGym(gym);
-        return workSchedule;
-    }
-
     public void editWorkScheduleTime(LocalTime inTime, LocalTime outTime){
         this.inTime = inTime;
         this.outTime = outTime;
