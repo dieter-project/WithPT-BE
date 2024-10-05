@@ -26,17 +26,15 @@ import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-//@Transactional
-//@ActiveProfiles("test")
+@Transactional
+@ActiveProfiles("test")
 @SpringBootTest
 class LessonQueryRepositoryImplTest {
 
@@ -55,7 +53,6 @@ class LessonQueryRepositoryImplTest {
     private LessonRepository lessonRepository;
 
     @DisplayName("등록/취소 수업 스케줄 조회")
-    @Rollback(value = false)
     @Test
     void findLessonScheduleInfoBy() {
         // given
@@ -83,7 +80,7 @@ class LessonQueryRepositoryImplTest {
         assertThat(response.getMember().getName()).isEqualTo("회원");
         assertThat(response.getGym().getName()).isEqualTo("체육관");
     }
-    
+
     public Lesson createLesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonStatus status, String registeredBy) {
         return Lesson.builder()
             .member(member)

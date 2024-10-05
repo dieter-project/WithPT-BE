@@ -11,11 +11,11 @@ import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerReposi
 import com.sideproject.withpt.application.lesson.controller.request.LessonChangeRequest;
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
-import com.sideproject.withpt.application.lesson.repository.dto.LessonInfoResponse;
 import com.sideproject.withpt.application.lesson.controller.response.LessonMembersResponse;
 import com.sideproject.withpt.application.lesson.controller.response.PendingLessonInfo;
 import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
+import com.sideproject.withpt.application.lesson.repository.dto.LessonInfoResponse;
 import com.sideproject.withpt.application.lesson.service.response.LessonRegistrationResponse;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.pt.exception.PTException;
