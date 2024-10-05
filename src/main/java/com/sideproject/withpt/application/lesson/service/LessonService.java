@@ -16,7 +16,7 @@ import com.sideproject.withpt.application.lesson.controller.response.PendingLess
 import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
 import com.sideproject.withpt.application.lesson.repository.dto.LessonInfoResponse;
-import com.sideproject.withpt.application.lesson.service.response.LessonRegistrationResponse;
+import com.sideproject.withpt.application.lesson.service.response.LessonResponse;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.pt.exception.PTException;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
@@ -60,10 +60,10 @@ public class LessonService {
     private final LessonRepository lessonRepository;
 
     @Transactional
-    public LessonRegistrationResponse registrationPTLesson(Long gymId, String loginRole, LessonRegistrationRequest request) {
+    public LessonResponse registrationPTLesson(Long gymId, Role requestByRole, LessonRegistrationRequest request) {
         log.info("=================== 수업 등록 =======================\n");
-        Member member = getMemberBasedOnRole(request, loginRole);
-        Trainer trainer = getTrainerBasedOnRole(request, loginRole);
+        Member member = getMemberBasedOnRole(request, requestByRole);
+        Trainer trainer = getTrainerBasedOnRole(request, requestByRole);
         Gym gym = gymService.getGymById(gymId);
 
         GymTrainer gymTrainer = gymTrainerRepository.findByTrainerAndGym(trainer, gym)
@@ -75,10 +75,11 @@ public class LessonService {
 
         // TODO TEST 작성 수업 등록 - 예약 시스템이므로 동시성 고려하기
         Lesson lesson = lessonRepository.save(
-            Lesson.createNewLessonRegistration(member, gymTrainer, request.getDate(), request.getTime(), request.getWeekday(), loginRole)
+            Lesson.createNewLessonRegistration(member, gymTrainer,
+                request.getDate(), request.getTime(), request.getWeekday(), requestByRole, request.getRegistrationRequestId(), request.getRegistrationReceiverId())
         );
 
-        return LessonRegistrationResponse.of(lesson, request.getRegistrationRequestId(), request.getRegistrationReceiverId());
+        return LessonResponse.of(lesson);
     }
 
     public LessonInfoResponse getLessonSchedule(Long lessonId) {
@@ -86,7 +87,7 @@ public class LessonService {
     }
 
     @Transactional
-    public void changePTLesson(Long lessonId, String loginRole, LessonChangeRequest request) {
+    public void changePTLesson(Long lessonId, Role loginRole, LessonChangeRequest request) {
 
         Lesson lesson = lessonRepository.findById(lessonId)
             .orElseThrow(() -> new LessonException(LESSON_NOT_FOUND));
@@ -172,8 +173,8 @@ public class LessonService {
             );
     }
 
-    private Member getMemberBasedOnRole(LessonRegistrationRequest request, String loginRole) {
-        if (loginRole.equals(Role.TRAINER.name())) {
+    private Member getMemberBasedOnRole(LessonRegistrationRequest request, Role loginRole) {
+        if (loginRole == Role.TRAINER) {
             return memberRepository.findById(request.getRegistrationReceiverId())
                 .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
         } else {
@@ -182,8 +183,8 @@ public class LessonService {
         }
     }
 
-    private Trainer getTrainerBasedOnRole(LessonRegistrationRequest request, String loginRole) {
-        if (loginRole.equals(Role.TRAINER.name())) {
+    private Trainer getTrainerBasedOnRole(LessonRegistrationRequest request, Role loginRole) {
+        if (loginRole == Role.TRAINER) {
             return trainerRepository.findById(request.getRegistrationRequestId())
                 .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
         } else {

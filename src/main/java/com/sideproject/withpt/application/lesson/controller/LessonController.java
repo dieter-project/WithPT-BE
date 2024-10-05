@@ -3,15 +3,16 @@ package com.sideproject.withpt.application.lesson.controller;
 import com.sideproject.withpt.application.lesson.controller.request.LessonChangeRequest;
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
-import com.sideproject.withpt.application.lesson.repository.dto.LessonInfoResponse;
 import com.sideproject.withpt.application.lesson.controller.response.LessonMembersResponse;
 import com.sideproject.withpt.application.lesson.controller.response.PendingLessonInfo;
+import com.sideproject.withpt.application.lesson.repository.dto.LessonInfoResponse;
 import com.sideproject.withpt.application.lesson.service.LessonLockFacade;
 import com.sideproject.withpt.application.lesson.service.LessonService;
-import com.sideproject.withpt.application.lesson.service.response.LessonRegistrationResponse;
+import com.sideproject.withpt.application.lesson.service.response.LessonResponse;
 import com.sideproject.withpt.application.type.Day;
 import com.sideproject.withpt.application.type.LessonRequestStatus;
 import com.sideproject.withpt.application.type.LessonStatus;
+import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -48,14 +49,14 @@ public class LessonController {
 
     @Operation(summary = "신규 수업 등록")
     @PostMapping("/lessons/gyms/{gymId}")
-    public ApiSuccessResponse<LessonRegistrationResponse> registrationPtLesson(@PathVariable Long gymId,
+    public ApiSuccessResponse<LessonResponse> registrationPtLesson(@PathVariable Long gymId,
         @Valid @RequestBody LessonRegistrationRequest request) {
 
-        String loginRole = getLoginRole();
-        log.info("로그인 role = {}", loginRole);
+        Role registrationRequestByRole = getLoginRole();
+        log.info("로그인 role = {}", registrationRequestByRole);
 
-        LessonRegistrationResponse response = lessonLockFacade.lessonConcurrencyCheck(() ->
-                lessonService.registrationPTLesson(gymId, loginRole, request),
+        LessonResponse response = lessonLockFacade.lessonConcurrencyCheck(() ->
+                lessonService.registrationPTLesson(gymId, registrationRequestByRole, request),
             lessonLockFacade.generateKey(request.getDate(), request.getTime())
         );
         return ApiSuccessResponse.from(response);
@@ -73,13 +74,13 @@ public class LessonController {
     @PatchMapping("/lessons/{lessonId}")
     public void changePtLesson(@PathVariable Long lessonId, @Valid @RequestBody LessonChangeRequest request) {
 
-        String loginRole = getLoginRole();
+        Role loginRole = getLoginRole();
         log.info("로그인 role = {}", loginRole);
 
-        lessonLockFacade.lessonConcurrencyCheck(() ->
-                lessonService.changePTLesson(lessonId, loginRole, request),
-            lessonLockFacade.generateKey(request.getDate(), request.getTime())
-        );
+//        lessonLockFacade.lessonConcurrencyCheck(() ->
+//                lessonService.changePTLesson(lessonId, loginRole, request),
+//            lessonLockFacade.generateKey(request.getDate(), request.getTime())
+//        );
     }
 
     @Operation(summary = "예약 가능한 수업 시간 조회")
@@ -145,11 +146,13 @@ public class LessonController {
         lessonService.changeLessonStatus(lessonId, LessonStatus.CANCELED);
     }
 
-    private String getLoginRole() {
-        return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-            .map(GrantedAuthority::getAuthority)
-            .filter(s -> s.contains("TRAINER") || s.contains("MEMBER"))
-            .collect(Collectors.joining())
-            .split("_")[1];
+    private Role getLoginRole() {
+        return Role.valueOf(
+            SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .filter(s -> s.contains("TRAINER") || s.contains("MEMBER"))
+                .collect(Collectors.joining())
+                .split("_")[1]
+        );
     }
 }

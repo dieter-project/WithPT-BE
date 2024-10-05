@@ -1,9 +1,11 @@
 package com.sideproject.withpt.application.lesson.repository.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.querydsl.core.annotations.QueryProjection;
 import com.sideproject.withpt.application.type.LessonStatus;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.domain.pt.LessonSchedule;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,24 +13,31 @@ import lombok.ToString;
 
 @Getter
 @ToString
+@JsonInclude(Include.NON_NULL)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LessonInfoResponse {
 
     private Long lessonId;
-    private LocalDate date;
-    private LocalTime startTime;
+    private LessonSchedule schedule;
+    private LessonSchedule beforeSchedule;
     private LessonStatus status;
-    private String registeredBy;
+    private String requester;
+    private String receiver;
+    private Role registeredBy;
+    private Role modifiedBy;
     private Member member;
     private Gym gym;
 
     @QueryProjection
-    public LessonInfoResponse(Long lessonId, LocalDate date, LocalTime startTime, LessonStatus status, String registeredBy, Member member, Gym gym) {
+    public LessonInfoResponse(Long lessonId, LessonSchedule schedule, LessonSchedule beforeSchedule, LessonStatus status, String requester, String receiver, Role registeredBy, Role modifiedBy, Member member, Gym gym) {
         this.lessonId = lessonId;
-        this.date = date;
-        this.startTime = startTime;
+        this.schedule = schedule;
+        this.beforeSchedule = beforeSchedule;
         this.status = status;
+        this.requester = requester;
+        this.receiver = receiver;
         this.registeredBy = registeredBy;
+        this.modifiedBy = modifiedBy;
         this.member = member;
         this.gym = gym;
     }

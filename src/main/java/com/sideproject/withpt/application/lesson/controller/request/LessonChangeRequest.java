@@ -6,7 +6,6 @@ import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import javax.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,9 +13,7 @@ import lombok.ToString;
 
 @Getter
 @ToString
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 public class LessonChangeRequest {
 
     @NotNull
@@ -29,4 +26,10 @@ public class LessonChangeRequest {
     @NotNull
     private LocalTime time;
 
+    @Builder
+    private LessonChangeRequest(LocalDate date, Day weekday, LocalTime time) {
+        this.date = date;
+        this.weekday = weekday;
+        this.time = time;
+    }
 }

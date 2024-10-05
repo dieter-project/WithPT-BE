@@ -97,10 +97,13 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
             .select(
                 new QLessonInfoResponse(
                     lesson.id,
-                    lesson.schedule.date,
-                    lesson.schedule.time,
+                    lesson.schedule,
+                    lesson.beforeSchedule,
                     lesson.status,
+                    lesson.requester,
+                    lesson.receiver,
                     lesson.registeredBy,
+                    lesson.modifiedBy,
                     new QLessonInfoResponse_Member(
                         lesson.member.id,
                         lesson.member.name
@@ -133,10 +136,13 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
             .select(
                 new QLessonInfoResponse(
                     lesson.id,
-                    lesson.schedule.date,
-                    lesson.schedule.time,
+                    lesson.schedule,
+                    lesson.beforeSchedule,
                     lesson.status,
+                    lesson.requester,
+                    lesson.receiver,
                     lesson.registeredBy,
+                    lesson.modifiedBy,
                     new QLessonInfoResponse_Member(
                         member.id,
                         member.name

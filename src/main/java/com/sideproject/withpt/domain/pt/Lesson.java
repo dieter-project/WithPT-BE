@@ -27,7 +27,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
@@ -68,17 +67,25 @@ public class Lesson extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private LessonStatus status;
 
-    private String registeredBy;
+    private String requester;
 
-    private String modifiedBy;
+    private String receiver;
+
+    @Enumerated
+    private Role registeredBy;
+
+    @Enumerated
+    private Role modifiedBy;
 
     @Builder
-    private Lesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonSchedule beforeSchedule, LessonStatus status, String registeredBy, String modifiedBy) {
+    private Lesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonSchedule beforeSchedule, LessonStatus status, String requester, String receiver, Role registeredBy, Role modifiedBy) {
         this.member = member;
         this.gymTrainer = gymTrainer;
         this.schedule = schedule;
         this.beforeSchedule = beforeSchedule;
         this.status = status;
+        this.requester = requester;
+        this.receiver = receiver;
         this.registeredBy = registeredBy;
         this.modifiedBy = modifiedBy;
     }
@@ -87,38 +94,49 @@ public class Lesson extends BaseEntity {
         this.status = status;
     }
 
-    public void changeLessonSchedule(LocalDate date, LocalTime time, Day weekday, String loginRole) {
+    public void changeLessonSchedule(LocalDate date, LocalTime time, Day weekday, Role loginRole) {
         this.beforeSchedule = LessonSchedule.builder()
             .date(this.schedule.getDate())
             .time(this.schedule.getTime())
             .weekday(this.schedule.getWeekday())
             .build();
 
-        this.schedule.changeSchedule(
-            LessonSchedule.builder()
-                .date(date)
-                .time(time)
-                .weekday(weekday)
-                .build());
+        this.schedule = LessonSchedule.builder()
+            .date(date)
+            .time(time)
+            .weekday(weekday)
+            .build();
         this.status = LessonStatus.PENDING_APPROVAL;
         this.modifiedBy = loginRole;
     }
 
-    public static Lesson createNewLessonRegistration(Member member, GymTrainer gymTrainer, LocalDate date, LocalTime time, Day weekday, String loginRole) {
+    public static Lesson createNewLessonRegistration(Member member, GymTrainer gymTrainer, LocalDate date, LocalTime time, Day weekday, Role requestByRole, Long registrationRequestId, Long registrationReceiverId) {
         LessonSchedule firstRegisteredLesson = LessonSchedule.builder()
             .date(date)
             .time(time)
             .weekday(weekday)
             .build();
 
+        String requester = getRequester(registrationRequestId, registrationReceiverId, requestByRole);
+        String receiver = getReceiver(registrationRequestId, registrationReceiverId, requestByRole);
         return Lesson.builder()
             .member(member)
             .gymTrainer(gymTrainer)
             .schedule(firstRegisteredLesson)
             .status(
-                loginRole.equals(Role.TRAINER.name()) ? LessonStatus.RESERVED : LessonStatus.PENDING_APPROVAL
+                requestByRole == Role.TRAINER ? LessonStatus.RESERVED : LessonStatus.PENDING_APPROVAL
             )
-            .registeredBy(loginRole)
+            .requester(requester)
+            .receiver(receiver)
+            .registeredBy(requestByRole)
             .build();
+    }
+
+    public static String getRequester(Long requestId, Long receiverId, Role requestByRole) {
+        return requestByRole == Role.MEMBER ? requestId + "_" + Role.MEMBER : receiverId + "_" + Role.TRAINER;
+    }
+
+    public static String getReceiver(Long requestId, Long receiverId, Role requestByRole) {
+        return requestByRole == Role.MEMBER ? receiverId + "_" + Role.TRAINER : requestId + "_" + Role.MEMBER;
     }
 }

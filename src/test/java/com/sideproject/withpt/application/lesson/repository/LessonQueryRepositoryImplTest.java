@@ -15,6 +15,7 @@ import com.sideproject.withpt.application.type.LessonStatus;
 import com.sideproject.withpt.application.type.PTInfoInputStatus;
 import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.application.type.PtRegistrationStatus;
+import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.application.type.Sex;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
@@ -67,27 +68,40 @@ class LessonQueryRepositoryImplTest {
             .weekday(Day.FRI)
             .build();
 
-        Lesson lesson = lessonRepository.save(createLesson(member, gymTrainer, lessonSchedule, LessonStatus.RESERVED, "TRAINER"));
+        Role registrationRequestByRole = Role.TRAINER;
+        String requester = Lesson.getRequester(trainer.getId(), member.getId(), registrationRequestByRole);
+        String receiver = Lesson.getReceiver(trainer.getId(), member.getId(), registrationRequestByRole);
+
+        Lesson lesson = lessonRepository.save(
+            createLesson(member, gymTrainer, lessonSchedule, null, LessonStatus.RESERVED, requester, receiver, registrationRequestByRole, null)
+        );
 
         // when
         LessonInfoResponse response = lessonRepository.findLessonScheduleInfoBy(lesson.getId());
 
         // then
         assertThat(response)
-            .extracting("date", "startTime", "status", "registeredBy")
-            .contains(LocalDate.of(2024, 10, 4), LocalTime.of(21, 35), LessonStatus.RESERVED, "TRAINER");
+            .extracting("schedule.date", "schedule.time", "beforeSchedule",
+                "status", "requester", "receiver", "registeredBy", "modifiedBy")
+            .contains(
+                LocalDate.of(2024, 10, 4), LocalTime.of(21, 35), null,
+                LessonStatus.RESERVED, requester, receiver, Role.TRAINER, null);
 
         assertThat(response.getMember().getName()).isEqualTo("회원");
         assertThat(response.getGym().getName()).isEqualTo("체육관");
     }
 
-    public Lesson createLesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonStatus status, String registeredBy) {
+    public Lesson createLesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonSchedule beforeSchedule, LessonStatus status, String requester, String receiver, Role registeredBy, Role modifiedBy) {
         return Lesson.builder()
             .member(member)
             .gymTrainer(gymTrainer)
             .schedule(schedule)
+            .beforeSchedule(beforeSchedule)
             .status(status)
+            .requester(requester)
+            .receiver(receiver)
             .registeredBy(registeredBy)
+            .modifiedBy(modifiedBy)
             .build();
     }
 

@@ -5,10 +5,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
+import com.sideproject.withpt.application.lesson.controller.request.LessonChangeRequest;
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
 import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
-import com.sideproject.withpt.application.lesson.service.response.LessonRegistrationResponse;
+import com.sideproject.withpt.application.lesson.service.response.LessonResponse;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.pt.exception.PTException;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
@@ -37,7 +38,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.EnumSource.Mode;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -89,16 +89,16 @@ class LessonServiceTest {
             .build();
 
         Long gymId = gym.getId();
-        String loginRole = Role.TRAINER.name();
+        Role registrationRequestByRole = Role.TRAINER;
 
         // when
-        LessonRegistrationResponse response = lessonService.registrationPTLesson(gymId, loginRole, request);
+        LessonResponse response = lessonService.registrationPTLesson(gymId, registrationRequestByRole, request);
 
         // then
         assertThat(response)
-            .extracting("from", "to", "schedule.date", "schedule.time", "schedule.weekday", "status", "registeredBy")
-            .contains(trainer.getId(), member.getId(),
-                LocalDate.of(2024, 10, 4), LocalTime.of(20, 44), Day.FRI, LessonStatus.RESERVED, Role.TRAINER.name());
+            .extracting("requester", "receiver", "schedule.date", "schedule.time", "schedule.weekday", "beforeSchedule", "status", "registeredBy", "modifiedBy")
+            .contains(trainer.getId() + "_TRAINER", member.getId() + "_MEMBER",
+                LocalDate.of(2024, 10, 4), LocalTime.of(20, 44), Day.FRI, null, LessonStatus.RESERVED, Role.TRAINER, null);
     }
 
     @DisplayName("회원이 수업 등록 요청을 하면 \"승인 대기 중\" 상태로 등록된다.")
@@ -124,16 +124,16 @@ class LessonServiceTest {
             .build();
 
         Long gymId = gym.getId();
-        String loginRole = Role.MEMBER.name();
+        Role registrationRequestByRole = Role.MEMBER;
 
         // when
-        LessonRegistrationResponse response = lessonService.registrationPTLesson(gymId, loginRole, request);
+        LessonResponse response = lessonService.registrationPTLesson(gymId, registrationRequestByRole, request);
 
         // then
         assertThat(response)
-            .extracting("from", "to", "schedule.date", "schedule.time", "schedule.weekday", "status", "registeredBy")
-            .contains(member.getId(), trainer.getId(),
-                LocalDate.of(2024, 10, 4), LocalTime.of(20, 44), Day.FRI, LessonStatus.PENDING_APPROVAL, Role.MEMBER.name());
+            .extracting("requester", "receiver", "schedule.date", "schedule.time", "schedule.weekday", "beforeSchedule", "status", "registeredBy", "modifiedBy")
+            .contains(member.getId() + "_MEMBER", trainer.getId() + "_TRAINER",
+                LocalDate.of(2024, 10, 4), LocalTime.of(20, 44), Day.FRI, null, LessonStatus.PENDING_APPROVAL, Role.MEMBER, null);
     }
 
     @DisplayName("회원이 PT 등록을 허용하지 않으면 수업 등록 요청이 불가능하다.")
@@ -159,10 +159,10 @@ class LessonServiceTest {
             .build();
 
         Long gymId = gym.getId();
-        String loginRole = Role.MEMBER.name();
+        Role registrationRequestByRole = Role.MEMBER;
 
         // when // then
-        assertThatThrownBy(() -> lessonService.registrationPTLesson(gymId, loginRole, request))
+        assertThatThrownBy(() -> lessonService.registrationPTLesson(gymId, registrationRequestByRole, request))
             .isInstanceOf(PTException.class)
             .hasMessage("아직 PT 등록을 허용하지 않은 회원입니다.");
     }
@@ -190,10 +190,10 @@ class LessonServiceTest {
             .build();
 
         Long gymId = gym.getId();
-        String loginRole = Role.MEMBER.name();
+        Role registrationRequestByRole = Role.MEMBER;
 
         // when // then
-        assertThatThrownBy(() -> lessonService.registrationPTLesson(gymId, loginRole, request))
+        assertThatThrownBy(() -> lessonService.registrationPTLesson(gymId, registrationRequestByRole, request))
             .isInstanceOf(PTException.class)
             .hasMessage("PT 상세 정보를 입력하지 않으셨습니다.");
     }
@@ -221,10 +221,10 @@ class LessonServiceTest {
             .build();
 
         Long gymId = gym.getId();
-        String loginRole = Role.MEMBER.name();
+        Role registrationRequestByRole = Role.MEMBER;
 
         // when // then
-        assertThatThrownBy(() -> lessonService.registrationPTLesson(gymId, loginRole, request))
+        assertThatThrownBy(() -> lessonService.registrationPTLesson(gymId, registrationRequestByRole, request))
             .isInstanceOf(PTException.class)
             .hasMessage("잔여 PT 횟수가 남아 있지 않습니다.");
     }
@@ -253,7 +253,7 @@ class LessonServiceTest {
             .build();
 
         lessonRepository.save(
-            createLesson(member, gymTrainer, lessonSchedule, lessonStatus, "TRAINER")
+            createLesson(member, gymTrainer, lessonSchedule, lessonStatus, Role.TRAINER)
         );
 
         LessonRegistrationRequest request = LessonRegistrationRequest.builder()
@@ -265,15 +265,53 @@ class LessonServiceTest {
             .build();
 
         Long gymId = gym.getId();
-        String loginRole = Role.MEMBER.name();
+        Role registrationRequestByRole = Role.MEMBER;
 
         // when // then
-        assertThatThrownBy(() -> lessonService.registrationPTLesson(gymId, loginRole, request))
+        assertThatThrownBy(() -> lessonService.registrationPTLesson(gymId, registrationRequestByRole, request))
             .isInstanceOf(LessonException.class)
             .hasMessage("이미 예약된 수업입니다.");
     }
 
-    public Lesson createLesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonStatus status, String registeredBy) {
+    @DisplayName("수업 스케줄 변경")
+    @Test
+    void changePTLesson() {
+        Member member = memberRepository.save(createMember("회원"));
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+        Gym gym = gymRepository.save(createGym("체육관"));
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer));
+        personalTrainingRepository.save(
+            createPersonalTraining(member, gymTrainer, 30, 10,
+                PTInfoInputStatus.INFO_REGISTERED,
+                PtRegistrationStatus.ALLOWED,
+                PtRegistrationAllowedStatus.ALLOWED)
+        );
+
+        LessonSchedule lessonSchedule = LessonSchedule.builder()
+            .date(LocalDate.of(2024, 10, 4))
+            .time(LocalTime.of(20, 44))
+            .weekday(Day.FRI)
+            .build();
+
+        Lesson lesson = lessonRepository.save(
+            createLesson(member, gymTrainer, lessonSchedule, LessonStatus.RESERVED, Role.TRAINER)
+        );
+
+        LessonChangeRequest request = LessonChangeRequest.builder()
+            .date(LocalDate.of(2024, 10, 5))
+            .weekday(Day.SAT)
+            .time(LocalTime.of(16, 0))
+            .build();
+
+        Long lessonId = lesson.getId();
+        String loginRole = Role.MEMBER.name();
+
+        // when
+
+        // then
+    }
+
+    public Lesson createLesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonStatus status, Role registeredBy) {
         return Lesson.builder()
             .member(member)
             .gymTrainer(gymTrainer)
