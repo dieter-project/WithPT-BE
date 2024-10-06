@@ -105,6 +105,27 @@ public class LessonController {
         );
     }
 
+    @Operation(summary = "트레이너 - 날짜 별 수업 스케줄 조회")
+    @GetMapping("/lessons/trainer/{trainerId}")
+    public ApiSuccessResponse<LessonMembersResponse> getTrainerLessonScheduleByDate(
+        @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
+        @RequestParam(required = false, defaultValue = "-1") Long gymId,
+        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
+        return ApiSuccessResponse.from(
+            lessonService.getTrainerLessonScheduleByDate(trainerId, gymId, date)
+        );
+    }
+
+    @Operation(summary = "회원 - 날짜 별 수업 스케줄 조회")
+    @GetMapping("/lessons/member/{memberId}")
+    public void getLessonScheduleMembers(
+        @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
+        @RequestParam(required = false, defaultValue = "-1") Long gymId,
+        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date
+    ) {
+
+    }
+
     // 내가 보낸 요청 / 받은 요청 분리하기
     @Operation(summary = "수업관리/메인 - 대기 수업 조회")
     @GetMapping("/lessons/pending-lessons")
@@ -114,21 +135,6 @@ public class LessonController {
 
         return ApiSuccessResponse.from(
             lessonService.getPendingLessons(trainerId)
-        );
-    }
-
-    @Operation(summary = "수업관리/메인 - 날짜 별 체육관 수업 스케줄 조회")
-    @GetMapping("/lessons")
-    public ApiSuccessResponse<LessonMembersResponse> getLessonScheduleMembers(
-        @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
-        @RequestParam(name = "gym", required = false) Long gymId,
-        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
-        @RequestParam(required = false) LessonStatus status
-    ) {
-        log.info("체육관 {}, 날짜 {}, 상태 {}", gymId, date, status);
-
-        return ApiSuccessResponse.from(
-            lessonService.getLessonScheduleMembers(trainerId, gymId, date, status)
         );
     }
 

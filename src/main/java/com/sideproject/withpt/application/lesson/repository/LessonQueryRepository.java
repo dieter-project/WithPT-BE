@@ -16,6 +16,8 @@ public interface LessonQueryRepository {
 
     List<Lesson> getBookedLessonBy(GymTrainer gymTrainer, LocalDate date);
 
+    List<LessonInfoResponse> getTrainerLessonScheduleByDate(List<GymTrainer> gymTrainers, LocalDate date);
+
     List<LessonInfoResponse> getLessonScheduleMembers(Long trainerId, Long gymId, LocalDate date, LessonStatus status);
 
     LessonInfoResponse findLessonScheduleInfoBy(Long lessonId);

@@ -142,10 +142,19 @@ public class LessonService {
         return AvailableLessonScheduleResponse.of(trainerId, gymId, date, weekday, lessonTimes);
     }
 
+    public LessonMembersResponse getTrainerLessonScheduleByDate(Long trainerId, Long gymId, LocalDate date) {
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+        Gym gym = gymRepository.findById(gymId)
+            .orElse(null);
 
-    public LessonMembersResponse getLessonScheduleMembers(Long trainerId, Long gymId, LocalDate date, LessonStatus status) {
+        // trainer != null, gym == null, member == null -> 트레이너가 모든 수업일정 조회
+        // trainer != null, gym != null, member == null -> 트레이너가 A 체육관 수업일정 조회
+        // trainer == null, 체육관 == null -> 회원이 조회
+        List<GymTrainer> gymTrainers = gymTrainerRepository.findAllTrainerAndGym(trainer, gym);
+
         return new LessonMembersResponse(
-            lessonRepository.getLessonScheduleMembers(trainerId, gymId, date, status)
+            lessonRepository.getTrainerLessonScheduleByDate(gymTrainers, date)
         );
     }
 

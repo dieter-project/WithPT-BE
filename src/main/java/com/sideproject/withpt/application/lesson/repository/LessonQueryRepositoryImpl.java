@@ -1,6 +1,7 @@
 package com.sideproject.withpt.application.lesson.repository;
 
 import static com.sideproject.withpt.domain.gym.QGym.gym;
+import static com.sideproject.withpt.domain.gym.QGymTrainer.gymTrainer;
 import static com.sideproject.withpt.domain.member.QMember.member;
 import static com.sideproject.withpt.domain.pt.QLesson.lesson;
 
@@ -26,6 +27,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
@@ -57,6 +59,51 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
                 lesson.schedule.date.eq(date),
                 lesson.status.eq(LessonStatus.RESERVED).or(lesson.status.eq(LessonStatus.PENDING_APPROVAL))
             ).fetch();
+    }
+
+    @Override
+    public List<LessonInfoResponse> getTrainerLessonScheduleByDate(List<GymTrainer> gymTrainers, LocalDate date) {
+        return jpaQueryFactory
+            .select(
+                new QLessonInfoResponse(
+                    lesson.id,
+                    lesson.schedule,
+                    lesson.beforeSchedule,
+                    lesson.status,
+                    lesson.requester,
+                    lesson.receiver,
+                    lesson.registeredBy,
+                    lesson.modifiedBy,
+                    new QLessonInfoResponse_Member(
+                        member.id,
+                        member.name
+                    ),
+                    new QLessonInfoResponse_Gym(
+                        gym.id,
+                        gym.name
+                    )
+                )
+            )
+            .from(lesson)
+            .join(lesson.member, member)
+            .join(lesson.gymTrainer, gymTrainer)
+            .join(gymTrainer.gym, gym)
+            .where(
+                gymTrainersIn(gymTrainers),
+                lesson.schedule.date.eq(date),
+                lesson.status.eq(LessonStatus.RESERVED)
+                    .or(lesson.status.eq(LessonStatus.CANCELED))
+                    .or(lesson.status.eq(LessonStatus.TIME_OUT_CANCELED))
+            )
+            .orderBy(
+                lesson.schedule.time.asc(),
+                gym.name.asc()
+            )
+            .fetch();
+    }
+
+    private BooleanExpression gymTrainersIn(List<GymTrainer> gymTrainers) {
+        return CollectionUtils.isEmpty(gymTrainers) ? null : lesson.gymTrainer.in(gymTrainers);
     }
 
     @Override
