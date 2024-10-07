@@ -8,6 +8,7 @@ import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInf
 import com.sideproject.withpt.application.lesson.service.LessonLockFacade;
 import com.sideproject.withpt.application.lesson.service.LessonService;
 import com.sideproject.withpt.application.lesson.service.response.LessonResponse;
+import com.sideproject.withpt.application.lesson.service.response.LessonScheduleOfMonthResponse;
 import com.sideproject.withpt.application.lesson.service.response.MemberLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.service.response.TrainerLessonScheduleResponse;
 import com.sideproject.withpt.application.type.Day;
@@ -23,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -125,6 +128,20 @@ public class LessonController {
         );
     }
 
+    // 메인 화면 달력 표시를 위한 api
+    @Operation(summary = "트레이너 - 월(Month) 전체 체육관 수업 일정 달력 조회")
+    @GetMapping("/lessons/schedules/monthly")
+    public ApiSuccessResponse<LessonScheduleOfMonthResponse> getTrainerLessonScheduleOfMonth(
+        @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
+        @RequestParam(required = false, defaultValue = "-1") Long gymId,
+        @RequestParam int year,
+        @Valid @Min(1) @Max(12) @RequestParam int month
+    ) {
+        return ApiSuccessResponse.from(
+            lessonService.getTrainerLessonScheduleOfMonth(trainerId, gymId, YearMonth.of(year, month))
+        );
+    }
+
     // 내가 보낸 요청 / 받은 요청 분리하기
     @Operation(summary = "수업관리/메인 - 대기 수업 조회")
     @GetMapping("/lessons/pending-lessons")
@@ -134,20 +151,6 @@ public class LessonController {
 
         return ApiSuccessResponse.from(
             lessonService.getPendingLessons(trainerId)
-        );
-    }
-
-    // 메인 화면 달력 표시를 위한 api
-    @Operation(summary = "수업관리/메인 - 해당 월(Month) 체육관 수업 일정 달력 날짜 조회")
-    @GetMapping("/lessons/days")
-    public ApiSuccessResponse<List<LocalDate>> getLessonScheduleOfMonth(
-        @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
-        @RequestParam(name = "gym", required = false) Long gymId,
-        @RequestParam @DateTimeFormat(pattern = "yyyy-MM") YearMonth date
-    ) {
-        log.info("체육관 {}, 날짜 {}", gymId, date.toString());
-        return ApiSuccessResponse.from(
-            lessonService.getLessonScheduleOfMonth(trainerId, gymId, date)
         );
     }
 

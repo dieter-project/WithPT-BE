@@ -2,7 +2,6 @@ package com.sideproject.withpt.application.lesson.repository;
 
 import com.sideproject.withpt.application.lesson.repository.dto.MemberLessonInfoResponse;
 import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInfoResponse;
-import com.sideproject.withpt.application.type.LessonStatus;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.pt.Lesson;
@@ -22,10 +21,8 @@ public interface LessonQueryRepository {
 
     List<MemberLessonInfoResponse> getMemberLessonScheduleByDate(Member member, LocalDate date);
 
-    List<TrainerLessonInfoResponse> getLessonScheduleMembers(Long trainerId, Long gymId, LocalDate date, LessonStatus status);
+    List<LocalDate> getTrainerLessonScheduleOfMonth(List<GymTrainer> gymTrainers, YearMonth yearMonth);
 
     TrainerLessonInfoResponse findLessonScheduleInfoBy(Long lessonId);
-
-    List<LocalDate> getLessonScheduleOfMonth(Long trainerId, Long gymId, YearMonth date);
 
 }

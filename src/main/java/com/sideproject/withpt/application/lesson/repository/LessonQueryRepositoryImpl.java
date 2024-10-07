@@ -155,6 +155,31 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
     }
 
     @Override
+    public List<LocalDate> getTrainerLessonScheduleOfMonth(List<GymTrainer> gymTrainers, YearMonth yearMonth) {
+
+        DateTemplate<String> localDateTemplate = Expressions.dateTemplate(
+            String.class,
+            "CONCAT(YEAR({0}), '-', LPAD(MONTH({0}), 2, '0'))",
+            lesson.schedule.date,
+            ConstantImpl.create("%Y-%m")
+        );
+
+        return jpaQueryFactory
+            .select(
+                lesson.schedule.date
+            )
+            .from(lesson)
+            .where(
+                gymTrainersIn(gymTrainers),
+                localDateTemplate.eq(yearMonth.toString()),
+                // 승인 대기 중이 아닌 수업들 다 조회
+                lesson.status.ne(LessonStatus.PENDING_APPROVAL)
+            ).distinct()
+            .orderBy(lesson.schedule.date.asc())
+            .fetch();
+    }
+
+    @Override
     public TrainerLessonInfoResponse findLessonScheduleInfoBy(Long lessonId) {
         return jpaQueryFactory
             .select(
@@ -186,73 +211,6 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
                 lesson.id.eq(lessonId)
             )
             .fetchOne();
-    }
-
-    @Override
-    public List<TrainerLessonInfoResponse> getLessonScheduleMembers(Long trainerId, Long gymId, LocalDate date, LessonStatus status) {
-        return jpaQueryFactory
-            .select(
-                new QTrainerLessonInfoResponse(
-                    new QTrainerLessonInfoResponse_Lesson(
-
-                        lesson.id,
-                        lesson.schedule,
-                        lesson.beforeSchedule,
-                        lesson.status,
-                        lesson.requester,
-                        lesson.receiver,
-                        lesson.registeredBy,
-                        lesson.modifiedBy
-                    ),
-                    new QTrainerLessonInfoResponse_Member(
-                        member.id,
-                        member.name
-                    ),
-                    new QTrainerLessonInfoResponse_Gym(
-                        gym.id,
-                        gym.name
-                    )
-                )
-            )
-            .from(lesson)
-            .join(lesson.member)
-            .join(lesson.gym)
-            .where(
-                lesson.trainer.id.eq(trainerId),
-                gymIdEq(gymId),
-                scheduleDateEq(date),
-                statusNotInOrEq(status)
-            )
-            .orderBy(
-                lesson.schedule.time.asc(),
-                lesson.gym.name.asc()
-            )
-            .fetch();
-    }
-
-    @Override
-    public List<LocalDate> getLessonScheduleOfMonth(Long trainerId, Long gymId, YearMonth date) {
-
-        DateTemplate<String> localDateTemplate = Expressions.dateTemplate(
-            String.class,
-            "DATE_FORMAT({0}, {1})",
-            lesson.schedule.date,
-            ConstantImpl.create("%Y-%m")
-        );
-
-        return jpaQueryFactory
-            .select(
-                lesson.schedule.date
-            )
-            .from(lesson)
-            .where(
-                lesson.trainer.id.eq(trainerId),
-                gymIdEq(gymId),
-                localDateTemplate.eq(date.toString()),
-                lesson.status.notIn(LessonStatus.CANCELED)
-            ).distinct()
-            .orderBy(lesson.schedule.date.asc())
-            .fetch();
     }
 
     private BooleanExpression memberNameContains(String name) {

@@ -19,6 +19,7 @@ import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
 import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInfoResponse;
 import com.sideproject.withpt.application.lesson.service.response.LessonResponse;
+import com.sideproject.withpt.application.lesson.service.response.LessonScheduleOfMonthResponse;
 import com.sideproject.withpt.application.lesson.service.response.MemberLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.service.response.TrainerLessonScheduleResponse;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
@@ -173,6 +174,28 @@ public class LessonService {
 
     }
 
+    /*
+    트레이너 - 월(Month) 전체 체육관 수업 일정 달력 조회
+     */
+    public LessonScheduleOfMonthResponse getTrainerLessonScheduleOfMonth(Long trainerId, Long gymId, YearMonth yearMonth) {
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+        Gym gym = gymRepository.findById(gymId)
+            .orElse(null);
+
+        List<GymTrainer> gymTrainers = gymTrainerRepository.findAllTrainerAndGym(trainer, gym);
+
+        List<String> gymNames = gymTrainers.stream()
+            .map(gymTrainer -> gymTrainer.getGym().getName())
+            .collect(toList());
+
+        return new LessonScheduleOfMonthResponse(
+            gymNames,
+            lessonRepository.getTrainerLessonScheduleOfMonth(gymTrainers, yearMonth)
+        );
+
+    }
+
     public Map<LessonRequestStatus, Map<LessonRequestStatus, List<PendingLessonInfo>>> getPendingLessons(Long trainerId) {
         List<Lesson> allByTrainerId = lessonRepository.findAllByTrainerIdAndStatus(trainerId, LessonStatus.PENDING_APPROVAL);
         allByTrainerId.forEach(System.out::println);
@@ -206,10 +229,6 @@ public class LessonService {
         } else {
             return LessonRequestStatus.SENT;
         }
-    }
-
-    public List<LocalDate> getLessonScheduleOfMonth(Long trainerId, Long gymId, YearMonth date) {
-        return lessonRepository.getLessonScheduleOfMonth(trainerId, gymId, date);
     }
 
     @Transactional

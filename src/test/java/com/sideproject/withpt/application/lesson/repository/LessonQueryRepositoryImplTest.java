@@ -29,6 +29,7 @@ import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -220,6 +221,69 @@ class LessonQueryRepositoryImplTest {
             .contains(
                 tuple("트레이너1", LocalDate.of(2024, 10, 7), LocalTime.of(9, 0), LessonStatus.RESERVED, "체육관1"),
                 tuple("트레이너2", LocalDate.of(2024, 10, 7), LocalTime.of(12, 0), LessonStatus.RESERVED, "체육관2")
+            );
+    }
+
+    @DisplayName("트레이너 - 월(Month) 전체 체육관 수업 일정 달력 조회")
+    @Test
+    void getTrainerLessonScheduleOfMonth() {
+        // given
+        Member member = memberRepository.save(createMember("회원"));
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+        Gym gym1 = gymRepository.save(createGym("체육관1"));
+        Gym gym2 = gymRepository.save(createGym("체육관2"));
+
+        GymTrainer gymTrainer1 = gymTrainerRepository.save(createGymTrainer(gym1, trainer));
+        LessonSchedule lessonSchedule1 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(9, 0), Day.SAT);
+        LessonSchedule lessonSchedule2 = createLessonSchedule(LocalDate.of(2024, 10, 6), LocalTime.of(11, 0), Day.SAT);
+        LessonSchedule lessonSchedule3 = createLessonSchedule(LocalDate.of(2024, 10, 7), LocalTime.of(12, 0), Day.SAT);
+        LessonSchedule lessonSchedule4 = createLessonSchedule(LocalDate.of(2024, 10, 8), LocalTime.of(14, 0), Day.SAT);
+        LessonSchedule lessonSchedule5 = createLessonSchedule(LocalDate.of(2024, 10, 11), LocalTime.of(14, 0), Day.SAT);
+        LessonSchedule lessonSchedule6 = createLessonSchedule(LocalDate.of(2024, 10, 15), LocalTime.of(14, 0), Day.SAT);
+        LessonSchedule lessonSchedule7 = createLessonSchedule(LocalDate.of(2024, 10, 21), LocalTime.of(14, 0), Day.SAT);
+        LessonSchedule lessonSchedule8 = createLessonSchedule(LocalDate.of(2024, 10, 24), LocalTime.of(14, 0), Day.SAT);
+        LessonSchedule lessonSchedule9 = createLessonSchedule(LocalDate.of(2024, 10, 29), LocalTime.of(14, 0), Day.SAT);
+        LessonSchedule lessonSchedule10 = createLessonSchedule(LocalDate.of(2024, 11, 3), LocalTime.of(14, 0), Day.SAT);
+        lessonRepository.saveAll(List.of(
+                createLesson(member, gymTrainer1, lessonSchedule1, LessonStatus.RESERVED),
+                createLesson(member, gymTrainer1, lessonSchedule2, LessonStatus.RESERVED),
+                createLesson(member, gymTrainer1, lessonSchedule3, LessonStatus.RESERVED),
+                createLesson(member, gymTrainer1, lessonSchedule4, LessonStatus.CANCELED),
+                createLesson(member, gymTrainer1, lessonSchedule5, LessonStatus.RESERVED),
+                createLesson(member, gymTrainer1, lessonSchedule6, LessonStatus.RESERVED),
+                createLesson(member, gymTrainer1, lessonSchedule7, LessonStatus.TIME_OUT_CANCELED),
+                createLesson(member, gymTrainer1, lessonSchedule8, LessonStatus.COMPLETION),
+                createLesson(member, gymTrainer1, lessonSchedule9, LessonStatus.PENDING_APPROVAL),
+                createLesson(member, gymTrainer1, lessonSchedule10, LessonStatus.RESERVED)
+            )
+        );
+
+        GymTrainer gymTrainer2 = gymTrainerRepository.save(createGymTrainer(gym2, trainer));
+        LessonSchedule lessonSchedule11 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(15, 0), Day.SAT);
+        LessonSchedule lessonSchedule12 = createLessonSchedule(LocalDate.of(2024, 10, 6), LocalTime.of(18, 0), Day.SUN);
+        lessonRepository.saveAll(List.of(
+                createLesson(member, gymTrainer2, lessonSchedule11, LessonStatus.RESERVED),
+                createLesson(member, gymTrainer2, lessonSchedule12, LessonStatus.RESERVED)
+            )
+        );
+
+        final YearMonth yearMonth = YearMonth.of(2024, 10);
+        final List<GymTrainer> gymTrainers = List.of(gymTrainer1, gymTrainer2);
+
+        // when
+        List<LocalDate> result = lessonRepository.getTrainerLessonScheduleOfMonth(gymTrainers, yearMonth);
+
+        // then
+        assertThat(result).hasSize(8)
+            .containsExactly(
+                LocalDate.of(2024, 10, 5),
+                LocalDate.of(2024, 10, 6),
+                LocalDate.of(2024, 10, 7),
+                LocalDate.of(2024, 10, 8),
+                LocalDate.of(2024, 10, 11),
+                LocalDate.of(2024, 10, 15),
+                LocalDate.of(2024, 10, 21),
+                LocalDate.of(2024, 10, 24)
             );
     }
 
