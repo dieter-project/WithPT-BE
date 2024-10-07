@@ -128,9 +128,8 @@ public class LessonController {
         );
     }
 
-    // 메인 화면 달력 표시를 위한 api
     @Operation(summary = "트레이너 - 월(Month) 전체 체육관 수업 일정 달력 조회")
-    @GetMapping("/lessons/schedules/monthly")
+    @GetMapping("/lessons/trainer-schedules/monthly")
     public ApiSuccessResponse<LessonScheduleOfMonthResponse> getTrainerLessonScheduleOfMonth(
         @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
         @RequestParam(required = false, defaultValue = "-1") Long gymId,
@@ -139,6 +138,19 @@ public class LessonController {
     ) {
         return ApiSuccessResponse.from(
             lessonService.getTrainerLessonScheduleOfMonth(trainerId, gymId, YearMonth.of(year, month))
+        );
+    }
+
+    @Operation(summary = "회원 - 월(Month) 전체 체육관 수업 일정 달력 조회")
+    @GetMapping("/lessons/member-schedules/monthly")
+    public ApiSuccessResponse<LessonScheduleOfMonthResponse> getMemberLessonScheduleOfMonth(
+        @Parameter(hidden = true) @AuthenticationPrincipal Long memberId,
+        @RequestParam(required = false, defaultValue = "-1") Long gymId,
+        @RequestParam int year,
+        @Valid @Min(1) @Max(12) @RequestParam int month
+    ) {
+        return ApiSuccessResponse.from(
+            lessonService.getMemberLessonScheduleOfMonth(memberId, gymId, YearMonth.of(year, month))
         );
     }
 

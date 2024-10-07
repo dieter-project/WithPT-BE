@@ -180,6 +180,31 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
     }
 
     @Override
+    public List<LocalDate> getMemberLessonScheduleOfMonth(List<GymTrainer> gymTrainers, Member member, YearMonth yearMonth) {
+
+        DateTemplate<String> localDateTemplate = Expressions.dateTemplate(
+            String.class,
+            "CONCAT(YEAR({0}), '-', LPAD(MONTH({0}), 2, '0'))",
+            lesson.schedule.date,
+            ConstantImpl.create("%Y-%m")
+        );
+
+        return jpaQueryFactory
+            .select(
+                lesson.schedule.date
+            )
+            .from(lesson)
+            .where(
+                gymTrainersIn(gymTrainers),
+                lesson.member.eq(member),
+                localDateTemplate.eq(yearMonth.toString()),
+                lesson.status.in(List.of(LessonStatus.COMPLETION, LessonStatus.RESERVED))
+            ).distinct()
+            .orderBy(lesson.schedule.date.asc())
+            .fetch();
+    }
+
+    @Override
     public TrainerLessonInfoResponse findLessonScheduleInfoBy(Long lessonId) {
         return jpaQueryFactory
             .select(

@@ -819,6 +819,151 @@ class LessonServiceTest {
                     LocalDate.of(2024, 10, 10)
                 );
         }
+
+        @DisplayName("회원 - 체육관 필터링 X")
+        @Test
+        void getMemberLessonScheduleOfMonth() {
+            // given
+            Member member = memberRepository.save(createMember("회원"));
+
+            Trainer trainer1 = trainerRepository.save(createTrainer("트레이너1"));
+            Trainer trainer2 = trainerRepository.save(createTrainer("트레이너2"));
+            Gym gym1 = gymRepository.save(createGym("체육관1"));
+            Gym gym2 = gymRepository.save(createGym("체육관2"));
+
+            GymTrainer gymTrainer1 = gymTrainerRepository.save(createGymTrainer(gym1, trainer1));
+            personalTrainingRepository.save(
+                createPersonalTraining(member, gymTrainer1, 30, 5, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED)
+            );
+
+            LessonSchedule lessonSchedule1 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(9, 0), Day.SAT);
+            LessonSchedule lessonSchedule2 = createLessonSchedule(LocalDate.of(2024, 10, 6), LocalTime.of(11, 0), Day.SAT);
+            LessonSchedule lessonSchedule3 = createLessonSchedule(LocalDate.of(2024, 10, 7), LocalTime.of(12, 0), Day.SAT);
+            LessonSchedule lessonSchedule4 = createLessonSchedule(LocalDate.of(2024, 10, 8), LocalTime.of(14, 0), Day.SAT);
+            LessonSchedule lessonSchedule5 = createLessonSchedule(LocalDate.of(2024, 10, 11), LocalTime.of(14, 0), Day.SAT);
+            LessonSchedule lessonSchedule6 = createLessonSchedule(LocalDate.of(2024, 10, 15), LocalTime.of(14, 0), Day.SAT);
+            LessonSchedule lessonSchedule7 = createLessonSchedule(LocalDate.of(2024, 10, 21), LocalTime.of(14, 0), Day.SAT);
+            LessonSchedule lessonSchedule8 = createLessonSchedule(LocalDate.of(2024, 10, 24), LocalTime.of(14, 0), Day.SAT);
+            LessonSchedule lessonSchedule9 = createLessonSchedule(LocalDate.of(2024, 10, 29), LocalTime.of(14, 0), Day.SAT);
+            LessonSchedule lessonSchedule10 = createLessonSchedule(LocalDate.of(2024, 11, 3), LocalTime.of(14, 0), Day.SAT);
+            lessonRepository.saveAll(List.of(
+                    createLesson(member, gymTrainer1, lessonSchedule1, LessonStatus.COMPLETION),
+                    createLesson(member, gymTrainer1, lessonSchedule2, LessonStatus.COMPLETION),
+                    createLesson(member, gymTrainer1, lessonSchedule3, LessonStatus.RESERVED),
+                    createLesson(member, gymTrainer1, lessonSchedule4, LessonStatus.CANCELED),
+                    createLesson(member, gymTrainer1, lessonSchedule5, LessonStatus.RESERVED),
+                    createLesson(member, gymTrainer1, lessonSchedule6, LessonStatus.RESERVED),
+                    createLesson(member, gymTrainer1, lessonSchedule7, LessonStatus.TIME_OUT_CANCELED),
+                    createLesson(member, gymTrainer1, lessonSchedule8, LessonStatus.RESERVED),
+                    createLesson(member, gymTrainer1, lessonSchedule9, LessonStatus.PENDING_APPROVAL),
+                    createLesson(member, gymTrainer1, lessonSchedule10, LessonStatus.RESERVED)
+                )
+            );
+
+            GymTrainer gymTrainer2 = gymTrainerRepository.save(createGymTrainer(gym2, trainer2));
+            personalTrainingRepository.save(
+                createPersonalTraining(member, gymTrainer2, 30, 10, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED)
+            );
+            LessonSchedule lessonSchedule11 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(15, 0), Day.SAT);
+            LessonSchedule lessonSchedule12 = createLessonSchedule(LocalDate.of(2024, 10, 10), LocalTime.of(18, 0), Day.SUN);
+            lessonRepository.saveAll(List.of(
+                    createLesson(member, gymTrainer2, lessonSchedule11, LessonStatus.RESERVED),
+                    createLesson(member, gymTrainer2, lessonSchedule12, LessonStatus.RESERVED)
+                )
+            );
+
+            final Long memberId = member.getId();
+            final Long gymId = -1L;
+            final YearMonth yearMonth = YearMonth.of(2024, 10);
+
+            // when
+            LessonScheduleOfMonthResponse response = lessonService.getMemberLessonScheduleOfMonth(memberId, gymId, yearMonth);
+
+            // then
+            assertThat(response.getFilteringBy()).hasSize(2)
+                .contains("체육관1", "체육관2");
+
+            assertThat(response.getDates()).hasSize(7)
+                .containsExactly(
+                    LocalDate.of(2024, 10, 5),
+                    LocalDate.of(2024, 10, 6),
+                    LocalDate.of(2024, 10, 7),
+                    LocalDate.of(2024, 10, 10),
+                    LocalDate.of(2024, 10, 11),
+                    LocalDate.of(2024, 10, 15),
+                    LocalDate.of(2024, 10, 24)
+                );
+        }
+
+        @DisplayName("회원 - 체육관 필터링")
+        @Test
+        void getMemberLessonScheduleOfMonthWhenFilteringGym() {
+            // given
+            Member member = memberRepository.save(createMember("회원"));
+
+            Trainer trainer1 = trainerRepository.save(createTrainer("트레이너1"));
+            Trainer trainer2 = trainerRepository.save(createTrainer("트레이너2"));
+            Gym gym1 = gymRepository.save(createGym("체육관1"));
+            Gym gym2 = gymRepository.save(createGym("체육관2"));
+
+            GymTrainer gymTrainer1 = gymTrainerRepository.save(createGymTrainer(gym1, trainer1));
+            personalTrainingRepository.save(
+                createPersonalTraining(member, gymTrainer1, 30, 5, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED)
+            );
+
+            LessonSchedule lessonSchedule1 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(9, 0), Day.SAT);
+            LessonSchedule lessonSchedule2 = createLessonSchedule(LocalDate.of(2024, 10, 6), LocalTime.of(11, 0), Day.SAT);
+            LessonSchedule lessonSchedule3 = createLessonSchedule(LocalDate.of(2024, 10, 7), LocalTime.of(12, 0), Day.SAT);
+            LessonSchedule lessonSchedule4 = createLessonSchedule(LocalDate.of(2024, 10, 8), LocalTime.of(14, 0), Day.SAT);
+            LessonSchedule lessonSchedule5 = createLessonSchedule(LocalDate.of(2024, 10, 11), LocalTime.of(14, 0), Day.SAT);
+            LessonSchedule lessonSchedule6 = createLessonSchedule(LocalDate.of(2024, 10, 15), LocalTime.of(14, 0), Day.SAT);
+            LessonSchedule lessonSchedule7 = createLessonSchedule(LocalDate.of(2024, 10, 21), LocalTime.of(14, 0), Day.SAT);
+            LessonSchedule lessonSchedule8 = createLessonSchedule(LocalDate.of(2024, 10, 24), LocalTime.of(14, 0), Day.SAT);
+            LessonSchedule lessonSchedule9 = createLessonSchedule(LocalDate.of(2024, 10, 29), LocalTime.of(14, 0), Day.SAT);
+            LessonSchedule lessonSchedule10 = createLessonSchedule(LocalDate.of(2024, 11, 3), LocalTime.of(14, 0), Day.SAT);
+            lessonRepository.saveAll(List.of(
+                    createLesson(member, gymTrainer1, lessonSchedule1, LessonStatus.COMPLETION),
+                    createLesson(member, gymTrainer1, lessonSchedule2, LessonStatus.COMPLETION),
+                    createLesson(member, gymTrainer1, lessonSchedule3, LessonStatus.RESERVED),
+                    createLesson(member, gymTrainer1, lessonSchedule4, LessonStatus.CANCELED),
+                    createLesson(member, gymTrainer1, lessonSchedule5, LessonStatus.RESERVED),
+                    createLesson(member, gymTrainer1, lessonSchedule6, LessonStatus.RESERVED),
+                    createLesson(member, gymTrainer1, lessonSchedule7, LessonStatus.TIME_OUT_CANCELED),
+                    createLesson(member, gymTrainer1, lessonSchedule8, LessonStatus.RESERVED),
+                    createLesson(member, gymTrainer1, lessonSchedule9, LessonStatus.PENDING_APPROVAL),
+                    createLesson(member, gymTrainer1, lessonSchedule10, LessonStatus.RESERVED)
+                )
+            );
+
+            GymTrainer gymTrainer2 = gymTrainerRepository.save(createGymTrainer(gym2, trainer2));
+            personalTrainingRepository.save(
+                createPersonalTraining(member, gymTrainer2, 30, 10, PTInfoInputStatus.INFO_REGISTERED, PtRegistrationStatus.RE_REGISTRATION, PtRegistrationAllowedStatus.ALLOWED)
+            );
+            LessonSchedule lessonSchedule11 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(15, 0), Day.SAT);
+            LessonSchedule lessonSchedule12 = createLessonSchedule(LocalDate.of(2024, 10, 10), LocalTime.of(18, 0), Day.SUN);
+            lessonRepository.saveAll(List.of(
+                    createLesson(member, gymTrainer2, lessonSchedule11, LessonStatus.RESERVED),
+                    createLesson(member, gymTrainer2, lessonSchedule12, LessonStatus.RESERVED)
+                )
+            );
+
+            final Long memberId = member.getId();
+            final Long gymId = gym2.getId();
+            final YearMonth yearMonth = YearMonth.of(2024, 10);
+
+            // when
+            LessonScheduleOfMonthResponse response = lessonService.getMemberLessonScheduleOfMonth(memberId, gymId, yearMonth);
+
+            // then
+            assertThat(response.getFilteringBy()).hasSize(1)
+                .contains("체육관2");
+
+            assertThat(response.getDates()).hasSize(2)
+                .containsExactly(
+                    LocalDate.of(2024, 10, 5),
+                    LocalDate.of(2024, 10, 10)
+                );
+        }
     }
 
     private LessonSchedule createLessonSchedule(LocalDate date, LocalTime time, Day day) {

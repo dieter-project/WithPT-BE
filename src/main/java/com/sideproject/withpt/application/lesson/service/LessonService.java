@@ -185,15 +185,25 @@ public class LessonService {
 
         List<GymTrainer> gymTrainers = gymTrainerRepository.findAllTrainerAndGym(trainer, gym);
 
-        List<String> gymNames = gymTrainers.stream()
-            .map(gymTrainer -> gymTrainer.getGym().getName())
-            .collect(toList());
-
         return new LessonScheduleOfMonthResponse(
-            gymNames,
+            extractGymNames(gymTrainers),
             lessonRepository.getTrainerLessonScheduleOfMonth(gymTrainers, yearMonth)
         );
+    }
 
+    /*
+       회원 - 월(Month) 전체 체육관 수업 일정 달력 조회
+    */
+    public LessonScheduleOfMonthResponse getMemberLessonScheduleOfMonth(Long memberId, Long gymId, YearMonth yearMonth) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+
+        List<GymTrainer> gymTrainers = filteringGymTrainerBy(gymId, member);
+
+        return new LessonScheduleOfMonthResponse(
+            extractGymNames(gymTrainers),
+            lessonRepository.getMemberLessonScheduleOfMonth(gymTrainers, member, yearMonth)
+        );
     }
 
     public Map<LessonRequestStatus, Map<LessonRequestStatus, List<PendingLessonInfo>>> getPendingLessons(Long trainerId) {
@@ -328,5 +338,31 @@ public class LessonService {
             startTime = startTime.plus(interval);
         }
         return lessonTimes;
+    }
+
+    private List<GymTrainer> getAssignedGymTrainerBy(Member member) {
+        return personalTrainingRepository.findPtAssignedTrainerInformation(member).stream()
+            .map(assignedPTInfoResponse -> {
+                Long trainerId = assignedPTInfoResponse.getTrainer().getId();
+                Long gymId = assignedPTInfoResponse.getGym().getId();
+                return getGymTrainerBy(gymId, trainerId);
+            })
+            .collect(toList());
+    }
+
+    private List<GymTrainer> filteringGymTrainerBy(Long gymId, Member member) {
+        List<GymTrainer> gymTrainers = getAssignedGymTrainerBy(member);
+
+        return gymTrainers.stream()
+            .filter(gymTrainer -> gymTrainer.getGym().getId().equals(gymId))
+            .findFirst()  // 첫 번째로 매칭된 GymTrainer 반환
+            .map(List::of)  // GymTrainer를 리스트로 감쌈
+            .orElse(gymTrainers);  // 매칭되는 값이 없을 경우 원래 리스트 반환
+    }
+
+    private List<String> extractGymNames(List<GymTrainer> gymTrainers) {
+        return gymTrainers.stream()
+            .map(gymTrainer -> gymTrainer.getGym().getName())
+            .collect(toList());
     }
 }

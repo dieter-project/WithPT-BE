@@ -23,6 +23,8 @@ public interface LessonQueryRepository {
 
     List<LocalDate> getTrainerLessonScheduleOfMonth(List<GymTrainer> gymTrainers, YearMonth yearMonth);
 
+    List<LocalDate> getMemberLessonScheduleOfMonth(List<GymTrainer> gymTrainers, Member member, YearMonth yearMonth);
+
     TrainerLessonInfoResponse findLessonScheduleInfoBy(Long lessonId);
 
 }
