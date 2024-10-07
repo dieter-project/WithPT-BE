@@ -14,12 +14,13 @@ import com.sideproject.withpt.application.lesson.controller.request.LessonChange
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse.LessonTime;
-import com.sideproject.withpt.application.lesson.controller.response.TrainerLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.controller.response.PendingLessonInfo;
 import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
 import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInfoResponse;
 import com.sideproject.withpt.application.lesson.service.response.LessonResponse;
+import com.sideproject.withpt.application.lesson.service.response.MemberLessonScheduleResponse;
+import com.sideproject.withpt.application.lesson.service.response.TrainerLessonScheduleResponse;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.pt.exception.PTException;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
@@ -142,20 +143,34 @@ public class LessonService {
         return AvailableLessonScheduleResponse.of(trainerId, gymId, date, weekday, lessonTimes);
     }
 
+    /*
+     * 트레이너가 모든 수업일정 조회 -> trainer != null, gym == null, member == null
+     * 트레이너가 A 체육관 수업일정 조회 -> trainer != null, gym != null, member == null
+     */
     public TrainerLessonScheduleResponse getTrainerLessonScheduleByDate(Long trainerId, Long gymId, LocalDate date) {
         Trainer trainer = trainerRepository.findById(trainerId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
         Gym gym = gymRepository.findById(gymId)
             .orElse(null);
 
-        // 트레이너가 모든 수업일정 조회 -> trainer != null, gym == null, member == null
-        // 트레이너가 A 체육관 수업일정 조회 -> trainer != null, gym != null, member == null
-        // trainer == null, 체육관 == null -> 회원이 조회
         List<GymTrainer> gymTrainers = gymTrainerRepository.findAllTrainerAndGym(trainer, gym);
 
         return new TrainerLessonScheduleResponse(
             lessonRepository.getTrainerLessonScheduleByDate(gymTrainers, date)
         );
+    }
+
+    /*
+     trainer == null, 체육관 == null -> 회원이 조회
+     */
+    public MemberLessonScheduleResponse getMemberLessonScheduleByDate(Long memberId, LocalDate date) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+
+        return new MemberLessonScheduleResponse(
+            lessonRepository.getMemberLessonScheduleByDate(member, date)
+        );
+
     }
 
     public Map<LessonRequestStatus, Map<LessonRequestStatus, List<PendingLessonInfo>>> getPendingLessons(Long trainerId) {

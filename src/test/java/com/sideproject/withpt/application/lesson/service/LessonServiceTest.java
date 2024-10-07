@@ -9,10 +9,11 @@ import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerReposi
 import com.sideproject.withpt.application.lesson.controller.request.LessonChangeRequest;
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
-import com.sideproject.withpt.application.lesson.controller.response.TrainerLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
 import com.sideproject.withpt.application.lesson.service.response.LessonResponse;
+import com.sideproject.withpt.application.lesson.service.response.MemberLessonScheduleResponse;
+import com.sideproject.withpt.application.lesson.service.response.TrainerLessonScheduleResponse;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.pt.exception.PTException;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
@@ -593,6 +594,93 @@ class LessonServiceTest {
                     tuple("회원2", LocalTime.of(11, 0), LessonStatus.RESERVED, "체육관1"),
                     tuple("회원3", LocalTime.of(12, 0), LessonStatus.RESERVED, "체육관1"),
                     tuple("회원4", LocalTime.of(14, 0), LessonStatus.CANCELED, "체육관1")
+                );
+        }
+
+        @DisplayName("회원의 수업 목록 조회 - 날짜 필터 X")
+        @Test
+        void getMemberLessonScheduleByDate() {
+            // given
+            Member member = memberRepository.save(createMember("회원"));
+            Trainer trainer1 = trainerRepository.save(createTrainer("트레이너1"));
+            Trainer trainer2 = trainerRepository.save(createTrainer("트레이너2"));
+            Gym gym1 = gymRepository.save(createGym("체육관1"));
+            Gym gym2 = gymRepository.save(createGym("체육관2"));
+
+            GymTrainer gymTrainer1 = gymTrainerRepository.save(createGymTrainer(gym1, trainer1));
+            LessonSchedule lessonSchedule1 = createLessonSchedule(LocalDate.of(2024, 10, 7), LocalTime.of(9, 0), Day.MON);
+            LessonSchedule lessonSchedule2 = createLessonSchedule(LocalDate.of(2024, 10, 9), LocalTime.of(11, 0), Day.WED);
+            lessonRepository.saveAll(List.of(
+                    createLesson(member, gymTrainer1, lessonSchedule1, LessonStatus.RESERVED),
+                    createLesson(member, gymTrainer1, lessonSchedule2, LessonStatus.CANCELED)
+                )
+            );
+
+            GymTrainer gymTrainer2 = gymTrainerRepository.save(createGymTrainer(gym2, trainer2));
+            LessonSchedule lessonSchedule3 = createLessonSchedule(LocalDate.of(2024, 10, 7), LocalTime.of(12, 0), Day.MON);
+            LessonSchedule lessonSchedule4 = createLessonSchedule(LocalDate.of(2024, 10, 10), LocalTime.of(14, 0), Day.THU);
+            lessonRepository.saveAll(List.of(
+                    createLesson(member, gymTrainer2, lessonSchedule3, LessonStatus.RESERVED),
+                    createLesson(member, gymTrainer2, lessonSchedule4, LessonStatus.RESERVED)
+                )
+            );
+
+            final Long memberId = member.getId();
+            final LocalDate date = null;
+
+            // when
+            MemberLessonScheduleResponse response = lessonService.getMemberLessonScheduleByDate(memberId, date);
+
+            // then
+            assertThat(response.getLessonInfos()).hasSize(3)
+                .extracting("trainer.name", "lesson.schedule.date", "lesson.schedule.time", "lesson.status", "gym.name")
+                .containsExactly(
+                    tuple("트레이너1", LocalDate.of(2024, 10, 7), LocalTime.of(9, 0), LessonStatus.RESERVED, "체육관1"),
+                    tuple("트레이너2", LocalDate.of(2024, 10, 7), LocalTime.of(12, 0), LessonStatus.RESERVED, "체육관2"),
+                    tuple("트레이너2", LocalDate.of(2024, 10, 10), LocalTime.of(14, 0), LessonStatus.RESERVED, "체육관2")
+                );
+        }
+
+        @DisplayName("회원의 수업 목록 조회 - 날짜 필터")
+        @Test
+        void getMemberLessonScheduleByDateWhenFilteringDate() {
+            // given
+            Member member = memberRepository.save(createMember("회원"));
+            Trainer trainer1 = trainerRepository.save(createTrainer("트레이너1"));
+            Trainer trainer2 = trainerRepository.save(createTrainer("트레이너2"));
+            Gym gym1 = gymRepository.save(createGym("체육관1"));
+            Gym gym2 = gymRepository.save(createGym("체육관2"));
+
+            GymTrainer gymTrainer1 = gymTrainerRepository.save(createGymTrainer(gym1, trainer1));
+            LessonSchedule lessonSchedule1 = createLessonSchedule(LocalDate.of(2024, 10, 7), LocalTime.of(9, 0), Day.MON);
+            LessonSchedule lessonSchedule2 = createLessonSchedule(LocalDate.of(2024, 10, 9), LocalTime.of(11, 0), Day.WED);
+            lessonRepository.saveAll(List.of(
+                    createLesson(member, gymTrainer1, lessonSchedule1, LessonStatus.RESERVED),
+                    createLesson(member, gymTrainer1, lessonSchedule2, LessonStatus.CANCELED)
+                )
+            );
+
+            GymTrainer gymTrainer2 = gymTrainerRepository.save(createGymTrainer(gym2, trainer2));
+            LessonSchedule lessonSchedule3 = createLessonSchedule(LocalDate.of(2024, 10, 7), LocalTime.of(12, 0), Day.MON);
+            LessonSchedule lessonSchedule4 = createLessonSchedule(LocalDate.of(2024, 10, 10), LocalTime.of(14, 0), Day.THU);
+            lessonRepository.saveAll(List.of(
+                    createLesson(member, gymTrainer2, lessonSchedule3, LessonStatus.RESERVED),
+                    createLesson(member, gymTrainer2, lessonSchedule4, LessonStatus.RESERVED)
+                )
+            );
+
+            final Long memberId = member.getId();
+            final LocalDate date = LocalDate.of(2024, 10, 7);
+
+            // when
+            MemberLessonScheduleResponse response = lessonService.getMemberLessonScheduleByDate(memberId, date);
+
+            // then
+            assertThat(response.getLessonInfos()).hasSize(2)
+                .extracting("trainer.name", "lesson.schedule.date", "lesson.schedule.time", "lesson.status", "gym.name")
+                .contains(
+                    tuple("트레이너1", LocalDate.of(2024, 10, 7), LocalTime.of(9, 0), LessonStatus.RESERVED, "체육관1"),
+                    tuple("트레이너2", LocalDate.of(2024, 10, 7), LocalTime.of(12, 0), LessonStatus.RESERVED, "체육관2")
                 );
         }
     }

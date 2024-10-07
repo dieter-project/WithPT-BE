@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.lesson.controller.response;
+package com.sideproject.withpt.application.lesson.service.response;
 
 import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInfoResponse;
 import java.util.List;

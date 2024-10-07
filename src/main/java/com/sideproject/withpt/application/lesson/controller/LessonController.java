@@ -3,12 +3,13 @@ package com.sideproject.withpt.application.lesson.controller;
 import com.sideproject.withpt.application.lesson.controller.request.LessonChangeRequest;
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
-import com.sideproject.withpt.application.lesson.controller.response.TrainerLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.controller.response.PendingLessonInfo;
 import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInfoResponse;
 import com.sideproject.withpt.application.lesson.service.LessonLockFacade;
 import com.sideproject.withpt.application.lesson.service.LessonService;
 import com.sideproject.withpt.application.lesson.service.response.LessonResponse;
+import com.sideproject.withpt.application.lesson.service.response.MemberLessonScheduleResponse;
+import com.sideproject.withpt.application.lesson.service.response.TrainerLessonScheduleResponse;
 import com.sideproject.withpt.application.type.Day;
 import com.sideproject.withpt.application.type.LessonRequestStatus;
 import com.sideproject.withpt.application.type.LessonStatus;
@@ -106,24 +107,22 @@ public class LessonController {
     }
 
     @Operation(summary = "트레이너 - 날짜 별 수업 스케줄 조회")
-    @GetMapping("/lessons/trainer/{trainerId}")
+    @GetMapping("/lessons/trainer-schedules")
     public ApiSuccessResponse<TrainerLessonScheduleResponse> getTrainerLessonScheduleByDate(
         @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
         @RequestParam(required = false, defaultValue = "-1") Long gymId,
-        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
+        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
         return ApiSuccessResponse.from(
             lessonService.getTrainerLessonScheduleByDate(trainerId, gymId, date)
         );
     }
 
     @Operation(summary = "회원 - 날짜 별 수업 스케줄 조회")
-    @GetMapping("/lessons/member/{memberId}")
-    public void getLessonScheduleMembers(
-        @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
-        @RequestParam(required = false, defaultValue = "-1") Long gymId,
-        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date
-    ) {
-
+    @GetMapping("/lessons/member-schedules")
+    public ApiSuccessResponse<MemberLessonScheduleResponse> getLessonScheduleMembers(@Parameter(hidden = true) @AuthenticationPrincipal Long memberId, @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
+        return ApiSuccessResponse.from(
+            lessonService.getMemberLessonScheduleByDate(memberId, date)
+        );
     }
 
     // 내가 보낸 요청 / 받은 요청 분리하기

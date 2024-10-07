@@ -1,8 +1,10 @@
 package com.sideproject.withpt.application.lesson.repository;
 
+import com.sideproject.withpt.application.lesson.repository.dto.MemberLessonInfoResponse;
 import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInfoResponse;
 import com.sideproject.withpt.application.type.LessonStatus;
 import com.sideproject.withpt.domain.gym.GymTrainer;
+import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.pt.Lesson;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -17,6 +19,8 @@ public interface LessonQueryRepository {
     List<Lesson> getBookedLessonBy(GymTrainer gymTrainer, LocalDate date);
 
     List<TrainerLessonInfoResponse> getTrainerLessonScheduleByDate(List<GymTrainer> gymTrainers, LocalDate date);
+
+    List<MemberLessonInfoResponse> getMemberLessonScheduleByDate(Member member, LocalDate date);
 
     List<TrainerLessonInfoResponse> getLessonScheduleMembers(Long trainerId, Long gymId, LocalDate date, LessonStatus status);
 
