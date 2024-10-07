@@ -78,7 +78,7 @@ class LessonQueryRepositoryImplTest {
         TrainerLessonInfoResponse response = lessonRepository.findLessonScheduleInfoBy(lesson.getId());
 
         // then
-        assertThat(response)
+        assertThat(response.getLesson())
             .extracting("schedule.date", "schedule.time", "beforeSchedule",
                 "status", "requester", "receiver", "registeredBy", "modifiedBy")
             .contains(

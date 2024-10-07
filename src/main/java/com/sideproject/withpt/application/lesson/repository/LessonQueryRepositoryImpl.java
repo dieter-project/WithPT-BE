@@ -10,11 +10,11 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.DateTemplate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.sideproject.withpt.application.lesson.repository.dto.QTrainerLessonInfoResponse;
+import com.sideproject.withpt.application.lesson.repository.dto.QTrainerLessonInfoResponse_Gym;
+import com.sideproject.withpt.application.lesson.repository.dto.QTrainerLessonInfoResponse_Lesson;
+import com.sideproject.withpt.application.lesson.repository.dto.QTrainerLessonInfoResponse_Member;
 import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInfoResponse;
-import com.sideproject.withpt.application.lesson.repository.dto.QLessonInfoResponse;
-import com.sideproject.withpt.application.lesson.repository.dto.QLessonInfoResponse_Gym;
-import com.sideproject.withpt.application.lesson.repository.dto.QLessonInfoResponse_Lesson;
-import com.sideproject.withpt.application.lesson.repository.dto.QLessonInfoResponse_Member;
 import com.sideproject.withpt.application.type.LessonStatus;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
@@ -66,8 +66,8 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
     public List<TrainerLessonInfoResponse> getTrainerLessonScheduleByDate(List<GymTrainer> gymTrainers, LocalDate date) {
         return jpaQueryFactory
             .select(
-                new QLessonInfoResponse(
-                    new QLessonInfoResponse_Lesson(
+                new QTrainerLessonInfoResponse(
+                    new QTrainerLessonInfoResponse_Lesson(
                         lesson.id,
                         lesson.schedule,
                         lesson.beforeSchedule,
@@ -77,11 +77,11 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
                         lesson.registeredBy,
                         lesson.modifiedBy
                     ),
-                    new QLessonInfoResponse_Member(
+                    new QTrainerLessonInfoResponse_Member(
                         member.id,
                         member.name
                     ),
-                    new QLessonInfoResponse_Gym(
+                    new QTrainerLessonInfoResponse_Gym(
                         gym.id,
                         gym.name
                     )
@@ -113,8 +113,9 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
     public List<TrainerLessonInfoResponse> getLessonScheduleMembers(Long trainerId, Long gymId, LocalDate date, LessonStatus status) {
         return jpaQueryFactory
             .select(
-                new QLessonInfoResponse(
-                    new QLessonInfoResponse_Lesson(
+                new QTrainerLessonInfoResponse(
+                    new QTrainerLessonInfoResponse_Lesson(
+
                         lesson.id,
                         lesson.schedule,
                         lesson.beforeSchedule,
@@ -124,11 +125,11 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
                         lesson.registeredBy,
                         lesson.modifiedBy
                     ),
-                    new QLessonInfoResponse_Member(
+                    new QTrainerLessonInfoResponse_Member(
                         member.id,
                         member.name
                     ),
-                    new QLessonInfoResponse_Gym(
+                    new QTrainerLessonInfoResponse_Gym(
                         gym.id,
                         gym.name
                     )
@@ -154,8 +155,8 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
     public TrainerLessonInfoResponse findLessonScheduleInfoBy(Long lessonId) {
         return jpaQueryFactory
             .select(
-                new QLessonInfoResponse(
-                    new QLessonInfoResponse_Lesson(
+                new QTrainerLessonInfoResponse(
+                    new QTrainerLessonInfoResponse_Lesson(
                         lesson.id,
                         lesson.schedule,
                         lesson.beforeSchedule,
@@ -165,11 +166,11 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
                         lesson.registeredBy,
                         lesson.modifiedBy
                     ),
-                    new QLessonInfoResponse_Member(
+                    new QTrainerLessonInfoResponse_Member(
                         member.id,
                         member.name
                     ),
-                    new QLessonInfoResponse_Gym(
+                    new QTrainerLessonInfoResponse_Gym(
                         gym.id,
                         gym.name
                     )
