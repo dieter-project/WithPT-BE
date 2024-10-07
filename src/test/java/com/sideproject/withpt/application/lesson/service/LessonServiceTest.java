@@ -2,12 +2,14 @@ package com.sideproject.withpt.application.lesson.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
 import com.sideproject.withpt.application.lesson.controller.request.LessonChangeRequest;
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
+import com.sideproject.withpt.application.lesson.controller.response.LessonMembersResponse;
 import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
 import com.sideproject.withpt.application.lesson.service.response.LessonResponse;
@@ -39,6 +41,7 @@ import java.time.LocalTime;
 import java.util.List;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -482,6 +485,116 @@ class LessonServiceTest {
                 Tuple.tuple(LocalTime.of(16, 0), false),
                 Tuple.tuple(LocalTime.of(17, 0), false)
             );
+    }
+
+    @Nested
+    @DisplayName("요청 날짜에 예약된 수업 목록 조회")
+    class GetTrainerLessonScheduleByDate {
+
+        @DisplayName("트레이너의 수업 목록 조회 - 체육관 필터X")
+        @Test
+        void getTrainerLessonScheduleByDate() {
+            // given
+            Member member1 = memberRepository.save(createMember("회원1"));
+            Member member2 = memberRepository.save(createMember("회원2"));
+            Member member3 = memberRepository.save(createMember("회원3"));
+            Member member4 = memberRepository.save(createMember("회원4"));
+            Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+            Gym gym1 = gymRepository.save(createGym("체육관1"));
+            Gym gym2 = gymRepository.save(createGym("체육관2"));
+
+            GymTrainer gymTrainer1 = gymTrainerRepository.save(createGymTrainer(gym1, trainer));
+            LessonSchedule lessonSchedule1 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(9, 0), Day.SAT);
+            LessonSchedule lessonSchedule2 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(11, 0), Day.SAT);
+            LessonSchedule lessonSchedule3 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(12, 0), Day.SAT);
+            LessonSchedule lessonSchedule4 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(14, 0), Day.SAT);
+            lessonRepository.saveAll(List.of(
+                    createLesson(member1, gymTrainer1, lessonSchedule1, LessonStatus.RESERVED),
+                    createLesson(member2, gymTrainer1, lessonSchedule2, LessonStatus.RESERVED),
+                    createLesson(member3, gymTrainer1, lessonSchedule3, LessonStatus.RESERVED),
+                    createLesson(member4, gymTrainer1, lessonSchedule4, LessonStatus.CANCELED)
+                )
+            );
+
+            GymTrainer gymTrainer2 = gymTrainerRepository.save(createGymTrainer(gym2, trainer));
+            LessonSchedule lessonSchedule5 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(15, 0), Day.SAT);
+            LessonSchedule lessonSchedule6 = createLessonSchedule(LocalDate.of(2024, 10, 6), LocalTime.of(18, 0), Day.SUN);
+            lessonRepository.saveAll(List.of(
+                    createLesson(member2, gymTrainer2, lessonSchedule5, LessonStatus.RESERVED),
+                    createLesson(member4, gymTrainer2, lessonSchedule6, LessonStatus.RESERVED)
+                )
+            );
+
+            final Long trainerId = trainer.getId();
+            final Long gymId = -1L;
+            final LocalDate date = LocalDate.of(2024, 10, 5);
+
+            // when
+            LessonMembersResponse response = lessonService.getTrainerLessonScheduleByDate(trainerId, gymId, date);
+
+            // then
+            assertThat(response.getLessonInfos()).hasSize(5)
+                .extracting("member.name", "lesson.schedule.time", "lesson.status", "gym.name")
+                .contains(
+                    tuple("회원1", LocalTime.of(9, 0), LessonStatus.RESERVED, "체육관1"),
+                    tuple("회원2", LocalTime.of(11, 0), LessonStatus.RESERVED, "체육관1"),
+                    tuple("회원3", LocalTime.of(12, 0), LessonStatus.RESERVED, "체육관1"),
+                    tuple("회원4", LocalTime.of(14, 0), LessonStatus.CANCELED, "체육관1"),
+                    tuple("회원2", LocalTime.of(15, 0), LessonStatus.RESERVED, "체육관2")
+                );
+        }
+
+        @DisplayName("트레이너의 수업 목록 조회 - 특정 체육관 필터")
+        @Test
+        void getTrainerLessonScheduleByDateWhenSelectSpecificGym() {
+            // given
+            Member member1 = memberRepository.save(createMember("회원1"));
+            Member member2 = memberRepository.save(createMember("회원2"));
+            Member member3 = memberRepository.save(createMember("회원3"));
+            Member member4 = memberRepository.save(createMember("회원4"));
+            Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+            Gym gym1 = gymRepository.save(createGym("체육관1"));
+            Gym gym2 = gymRepository.save(createGym("체육관2"));
+
+            GymTrainer gymTrainer1 = gymTrainerRepository.save(createGymTrainer(gym1, trainer));
+            LessonSchedule lessonSchedule1 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(9, 0), Day.SAT);
+            LessonSchedule lessonSchedule2 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(11, 0), Day.SAT);
+            LessonSchedule lessonSchedule3 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(12, 0), Day.SAT);
+            LessonSchedule lessonSchedule4 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(14, 0), Day.SAT);
+            lessonRepository.saveAll(List.of(
+                    createLesson(member1, gymTrainer1, lessonSchedule1, LessonStatus.RESERVED),
+                    createLesson(member2, gymTrainer1, lessonSchedule2, LessonStatus.RESERVED),
+                    createLesson(member3, gymTrainer1, lessonSchedule3, LessonStatus.RESERVED),
+                    createLesson(member4, gymTrainer1, lessonSchedule4, LessonStatus.CANCELED)
+                )
+            );
+
+            GymTrainer gymTrainer2 = gymTrainerRepository.save(createGymTrainer(gym2, trainer));
+            LessonSchedule lessonSchedule5 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(15, 0), Day.SAT);
+            LessonSchedule lessonSchedule6 = createLessonSchedule(LocalDate.of(2024, 10, 6), LocalTime.of(18, 0), Day.SUN);
+            lessonRepository.saveAll(List.of(
+                    createLesson(member2, gymTrainer2, lessonSchedule5, LessonStatus.RESERVED),
+                    createLesson(member4, gymTrainer2, lessonSchedule6, LessonStatus.RESERVED)
+                )
+            );
+
+            final Long trainerId = trainer.getId();
+            final Long gymId = gym1.getId();
+            final LocalDate date = LocalDate.of(2024, 10, 5);
+
+            // when
+            LessonMembersResponse response = lessonService.getTrainerLessonScheduleByDate(trainerId, gymId, date);
+
+            // then
+            assertThat(response.getLessonInfos()).hasSize(4)
+                .extracting("member.name", "lesson.schedule.time", "lesson.status", "gym.name")
+                .contains(
+                    tuple("회원1", LocalTime.of(9, 0), LessonStatus.RESERVED, "체육관1"),
+                    tuple("회원2", LocalTime.of(11, 0), LessonStatus.RESERVED, "체육관1"),
+                    tuple("회원3", LocalTime.of(12, 0), LessonStatus.RESERVED, "체육관1"),
+                    tuple("회원4", LocalTime.of(14, 0), LessonStatus.CANCELED, "체육관1")
+                );
+        }
     }
 
     private LessonSchedule createLessonSchedule(LocalDate date, LocalTime time, Day day) {

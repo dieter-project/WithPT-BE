@@ -13,6 +13,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.lesson.repository.dto.LessonInfoResponse;
 import com.sideproject.withpt.application.lesson.repository.dto.QLessonInfoResponse;
 import com.sideproject.withpt.application.lesson.repository.dto.QLessonInfoResponse_Gym;
+import com.sideproject.withpt.application.lesson.repository.dto.QLessonInfoResponse_Lesson;
 import com.sideproject.withpt.application.lesson.repository.dto.QLessonInfoResponse_Member;
 import com.sideproject.withpt.application.type.LessonStatus;
 import com.sideproject.withpt.domain.gym.Gym;
@@ -66,14 +67,16 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
         return jpaQueryFactory
             .select(
                 new QLessonInfoResponse(
-                    lesson.id,
-                    lesson.schedule,
-                    lesson.beforeSchedule,
-                    lesson.status,
-                    lesson.requester,
-                    lesson.receiver,
-                    lesson.registeredBy,
-                    lesson.modifiedBy,
+                    new QLessonInfoResponse_Lesson(
+                        lesson.id,
+                        lesson.schedule,
+                        lesson.beforeSchedule,
+                        lesson.status,
+                        lesson.requester,
+                        lesson.receiver,
+                        lesson.registeredBy,
+                        lesson.modifiedBy
+                    ),
                     new QLessonInfoResponse_Member(
                         member.id,
                         member.name
@@ -111,21 +114,23 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
         return jpaQueryFactory
             .select(
                 new QLessonInfoResponse(
-                    lesson.id,
-                    lesson.schedule,
-                    lesson.beforeSchedule,
-                    lesson.status,
-                    lesson.requester,
-                    lesson.receiver,
-                    lesson.registeredBy,
-                    lesson.modifiedBy,
+                    new QLessonInfoResponse_Lesson(
+                        lesson.id,
+                        lesson.schedule,
+                        lesson.beforeSchedule,
+                        lesson.status,
+                        lesson.requester,
+                        lesson.receiver,
+                        lesson.registeredBy,
+                        lesson.modifiedBy
+                    ),
                     new QLessonInfoResponse_Member(
-                        lesson.member.id,
-                        lesson.member.name
+                        member.id,
+                        member.name
                     ),
                     new QLessonInfoResponse_Gym(
-                        lesson.gym.id,
-                        lesson.gym.name
+                        gym.id,
+                        gym.name
                     )
                 )
             )
@@ -150,14 +155,16 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
         return jpaQueryFactory
             .select(
                 new QLessonInfoResponse(
-                    lesson.id,
-                    lesson.schedule,
-                    lesson.beforeSchedule,
-                    lesson.status,
-                    lesson.requester,
-                    lesson.receiver,
-                    lesson.registeredBy,
-                    lesson.modifiedBy,
+                    new QLessonInfoResponse_Lesson(
+                        lesson.id,
+                        lesson.schedule,
+                        lesson.beforeSchedule,
+                        lesson.status,
+                        lesson.requester,
+                        lesson.receiver,
+                        lesson.registeredBy,
+                        lesson.modifiedBy
+                    ),
                     new QLessonInfoResponse_Member(
                         member.id,
                         member.name

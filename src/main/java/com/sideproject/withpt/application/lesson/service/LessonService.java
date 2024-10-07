@@ -148,8 +148,8 @@ public class LessonService {
         Gym gym = gymRepository.findById(gymId)
             .orElse(null);
 
-        // trainer != null, gym == null, member == null -> 트레이너가 모든 수업일정 조회
-        // trainer != null, gym != null, member == null -> 트레이너가 A 체육관 수업일정 조회
+        // 트레이너가 모든 수업일정 조회 -> trainer != null, gym == null, member == null
+        // 트레이너가 A 체육관 수업일정 조회 -> trainer != null, gym != null, member == null
         // trainer == null, 체육관 == null -> 회원이 조회
         List<GymTrainer> gymTrainers = gymTrainerRepository.findAllTrainerAndGym(trainer, gym);
 

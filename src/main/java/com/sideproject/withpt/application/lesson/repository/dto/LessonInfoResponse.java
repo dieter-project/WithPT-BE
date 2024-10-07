@@ -17,36 +17,49 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LessonInfoResponse {
 
-    private Long lessonId;
-    private LessonSchedule schedule;
-    private LessonSchedule beforeSchedule;
-    private LessonStatus status;
-    private String requester;
-    private String receiver;
-    private Role registeredBy;
-    private Role modifiedBy;
+    private Lesson lesson;
     private Member member;
     private Gym gym;
 
     @QueryProjection
-    public LessonInfoResponse(Long lessonId, LessonSchedule schedule, LessonSchedule beforeSchedule, LessonStatus status, String requester, String receiver, Role registeredBy, Role modifiedBy, Member member, Gym gym) {
-        this.lessonId = lessonId;
-        this.schedule = schedule;
-        this.beforeSchedule = beforeSchedule;
-        this.status = status;
-        this.requester = requester;
-        this.receiver = receiver;
-        this.registeredBy = registeredBy;
-        this.modifiedBy = modifiedBy;
+    public LessonInfoResponse(Lesson lesson, Member member, Gym gym) {
+        this.lesson = lesson;
         this.member = member;
         this.gym = gym;
     }
 
     @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class Lesson {
+
+        private Long id;
+        private LessonSchedule schedule;
+        private LessonSchedule beforeSchedule;
+        private LessonStatus status;
+        private String requester;
+        private String receiver;
+        private Role registeredBy;
+        private Role modifiedBy;
+
+        @QueryProjection
+        public Lesson(Long id, LessonSchedule schedule, LessonSchedule beforeSchedule, LessonStatus status, String requester, String receiver, Role registeredBy, Role modifiedBy) {
+            this.id = id;
+            this.schedule = schedule;
+            this.beforeSchedule = beforeSchedule;
+            this.status = status;
+            this.requester = requester;
+            this.receiver = receiver;
+            this.registeredBy = registeredBy;
+            this.modifiedBy = modifiedBy;
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Member {
 
-        private final Long id;
-        private final String name;
+        private Long id;
+        private String name;
 
         @QueryProjection
         public Member(Long id, String name) {
@@ -56,10 +69,11 @@ public class LessonInfoResponse {
     }
 
     @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Gym {
 
-        private final Long id;
-        private final String name;
+        private Long id;
+        private String name;
 
         @QueryProjection
         public Gym(Long id, String name) {

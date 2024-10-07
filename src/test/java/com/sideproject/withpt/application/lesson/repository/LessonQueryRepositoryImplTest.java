@@ -170,7 +170,7 @@ class LessonQueryRepositoryImplTest {
 
         // then
         assertThat(responses).hasSize(5)
-            .extracting("member.name", "schedule.time", "status", "gym.name")
+            .extracting("member.name", "lesson.schedule.time", "lesson.status", "gym.name")
             .contains(
                 tuple("회원1", LocalTime.of(9, 0), LessonStatus.RESERVED, "체육관1"),
                 tuple("회원2", LocalTime.of(11, 0), LessonStatus.RESERVED, "체육관1"),
@@ -178,7 +178,6 @@ class LessonQueryRepositoryImplTest {
                 tuple("회원4", LocalTime.of(14, 0), LessonStatus.CANCELED, "체육관1"),
                 tuple("회원2", LocalTime.of(15, 0), LessonStatus.RESERVED, "체육관2")
             );
-
     }
 
     private LessonSchedule createLessonSchedule(LocalDate date, LocalTime time, Day day) {
