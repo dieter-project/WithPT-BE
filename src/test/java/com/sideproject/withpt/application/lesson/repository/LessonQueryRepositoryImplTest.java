@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.tuple;
 
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
-import com.sideproject.withpt.application.lesson.repository.dto.LessonInfoResponse;
+import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInfoResponse;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
@@ -75,7 +75,7 @@ class LessonQueryRepositoryImplTest {
         );
 
         // when
-        LessonInfoResponse response = lessonRepository.findLessonScheduleInfoBy(lesson.getId());
+        TrainerLessonInfoResponse response = lessonRepository.findLessonScheduleInfoBy(lesson.getId());
 
         // then
         assertThat(response)
@@ -166,7 +166,7 @@ class LessonQueryRepositoryImplTest {
         );
 
         // when
-        List<LessonInfoResponse> responses = lessonRepository.getTrainerLessonScheduleByDate(List.of(gymTrainer1, gymTrainer2), LocalDate.of(2024, 10, 5));
+        List<TrainerLessonInfoResponse> responses = lessonRepository.getTrainerLessonScheduleByDate(List.of(gymTrainer1, gymTrainer2), LocalDate.of(2024, 10, 5));
 
         // then
         assertThat(responses).hasSize(5)

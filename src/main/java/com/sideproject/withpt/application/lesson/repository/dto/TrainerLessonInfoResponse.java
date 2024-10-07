@@ -13,22 +13,22 @@ import lombok.ToString;
 
 @Getter
 @ToString
-@JsonInclude(Include.NON_NULL)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class LessonInfoResponse {
+public class TrainerLessonInfoResponse {
 
     private Lesson lesson;
     private Member member;
     private Gym gym;
 
     @QueryProjection
-    public LessonInfoResponse(Lesson lesson, Member member, Gym gym) {
+    public TrainerLessonInfoResponse(Lesson lesson, Member member, Gym gym) {
         this.lesson = lesson;
         this.member = member;
         this.gym = gym;
     }
 
     @Getter
+    @JsonInclude(Include.NON_NULL)
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Lesson {
 

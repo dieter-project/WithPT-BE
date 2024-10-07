@@ -14,11 +14,11 @@ import com.sideproject.withpt.application.lesson.controller.request.LessonChange
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse.LessonTime;
-import com.sideproject.withpt.application.lesson.controller.response.LessonMembersResponse;
+import com.sideproject.withpt.application.lesson.controller.response.TrainerLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.controller.response.PendingLessonInfo;
 import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
-import com.sideproject.withpt.application.lesson.repository.dto.LessonInfoResponse;
+import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInfoResponse;
 import com.sideproject.withpt.application.lesson.service.response.LessonResponse;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.pt.exception.PTException;
@@ -94,7 +94,7 @@ public class LessonService {
         return LessonResponse.of(lesson);
     }
 
-    public LessonInfoResponse getLessonSchedule(Long lessonId) {
+    public TrainerLessonInfoResponse getLessonSchedule(Long lessonId) {
         return lessonRepository.findLessonScheduleInfoBy(lessonId);
     }
 
@@ -142,7 +142,7 @@ public class LessonService {
         return AvailableLessonScheduleResponse.of(trainerId, gymId, date, weekday, lessonTimes);
     }
 
-    public LessonMembersResponse getTrainerLessonScheduleByDate(Long trainerId, Long gymId, LocalDate date) {
+    public TrainerLessonScheduleResponse getTrainerLessonScheduleByDate(Long trainerId, Long gymId, LocalDate date) {
         Trainer trainer = trainerRepository.findById(trainerId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
         Gym gym = gymRepository.findById(gymId)
@@ -153,7 +153,7 @@ public class LessonService {
         // trainer == null, 체육관 == null -> 회원이 조회
         List<GymTrainer> gymTrainers = gymTrainerRepository.findAllTrainerAndGym(trainer, gym);
 
-        return new LessonMembersResponse(
+        return new TrainerLessonScheduleResponse(
             lessonRepository.getTrainerLessonScheduleByDate(gymTrainers, date)
         );
     }

@@ -10,7 +10,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.DateTemplate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sideproject.withpt.application.lesson.repository.dto.LessonInfoResponse;
+import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInfoResponse;
 import com.sideproject.withpt.application.lesson.repository.dto.QLessonInfoResponse;
 import com.sideproject.withpt.application.lesson.repository.dto.QLessonInfoResponse_Gym;
 import com.sideproject.withpt.application.lesson.repository.dto.QLessonInfoResponse_Lesson;
@@ -63,7 +63,7 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
     }
 
     @Override
-    public List<LessonInfoResponse> getTrainerLessonScheduleByDate(List<GymTrainer> gymTrainers, LocalDate date) {
+    public List<TrainerLessonInfoResponse> getTrainerLessonScheduleByDate(List<GymTrainer> gymTrainers, LocalDate date) {
         return jpaQueryFactory
             .select(
                 new QLessonInfoResponse(
@@ -110,7 +110,7 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
     }
 
     @Override
-    public List<LessonInfoResponse> getLessonScheduleMembers(Long trainerId, Long gymId, LocalDate date, LessonStatus status) {
+    public List<TrainerLessonInfoResponse> getLessonScheduleMembers(Long trainerId, Long gymId, LocalDate date, LessonStatus status) {
         return jpaQueryFactory
             .select(
                 new QLessonInfoResponse(
@@ -151,7 +151,7 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
     }
 
     @Override
-    public LessonInfoResponse findLessonScheduleInfoBy(Long lessonId) {
+    public TrainerLessonInfoResponse findLessonScheduleInfoBy(Long lessonId) {
         return jpaQueryFactory
             .select(
                 new QLessonInfoResponse(

@@ -9,7 +9,7 @@ import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerReposi
 import com.sideproject.withpt.application.lesson.controller.request.LessonChangeRequest;
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
-import com.sideproject.withpt.application.lesson.controller.response.LessonMembersResponse;
+import com.sideproject.withpt.application.lesson.controller.response.TrainerLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
 import com.sideproject.withpt.application.lesson.service.response.LessonResponse;
@@ -530,7 +530,7 @@ class LessonServiceTest {
             final LocalDate date = LocalDate.of(2024, 10, 5);
 
             // when
-            LessonMembersResponse response = lessonService.getTrainerLessonScheduleByDate(trainerId, gymId, date);
+            TrainerLessonScheduleResponse response = lessonService.getTrainerLessonScheduleByDate(trainerId, gymId, date);
 
             // then
             assertThat(response.getLessonInfos()).hasSize(5)
@@ -583,7 +583,7 @@ class LessonServiceTest {
             final LocalDate date = LocalDate.of(2024, 10, 5);
 
             // when
-            LessonMembersResponse response = lessonService.getTrainerLessonScheduleByDate(trainerId, gymId, date);
+            TrainerLessonScheduleResponse response = lessonService.getTrainerLessonScheduleByDate(trainerId, gymId, date);
 
             // then
             assertThat(response.getLessonInfos()).hasSize(4)

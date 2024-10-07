@@ -3,9 +3,9 @@ package com.sideproject.withpt.application.lesson.controller;
 import com.sideproject.withpt.application.lesson.controller.request.LessonChangeRequest;
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
-import com.sideproject.withpt.application.lesson.controller.response.LessonMembersResponse;
+import com.sideproject.withpt.application.lesson.controller.response.TrainerLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.controller.response.PendingLessonInfo;
-import com.sideproject.withpt.application.lesson.repository.dto.LessonInfoResponse;
+import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInfoResponse;
 import com.sideproject.withpt.application.lesson.service.LessonLockFacade;
 import com.sideproject.withpt.application.lesson.service.LessonService;
 import com.sideproject.withpt.application.lesson.service.response.LessonResponse;
@@ -64,7 +64,7 @@ public class LessonController {
 
     @Operation(summary = "확정/취소 수업 스케줄 조회")
     @GetMapping("/lessons/{lessonId}")
-    public ApiSuccessResponse<LessonInfoResponse> getLessonSchedule(@PathVariable Long lessonId) {
+    public ApiSuccessResponse<TrainerLessonInfoResponse> getLessonSchedule(@PathVariable Long lessonId) {
         return ApiSuccessResponse.from(
             lessonService.getLessonSchedule(lessonId)
         );
@@ -107,7 +107,7 @@ public class LessonController {
 
     @Operation(summary = "트레이너 - 날짜 별 수업 스케줄 조회")
     @GetMapping("/lessons/trainer/{trainerId}")
-    public ApiSuccessResponse<LessonMembersResponse> getTrainerLessonScheduleByDate(
+    public ApiSuccessResponse<TrainerLessonScheduleResponse> getTrainerLessonScheduleByDate(
         @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
         @RequestParam(required = false, defaultValue = "-1") Long gymId,
         @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
