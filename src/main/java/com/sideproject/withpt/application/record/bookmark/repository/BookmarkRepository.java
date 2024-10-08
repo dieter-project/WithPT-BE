@@ -11,11 +11,11 @@ import org.springframework.data.repository.query.Param;
 
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
 
-    List<Bookmark> findByMemberId(Long memberId);
-
     Optional<Bookmark> findByMemberIdAndTitle(Long memberId, String title);
 
     boolean existsByMemberAndTitle(Member member, String title);
+
+    List<Bookmark> findAllByMemberOrderByUploadDateDescTitleAsc(Member member);
 
     @Modifying
     @Query("delete from Bookmark b where b.id in :ids")

@@ -1,7 +1,6 @@
 package com.sideproject.withpt.application.record.bookmark.service;
 
 import com.sideproject.withpt.application.member.repository.MemberRepository;
-import com.sideproject.withpt.application.record.bookmark.controller.request.BookmarkSaveRequest;
 import com.sideproject.withpt.application.record.bookmark.exception.BookmarkException;
 import com.sideproject.withpt.application.record.bookmark.repository.BookmarkRepository;
 import com.sideproject.withpt.application.record.bookmark.service.request.BookmarkSaveDto;
@@ -10,6 +9,8 @@ import com.sideproject.withpt.application.record.exercise.exception.ExerciseExce
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.bookmark.Bookmark;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,15 +37,15 @@ public class BookmarkService {
         );
     }
 
-//    public List<BookmarkResponse> findAllBookmark(Long memberId) {
-//        memberRepository.findById(memberId)
-//            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-//
-//        return bookmarkRepository.findByMemberId(memberId).stream()
-//            .map(BookmarkResponse::from)
-//            .collect(Collectors.toList());
-//    }
-//
+    public List<BookmarkResponse> findAllBookmark(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+
+        return bookmarkRepository.findAllByMemberOrderByUploadDateDescTitleAsc(member).stream()
+            .map(BookmarkResponse::of)
+            .collect(Collectors.toList());
+    }
+
 //    public BookmarkResponse findOneBookmark(Long memberId, Long bookmarkId) {
 //        Bookmark bookmark = validateBookmarkId(bookmarkId, memberId);
 //        return BookmarkResponse.from(bookmark);

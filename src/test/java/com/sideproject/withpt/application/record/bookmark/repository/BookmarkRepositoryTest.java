@@ -1,15 +1,11 @@
-package com.sideproject.withpt.application.record.bookmark.service;
+package com.sideproject.withpt.application.record.bookmark.repository;
 
 import static com.sideproject.withpt.common.type.ExerciseType.AEROBIC;
 import static com.sideproject.withpt.common.type.ExerciseType.ANAEROBIC;
 import static com.sideproject.withpt.common.type.ExerciseType.STRETCHING;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
 import com.sideproject.withpt.application.member.repository.MemberRepository;
-import com.sideproject.withpt.application.record.bookmark.repository.BookmarkRepository;
-import com.sideproject.withpt.application.record.bookmark.service.request.BookmarkSaveDto;
-import com.sideproject.withpt.application.record.bookmark.service.response.BookmarkResponse;
 import com.sideproject.withpt.common.type.BodyPart;
 import com.sideproject.withpt.common.type.DietType;
 import com.sideproject.withpt.common.type.ExerciseType;
@@ -19,8 +15,8 @@ import com.sideproject.withpt.domain.record.bookmark.Bookmark;
 import com.sideproject.withpt.domain.record.bookmark.BookmarkBodyCategory;
 import java.time.LocalDate;
 import java.util.List;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @ActiveProfiles("test")
 @SpringBootTest
-class BookmarkServiceTest {
+class BookmarkRepositoryTest {
 
     @Autowired
     private MemberRepository memberRepository;
@@ -38,93 +34,9 @@ class BookmarkServiceTest {
     @Autowired
     private BookmarkRepository bookmarkRepository;
 
-    @Autowired
-    private BookmarkService bookmarkService;
-
-    @Nested
-    @DisplayName("북마크 입력하기")
-    class SaveBookmark {
-
-        @DisplayName("유산소")
-        @Test
-        void AEROBIC() {
-            // given
-            Member member = memberRepository.save(createMember("회원"));
-            LocalDate uploadDate = LocalDate.of(2024, 10, 8);
-            BookmarkSaveDto bookmarkSaveDto = BookmarkSaveDto.builder()
-                .uploadDate(uploadDate)
-                .title("유산소")
-                .exerciseType(AEROBIC)
-                .exerciseTime(100)
-                .build();
-
-            // when
-            BookmarkResponse response = bookmarkService.saveBookmark(member.getId(), bookmarkSaveDto);
-
-            // then
-            assertThat(response)
-                .extracting("uploadDate", "title", "exerciseType")
-                .contains(uploadDate, "유산소", AEROBIC);
-        }
-
-        @DisplayName("무산소")
-        @Test
-        void ANAEROBIC() {
-            // given
-            Member member = memberRepository.save(createMember("회원"));
-            LocalDate uploadDate = LocalDate.of(2024, 10, 8);
-            BookmarkSaveDto bookmarkSaveDto = BookmarkSaveDto.builder()
-                .uploadDate(uploadDate)
-                .title("무산소")
-                .exerciseType(ANAEROBIC)
-                .bodyPart(BodyPart.UPPER_BODY.name())
-                .specificBodyParts(List.of(BodyPart.CHEST.name(), BodyPart.SHOULDERS.name(), BodyPart.ARMS.name()))
-                .weight(100)
-                .times(10)
-                .exerciseSet(5)
-                .build();
-
-            // when
-            BookmarkResponse response = bookmarkService.saveBookmark(member.getId(), bookmarkSaveDto);
-
-            // then
-            assertThat(response)
-                .extracting("uploadDate", "title", "exerciseType", "bodyPart", "specificBodyParts", "weight", "times", "exerciseSet")
-                .contains(
-                    uploadDate, "무산소", ANAEROBIC, BodyPart.UPPER_BODY, List.of(BodyPart.CHEST, BodyPart.SHOULDERS, BodyPart.ARMS), 100, 10, 5
-                );
-        }
-
-        @DisplayName("스트레칭")
-        @Test
-        void STRETCHING() {
-            // given
-            Member member = memberRepository.save(createMember("회원"));
-            LocalDate uploadDate = LocalDate.of(2024, 9, 3);
-
-            BookmarkSaveDto bookmarkSaveDto = BookmarkSaveDto.builder()
-                .uploadDate(uploadDate)
-                .title("스트레칭")
-                .exerciseType(STRETCHING)
-                .bodyPart(BodyPart.FULL_BODY.name())
-                .exerciseTime(60)
-                .build();
-
-            // when
-            BookmarkResponse response = bookmarkService.saveBookmark(member.getId(), bookmarkSaveDto);
-
-            // then
-            assertThat(response)
-                .extracting("uploadDate", "title", "exerciseType", "bodyPart", "specificBodyParts", "exerciseTime", "weight", "times")
-                .contains(
-                    uploadDate, "스트레칭", STRETCHING, BodyPart.FULL_BODY, null, 60, 0, 0
-                );
-        }
-    }
-
-    @DisplayName("북마크 리스트 조회하기")
+    @DisplayName("회원의 북마크 리스트 조회")
     @Test
-    void findAllBookmark() {
+    void findAllByMemberOrderByUploadDateDescTitleAsc() {
         // given
         Member member = memberRepository.save(createMember("회원"));
 
@@ -145,31 +57,17 @@ class BookmarkServiceTest {
         bookmarkRepository.save(createBookmark(LocalDate.of(2024, 10, 4), "스트레칭", STRETCHING, FULL_BODY, 60, member));
 
         // when
-        List<BookmarkResponse> responses = bookmarkService.findAllBookmark(member.getId());
+        List<Bookmark> result = bookmarkRepository.findAllByMemberOrderByUploadDateDescTitleAsc(member);
 
         // then
-        assertThat(responses).hasSize(4)
+        Assertions.assertThat(result).hasSize(4)
             .extracting("title", "exerciseType")
-            .contains(
+            .containsExactly(
                 tuple("무산소", ANAEROBIC),
                 tuple("유산소1", AEROBIC),
                 tuple("유산소2", AEROBIC),
                 tuple("스트레칭", STRETCHING)
             );
-    }
-
-    public Bookmark createBookmark(Member member, String title, ExerciseType exerciseType, BookmarkBodyCategory bodyCategory, int weight, int exerciseSet, int times, int exerciseTime, LocalDate uploadDate) {
-        return Bookmark.builder()
-            .member(member)
-            .title(title)
-            .exerciseType(exerciseType)
-            .bodyCategory(bodyCategory)
-            .weight(weight)
-            .exerciseSet(exerciseSet)
-            .times(times)
-            .exerciseTime(exerciseTime)
-            .uploadDate(uploadDate)
-            .build();
     }
 
     private Bookmark createBookmark(LocalDate uploadDate, String title, ExerciseType exerciseType, int exerciseTime, Member member) {
