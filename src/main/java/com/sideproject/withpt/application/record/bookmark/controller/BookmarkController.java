@@ -26,7 +26,7 @@ public class BookmarkController {
     public void saveBookmark(
         @Valid @RequestBody BookmarkSaveRequest request,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        bookmarkService.saveBookmark(memberId, request);
+        bookmarkService.saveBookmark(memberId, request.toServiceDto());
     }
 
 //    @Operation(summary = "회원의 북마크 리스트 전체 조회하기")

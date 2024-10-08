@@ -1,5 +1,7 @@
 package com.sideproject.withpt.application.record.bookmark.service.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.sideproject.withpt.common.type.BodyPart;
 import com.sideproject.withpt.common.type.ExerciseType;
 import com.sideproject.withpt.domain.record.bookmark.Bookmark;
@@ -18,6 +20,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@JsonInclude(Include.NON_NULL)
 public class BookmarkResponse {
 
     private Long id;

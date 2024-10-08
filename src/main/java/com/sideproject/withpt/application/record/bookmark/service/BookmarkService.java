@@ -4,6 +4,7 @@ import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.record.bookmark.controller.request.BookmarkSaveRequest;
 import com.sideproject.withpt.application.record.bookmark.exception.BookmarkException;
 import com.sideproject.withpt.application.record.bookmark.repository.BookmarkRepository;
+import com.sideproject.withpt.application.record.bookmark.service.request.BookmarkSaveDto;
 import com.sideproject.withpt.application.record.bookmark.service.response.BookmarkResponse;
 import com.sideproject.withpt.application.record.exercise.exception.ExerciseException;
 import com.sideproject.withpt.common.exception.GlobalException;
@@ -22,16 +23,16 @@ public class BookmarkService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public BookmarkResponse saveBookmark(Long memberId, BookmarkSaveRequest request) {
+    public BookmarkResponse saveBookmark(Long memberId, BookmarkSaveDto bookmarkSaveDto) {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
-        if (bookmarkRepository.existsByMemberAndTitle(member, request.getTitle())) {
+        if (bookmarkRepository.existsByMemberAndTitle(member, bookmarkSaveDto.getTitle())) {
             throw BookmarkException.BOOKMARK_ALREADY_EXISTS;
         }
 
         return BookmarkResponse.of(
-            bookmarkRepository.save(request.toEntity(member))
+            bookmarkRepository.save(bookmarkSaveDto.toEntity(member))
         );
     }
 
