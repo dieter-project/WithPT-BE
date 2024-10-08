@@ -479,6 +479,69 @@ class LessonQueryRepositoryImplTest {
             );
     }
 
+    @DisplayName("트레이너에 의해 수업 변경이 요청된 목록 조회")
+    @Test
+    void findAllModifiedByAndLessonStatusByTrainer() {
+        // given
+        Member member1 = memberRepository.save(createMember("회원"));
+        Member member2 = memberRepository.save(createMember("회원"));
+
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+        Gym gym1 = gymRepository.save(createGym("체육관1"));
+        Gym gym2 = gymRepository.save(createGym("체육관2"));
+
+        GymTrainer gymTrainer1 = gymTrainerRepository.save(createGymTrainer(gym1, trainer));
+        LessonSchedule lessonSchedule1 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(9, 0), Day.SAT);
+        LessonSchedule lessonSchedule2 = createLessonSchedule(LocalDate.of(2024, 10, 6), LocalTime.of(11, 0), Day.SAT);
+        LessonSchedule lessonSchedule3 = createLessonSchedule(LocalDate.of(2024, 10, 7), LocalTime.of(12, 0), Day.SAT);
+        LessonSchedule lessonSchedule4 = createLessonSchedule(LocalDate.of(2024, 10, 8), LocalTime.of(14, 0), Day.SAT);
+        LessonSchedule lessonSchedule5 = createLessonSchedule(LocalDate.of(2024, 10, 11), LocalTime.of(14, 0), Day.SAT);
+        LessonSchedule lessonSchedule6 = createLessonSchedule(LocalDate.of(2024, 10, 15), LocalTime.of(14, 0), Day.SAT);
+        LessonSchedule lessonSchedule7 = createLessonSchedule(LocalDate.of(2024, 10, 21), LocalTime.of(14, 0), Day.SAT);
+        LessonSchedule lessonSchedule8 = createLessonSchedule(LocalDate.of(2024, 10, 24), LocalTime.of(14, 0), Day.SAT);
+        LessonSchedule lessonSchedule9 = createLessonSchedule(LocalDate.of(2024, 10, 29), LocalTime.of(14, 0), Day.SAT);
+        LessonSchedule lessonSchedule10 = createLessonSchedule(LocalDate.of(2024, 11, 3), LocalTime.of(14, 0), Day.SAT);
+        lessonRepository.saveAll(List.of(
+                createLesson(member1, gymTrainer1, lessonSchedule1, LessonStatus.PENDING_APPROVAL, Role.MEMBER, Role.TRAINER),
+                createLesson(member1, gymTrainer1, lessonSchedule2, LessonStatus.PENDING_APPROVAL, Role.MEMBER, Role.TRAINER),
+                createLesson(member1, gymTrainer1, lessonSchedule6, LessonStatus.PENDING_APPROVAL, Role.MEMBER, Role.TRAINER),
+                createLesson(member1, gymTrainer1, lessonSchedule3, LessonStatus.PENDING_APPROVAL, Role.TRAINER, Role.MEMBER),
+                createLesson(member1, gymTrainer1, lessonSchedule4, LessonStatus.CANCELED, Role.MEMBER, Role.MEMBER),
+                createLesson(member1, gymTrainer1, lessonSchedule5, LessonStatus.RESERVED, Role.TRAINER, Role.MEMBER),
+                createLesson(member2, gymTrainer1, lessonSchedule7, LessonStatus.RESERVED, Role.TRAINER),
+                createLesson(member2, gymTrainer1, lessonSchedule8, LessonStatus.RESERVED, Role.MEMBER, Role.TRAINER),
+                createLesson(member2, gymTrainer1, lessonSchedule9, LessonStatus.RESERVED, Role.TRAINER),
+                createLesson(member2, gymTrainer1, lessonSchedule10, LessonStatus.PENDING_APPROVAL, Role.MEMBER)
+            )
+        );
+
+        GymTrainer gymTrainer2 = gymTrainerRepository.save(createGymTrainer(gym2, trainer));
+        LessonSchedule lessonSchedule11 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(15, 0), Day.SAT);
+        LessonSchedule lessonSchedule12 = createLessonSchedule(LocalDate.of(2024, 10, 10), LocalTime.of(18, 0), Day.SUN);
+        lessonRepository.saveAll(List.of(
+                createLesson(member1, gymTrainer2, lessonSchedule11, LessonStatus.PENDING_APPROVAL, Role.TRAINER, Role.MEMBER),
+                createLesson(member2, gymTrainer2, lessonSchedule12, LessonStatus.PENDING_APPROVAL, Role.MEMBER, Role.TRAINER)
+            )
+        );
+
+        final List<GymTrainer> gymTrainers = List.of(gymTrainer1, gymTrainer2);
+        final Pageable pageable = PageRequest.of(0, 10);
+
+        // when
+        Slice<Lesson> lessons = lessonRepository.findAllModifiedByAndLessonStatus(Role.TRAINER, LessonStatus.PENDING_APPROVAL, gymTrainers, pageable);
+
+        // then
+        assertThat(lessons.getContent()).hasSize(4)
+            .extracting("gymTrainer", "schedule")
+            .containsExactly(
+                tuple(gymTrainer1, lessonSchedule1),
+                tuple(gymTrainer1, lessonSchedule2),
+                tuple(gymTrainer2, lessonSchedule12),
+                tuple(gymTrainer1, lessonSchedule6)
+            );
+    }
+
+
     private LessonSchedule createLessonSchedule(LocalDate date, LocalTime time, Day day) {
         return LessonSchedule.builder()
             .date(date)

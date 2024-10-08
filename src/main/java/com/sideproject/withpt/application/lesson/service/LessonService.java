@@ -221,40 +221,16 @@ public class LessonService {
         );
     }
 
-//    public Map<LessonRequestStatus, Map<LessonRequestStatus, List<PendingLessonInfo>>> getPendingLessons(Long trainerId) {
-//        List<Lesson> allByTrainerId = lessonRepository.findAllByTrainerIdAndStatus(trainerId, LessonStatus.PENDING_APPROVAL);
-//        allByTrainerId.forEach(System.out::println);
-//        System.out.println("===================\n");
-//
-//        Map<LessonRequestStatus, Map<LessonRequestStatus, List<PendingLessonInfo>>> collect = allByTrainerId.stream()
-//            .collect(
-//                groupingBy(LessonService::groupByRequestStatus,
-//                    groupingBy(LessonService::groupByRegistrationStatus,
-//                        mapping(lesson ->
-//                                PendingLessonInfo.from(lesson, lesson.getMember(), lesson.getGym()),
-//                            toList())
-//                    )
-//                )
-//            );
-//
-//        return collect;
-//    }
-//
-//    private static LessonRequestStatus groupByRegistrationStatus(Lesson lesson) {
-//        if (lesson.getModifiedBy() == null) {
-//            return LessonRequestStatus.REGISTRATION;
-//        } else {
-//            return LessonRequestStatus.CHANGE;
-//        }
-//    }
-//
-//    private static LessonRequestStatus groupByRequestStatus(Lesson lesson) {
-//        if (lesson.getRegisteredBy().equals("MEMBER") || lesson.getModifiedBy().equals("MEMBER")) {
-//            return LessonRequestStatus.RECEIVED;
-//        } else {
-//            return LessonRequestStatus.SENT;
-//        }
-//    }
+    public Slice<LessonResponse> getSentLessonRequests(Long trainerId, Pageable pageable) {
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+
+        List<GymTrainer> gymTrainers = gymTrainerRepository.findAllByTrainer(trainer);
+
+        return convertToLessonResponses(
+            lessonRepository.findAllModifiedByAndLessonStatus(Role.TRAINER, LessonStatus.PENDING_APPROVAL, gymTrainers, pageable)
+        );
+    }
 
     @Transactional
     public void deleteLesson(Long lessonId) {
