@@ -22,6 +22,7 @@ import com.sideproject.withpt.application.lesson.repository.dto.QTrainerLessonIn
 import com.sideproject.withpt.application.lesson.repository.dto.QTrainerLessonInfoResponse_Member;
 import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInfoResponse;
 import com.sideproject.withpt.application.type.LessonStatus;
+import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.member.Member;
@@ -34,6 +35,9 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -202,6 +206,61 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
             ).distinct()
             .orderBy(lesson.schedule.date.asc())
             .fetch();
+    }
+
+    @Override
+    public Slice<Lesson> findAllRegisteredByAndLessonStatus(Role role, LessonStatus status, List<GymTrainer> gymTrainers, Pageable pageable) {
+        List<Lesson> contents = jpaQueryFactory
+            .selectFrom(lesson)
+            .where(
+                gymTrainersIn(gymTrainers),
+                lesson.status.eq(status),
+                lesson.registeredBy.eq(role),
+                lesson.modifiedBy.isNull()
+            )
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize() + 1)
+            .orderBy(
+                lesson.schedule.date.asc(),
+                lesson.schedule.time.asc()
+            )
+            .fetch();
+
+        boolean hasNext = false;
+
+        if (contents.size() > pageable.getPageSize()) {
+            contents.remove(pageable.getPageSize());
+            hasNext = true;
+        }
+
+        return new SliceImpl<>(contents, pageable, hasNext);
+    }
+
+    @Override
+    public Slice<Lesson> findAllModifiedByAndLessonStatus(Role role, LessonStatus status, List<GymTrainer> gymTrainers, Pageable pageable) {
+        List<Lesson> contents = jpaQueryFactory
+            .selectFrom(lesson)
+            .where(
+                gymTrainersIn(gymTrainers),
+                lesson.status.eq(status),
+                lesson.modifiedBy.eq(role)
+            )
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize() + 1)
+            .orderBy(
+                lesson.schedule.date.asc(),
+                lesson.schedule.time.asc()
+            )
+            .fetch();
+
+        boolean hasNext = false;
+
+        if (contents.size() > pageable.getPageSize()) {
+            contents.remove(pageable.getPageSize());
+            hasNext = true;
+        }
+
+        return new SliceImpl<>(contents, pageable, hasNext);
     }
 
     @Override

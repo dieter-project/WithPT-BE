@@ -2,8 +2,6 @@ package com.sideproject.withpt.application.lesson.service;
 
 import static com.sideproject.withpt.application.lesson.exception.LessonErrorCode.LESSON_NOT_FOUND;
 import static com.sideproject.withpt.application.schedule.exception.ScheduleErrorCode.WORK_SCHEDULE_NOT_FOUND;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
 import com.sideproject.withpt.application.gym.exception.GymException;
@@ -14,7 +12,6 @@ import com.sideproject.withpt.application.lesson.controller.request.LessonChange
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse.LessonTime;
-import com.sideproject.withpt.application.lesson.controller.response.PendingLessonInfo;
 import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
 import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInfoResponse;
@@ -51,6 +48,9 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -206,40 +206,55 @@ public class LessonService {
         );
     }
 
-    public Map<LessonRequestStatus, Map<LessonRequestStatus, List<PendingLessonInfo>>> getPendingLessons(Long trainerId) {
-        List<Lesson> allByTrainerId = lessonRepository.findAllByTrainerIdAndStatus(trainerId, LessonStatus.PENDING_APPROVAL);
-        allByTrainerId.forEach(System.out::println);
-        System.out.println("===================\n");
+    public Map<LessonRequestStatus, Slice<LessonResponse>> getReceivedLessonRequests(Long trainerId, Pageable pageable) {
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
-        Map<LessonRequestStatus, Map<LessonRequestStatus, List<PendingLessonInfo>>> collect = allByTrainerId.stream()
-            .collect(
-                groupingBy(LessonService::groupByRequestStatus,
-                    groupingBy(LessonService::groupByRegistrationStatus,
-                        mapping(lesson ->
-                                PendingLessonInfo.from(lesson, lesson.getMember(), lesson.getGym()),
-                            toList())
-                    )
-                )
-            );
+        List<GymTrainer> gymTrainers = gymTrainerRepository.findAllByTrainer(trainer);
 
-        return collect;
+        Slice<Lesson> registrationRequestedLessons = lessonRepository.findAllRegisteredByAndLessonStatus(Role.MEMBER, LessonStatus.PENDING_APPROVAL, gymTrainers, pageable);
+        Slice<Lesson> changeRequestedLessons = lessonRepository.findAllModifiedByAndLessonStatus(Role.MEMBER, LessonStatus.PENDING_APPROVAL, gymTrainers, pageable);
+
+        return Map.of(
+            LessonRequestStatus.REGISTRATION, convertToLessonResponses(registrationRequestedLessons),
+            LessonRequestStatus.CHANGE, convertToLessonResponses(changeRequestedLessons)
+        );
     }
 
-    private static LessonRequestStatus groupByRegistrationStatus(Lesson lesson) {
-        if (lesson.getModifiedBy() == null) {
-            return LessonRequestStatus.REGISTRATION;
-        } else {
-            return LessonRequestStatus.CHANGE;
-        }
-    }
-
-    private static LessonRequestStatus groupByRequestStatus(Lesson lesson) {
-        if (lesson.getRegisteredBy().equals("MEMBER") || lesson.getModifiedBy().equals("MEMBER")) {
-            return LessonRequestStatus.RECEIVED;
-        } else {
-            return LessonRequestStatus.SENT;
-        }
-    }
+//    public Map<LessonRequestStatus, Map<LessonRequestStatus, List<PendingLessonInfo>>> getPendingLessons(Long trainerId) {
+//        List<Lesson> allByTrainerId = lessonRepository.findAllByTrainerIdAndStatus(trainerId, LessonStatus.PENDING_APPROVAL);
+//        allByTrainerId.forEach(System.out::println);
+//        System.out.println("===================\n");
+//
+//        Map<LessonRequestStatus, Map<LessonRequestStatus, List<PendingLessonInfo>>> collect = allByTrainerId.stream()
+//            .collect(
+//                groupingBy(LessonService::groupByRequestStatus,
+//                    groupingBy(LessonService::groupByRegistrationStatus,
+//                        mapping(lesson ->
+//                                PendingLessonInfo.from(lesson, lesson.getMember(), lesson.getGym()),
+//                            toList())
+//                    )
+//                )
+//            );
+//
+//        return collect;
+//    }
+//
+//    private static LessonRequestStatus groupByRegistrationStatus(Lesson lesson) {
+//        if (lesson.getModifiedBy() == null) {
+//            return LessonRequestStatus.REGISTRATION;
+//        } else {
+//            return LessonRequestStatus.CHANGE;
+//        }
+//    }
+//
+//    private static LessonRequestStatus groupByRequestStatus(Lesson lesson) {
+//        if (lesson.getRegisteredBy().equals("MEMBER") || lesson.getModifiedBy().equals("MEMBER")) {
+//            return LessonRequestStatus.RECEIVED;
+//        } else {
+//            return LessonRequestStatus.SENT;
+//        }
+//    }
 
     @Transactional
     public void deleteLesson(Long lessonId) {
@@ -364,5 +379,12 @@ public class LessonService {
         return gymTrainers.stream()
             .map(gymTrainer -> gymTrainer.getGym().getName())
             .collect(toList());
+    }
+
+    private Slice<LessonResponse> convertToLessonResponses(Slice<Lesson> lessons) {
+        List<LessonResponse> contents = lessons.getContent().stream()
+            .map(LessonResponse::of)
+            .collect(toList());
+        return new SliceImpl<>(contents, lessons.getPageable(), lessons.hasNext());
     }
 }

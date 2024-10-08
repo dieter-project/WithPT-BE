@@ -28,6 +28,8 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -155,14 +157,33 @@ public class LessonController {
     }
 
     // 내가 보낸 요청 / 받은 요청 분리하기
-    @Operation(summary = "수업관리/메인 - 대기 수업 조회")
-    @GetMapping("/lessons/pending-lessons")
-    public ApiSuccessResponse<Map<LessonRequestStatus, Map<LessonRequestStatus, List<PendingLessonInfo>>>> getPendingLessons(
+//    @Operation(summary = "수업관리/메인 - 대기 수업 조회")
+//    @GetMapping("/lessons/pending-lessons")
+//    public ApiSuccessResponse<Map<LessonRequestStatus, Map<LessonRequestStatus, List<PendingLessonInfo>>>> getPendingLessons(
+//        @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId
+//    ) {
+//
+//        return ApiSuccessResponse.from(
+//            lessonService.getPendingLessons(trainerId)
+//        );
+//    }
+
+    @Operation(summary = "대기 수업 조회 - 내가 받은 요청")
+    @GetMapping("/lessons/pending/received-requests")
+    public ApiSuccessResponse<Map<LessonRequestStatus, Slice<LessonResponse>>> getReceivedLessonRequests(@Parameter(hidden = true) @AuthenticationPrincipal Long trainerId, Pageable pageable) {
+        return ApiSuccessResponse.from(
+            lessonService.getReceivedLessonRequests(trainerId, pageable)
+        );
+    }
+
+    @Operation(summary = "대기 수업 조회 - 내가 보낸 요청")
+    @GetMapping("/lessons/pending/sent-requests")
+    public ApiSuccessResponse<Void> getSentLessonRequests(
         @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId
     ) {
 
         return ApiSuccessResponse.from(
-            lessonService.getPendingLessons(trainerId)
+            null
         );
     }
 

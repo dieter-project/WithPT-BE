@@ -2,6 +2,7 @@ package com.sideproject.withpt.application.lesson.service.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.querydsl.core.annotations.QueryProjection;
 import com.sideproject.withpt.application.type.LessonStatus;
 import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.domain.pt.Lesson;
@@ -12,7 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @JsonInclude(Include.NON_NULL)
 public class LessonResponse {
 

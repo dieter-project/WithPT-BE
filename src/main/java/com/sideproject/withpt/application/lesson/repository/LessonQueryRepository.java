@@ -2,6 +2,8 @@ package com.sideproject.withpt.application.lesson.repository;
 
 import com.sideproject.withpt.application.lesson.repository.dto.MemberLessonInfoResponse;
 import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInfoResponse;
+import com.sideproject.withpt.application.type.LessonStatus;
+import com.sideproject.withpt.application.type.Role;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.pt.Lesson;
@@ -10,6 +12,8 @@ import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 
 public interface LessonQueryRepository {
 
@@ -24,6 +28,8 @@ public interface LessonQueryRepository {
     List<LocalDate> getTrainerLessonScheduleOfMonth(List<GymTrainer> gymTrainers, YearMonth yearMonth);
 
     List<LocalDate> getMemberLessonScheduleOfMonth(List<GymTrainer> gymTrainers, Member member, YearMonth yearMonth);
+    Slice<Lesson> findAllRegisteredByAndLessonStatus(Role role, LessonStatus status, List<GymTrainer> gymTrainers, Pageable pageable);
+    Slice<Lesson> findAllModifiedByAndLessonStatus(Role role, LessonStatus status, List<GymTrainer> gymTrainers, Pageable pageable);
 
     TrainerLessonInfoResponse findLessonScheduleInfoBy(Long lessonId);
 
