@@ -5,6 +5,7 @@ import com.sideproject.withpt.application.record.bookmark.controller.request.Boo
 import com.sideproject.withpt.application.record.bookmark.exception.BookmarkException;
 import com.sideproject.withpt.application.record.bookmark.repository.BookmarkRepository;
 import com.sideproject.withpt.application.record.bookmark.service.request.BookmarkSaveDto;
+import com.sideproject.withpt.application.record.bookmark.service.response.BookmarkCheckResponse;
 import com.sideproject.withpt.application.record.bookmark.service.response.BookmarkResponse;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
@@ -85,6 +86,17 @@ public class BookmarkService {
         );
 
         return BookmarkResponse.of(bookmark);
+    }
+
+    public BookmarkCheckResponse checkBookmark(String title, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+
+        if (bookmarkRepository.existsByMemberAndTitle(member, title)) {
+            throw BookmarkException.BOOKMARK_ALREADY_EXISTS;
+        }
+
+        return BookmarkCheckResponse.from(false);
     }
 
 }

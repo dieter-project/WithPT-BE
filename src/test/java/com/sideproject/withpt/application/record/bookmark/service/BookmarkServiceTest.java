@@ -12,6 +12,7 @@ import com.sideproject.withpt.application.record.bookmark.controller.request.Boo
 import com.sideproject.withpt.application.record.bookmark.exception.BookmarkException;
 import com.sideproject.withpt.application.record.bookmark.repository.BookmarkRepository;
 import com.sideproject.withpt.application.record.bookmark.service.request.BookmarkSaveDto;
+import com.sideproject.withpt.application.record.bookmark.service.response.BookmarkCheckResponse;
 import com.sideproject.withpt.application.record.bookmark.service.response.BookmarkResponse;
 import com.sideproject.withpt.common.type.BodyPart;
 import com.sideproject.withpt.common.type.DietType;
@@ -310,6 +311,48 @@ class BookmarkServiceTest {
             .contains(
                 bookmarkId, LocalDate.of(2024, 10, 9), "무산소", ANAEROBIC
             );
+    }
+
+    @DisplayName("북마크명과 중복되는 이름 있는지 체크")
+    @Test
+    void checkBookmark() {
+        // given
+        Member member = memberRepository.save(createMember("회원"));
+
+        BookmarkBodyCategory FULL_BODY = createParentBodyCategory(BodyPart.FULL_BODY, null);
+        bookmarkRepository.save(createBookmark(LocalDate.of(2024, 10, 4), "스트레칭", STRETCHING, FULL_BODY, 60, member));
+
+        final String title = "스트레칭2";
+        final Long memberId = member.getId();
+
+        // when
+        BookmarkCheckResponse response = bookmarkService.checkBookmark(title, memberId);
+
+        // then
+        assertThat(response)
+            .extracting("isDuplicated", "message")
+            .contains(
+                false, "북마크 등록이 가능합니다"
+            );
+    }
+
+    @DisplayName("북마크명과 중복되는 이름이 이미 있어서 에러")
+    @Test
+    void checkBookmarkThrowException() {
+        // given
+        Member member = memberRepository.save(createMember("회원"));
+
+        BookmarkBodyCategory FULL_BODY = createParentBodyCategory(BodyPart.FULL_BODY, null);
+        bookmarkRepository.save(createBookmark(LocalDate.of(2024, 10, 4), "스트레칭", STRETCHING, FULL_BODY, 60, member));
+
+        final String title = "스트레칭";
+        final Long memberId = member.getId();
+
+        // when    // then
+        assertThatThrownBy(() -> bookmarkService.checkBookmark(title, memberId))
+            .isInstanceOf(BookmarkException.class)
+            .hasMessage("이미 존재하는 북마크명입니다.")
+        ;
     }
 
     private Bookmark createBookmark(LocalDate uploadDate, String title, ExerciseType exerciseType, int exerciseTime, Member member) {

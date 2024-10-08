@@ -67,15 +67,6 @@ public class ExerciseService {
             .orElseThrow(() -> ExerciseException.EXERCISE_INFO_NOT_EXIST);
     }
 
-    public BookmarkCheckResponse checkBookmark(String title, Long memberId) {
-        bookmarkRepository.findByMemberIdAndTitle(memberId, title)
-            .ifPresent(exercise -> {
-                throw BookmarkException.BOOKMARK_ALREADY_EXISTS;
-            });
-
-        return BookmarkCheckResponse.from(true);
-    }
-
     @Transactional
     public void saveExercise(Long memberId, List<ExerciseRequest> request, List<MultipartFile> files, LocalDate uploadDate) {
 
