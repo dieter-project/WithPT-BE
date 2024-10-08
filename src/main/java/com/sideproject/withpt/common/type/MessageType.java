@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.type;
+package com.sideproject.withpt.common.type;
 
 // 메시지  타입 : 입장, 채팅
 // 메시지 타입에 따라서 동작하는 구조가 달라진다.

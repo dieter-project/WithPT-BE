@@ -1,8 +1,8 @@
 package com.sideproject.withpt.application.record.diet.service;
 
-import static com.sideproject.withpt.application.type.DietCategory.BREAKFAST;
-import static com.sideproject.withpt.application.type.DietCategory.DINNER;
-import static com.sideproject.withpt.application.type.DietCategory.LUNCH;
+import static com.sideproject.withpt.common.type.DietCategory.BREAKFAST;
+import static com.sideproject.withpt.common.type.DietCategory.DINNER;
+import static com.sideproject.withpt.common.type.DietCategory.LUNCH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
@@ -18,10 +18,10 @@ import com.sideproject.withpt.application.record.diet.service.response.DailyDiet
 import com.sideproject.withpt.application.record.diet.service.response.DietFoodResponse;
 import com.sideproject.withpt.application.record.diet.service.response.DietInfoResponse;
 import com.sideproject.withpt.application.record.diet.service.response.ImageResponse;
-import com.sideproject.withpt.application.type.DietCategory;
-import com.sideproject.withpt.application.type.DietType;
-import com.sideproject.withpt.application.type.Role;
-import com.sideproject.withpt.application.type.Usages;
+import com.sideproject.withpt.common.type.DietCategory;
+import com.sideproject.withpt.common.type.DietType;
+import com.sideproject.withpt.common.type.Role;
+import com.sideproject.withpt.common.type.Usages;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.Image;
 import com.sideproject.withpt.domain.record.diet.DietFood;
@@ -32,7 +32,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

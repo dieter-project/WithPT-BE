@@ -8,8 +8,6 @@ import com.sideproject.withpt.application.member.controller.response.MemberInfoR
 import com.sideproject.withpt.application.member.controller.response.MemberSearchResponse;
 import com.sideproject.withpt.application.member.service.MemberQueryService;
 import com.sideproject.withpt.application.member.service.MemberService;
-import com.sideproject.withpt.application.type.DietType;
-import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

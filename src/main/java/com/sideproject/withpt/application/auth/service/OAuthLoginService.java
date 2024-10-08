@@ -10,7 +10,7 @@ import com.sideproject.withpt.application.auth.controller.dto.LogoutResponse;
 import com.sideproject.withpt.application.auth.controller.dto.OAuthLoginResponse;
 import com.sideproject.withpt.application.auth.controller.dto.ReissueResponse;
 import com.sideproject.withpt.application.auth.infra.OAuthLoginParams;
-import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.jwt.AuthTokenGenerator;
 import com.sideproject.withpt.common.jwt.JwtTokenProvider;

@@ -1,6 +1,6 @@
 package com.sideproject.withpt.common.security;
 
-import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.common.type.Role;
 import java.util.ArrayList;
 import java.util.Collection;
 import lombok.AllArgsConstructor;

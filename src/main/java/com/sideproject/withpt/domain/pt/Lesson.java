@@ -1,8 +1,8 @@
 package com.sideproject.withpt.domain.pt;
 
-import com.sideproject.withpt.application.type.Day;
-import com.sideproject.withpt.application.type.LessonStatus;
-import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.common.type.Day;
+import com.sideproject.withpt.common.type.LessonStatus;
+import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;

@@ -14,8 +14,8 @@ import com.sideproject.withpt.application.record.exercise.repository.BodyCategor
 import com.sideproject.withpt.application.record.exercise.repository.BookmarkRepository;
 import com.sideproject.withpt.application.record.exercise.repository.ExerciseInfoRepository;
 import com.sideproject.withpt.application.record.exercise.repository.ExerciseRepository;
-import com.sideproject.withpt.application.type.ExerciseType;
-import com.sideproject.withpt.application.type.Usages;
+import com.sideproject.withpt.common.type.ExerciseType;
+import com.sideproject.withpt.common.type.Usages;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.exercise.BodyCategory;

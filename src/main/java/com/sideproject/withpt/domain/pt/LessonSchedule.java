@@ -1,6 +1,6 @@
 package com.sideproject.withpt.domain.pt;
 
-import com.sideproject.withpt.application.type.Day;
+import com.sideproject.withpt.common.type.Day;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import javax.persistence.Column;

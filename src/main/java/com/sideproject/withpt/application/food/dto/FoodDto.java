@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.Food.dto;
+package com.sideproject.withpt.application.food.dto;
 
 import com.sideproject.withpt.domain.record.diet.Food;
 import lombok.AllArgsConstructor;

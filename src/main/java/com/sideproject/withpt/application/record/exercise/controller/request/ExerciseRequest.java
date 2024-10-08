@@ -2,8 +2,8 @@ package com.sideproject.withpt.application.record.exercise.controller.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sideproject.withpt.application.record.exercise.exception.validator.ValidExerciseType;
-import com.sideproject.withpt.application.type.BodyPart;
-import com.sideproject.withpt.application.type.ExerciseType;
+import com.sideproject.withpt.common.type.BodyPart;
+import com.sideproject.withpt.common.type.ExerciseType;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.domain.record.exercise.BodyCategory;
 import com.sideproject.withpt.domain.record.exercise.ExerciseInfo;

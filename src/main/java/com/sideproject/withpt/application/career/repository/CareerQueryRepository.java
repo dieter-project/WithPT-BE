@@ -6,7 +6,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.career.controller.response.CareerResponse;
 import com.sideproject.withpt.application.career.controller.response.QCareerResponse;
-import com.sideproject.withpt.application.type.EmploymentStatus;
+import com.sideproject.withpt.common.type.EmploymentStatus;
 import com.sideproject.withpt.domain.trainer.Career;
 import java.time.YearMonth;
 import java.util.ArrayList;

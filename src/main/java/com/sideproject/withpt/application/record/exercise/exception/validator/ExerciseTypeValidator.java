@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.record.exercise.exception.validator;
 
 import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseRequest;
-import com.sideproject.withpt.application.type.ExerciseType;
+import com.sideproject.withpt.common.type.ExerciseType;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.ConstraintValidator;

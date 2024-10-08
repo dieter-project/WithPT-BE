@@ -1,8 +1,8 @@
 package com.sideproject.withpt.domain.record.exercise;
 
 import com.sideproject.withpt.application.record.exercise.controller.request.BookmarkRequest;
-import com.sideproject.withpt.application.type.BodyPart;
-import com.sideproject.withpt.application.type.ExerciseType;
+import com.sideproject.withpt.common.type.BodyPart;
+import com.sideproject.withpt.common.type.ExerciseType;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.domain.member.Member;
 import lombok.*;

@@ -7,8 +7,8 @@ import com.sideproject.withpt.application.member.controller.request.MemberSignUp
 import com.sideproject.withpt.application.member.controller.response.NicknameCheckResponse;
 import com.sideproject.withpt.application.member.exception.MemberException;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
-import com.sideproject.withpt.application.type.Role;
-import com.sideproject.withpt.application.type.Sex;
+import com.sideproject.withpt.common.type.Role;
+import com.sideproject.withpt.common.type.Sex;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.jwt.AuthTokenGenerator;
 import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;

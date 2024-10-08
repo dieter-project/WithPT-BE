@@ -10,10 +10,10 @@ import com.sideproject.withpt.application.lesson.service.response.LessonResponse
 import com.sideproject.withpt.application.lesson.service.response.LessonScheduleOfMonthResponse;
 import com.sideproject.withpt.application.lesson.service.response.MemberLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.service.response.TrainerLessonScheduleResponse;
-import com.sideproject.withpt.application.type.Day;
-import com.sideproject.withpt.application.type.LessonRequestStatus;
-import com.sideproject.withpt.application.type.LessonStatus;
-import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.common.type.Day;
+import com.sideproject.withpt.common.type.LessonRequestStatus;
+import com.sideproject.withpt.common.type.LessonStatus;
+import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -97,6 +97,12 @@ public class LessonController {
         );
     }
 
+    @Operation(summary = "취소 혹은 자동 취소된 수업 삭제하기")
+    @DeleteMapping("/lessons/{lessonId}")
+    public void deleteDecidedLesson(@PathVariable Long lessonId) {
+        lessonService.deleteLesson(lessonId);
+    }
+
     @Operation(summary = "예약 가능한 수업 시간 조회")
     @GetMapping("/lessons/available-times")
     public ApiSuccessResponse<AvailableLessonScheduleResponse> getTrainerWorkSchedule(
@@ -169,12 +175,6 @@ public class LessonController {
         return ApiSuccessResponse.from(
             lessonService.getSentLessonRequests(trainerId, pageable)
         );
-    }
-
-    @Operation(summary = "취소 혹은 자동 취소된 수업 삭제하기")
-    @DeleteMapping("/lessons/{lessonId}")
-    public void deleteDecidedLesson(@PathVariable Long lessonId) {
-        lessonService.deleteLesson(lessonId);
     }
 
     private Role getLoginRole() {

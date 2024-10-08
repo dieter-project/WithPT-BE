@@ -1,9 +1,9 @@
 package com.sideproject.withpt.domain.member;
 
-import com.sideproject.withpt.application.type.DietType;
-import com.sideproject.withpt.application.type.ExerciseFrequency;
-import com.sideproject.withpt.application.type.Role;
-import com.sideproject.withpt.application.type.Sex;
+import com.sideproject.withpt.common.type.DietType;
+import com.sideproject.withpt.common.type.ExerciseFrequency;
+import com.sideproject.withpt.common.type.Role;
+import com.sideproject.withpt.common.type.Sex;
 import com.sideproject.withpt.domain.BaseEntity;
 import java.time.LocalDate;
 import javax.persistence.CascadeType;

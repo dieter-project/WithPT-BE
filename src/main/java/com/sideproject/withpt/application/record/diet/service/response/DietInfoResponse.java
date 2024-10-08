@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.record.diet.service.response;
 
 import com.sideproject.withpt.application.record.diet.repository.response.DietInfoDto;
-import com.sideproject.withpt.application.type.DietCategory;
+import com.sideproject.withpt.common.type.DietCategory;
 import com.sideproject.withpt.domain.record.Image;
 import com.sideproject.withpt.domain.record.diet.DietFood;
 import com.sideproject.withpt.domain.record.diet.DietInfo;

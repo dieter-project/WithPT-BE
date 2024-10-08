@@ -8,7 +8,7 @@ import com.sideproject.withpt.application.auth.infra.OAuthLoginParams;
 import com.sideproject.withpt.application.auth.service.OAuthLoginClient;
 import com.sideproject.withpt.application.auth.service.RequestOAuthInfoService;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
-import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.jwt.AuthTokenGenerator;
 import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
 import com.sideproject.withpt.common.redis.RedisClient;

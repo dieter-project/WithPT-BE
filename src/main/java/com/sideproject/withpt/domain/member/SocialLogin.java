@@ -1,6 +1,6 @@
 package com.sideproject.withpt.domain.member;
 
-import com.sideproject.withpt.application.type.OAuthProvider;
+import com.sideproject.withpt.common.type.OAuthProvider;
 import com.sideproject.withpt.domain.BaseEntity;
 import javax.persistence.Column;
 import javax.persistence.Entity;

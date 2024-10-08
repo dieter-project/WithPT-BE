@@ -1,13 +1,12 @@
 package com.sideproject.withpt.application.record.exercise.controller.response;
 
-import com.sideproject.withpt.application.type.BodyPart;
-import com.sideproject.withpt.application.type.ExerciseType;
+import com.sideproject.withpt.common.type.BodyPart;
+import com.sideproject.withpt.common.type.ExerciseType;
 import com.sideproject.withpt.domain.record.exercise.BodyCategory;
 import com.sideproject.withpt.domain.record.exercise.Exercise;
 import com.sideproject.withpt.domain.record.exercise.ExerciseInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

@@ -1,7 +1,6 @@
 package com.sideproject.withpt.application.member.controller.request;
 
-import com.sideproject.withpt.application.type.DietType;
-import com.sideproject.withpt.application.type.ExerciseFrequency;
+import com.sideproject.withpt.common.type.ExerciseFrequency;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

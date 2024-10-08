@@ -1,9 +1,9 @@
 package com.sideproject.withpt.application.trainer.service;
 
 
-import static com.sideproject.withpt.application.type.OAuthProvider.KAKAO;
-import static com.sideproject.withpt.application.type.Role.TRAINER;
-import static com.sideproject.withpt.application.type.Sex.MAN;
+import static com.sideproject.withpt.common.type.OAuthProvider.KAKAO;
+import static com.sideproject.withpt.common.type.Role.TRAINER;
+import static com.sideproject.withpt.common.type.Sex.MAN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -25,10 +25,10 @@ import com.sideproject.withpt.application.trainer.service.dto.single.CareerDto;
 import com.sideproject.withpt.application.trainer.service.dto.single.CertificateDto;
 import com.sideproject.withpt.application.trainer.service.dto.single.EducationDto;
 import com.sideproject.withpt.application.trainer.service.dto.single.WorkScheduleDto;
-import com.sideproject.withpt.application.type.AcademicInstitution;
-import com.sideproject.withpt.application.type.Day;
-import com.sideproject.withpt.application.type.Degree;
-import com.sideproject.withpt.application.type.EmploymentStatus;
+import com.sideproject.withpt.common.type.AcademicInstitution;
+import com.sideproject.withpt.common.type.Day;
+import com.sideproject.withpt.common.type.Degree;
+import com.sideproject.withpt.common.type.EmploymentStatus;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.redis.RedisClient;
 import com.sideproject.withpt.domain.gym.Gym;

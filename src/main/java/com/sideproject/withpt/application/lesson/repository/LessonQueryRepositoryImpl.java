@@ -21,8 +21,8 @@ import com.sideproject.withpt.application.lesson.repository.dto.QTrainerLessonIn
 import com.sideproject.withpt.application.lesson.repository.dto.QTrainerLessonInfoResponse_Lesson;
 import com.sideproject.withpt.application.lesson.repository.dto.QTrainerLessonInfoResponse_Member;
 import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInfoResponse;
-import com.sideproject.withpt.application.type.LessonStatus;
-import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.common.type.LessonStatus;
+import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.pt.Lesson;

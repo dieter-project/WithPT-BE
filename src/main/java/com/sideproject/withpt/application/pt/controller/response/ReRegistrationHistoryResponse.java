@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.pt.controller.response;
 
 import com.querydsl.core.annotations.QueryProjection;
-import com.sideproject.withpt.application.type.PtRegistrationStatus;
+import com.sideproject.withpt.common.type.PtRegistrationStatus;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;

@@ -1,16 +1,15 @@
 package com.sideproject.withpt.domain.trainer;
 
-import com.sideproject.withpt.application.type.LoginType;
-import com.sideproject.withpt.application.type.OAuthProvider;
-import com.sideproject.withpt.application.type.Role;
-import com.sideproject.withpt.application.type.Sex;
+import com.sideproject.withpt.common.type.LoginType;
+import com.sideproject.withpt.common.type.OAuthProvider;
+import com.sideproject.withpt.common.type.Role;
+import com.sideproject.withpt.common.type.Sex;
 import com.sideproject.withpt.domain.BaseEntity;
 import io.jsonwebtoken.lang.Assert;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;

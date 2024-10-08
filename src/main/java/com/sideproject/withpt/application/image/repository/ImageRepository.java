@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.image.repository;
 
-import com.sideproject.withpt.application.type.Usages;
+import com.sideproject.withpt.common.type.Usages;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.Image;
 import org.springframework.data.jpa.repository.JpaRepository;

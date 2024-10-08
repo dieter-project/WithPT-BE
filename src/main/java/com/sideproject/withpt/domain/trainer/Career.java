@@ -1,6 +1,6 @@
 package com.sideproject.withpt.domain.trainer;
 
-import com.sideproject.withpt.application.type.EmploymentStatus;
+import com.sideproject.withpt.common.type.EmploymentStatus;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.common.convertor.YearMonthToDateConverter;
 import java.time.YearMonth;

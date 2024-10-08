@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.record.diet.service.response;
 
 import com.sideproject.withpt.application.record.diet.repository.response.DietInfoDto;
-import com.sideproject.withpt.application.type.DietType;
+import com.sideproject.withpt.common.type.DietType;
 import com.sideproject.withpt.domain.record.diet.Diets;
 import java.time.LocalDate;
 import java.util.List;

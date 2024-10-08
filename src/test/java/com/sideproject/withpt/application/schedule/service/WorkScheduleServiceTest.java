@@ -8,7 +8,7 @@ import com.sideproject.withpt.application.schedule.repository.ScheduleRepository
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.application.trainer.service.dto.complex.GymScheduleDto;
 import com.sideproject.withpt.application.trainer.service.dto.single.WorkScheduleDto;
-import com.sideproject.withpt.application.type.Day;
+import com.sideproject.withpt.common.type.Day;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.trainer.Trainer;

@@ -1,8 +1,8 @@
 package com.sideproject.withpt.application.record.diet.repository;
 
-import static com.sideproject.withpt.application.type.DietCategory.BREAKFAST;
-import static com.sideproject.withpt.application.type.DietCategory.DINNER;
-import static com.sideproject.withpt.application.type.DietCategory.LUNCH;
+import static com.sideproject.withpt.common.type.DietCategory.BREAKFAST;
+import static com.sideproject.withpt.common.type.DietCategory.DINNER;
+import static com.sideproject.withpt.common.type.DietCategory.LUNCH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
@@ -11,10 +11,10 @@ import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.record.diet.repository.response.DietFoodDto;
 import com.sideproject.withpt.application.record.diet.repository.response.DietInfoDto;
 import com.sideproject.withpt.application.record.diet.repository.response.ImageDto;
-import com.sideproject.withpt.application.type.DietCategory;
-import com.sideproject.withpt.application.type.DietType;
-import com.sideproject.withpt.application.type.Role;
-import com.sideproject.withpt.application.type.Usages;
+import com.sideproject.withpt.common.type.DietCategory;
+import com.sideproject.withpt.common.type.DietType;
+import com.sideproject.withpt.common.type.Role;
+import com.sideproject.withpt.common.type.Usages;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.Image;
 import com.sideproject.withpt.domain.record.diet.DietFood;

@@ -9,14 +9,13 @@ import com.sideproject.withpt.application.member.controller.request.EditMemberEx
 import com.sideproject.withpt.application.member.controller.request.EditMemberInfoRequest;
 import com.sideproject.withpt.application.member.controller.request.EditMemberTargetWeightRequest;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
-import com.sideproject.withpt.application.type.DietType;
-import com.sideproject.withpt.application.type.ExerciseFrequency;
-import com.sideproject.withpt.application.type.Sex;
+import com.sideproject.withpt.common.type.DietType;
+import com.sideproject.withpt.common.type.ExerciseFrequency;
+import com.sideproject.withpt.common.type.Sex;
 import com.sideproject.withpt.domain.member.Authentication;
 import com.sideproject.withpt.domain.member.Member;
 import java.time.LocalDate;
 import java.util.Optional;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

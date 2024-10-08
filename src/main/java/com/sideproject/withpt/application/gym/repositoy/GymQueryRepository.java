@@ -9,7 +9,7 @@ import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.lesson.controller.response.QSearchMemberResponse;
 import com.sideproject.withpt.application.lesson.controller.response.SearchMemberResponse;
-import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
+import com.sideproject.withpt.common.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.gym.QGymTrainer;

@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.type;
+package com.sideproject.withpt.common.type;
 
 public enum LessonRequestStatus {
 

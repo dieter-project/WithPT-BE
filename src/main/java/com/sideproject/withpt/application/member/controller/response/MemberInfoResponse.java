@@ -1,12 +1,11 @@
 package com.sideproject.withpt.application.member.controller.response;
 
-import com.sideproject.withpt.application.pt.repository.dto.PtMemberListDto.MemberInfo;
-import com.sideproject.withpt.application.type.DietType;
-import com.sideproject.withpt.application.type.ExerciseFrequency;
-import com.sideproject.withpt.application.type.LoginType;
-import com.sideproject.withpt.application.type.OAuthProvider;
-import com.sideproject.withpt.application.type.Role;
-import com.sideproject.withpt.application.type.Sex;
+import com.sideproject.withpt.common.type.DietType;
+import com.sideproject.withpt.common.type.ExerciseFrequency;
+import com.sideproject.withpt.common.type.LoginType;
+import com.sideproject.withpt.common.type.OAuthProvider;
+import com.sideproject.withpt.common.type.Role;
+import com.sideproject.withpt.common.type.Sex;
 import com.sideproject.withpt.domain.member.Authentication;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.member.SocialLogin;

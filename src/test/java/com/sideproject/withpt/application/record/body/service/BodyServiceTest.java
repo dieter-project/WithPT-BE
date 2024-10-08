@@ -9,8 +9,8 @@ import com.sideproject.withpt.application.record.body.controller.request.WeightI
 import com.sideproject.withpt.application.record.body.controller.response.WeightInfoResponse;
 import com.sideproject.withpt.application.record.body.controller.response.WeightInfoResponse.BodyInfoResponse;
 import com.sideproject.withpt.application.record.body.repository.BodyRepository;
-import com.sideproject.withpt.application.type.DietType;
-import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.common.type.DietType;
+import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.body.Body;
 import java.time.LocalDate;

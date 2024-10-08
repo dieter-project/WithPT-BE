@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.academic.controller.request;
 
-import com.sideproject.withpt.application.type.AcademicInstitution;
-import com.sideproject.withpt.application.type.Degree;
+import com.sideproject.withpt.common.type.AcademicInstitution;
+import com.sideproject.withpt.common.type.Degree;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.common.exception.validator.YearType;
 import java.time.Year;

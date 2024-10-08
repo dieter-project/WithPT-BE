@@ -3,7 +3,6 @@ package com.sideproject.withpt.application.pt.service;
 import static com.sideproject.withpt.application.pt.exception.PtConstants.MAX_QUERY_MONTHS;
 
 import com.sideproject.withpt.application.gym.exception.GymException;
-import com.sideproject.withpt.application.gym.repositoy.GymQueryRepository;
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.gymtrainer.exception.GymTrainerException;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
@@ -30,8 +29,8 @@ import com.sideproject.withpt.application.pt.repository.dto.EachGymMemberListRes
 import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
 import com.sideproject.withpt.application.pt.repository.dto.MonthlyMemberCount;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
-import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
-import com.sideproject.withpt.application.type.PtRegistrationStatus;
+import com.sideproject.withpt.common.type.PtRegistrationAllowedStatus;
+import com.sideproject.withpt.common.type.PtRegistrationStatus;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;

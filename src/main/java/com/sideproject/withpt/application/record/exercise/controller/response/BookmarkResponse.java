@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.record.exercise.controller.response;
 
-import com.sideproject.withpt.application.type.BodyPart;
-import com.sideproject.withpt.application.type.ExerciseType;
+import com.sideproject.withpt.common.type.BodyPart;
+import com.sideproject.withpt.common.type.ExerciseType;
 import com.sideproject.withpt.domain.record.exercise.Bookmark;
 import lombok.*;
 

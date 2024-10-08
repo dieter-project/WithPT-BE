@@ -1,28 +1,25 @@
 package com.sideproject.withpt.application.member.controller.request;
 
-import com.sideproject.withpt.application.type.DietType;
-import com.sideproject.withpt.application.type.ExerciseFrequency;
-import com.sideproject.withpt.application.type.LoginType;
-import com.sideproject.withpt.application.type.OAuthProvider;
-import com.sideproject.withpt.application.type.Role;
-import com.sideproject.withpt.application.type.Sex;
+import com.sideproject.withpt.common.type.DietType;
+import com.sideproject.withpt.common.type.ExerciseFrequency;
+import com.sideproject.withpt.common.type.LoginType;
+import com.sideproject.withpt.common.type.OAuthProvider;
+import com.sideproject.withpt.common.type.Role;
+import com.sideproject.withpt.common.type.Sex;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.domain.member.Authentication;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.member.SocialLogin;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import javax.annotation.PostConstruct;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.springframework.beans.factory.annotation.Value;
 
 @Getter
 @Builder

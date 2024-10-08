@@ -4,7 +4,7 @@ import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.ACC
 import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.ACCESS_TOKEN_VALID_TIME;
 import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.REFRESH_TOKEN_VALID_TIME;
 
-import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;

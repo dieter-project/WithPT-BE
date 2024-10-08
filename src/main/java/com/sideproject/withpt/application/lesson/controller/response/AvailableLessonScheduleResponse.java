@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.lesson.controller.response;
 
-import com.sideproject.withpt.application.type.Day;
+import com.sideproject.withpt.common.type.Day;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;

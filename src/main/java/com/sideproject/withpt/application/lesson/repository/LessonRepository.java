@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.lesson.repository;
 
-import com.sideproject.withpt.application.type.LessonStatus;
+import com.sideproject.withpt.common.type.LessonStatus;
 import com.sideproject.withpt.domain.pt.Lesson;
 import java.time.LocalDate;
 import java.time.LocalTime;

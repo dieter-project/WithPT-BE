@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.chat.contoller.response;
 
 import com.querydsl.core.annotations.QueryProjection;
-import com.sideproject.withpt.application.type.RoomType;
+import com.sideproject.withpt.common.type.RoomType;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;

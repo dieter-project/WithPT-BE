@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.trainer.service.dto.single;
 
-import com.sideproject.withpt.application.type.Day;
+import com.sideproject.withpt.common.type.Day;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.trainer.WorkSchedule;

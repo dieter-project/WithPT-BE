@@ -2,8 +2,8 @@ package com.sideproject.withpt.application.lesson.repository;
 
 import com.sideproject.withpt.application.lesson.repository.dto.MemberLessonInfoResponse;
 import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInfoResponse;
-import com.sideproject.withpt.application.type.LessonStatus;
-import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.common.type.LessonStatus;
+import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.pt.Lesson;

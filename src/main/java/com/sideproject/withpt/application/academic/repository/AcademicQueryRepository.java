@@ -1,17 +1,15 @@
 package com.sideproject.withpt.application.academic.repository;
 
 import static com.sideproject.withpt.domain.trainer.QAcademic.academic;
-import static com.sideproject.withpt.domain.trainer.QCareer.career;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.academic.controller.response.AcademicResponse;
 import com.sideproject.withpt.application.academic.controller.response.QAcademicResponse;
-import com.sideproject.withpt.application.type.AcademicInstitution;
-import com.sideproject.withpt.application.type.Degree;
+import com.sideproject.withpt.common.type.AcademicInstitution;
+import com.sideproject.withpt.common.type.Degree;
 import com.sideproject.withpt.domain.trainer.Academic;
 import java.time.Year;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

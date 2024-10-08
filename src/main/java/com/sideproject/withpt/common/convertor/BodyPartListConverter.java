@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sideproject.withpt.application.type.BodyPart;
+import com.sideproject.withpt.common.type.BodyPart;
 import java.util.List;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;

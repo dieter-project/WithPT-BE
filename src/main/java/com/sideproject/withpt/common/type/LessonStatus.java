@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.type;
+package com.sideproject.withpt.common.type;
 
 import com.sideproject.withpt.domain.pt.Lesson;
 import java.util.List;

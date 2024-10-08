@@ -1,8 +1,8 @@
 package com.sideproject.withpt.application.trainer.controller.request;
 
 import com.sideproject.withpt.application.trainer.service.dto.complex.TrainerSignUpDto;
-import com.sideproject.withpt.application.type.OAuthProvider;
-import com.sideproject.withpt.application.type.Sex;
+import com.sideproject.withpt.common.type.OAuthProvider;
+import com.sideproject.withpt.common.type.Sex;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import java.time.LocalDate;
 import java.util.ArrayList;

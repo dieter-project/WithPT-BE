@@ -2,7 +2,7 @@ package com.sideproject.withpt.application.chat.contoller.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.sideproject.withpt.application.type.MessageType;
+import com.sideproject.withpt.common.type.MessageType;
 import com.sideproject.withpt.domain.chat.Message;
 import com.sideproject.withpt.domain.chat.Room;
 import java.time.LocalDateTime;

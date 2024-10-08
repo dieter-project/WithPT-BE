@@ -21,7 +21,7 @@ import com.sideproject.withpt.application.chat.repository.MessageRepository;
 import com.sideproject.withpt.application.chat.repository.ParticipantRepository;
 import com.sideproject.withpt.application.member.service.MemberService;
 import com.sideproject.withpt.application.trainer.service.TrainerService;
-import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.chat.Message;
 import com.sideproject.withpt.domain.chat.Participant;
 import com.sideproject.withpt.domain.chat.Room;
