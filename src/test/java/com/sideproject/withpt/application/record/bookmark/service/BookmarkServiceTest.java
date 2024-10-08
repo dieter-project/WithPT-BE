@@ -122,6 +122,32 @@ class BookmarkServiceTest {
                     uploadDate, "스트레칭", STRETCHING, BodyPart.FULL_BODY, null, 60, 0, 0
                 );
         }
+
+        @DisplayName("이미 북마크가 존재할 때")
+        @Test
+        void alreadyExists() {
+            // given
+            Member member = memberRepository.save(createMember("회원"));
+
+            BookmarkBodyCategory FULL_BODY = createParentBodyCategory(BodyPart.FULL_BODY, null);
+            bookmarkRepository.save(createBookmark(LocalDate.of(2024, 10, 4), "스트레칭", STRETCHING, FULL_BODY, 60, member));
+
+            BookmarkSaveDto bookmarkSaveDto = BookmarkSaveDto.builder()
+                .uploadDate(LocalDate.of(2024, 10, 10))
+                .title("스트레칭")
+                .exerciseType(STRETCHING)
+                .bodyPart(BodyPart.FULL_BODY.name())
+                .exerciseTime(60)
+                .build();
+
+            final Long memberId = member.getId();
+
+            // when // then
+            assertThatThrownBy(() ->  bookmarkService.saveBookmark(memberId, bookmarkSaveDto))
+                .isInstanceOf(BookmarkException.class)
+                .hasMessage("이미 존재하는 북마크명입니다.")
+            ;
+        }
     }
 
     @DisplayName("북마크 리스트 조회하기")
