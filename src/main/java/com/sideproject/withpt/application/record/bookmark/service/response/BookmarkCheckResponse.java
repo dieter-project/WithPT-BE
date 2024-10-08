@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.record.exercise.controller.response;
+package com.sideproject.withpt.application.record.bookmark.service.response;
 
 import lombok.*;
 

@@ -2,7 +2,7 @@ package com.sideproject.withpt.application.record.exercise.controller;
 
 import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseEditRequest;
 import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseRequest;
-import com.sideproject.withpt.application.record.exercise.controller.response.BookmarkCheckResponse;
+import com.sideproject.withpt.application.record.bookmark.service.response.BookmarkCheckResponse;
 import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseInfoResponse;
 import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseResponse;
 import com.sideproject.withpt.application.record.exercise.service.ExerciseService;
@@ -57,12 +57,12 @@ public class ExerciseController {
         );
     }
 
-    @Operation(summary = "북마크명과 중복되는 이름 있는지 체크")
-    @GetMapping("/check")
-    public ApiSuccessResponse<BookmarkCheckResponse> checkBookmark(@RequestParam String title,
-        @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        return ApiSuccessResponse.from(exerciseService.checkBookmark(title, memberId));
-    }
+//    @Operation(summary = "북마크명과 중복되는 이름 있는지 체크")
+//    @GetMapping("/check")
+//    public ApiSuccessResponse<BookmarkCheckResponse> checkBookmark(@RequestParam String title,
+//        @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
+//        return ApiSuccessResponse.from(exerciseService.checkBookmark(title, memberId));
+//    }
 
     @Operation(summary = "운동 기록 입력")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

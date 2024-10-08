@@ -1,27 +1,34 @@
-//package com.sideproject.withpt.application.record.exercise.controller;
-//
-//import com.sideproject.withpt.application.record.exercise.controller.request.BookmarkRequest;
-//import com.sideproject.withpt.application.record.exercise.controller.response.BookmarkResponse;
-//import com.sideproject.withpt.application.record.exercise.service.BookmarkService;
-//import com.sideproject.withpt.common.response.ApiSuccessResponse;
-//import io.swagger.v3.oas.annotations.Operation;
-//import io.swagger.v3.oas.annotations.Parameter;
-//import lombok.RequiredArgsConstructor;
-//import lombok.extern.slf4j.Slf4j;
-//import org.springframework.security.core.annotation.AuthenticationPrincipal;
-//import org.springframework.web.bind.annotation.*;
-//
-//import javax.validation.Valid;
-//import java.util.List;
-//
-//@Slf4j
-//@RestController
-//@RequiredArgsConstructor
-//@RequestMapping("/api/v1/members/record/exercise/bookmark")
-//public class BookmarkController {
-//
-//    private final BookmarkService bookmarkService;
-//
+package com.sideproject.withpt.application.record.exercise.controller;
+
+import com.sideproject.withpt.application.record.bookmark.controller.request.BookmarkSaveRequest;
+import com.sideproject.withpt.application.record.bookmark.service.BookmarkService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import javax.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@Slf4j
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/members/record/bookmarks")
+public class BookmarkController {
+
+    private final BookmarkService bookmarkService;
+
+    @Operation(summary = "북마크 입력하기")
+    @PostMapping
+    public void saveBookmark(
+        @Valid @RequestBody BookmarkSaveRequest request,
+        @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
+        bookmarkService.saveBookmark(memberId, request);
+    }
+
 //    @Operation(summary = "회원의 북마크 리스트 전체 조회하기")
 //    @GetMapping
 //    public ApiSuccessResponse<List<BookmarkResponse>> findAllBookmarkList(@Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
@@ -36,12 +43,6 @@
 //        return ApiSuccessResponse.from(bookmark);
 //    }
 //
-//    @Operation(summary = "북마크 입력하기")
-//    @PostMapping
-//    public void saveBookmark(@Valid @RequestBody BookmarkRequest request, @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-//        bookmarkService.saveBookmark(memberId, request);
-//    }
-//
 //    @Operation(summary = "북마크 수정하기")
 //    @PatchMapping("/{bookmarkId}")
 //    public void modifyBookmark(@Valid @RequestBody BookmarkRequest request,
@@ -54,5 +55,5 @@
 //    public void deleteExercise(@RequestParam String bookmarkIds, @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
 //        bookmarkService.deleteBookmark(memberId, bookmarkIds);
 //    }
-//
-//}
+
+}

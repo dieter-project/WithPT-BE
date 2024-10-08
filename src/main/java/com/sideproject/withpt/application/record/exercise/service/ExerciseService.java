@@ -3,15 +3,16 @@ package com.sideproject.withpt.application.record.exercise.service;
 import com.sideproject.withpt.application.image.ImageUploader;
 import com.sideproject.withpt.application.image.repository.ImageRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
+import com.sideproject.withpt.application.record.bookmark.exception.BookmarkException;
+import com.sideproject.withpt.application.record.bookmark.repository.BookmarkRepository;
+import com.sideproject.withpt.application.record.bookmark.service.response.BookmarkCheckResponse;
 import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseEditRequest;
 import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseRequest;
-import com.sideproject.withpt.application.record.exercise.controller.response.BookmarkCheckResponse;
 import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseInfoResponse;
 import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseInfoResponse.ExerciseInformation;
 import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseResponse;
 import com.sideproject.withpt.application.record.exercise.exception.ExerciseException;
 import com.sideproject.withpt.application.record.exercise.repository.BodyCategoryRepository;
-import com.sideproject.withpt.application.record.exercise.repository.BookmarkRepository;
 import com.sideproject.withpt.application.record.exercise.repository.ExerciseInfoRepository;
 import com.sideproject.withpt.application.record.exercise.repository.ExerciseRepository;
 import com.sideproject.withpt.common.type.ExerciseType;
@@ -69,7 +70,7 @@ public class ExerciseService {
     public BookmarkCheckResponse checkBookmark(String title, Long memberId) {
         bookmarkRepository.findByMemberIdAndTitle(memberId, title)
             .ifPresent(exercise -> {
-                throw ExerciseException.BOOKMARK_ALREADY_EXISTS;
+                throw BookmarkException.BOOKMARK_ALREADY_EXISTS;
             });
 
         return BookmarkCheckResponse.from(true);

@@ -1,5 +1,6 @@
-package com.sideproject.withpt.application.record.exercise.exception.validator;
+package com.sideproject.withpt.application.record.bookmark.exception.validator;
 
+import com.sideproject.withpt.application.record.bookmark.exception.validator.BookmarkTypeValidator;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.Retention;
