@@ -4,9 +4,11 @@ import static com.sideproject.withpt.common.type.ExerciseType.AEROBIC;
 import static com.sideproject.withpt.common.type.ExerciseType.ANAEROBIC;
 import static com.sideproject.withpt.common.type.ExerciseType.STRETCHING;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 
 import com.sideproject.withpt.application.member.repository.MemberRepository;
+import com.sideproject.withpt.application.record.bookmark.exception.BookmarkException;
 import com.sideproject.withpt.application.record.bookmark.repository.BookmarkRepository;
 import com.sideproject.withpt.application.record.bookmark.service.request.BookmarkSaveDto;
 import com.sideproject.withpt.application.record.bookmark.service.response.BookmarkResponse;
@@ -156,6 +158,57 @@ class BookmarkServiceTest {
                 tuple("유산소2", AEROBIC),
                 tuple("스트레칭", STRETCHING)
             );
+    }
+
+    @DisplayName("회원의 북마크 1건 조회")
+    @Test
+    void findOneBookmark() {
+        // given
+        Member member = memberRepository.save(createMember("회원"));
+
+        bookmarkRepository.save(createBookmark(LocalDate.of(2024, 10, 8), "유산소1", AEROBIC, 100, member));
+        bookmarkRepository.save(createBookmark(LocalDate.of(2024, 10, 8), "유산소2", AEROBIC, 100, member));
+
+        BookmarkBodyCategory UPPER_BODY = createParentBodyCategory(
+            BodyPart.UPPER_BODY,
+            List.of(
+                createChildBodyCategory(BodyPart.CHEST),
+                createChildBodyCategory(BodyPart.SHOULDERS),
+                createChildBodyCategory(BodyPart.ARMS)
+            )
+        );
+        bookmarkRepository.save(createBookmark(LocalDate.of(2024, 10, 10), "무산소", ANAEROBIC, UPPER_BODY, 100, 10, 5, member));
+
+        BookmarkBodyCategory FULL_BODY = createParentBodyCategory(BodyPart.FULL_BODY, null);
+        Bookmark savedBookmark = bookmarkRepository.save(createBookmark(LocalDate.of(2024, 10, 4), "스트레칭", STRETCHING, FULL_BODY, 60, member));
+
+        final Long bookmarkId = savedBookmark.getId();
+        final Long memberId = member.getId();
+
+        // when
+        BookmarkResponse response = bookmarkService.findOneBookmark(memberId, bookmarkId);
+
+        // then
+        assertThat(response)
+            .extracting("title", "exerciseType")
+            .contains("스트레칭", STRETCHING);
+    }
+
+    @DisplayName("회원의 북마크 1건 조회 시 북마크가 존재하지 않을 때")
+    @Test
+    void findOneBookmarkThrowException() {
+        // given
+        Member member = memberRepository.save(createMember("회원"));
+
+        final Long bookmarkId = 1L;
+        final Long memberId = member.getId();
+
+        // when // then
+
+        assertThatThrownBy(() -> bookmarkService.findOneBookmark(memberId, bookmarkId))
+            .isInstanceOf(BookmarkException.class)
+            .hasMessage("해당 북마크 데이터가 존재하지 않습니다.")
+        ;
     }
 
     public Bookmark createBookmark(Member member, String title, ExerciseType exerciseType, BookmarkBodyCategory bodyCategory, int weight, int exerciseSet, int times, int exerciseTime, LocalDate uploadDate) {

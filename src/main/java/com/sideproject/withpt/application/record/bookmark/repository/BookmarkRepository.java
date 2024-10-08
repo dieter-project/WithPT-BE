@@ -17,6 +17,8 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
 
     List<Bookmark> findAllByMemberOrderByUploadDateDescTitleAsc(Member member);
 
+    Optional<Bookmark> findByIdAndMember(Long bookmarkId, Member member);
+
     @Modifying
     @Query("delete from Bookmark b where b.id in :ids")
     void deleteAllByIds(@Param("ids") List<Long> ids);

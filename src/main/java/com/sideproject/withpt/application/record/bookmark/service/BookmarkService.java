@@ -46,11 +46,17 @@ public class BookmarkService {
             .collect(Collectors.toList());
     }
 
-//    public BookmarkResponse findOneBookmark(Long memberId, Long bookmarkId) {
-//        Bookmark bookmark = validateBookmarkId(bookmarkId, memberId);
-//        return BookmarkResponse.from(bookmark);
-//    }
-//
+    public BookmarkResponse findOneBookmark(Long memberId, Long bookmarkId) {
+
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+
+        return BookmarkResponse.of(
+            bookmarkRepository.findByIdAndMember(bookmarkId, member)
+                .orElseThrow(() -> BookmarkException.BOOKMARK_NOT_EXIST)
+        );
+    }
+
 //    @Transactional
 //    public void modifyBookmark(Long memberId, Long bookmarkId, BookmarkRequest request) {
 //        Bookmark bookmark = validateBookmarkId(bookmarkId, memberId);

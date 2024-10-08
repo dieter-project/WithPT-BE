@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,17 +37,19 @@ public class BookmarkController {
     @Operation(summary = "북마크 리스트 조회하기")
     @GetMapping
     public ApiSuccessResponse<List<BookmarkResponse>> findAllBookmarkList(@Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        List<BookmarkResponse> bookmarkList = bookmarkService.findAllBookmark(memberId);
-        return ApiSuccessResponse.from(bookmarkList);
+        return ApiSuccessResponse.from(
+            bookmarkService.findAllBookmark(memberId)
+        );
     }
 
-//    @Operation(summary = "북마크 단건 조회하기")
-//    @GetMapping("/{bookmarkId}")
-//    public ApiSuccessResponse<BookmarkResponse> findOneBookmark(@PathVariable Long bookmarkId, @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-//        BookmarkResponse bookmark = bookmarkService.findOneBookmark(memberId, bookmarkId);
-//        return ApiSuccessResponse.from(bookmark);
-//    }
-//
+    @Operation(summary = "북마크 1건 조회하기")
+    @GetMapping("/{bookmarkId}")
+    public ApiSuccessResponse<BookmarkResponse> findOneBookmark(@PathVariable Long bookmarkId, @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
+        return ApiSuccessResponse.from(
+            bookmarkService.findOneBookmark(memberId, bookmarkId)
+        );
+    }
+
 //    @Operation(summary = "북마크 수정하기")
 //    @PatchMapping("/{bookmarkId}")
 //    public void modifyBookmark(@Valid @RequestBody BookmarkRequest request,
