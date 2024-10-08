@@ -1,11 +1,11 @@
 package com.sideproject.withpt.application.record.bookmark.service;
 
 import com.sideproject.withpt.application.member.repository.MemberRepository;
+import com.sideproject.withpt.application.record.bookmark.controller.request.BookmarkEditRequest;
 import com.sideproject.withpt.application.record.bookmark.exception.BookmarkException;
 import com.sideproject.withpt.application.record.bookmark.repository.BookmarkRepository;
 import com.sideproject.withpt.application.record.bookmark.service.request.BookmarkSaveDto;
 import com.sideproject.withpt.application.record.bookmark.service.response.BookmarkResponse;
-import com.sideproject.withpt.application.record.exercise.exception.ExerciseException;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.bookmark.Bookmark;
@@ -65,25 +65,26 @@ public class BookmarkService {
         bookmarkRepository.deleteAllByIdsAndMember(bookmarkIds, member);
     }
 
-//    @Transactional
-//    public void modifyBookmark(Long memberId, Long bookmarkId, BookmarkRequest request) {
-//        Bookmark bookmark = validateBookmarkId(bookmarkId, memberId);
-//        bookmark.update(request);
-
-//    }
-
-    private Bookmark validateBookmarkId(Long bookmarkId, Long memberId) {
-        Bookmark bookmark = bookmarkRepository.findById(bookmarkId)
-            .orElseThrow(() -> BookmarkException.BOOKMARK_NOT_EXIST);
-
+    @Transactional
+    public BookmarkResponse modifyBookmark(Long memberId, Long bookmarkId, BookmarkEditRequest request) {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
-        if (!member.getId().equals(bookmark.getMember().getId())) {
-            throw ExerciseException.EXERCISE_NOT_BELONG_TO_MEMBER;
-        }
+        Bookmark bookmark = bookmarkRepository.findByIdAndMember(bookmarkId, member)
+            .orElseThrow(() -> BookmarkException.BOOKMARK_NOT_EXIST);
 
-        return bookmark;
+        bookmark.update(
+            request.getTitle(),
+            request.getExerciseType(),
+            request.toParentBodyCategory(),
+            request.getWeight(),
+            request.getExerciseSet(),
+            request.getTimes(),
+            request.getExerciseTime(),
+            request.getUploadDate()
+        );
+
+        return BookmarkResponse.of(bookmark);
     }
 
 }

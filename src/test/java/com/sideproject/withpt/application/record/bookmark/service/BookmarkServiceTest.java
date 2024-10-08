@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 
 import com.sideproject.withpt.application.member.repository.MemberRepository;
+import com.sideproject.withpt.application.record.bookmark.controller.request.BookmarkEditRequest;
 import com.sideproject.withpt.application.record.bookmark.exception.BookmarkException;
 import com.sideproject.withpt.application.record.bookmark.repository.BookmarkRepository;
 import com.sideproject.withpt.application.record.bookmark.service.request.BookmarkSaveDto;
@@ -276,18 +277,39 @@ class BookmarkServiceTest {
             );
     }
 
-    public Bookmark createBookmark(Member member, String title, ExerciseType exerciseType, BookmarkBodyCategory bodyCategory, int weight, int exerciseSet, int times, int exerciseTime, LocalDate uploadDate) {
-        return Bookmark.builder()
-            .member(member)
-            .title(title)
-            .exerciseType(exerciseType)
-            .bodyCategory(bodyCategory)
-            .weight(weight)
-            .exerciseSet(exerciseSet)
-            .times(times)
-            .exerciseTime(exerciseTime)
-            .uploadDate(uploadDate)
+    @DisplayName("북마크 수정하기")
+    @Test
+    void modifyBookmark() {
+        // given
+        Member member = memberRepository.save(createMember("회원"));
+
+        BookmarkBodyCategory FULL_BODY = createParentBodyCategory(BodyPart.FULL_BODY, null);
+        Bookmark bookmark = bookmarkRepository.save(createBookmark(LocalDate.of(2024, 10, 4), "스트레칭", STRETCHING, FULL_BODY, 60, member));
+
+        BookmarkEditRequest request = BookmarkEditRequest.builder()
+            .uploadDate(LocalDate.of(2024, 10, 9))
+            .title("무산소")
+            .exerciseType(ANAEROBIC)
+            .bodyPart(BodyPart.UPPER_BODY.name())
+            .specificBodyParts(List.of(BodyPart.CHEST.name(), BodyPart.SHOULDERS.name(), BodyPart.ARMS.name()))
+            .weight(100)
+            .times(10)
+            .exerciseSet(5)
             .build();
+
+        final Long memberId = member.getId();
+        final Long bookmarkId = bookmark.getId();
+
+        // when
+        bookmarkService.modifyBookmark(memberId, bookmarkId, request);
+
+        // then
+        Bookmark response = bookmarkRepository.findByIdAndMember(bookmarkId, member).get();
+        assertThat(response)
+            .extracting("id", "uploadDate", "title", "exerciseType")
+            .contains(
+                bookmarkId, LocalDate.of(2024, 10, 9), "무산소", ANAEROBIC
+            );
     }
 
     private Bookmark createBookmark(LocalDate uploadDate, String title, ExerciseType exerciseType, int exerciseTime, Member member) {

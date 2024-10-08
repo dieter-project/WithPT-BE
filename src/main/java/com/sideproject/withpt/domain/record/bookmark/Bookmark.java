@@ -1,7 +1,6 @@
 package com.sideproject.withpt.domain.record.bookmark;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.sideproject.withpt.application.record.bookmark.controller.request.BookmarkRequest;
 import com.sideproject.withpt.common.type.ExerciseType;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.domain.member.Member;
@@ -65,14 +64,15 @@ public class Bookmark extends BaseEntity {
         this.uploadDate = uploadDate;
     }
 
-    public void update(BookmarkRequest request) {
-//        this.weight = request.getWeight();
-//        this.exerciseSet = request.getExerciseSet();
-//        this.times = request.getTimes();
-//        this.exerciseTime = request.getHour();
-//        this.exerciseType = request.getExerciseType();
-//        this.bodyPart = request.getBodyPart();
-//        this.title = request.getTitle();
+    public void update(String title, ExerciseType exerciseType, BookmarkBodyCategory bodyCategory, int weight, int exerciseSet, int times, int exerciseTime, LocalDate uploadDate) {
+        this.title = title;
+        this.exerciseType = exerciseType;
+        this.bodyCategory = bodyCategory;
+        this.weight = weight;
+        this.exerciseSet = exerciseSet;
+        this.times = times;
+        this.exerciseTime = exerciseTime;
+        this.uploadDate = uploadDate;
     }
 
 }
