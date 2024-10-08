@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.parameters.P;
 
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
 
@@ -20,6 +21,6 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     Optional<Bookmark> findByIdAndMember(Long bookmarkId, Member member);
 
     @Modifying
-    @Query("delete from Bookmark b where b.id in :ids")
-    void deleteAllByIds(@Param("ids") List<Long> ids);
+    @Query("delete from Bookmark b where b.id in :ids and b.member = :member")
+    void deleteAllByIdsAndMember(@Param("ids") List<Long> ids, @Param("member") Member member);
 }

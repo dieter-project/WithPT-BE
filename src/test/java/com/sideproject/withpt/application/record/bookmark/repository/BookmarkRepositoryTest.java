@@ -107,6 +107,44 @@ class BookmarkRepositoryTest {
             .contains("스트레칭", STRETCHING);
     }
 
+    @DisplayName("회원의 북마크 n개 삭제하기")
+    @Test
+    void deleteAllByIdsAndMember() {
+        // given
+        Member member1 = memberRepository.save(createMember("회원1"));
+        Member member2 = memberRepository.save(createMember("회원2"));
+
+        Bookmark bookmark1 = bookmarkRepository.save(createBookmark(LocalDate.of(2024, 10, 8), "유산소1", AEROBIC, 100, member1));
+        Bookmark bookmark2 = bookmarkRepository.save(createBookmark(LocalDate.of(2024, 10, 8), "유산소2", AEROBIC, 100, member2));
+
+        BookmarkBodyCategory UPPER_BODY = createParentBodyCategory(
+            BodyPart.UPPER_BODY,
+            List.of(
+                createChildBodyCategory(BodyPart.CHEST),
+                createChildBodyCategory(BodyPart.SHOULDERS),
+                createChildBodyCategory(BodyPart.ARMS)
+            )
+        );
+        Bookmark bookmark3 = bookmarkRepository.save(createBookmark(LocalDate.of(2024, 10, 10), "무산소", ANAEROBIC, UPPER_BODY, 100, 10, 5, member1));
+
+        BookmarkBodyCategory FULL_BODY = createParentBodyCategory(BodyPart.FULL_BODY, null);
+        Bookmark bookmark4 = bookmarkRepository.save(createBookmark(LocalDate.of(2024, 10, 4), "스트레칭", STRETCHING, FULL_BODY, 60, member1));
+
+        List<Long> ids = List.of(bookmark1.getId(), bookmark2.getId(), bookmark3.getId());
+
+        // when
+        bookmarkRepository.deleteAllByIdsAndMember(ids, member1);
+
+        // then
+        List<Bookmark> result = bookmarkRepository.findAll();
+        assertThat(result).hasSize(2)
+            .extracting("member.name", "title")
+            .contains(
+                tuple("회원1", "스트레칭"),
+                tuple("회원2", "유산소2")
+            );
+    }
+
     private Bookmark createBookmark(LocalDate uploadDate, String title, ExerciseType exerciseType, int exerciseTime, Member member) {
         return Bookmark.builder()
             .member(member)

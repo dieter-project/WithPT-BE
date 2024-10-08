@@ -57,24 +57,19 @@ public class BookmarkService {
         );
     }
 
+    @Transactional
+    public void deleteBookmark(Long memberId, List<Long> bookmarkIds) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+
+        bookmarkRepository.deleteAllByIdsAndMember(bookmarkIds, member);
+    }
+
 //    @Transactional
 //    public void modifyBookmark(Long memberId, Long bookmarkId, BookmarkRequest request) {
 //        Bookmark bookmark = validateBookmarkId(bookmarkId, memberId);
 //        bookmark.update(request);
-//    }
-//
-//    @Transactional
-//    public void deleteBookmark(Long memberId, String bookmarkIds) {
-//        List<Long> longBookmarkIds =
-//            Arrays.stream(bookmarkIds.split(","))
-//                .map(Long::parseLong)
-//                .collect(Collectors.toList());
-//
-//        for (Long bookmarkId : longBookmarkIds) {
-//            validateBookmarkId(bookmarkId, memberId);
-//        }
-//
-//        bookmarkRepository.deleteAllByIds(longBookmarkIds);
+
 //    }
 
     private Bookmark validateBookmarkId(Long bookmarkId, Long memberId) {

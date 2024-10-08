@@ -1,5 +1,6 @@
 package com.sideproject.withpt.application.record.exercise.controller;
 
+import com.sideproject.withpt.application.record.bookmark.controller.request.BookmarkDeleteRequest;
 import com.sideproject.withpt.application.record.bookmark.controller.request.BookmarkSaveRequest;
 import com.sideproject.withpt.application.record.bookmark.service.BookmarkService;
 import com.sideproject.withpt.application.record.bookmark.service.response.BookmarkResponse;
@@ -11,6 +12,7 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,17 +52,18 @@ public class BookmarkController {
         );
     }
 
+    @Operation(summary = "북마크 삭제하기")
+    @DeleteMapping
+    public void deleteExercise(@Valid @RequestBody BookmarkDeleteRequest request, @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
+        bookmarkService.deleteBookmark(memberId, request.getBookmarkIds());
+    }
+
 //    @Operation(summary = "북마크 수정하기")
 //    @PatchMapping("/{bookmarkId}")
 //    public void modifyBookmark(@Valid @RequestBody BookmarkRequest request,
 //                                             @PathVariable Long bookmarkId, @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
 //        bookmarkService.modifyBookmark(memberId, bookmarkId, request);
-//    }
-//
-//    @Operation(summary = "북마크 삭제하기")
-//    @DeleteMapping
-//    public void deleteExercise(@RequestParam String bookmarkIds, @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-//        bookmarkService.deleteBookmark(memberId, bookmarkIds);
+
 //    }
 
 }

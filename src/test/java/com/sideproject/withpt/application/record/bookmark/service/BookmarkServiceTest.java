@@ -143,7 +143,7 @@ class BookmarkServiceTest {
             final Long memberId = member.getId();
 
             // when // then
-            assertThatThrownBy(() ->  bookmarkService.saveBookmark(memberId, bookmarkSaveDto))
+            assertThatThrownBy(() -> bookmarkService.saveBookmark(memberId, bookmarkSaveDto))
                 .isInstanceOf(BookmarkException.class)
                 .hasMessage("이미 존재하는 북마크명입니다.")
             ;
@@ -235,6 +235,45 @@ class BookmarkServiceTest {
             .isInstanceOf(BookmarkException.class)
             .hasMessage("해당 북마크 데이터가 존재하지 않습니다.")
         ;
+    }
+
+    @DisplayName("회원의 북마크 n개 삭제하기")
+    @Test
+    void deleteBookmark() {
+        // given
+        Member member1 = memberRepository.save(createMember("회원1"));
+        Member member2 = memberRepository.save(createMember("회원2"));
+
+        Bookmark bookmark1 = bookmarkRepository.save(createBookmark(LocalDate.of(2024, 10, 8), "유산소1", AEROBIC, 100, member1));
+        Bookmark bookmark2 = bookmarkRepository.save(createBookmark(LocalDate.of(2024, 10, 8), "유산소2", AEROBIC, 100, member2));
+
+        BookmarkBodyCategory UPPER_BODY = createParentBodyCategory(
+            BodyPart.UPPER_BODY,
+            List.of(
+                createChildBodyCategory(BodyPart.CHEST),
+                createChildBodyCategory(BodyPart.SHOULDERS),
+                createChildBodyCategory(BodyPart.ARMS)
+            )
+        );
+        Bookmark bookmark3 = bookmarkRepository.save(createBookmark(LocalDate.of(2024, 10, 10), "무산소", ANAEROBIC, UPPER_BODY, 100, 10, 5, member1));
+
+        BookmarkBodyCategory FULL_BODY = createParentBodyCategory(BodyPart.FULL_BODY, null);
+        Bookmark bookmark4 = bookmarkRepository.save(createBookmark(LocalDate.of(2024, 10, 4), "스트레칭", STRETCHING, FULL_BODY, 60, member1));
+
+        final Long memberId = member1.getId();
+        final List<Long> ids = List.of(bookmark1.getId(), bookmark2.getId(), bookmark3.getId());
+
+        // when
+        bookmarkService.deleteBookmark(memberId, ids);
+
+        // then
+        List<Bookmark> result = bookmarkRepository.findAll();
+        assertThat(result).hasSize(2)
+            .extracting("member.name", "title")
+            .contains(
+                tuple("회원1", "스트레칭"),
+                tuple("회원2", "유산소2")
+            );
     }
 
     public Bookmark createBookmark(Member member, String title, ExerciseType exerciseType, BookmarkBodyCategory bodyCategory, int weight, int exerciseSet, int times, int exerciseTime, LocalDate uploadDate) {
