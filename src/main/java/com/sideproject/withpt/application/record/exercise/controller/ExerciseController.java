@@ -78,7 +78,7 @@ public class ExerciseController {
             throw GlobalException.AT_LEAST_ONE_DATA_MUST_BE_INCLUDED;
         }
         LocalDate uploadDate = request.get(0).getUploadDate();
-        exerciseService.saveExercise(memberId, request, files, uploadDate);
+        exerciseService.saveExerciseAndBookmark(memberId, request, files, uploadDate);
     }
 
     @Operation(summary = "운동 정보 수정")

@@ -8,11 +8,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.BDDAssertions.tuple;
 
 import com.sideproject.withpt.application.member.repository.MemberRepository;
+import com.sideproject.withpt.application.record.bookmark.repository.BookmarkRepository;
 import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseEditRequest;
 import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseRequest;
 import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseInfoResponse;
 import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseResponse;
-import com.sideproject.withpt.application.record.exercise.repository.BodyCategoryRepository;
 import com.sideproject.withpt.application.record.exercise.repository.ExerciseInfoRepository;
 import com.sideproject.withpt.application.record.exercise.repository.ExerciseRepository;
 import com.sideproject.withpt.common.type.BodyPart;
@@ -20,17 +20,16 @@ import com.sideproject.withpt.common.type.DietType;
 import com.sideproject.withpt.common.type.ExerciseType;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.record.bookmark.Bookmark;
 import com.sideproject.withpt.domain.record.exercise.BodyCategory;
 import com.sideproject.withpt.domain.record.exercise.Exercise;
 import com.sideproject.withpt.domain.record.exercise.ExerciseInfo;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -50,23 +49,13 @@ class ExerciseServiceTest {
     private ExerciseRepository exerciseRepository;
 
     @Autowired
-    private BodyCategoryRepository bodyCategoryRepository;
-
-    @Autowired
     private ExerciseInfoRepository exerciseInfoRepository;
 
     @Autowired
+    private BookmarkRepository bookmarkRepository;
+
+    @Autowired
     private ExerciseService exerciseService;
-
-    @PersistenceContext
-    private EntityManager em;
-
-    @AfterEach
-    void tearDown() {
-//        exerciseInfoRepository.deleteAllInBatch();
-//        bodyCategoryRepository.deleteAllInBatch();
-//        exerciseRepository.deleteAllInBatch();
-    }
 
     @DisplayName("요청하는 날짜의 운동 기록 조회")
     @Test
@@ -177,145 +166,227 @@ class ExerciseServiceTest {
             .contains("유산소", AEROBIC);
     }
 
+    @Nested
     @DisplayName("upload 날짜 운동 데이터가 존재하지 않을 때 운동 요청 데이터들이 저장된다.")
-    @Test
-    void saveExerciseWhenExerciseDatsIsNotSavedInDB() {
-        // given
-        LocalDate uploadDate = LocalDate.of(2024, 9, 3);
-        ExerciseRequest aerobic = ExerciseRequest.builder()
-            .uploadDate(uploadDate)
-            .title("유산소")
-            .exerciseType(AEROBIC)
-            .exerciseTime(100)
-            .build();
-        ExerciseRequest anaerobic = ExerciseRequest.builder()
-            .uploadDate(uploadDate)
-            .title("무산소")
-            .exerciseType(ANAEROBIC)
-            .bodyPart(BodyPart.UPPER_BODY.name())
-            .specificBodyParts(List.of(BodyPart.CHEST.name(), BodyPart.SHOULDERS.name(), BodyPart.ARMS.name()))
-            .weight(100)
-            .times(10)
-            .exerciseSet(5)
-            .build();
+    class SaveExercise {
+        @DisplayName("upload 날짜 운동 데이터가 존재하지 않을 때 운동 요청 데이터들이 저장된다.")
+        @Test
+        void saveExerciseWhenExerciseDatsIsNotSavedInDB() {
+            // given
+            LocalDate uploadDate = LocalDate.of(2024, 9, 3);
+            ExerciseRequest aerobic = ExerciseRequest.builder()
+                .uploadDate(uploadDate)
+                .title("유산소")
+                .exerciseType(AEROBIC)
+                .exerciseTime(100)
+                .build();
+            ExerciseRequest anaerobic = ExerciseRequest.builder()
+                .uploadDate(uploadDate)
+                .title("무산소")
+                .exerciseType(ANAEROBIC)
+                .bodyPart(BodyPart.UPPER_BODY.name())
+                .specificBodyParts(List.of(BodyPart.CHEST.name(), BodyPart.SHOULDERS.name(), BodyPart.ARMS.name()))
+                .weight(100)
+                .times(10)
+                .exerciseSet(5)
+                .build();
 
-        ExerciseRequest stretching = ExerciseRequest.builder()
-            .uploadDate(uploadDate)
-            .title("스트레칭")
-            .exerciseType(STRETCHING)
-            .bodyPart(BodyPart.FULL_BODY.name())
-            .exerciseTime(60)
-            .build();
+            ExerciseRequest stretching = ExerciseRequest.builder()
+                .uploadDate(uploadDate)
+                .title("스트레칭")
+                .exerciseType(STRETCHING)
+                .bodyPart(BodyPart.FULL_BODY.name())
+                .exerciseTime(60)
+                .build();
 
-        List<ExerciseRequest> request = List.of(aerobic, anaerobic, stretching);
-        Member member = saveMember();
+            List<ExerciseRequest> request = List.of(aerobic, anaerobic, stretching);
+            Member member = saveMember();
 
-        // when
-        exerciseService.saveExercise(member.getId(), request, null, uploadDate);
+            // when
+            exerciseService.saveExercise(member.getId(), request, null, uploadDate);
 
-        // then
-        Optional<Exercise> optionalExercise = exerciseRepository.findFirstByMemberAndUploadDate(member, uploadDate);
-        assertThat(optionalExercise).isPresent();
+            // then
+            Optional<Exercise> optionalExercise = exerciseRepository.findFirstByMemberAndUploadDate(member, uploadDate);
+            assertThat(optionalExercise).isPresent();
 
-        Exercise savedExercise = optionalExercise.get();
-        assertThat(savedExercise.getUploadDate()).isEqualTo(uploadDate);
-        assertThat(savedExercise.getExerciseInfos()).hasSize(3)
-            .extracting("title", "exerciseType")
-            .containsExactlyInAnyOrder(
-                tuple("유산소", AEROBIC),
-                tuple("무산소", ANAEROBIC),
-                tuple("스트레칭", STRETCHING)
+            Exercise savedExercise = optionalExercise.get();
+            assertThat(savedExercise.getUploadDate()).isEqualTo(uploadDate);
+            assertThat(savedExercise.getExerciseInfos()).hasSize(3)
+                .extracting("title", "exerciseType")
+                .containsExactlyInAnyOrder(
+                    tuple("유산소", AEROBIC),
+                    tuple("무산소", ANAEROBIC),
+                    tuple("스트레칭", STRETCHING)
+                );
+
+            ExerciseInfo savedAerobic = savedExercise.getExerciseInfos().get(0);
+            assertThat(savedAerobic.getBodyCategory()).isNull();
+
+            ExerciseInfo savedAnaerobic = savedExercise.getExerciseInfos().get(1);
+            assertThat(savedAnaerobic.getBodyCategory().getName()).isEqualTo(BodyPart.UPPER_BODY);
+            assertThat(savedAnaerobic.getBodyCategory().getChildren()).hasSize(3)
+                .extracting("name", "depth")
+                .containsExactlyInAnyOrder(
+                    tuple(BodyPart.CHEST, 2),
+                    tuple(BodyPart.SHOULDERS, 2),
+                    tuple(BodyPart.ARMS, 2)
+                );
+
+            ExerciseInfo savedStretching = savedExercise.getExerciseInfos().get(2);
+            assertThat(savedStretching.getBodyCategory().getName()).isEqualTo(BodyPart.FULL_BODY);
+        }
+
+        @DisplayName("upload 날짜 운동 데이터가 존재할때 운동 요청 데이터들이 추가된다.")
+        @Test
+        void saveExerciseWhenExerciseDatsExistInDB() {
+            // given
+            List<BodyCategory> childBodyCategory1 = List.of(
+                createChildBodyCategory(BodyPart.CHEST),
+                createChildBodyCategory(BodyPart.SHOULDERS),
+                createChildBodyCategory(BodyPart.ARMS)
             );
+            BodyCategory UPPER_BODY = createParentBodyCategory(BodyPart.UPPER_BODY, childBodyCategory1);
+            BodyCategory LOWER_BODY = createParentBodyCategory(BodyPart.LOWER_BODY, null);
 
-        ExerciseInfo savedAerobic = savedExercise.getExerciseInfos().get(0);
-        assertThat(savedAerobic.getBodyCategory()).isNull();
+            Member member = saveMember();
+            LocalDate uploadDate = LocalDate.of(2024, 9, 3);
 
-        ExerciseInfo savedAnaerobic = savedExercise.getExerciseInfos().get(1);
-        assertThat(savedAnaerobic.getBodyCategory().getName()).isEqualTo(BodyPart.UPPER_BODY);
-        assertThat(savedAnaerobic.getBodyCategory().getChildren()).hasSize(3)
-            .extracting("name", "depth")
-            .containsExactlyInAnyOrder(
-                tuple(BodyPart.CHEST, 2),
-                tuple(BodyPart.SHOULDERS, 2),
-                tuple(BodyPart.ARMS, 2)
-            );
+            ExerciseInfo aerobic = createExerciseInfo("유산소", AEROBIC, null, 0, 0, 0, 100);
+            ExerciseInfo anaerobic = createExerciseInfo("무산소", ANAEROBIC, UPPER_BODY, 100, 10, 5, 0);
+            ExerciseInfo stretching = createExerciseInfo("스트레칭", STRETCHING, LOWER_BODY, 0, 0, 0, 60);
+            List<ExerciseInfo> exerciseInfos = List.of(aerobic, anaerobic, stretching);
+            exerciseInfoRepository.saveAll(exerciseInfos);
 
-        ExerciseInfo savedStretching = savedExercise.getExerciseInfos().get(2);
-        assertThat(savedStretching.getBodyCategory().getName()).isEqualTo(BodyPart.FULL_BODY);
-    }
+            Exercise exercise = createExercise(member, uploadDate, exerciseInfos);
+            exerciseRepository.save(exercise);
 
-    @DisplayName("upload 날짜 운동 데이터가 존재할때 운동 요청 데이터들이 추가된다.")
-    @Test
-    void saveExerciseWhenExerciseDatsExistInDB() {
-        // given
-        List<BodyCategory> childBodyCategory1 = List.of(
-            createChildBodyCategory(BodyPart.CHEST),
-            createChildBodyCategory(BodyPart.SHOULDERS),
-            createChildBodyCategory(BodyPart.ARMS)
-        );
-        BodyCategory UPPER_BODY = createParentBodyCategory(BodyPart.UPPER_BODY, childBodyCategory1);
-        BodyCategory LOWER_BODY = createParentBodyCategory(BodyPart.LOWER_BODY, null);
+            log.info("==== 운동 데이터 저장 ====");
 
-        Member member = saveMember();
-        LocalDate uploadDate = LocalDate.of(2024, 9, 3);
+            ExerciseRequest aerobicRequest = ExerciseRequest.builder()
+                .uploadDate(uploadDate)
+                .title("유산소")
+                .exerciseType(AEROBIC)
+                .exerciseTime(100)
+                .build();
+            ExerciseRequest anaerobicRequest = ExerciseRequest.builder() // 무산소는 부위 다중 선택 가능
+                .uploadDate(uploadDate)
+                .title("무산소")
+                .exerciseType(ANAEROBIC)
+                .bodyPart(BodyPart.UPPER_BODY.name())
+                .specificBodyParts(List.of(BodyPart.CHEST.name(), BodyPart.SHOULDERS.name(), BodyPart.ARMS.name()))
+                .weight(100)
+                .times(10)
+                .exerciseSet(5)
+                .build();
 
-        ExerciseInfo aerobic = createExerciseInfo("유산소", AEROBIC, null, 0, 0, 0, 100);
-        ExerciseInfo anaerobic = createExerciseInfo("무산소", ANAEROBIC, UPPER_BODY, 100, 10, 5, 0);
-        ExerciseInfo stretching = createExerciseInfo("스트레칭", STRETCHING, LOWER_BODY, 0, 0, 0, 60);
-        List<ExerciseInfo> exerciseInfos = List.of(aerobic, anaerobic, stretching);
-        exerciseInfoRepository.saveAll(exerciseInfos);
+            ExerciseRequest stretchingRequest = ExerciseRequest.builder()
+                .uploadDate(uploadDate)
+                .title("스트레칭")
+                .exerciseType(STRETCHING)
+                .bodyPart(BodyPart.FULL_BODY.name())
+                .exerciseTime(60)
+                .build();
 
-        Exercise exercise = createExercise(member, uploadDate, exerciseInfos);
-        exerciseRepository.save(exercise);
+            List<ExerciseRequest> request = List.of(aerobicRequest, anaerobicRequest, stretchingRequest);
 
-        log.info("==== 운동 데이터 저장 ====");
+            // when
+            exerciseService.saveExercise(member.getId(), request, null, uploadDate);
 
-        ExerciseRequest aerobicRequest = ExerciseRequest.builder()
-            .uploadDate(uploadDate)
-            .title("유산소")
-            .exerciseType(AEROBIC)
-            .exerciseTime(100)
-            .build();
-        ExerciseRequest anaerobicRequest = ExerciseRequest.builder() // 무산소는 부위 다중 선택 가능
-            .uploadDate(uploadDate)
-            .title("무산소")
-            .exerciseType(ANAEROBIC)
-            .bodyPart(BodyPart.UPPER_BODY.name())
-            .specificBodyParts(List.of(BodyPart.CHEST.name(), BodyPart.SHOULDERS.name(), BodyPart.ARMS.name()))
-            .weight(100)
-            .times(10)
-            .exerciseSet(5)
-            .build();
+            // then
+            Optional<Exercise> optionalExercise = exerciseRepository.findFirstByMemberAndUploadDate(member, uploadDate);
+            assertThat(optionalExercise).isPresent();
 
-        ExerciseRequest stretchingRequest = ExerciseRequest.builder()
-            .uploadDate(uploadDate)
-            .title("스트레칭")
-            .exerciseType(STRETCHING)
-            .bodyPart(BodyPart.FULL_BODY.name())
-            .exerciseTime(60)
-            .build();
+            Exercise savedExercise = optionalExercise.get();
+            assertThat(savedExercise.getUploadDate()).isEqualTo(uploadDate);
+            assertThat(savedExercise.getExerciseInfos()).hasSize(6)
+                .extracting("title", "exerciseType")
+                .containsExactlyInAnyOrder(
+                    tuple("유산소", AEROBIC),
+                    tuple("무산소", ANAEROBIC),
+                    tuple("스트레칭", STRETCHING),
+                    tuple("유산소", AEROBIC),
+                    tuple("무산소", ANAEROBIC),
+                    tuple("스트레칭", STRETCHING)
+                );
+        }
 
-        List<ExerciseRequest> request = List.of(aerobicRequest, anaerobicRequest, stretchingRequest);
+        @DisplayName("운동 데이터를 저장할 때 북마크 여부에 따라 북마크도 같이 저장된다.")
+        @Test
+        void saveExerciseAndBookmark() {
+            // given
+            LocalDate uploadDate = LocalDate.of(2024, 9, 3);
+            ExerciseRequest aerobic = ExerciseRequest.builder()
+                .uploadDate(uploadDate)
+                .title("유산소")
+                .exerciseType(AEROBIC)
+                .exerciseTime(100)
+                .bookmarkYn(true)
+                .build();
+            ExerciseRequest anaerobic = ExerciseRequest.builder()
+                .uploadDate(uploadDate)
+                .title("무산소")
+                .exerciseType(ANAEROBIC)
+                .bodyPart(BodyPart.UPPER_BODY.name())
+                .specificBodyParts(List.of(BodyPart.CHEST.name(), BodyPart.SHOULDERS.name(), BodyPart.ARMS.name()))
+                .weight(100)
+                .times(10)
+                .exerciseSet(5)
+                .bookmarkYn(false)
+                .build();
 
-        // when
-        exerciseService.saveExercise(member.getId(), request, null, uploadDate);
+            ExerciseRequest stretching = ExerciseRequest.builder()
+                .uploadDate(uploadDate)
+                .title("스트레칭")
+                .exerciseType(STRETCHING)
+                .bodyPart(BodyPart.FULL_BODY.name())
+                .exerciseTime(60)
+                .bookmarkYn(true)
+                .build();
 
-        // then
-        Optional<Exercise> optionalExercise = exerciseRepository.findFirstByMemberAndUploadDate(member, uploadDate);
-        assertThat(optionalExercise).isPresent();
+            List<ExerciseRequest> request = List.of(aerobic, anaerobic, stretching);
+            Member member = saveMember();
 
-        Exercise savedExercise = optionalExercise.get();
-        assertThat(savedExercise.getUploadDate()).isEqualTo(uploadDate);
-        assertThat(savedExercise.getExerciseInfos()).hasSize(6)
-            .extracting("title", "exerciseType")
-            .containsExactlyInAnyOrder(
-                tuple("유산소", AEROBIC),
-                tuple("무산소", ANAEROBIC),
-                tuple("스트레칭", STRETCHING),
-                tuple("유산소", AEROBIC),
-                tuple("무산소", ANAEROBIC),
-                tuple("스트레칭", STRETCHING)
-            );
+            // when
+            exerciseService.saveExerciseAndBookmark(member.getId(), request, null, uploadDate);
+
+            // then
+            Optional<Exercise> optionalExercise = exerciseRepository.findFirstByMemberAndUploadDate(member, uploadDate);
+            assertThat(optionalExercise).isPresent();
+
+            Exercise savedExercise = optionalExercise.get();
+            assertThat(savedExercise.getUploadDate()).isEqualTo(uploadDate);
+            assertThat(savedExercise.getExerciseInfos()).hasSize(3)
+                .extracting("title", "exerciseType")
+                .containsExactlyInAnyOrder(
+                    tuple("유산소", AEROBIC),
+                    tuple("무산소", ANAEROBIC),
+                    tuple("스트레칭", STRETCHING)
+                );
+
+            ExerciseInfo savedAerobic = savedExercise.getExerciseInfos().get(0);
+            assertThat(savedAerobic.getBodyCategory()).isNull();
+
+            ExerciseInfo savedAnaerobic = savedExercise.getExerciseInfos().get(1);
+            assertThat(savedAnaerobic.getBodyCategory().getName()).isEqualTo(BodyPart.UPPER_BODY);
+            assertThat(savedAnaerobic.getBodyCategory().getChildren()).hasSize(3)
+                .extracting("name", "depth")
+                .containsExactlyInAnyOrder(
+                    tuple(BodyPart.CHEST, 2),
+                    tuple(BodyPart.SHOULDERS, 2),
+                    tuple(BodyPart.ARMS, 2)
+                );
+
+            ExerciseInfo savedStretching = savedExercise.getExerciseInfos().get(2);
+            assertThat(savedStretching.getBodyCategory().getName()).isEqualTo(BodyPart.FULL_BODY);
+
+            List<Bookmark> bookmarks = bookmarkRepository.findAll();
+            assertThat(bookmarks).hasSize(2)
+                .extracting("title", "exerciseType")
+                .contains(
+                    tuple("유산소", AEROBIC),
+                    tuple("스트레칭", STRETCHING)
+                );
+        }
     }
 
     /**

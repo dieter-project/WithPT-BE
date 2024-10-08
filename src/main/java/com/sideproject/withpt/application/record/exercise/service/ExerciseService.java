@@ -1,11 +1,8 @@
 package com.sideproject.withpt.application.record.exercise.service;
 
 import com.sideproject.withpt.application.image.ImageUploader;
-import com.sideproject.withpt.application.image.repository.ImageRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
-import com.sideproject.withpt.application.record.bookmark.exception.BookmarkException;
-import com.sideproject.withpt.application.record.bookmark.repository.BookmarkRepository;
-import com.sideproject.withpt.application.record.bookmark.service.response.BookmarkCheckResponse;
+import com.sideproject.withpt.application.record.bookmark.service.BookmarkService;
 import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseEditRequest;
 import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseRequest;
 import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseInfoResponse;
@@ -15,9 +12,9 @@ import com.sideproject.withpt.application.record.exercise.exception.ExerciseExce
 import com.sideproject.withpt.application.record.exercise.repository.BodyCategoryRepository;
 import com.sideproject.withpt.application.record.exercise.repository.ExerciseInfoRepository;
 import com.sideproject.withpt.application.record.exercise.repository.ExerciseRepository;
+import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.type.ExerciseType;
 import com.sideproject.withpt.common.type.Usages;
-import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.exercise.BodyCategory;
 import com.sideproject.withpt.domain.record.exercise.Exercise;
@@ -41,13 +38,13 @@ public class ExerciseService {
     private final ExerciseInfoRepository exerciseInfoRepository;
     private final BodyCategoryRepository bodyCategoryRepository;
     private final MemberRepository memberRepository;
-    private final BookmarkRepository bookmarkRepository;
-    private final ImageRepository imageRepository;
 
+    private final BookmarkService bookmarkService;
     private final ImageUploader imageUploader;
 
     public ExerciseResponse findExerciseAndExerciseInfos(Long memberId, LocalDate uploadDate) {
-        Member member = validateMemberId(memberId);
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
         return exerciseRepository.findFirstByMemberAndUploadDate(member, uploadDate)
             .map(ExerciseResponse::of)
             .orElse(null);
@@ -67,10 +64,22 @@ public class ExerciseService {
             .orElseThrow(() -> ExerciseException.EXERCISE_INFO_NOT_EXIST);
     }
 
+    public void saveExerciseAndBookmark(Long memberId, List<ExerciseRequest> request, List<MultipartFile> files, LocalDate uploadDate) {
+        this.saveExercise(memberId, request, files, uploadDate);
+        request.forEach(
+            exerciseRequest -> {
+                if (exerciseRequest.getBookmarkYn()) {
+                    bookmarkService.saveBookmark(memberId, exerciseRequest.toBookmarkSaveDto());
+                }
+            }
+        );
+    }
+
     @Transactional
     public void saveExercise(Long memberId, List<ExerciseRequest> request, List<MultipartFile> files, LocalDate uploadDate) {
 
-        Member member = validateMemberId(memberId);
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         exerciseRepository.findFirstByMemberAndUploadDate(member, uploadDate)
             .ifPresentOrElse(exercise -> {
@@ -133,11 +142,6 @@ public class ExerciseService {
     @Transactional
     public void deleteExerciseImage(String url) {
         imageUploader.deleteImage(url);
-    }
-
-    private Member validateMemberId(Long memberId) {
-        return memberRepository.findById(memberId)
-            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
     }
 
     /**
