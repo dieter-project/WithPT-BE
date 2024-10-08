@@ -1,6 +1,7 @@
 package com.sideproject.withpt.application.lesson.service;
 
 import static com.sideproject.withpt.application.lesson.exception.LessonErrorCode.LESSON_NOT_FOUND;
+import static com.sideproject.withpt.application.lesson.exception.LessonErrorCode.ONLY_CANCELLED_OR_AUTO_CANCELLED;
 import static com.sideproject.withpt.application.schedule.exception.ScheduleErrorCode.WORK_SCHEDULE_NOT_FOUND;
 import static java.util.stream.Collectors.toList;
 
@@ -236,7 +237,12 @@ public class LessonService {
     public void deleteLesson(Long lessonId) {
         lessonRepository.findById(lessonId)
             .ifPresentOrElse(
-                lessonRepository::delete,
+                lesson -> {
+                    if (!LessonStatus.isCanceled(lesson)) {
+                        throw new LessonException(ONLY_CANCELLED_OR_AUTO_CANCELLED);
+                    }
+                    lessonRepository.delete(lesson);
+                },
                 () -> {
                     throw new LessonException(LESSON_NOT_FOUND);
                 }

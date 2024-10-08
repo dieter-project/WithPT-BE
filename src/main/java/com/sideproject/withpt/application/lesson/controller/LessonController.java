@@ -171,7 +171,7 @@ public class LessonController {
         );
     }
 
-    @Operation(summary = "수업관리/취소된 수업 > 삭제 알림 - 취소된 수업 삭제하기")
+    @Operation(summary = "취소 혹은 자동 취소된 수업 삭제하기")
     @DeleteMapping("/lessons/{lessonId}")
     public void deleteDecidedLesson(@PathVariable Long lessonId) {
         lessonService.deleteLesson(lessonId);

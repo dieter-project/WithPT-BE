@@ -1,5 +1,8 @@
 package com.sideproject.withpt.application.type;
 
+import com.sideproject.withpt.domain.pt.Lesson;
+import java.util.List;
+
 public enum LessonStatus {
     RESERVED("예약"),
     PENDING_APPROVAL("승인 대기 중"),
@@ -27,5 +30,9 @@ public enum LessonStatus {
 
     public static boolean isPendingApproval(LessonStatus status) {
         return status == PENDING_APPROVAL;
+    }
+
+    public static boolean isCanceled(Lesson lesson) {
+        return List.of(CANCELED, TIME_OUT_CANCELED).contains(lesson.getStatus());
     }
 }

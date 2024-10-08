@@ -11,6 +11,7 @@ public class LessonException extends GlobalException {
     public static final LessonException LESSON_NOT_FOUND = new LessonException(LessonErrorCode.LESSON_NOT_FOUND);
     public static final LessonException NON_BOOKED_SESSION = new LessonException(LessonErrorCode.NON_BOOKED_SESSION);
     public static final LessonException NON_CANCEL_SESSION = new LessonException(LessonErrorCode.NON_CANCEL_SESSION);
+    public static final LessonException ONLY_CANCELLED_OR_AUTO_CANCELLED = new LessonException(LessonErrorCode.ONLY_CANCELLED_OR_AUTO_CANCELLED);
 
 
     private final LessonErrorCode errorCode;

@@ -1047,6 +1047,66 @@ class LessonServiceTest {
             );
     }
 
+    @DisplayName("취소 혹은 자동 취소된 수업 삭제하기")
+    @Test
+    void deleteLesson() {
+        // given
+        Member member = memberRepository.save(createMember("회원"));
+
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너1"));
+        Gym gym = gymRepository.save(createGym("체육관1"));
+
+        GymTrainer gymTrainer1 = gymTrainerRepository.save(createGymTrainer(gym, trainer));
+        LessonSchedule lessonSchedule1 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(9, 0), Day.SAT);
+        LessonSchedule lessonSchedule2 = createLessonSchedule(LocalDate.of(2024, 10, 6), LocalTime.of(11, 0), Day.SAT);
+        LessonSchedule lessonSchedule3 = createLessonSchedule(LocalDate.of(2024, 10, 7), LocalTime.of(12, 0), Day.SAT);
+        LessonSchedule lessonSchedule4 = createLessonSchedule(LocalDate.of(2024, 10, 8), LocalTime.of(14, 0), Day.SAT);
+
+        lessonRepository.save(createLesson(member, gymTrainer1, lessonSchedule1, LessonStatus.PENDING_APPROVAL, Role.TRAINER, Role.MEMBER)); // 변경
+        lessonRepository.save(createLesson(member, gymTrainer1, lessonSchedule2, LessonStatus.CANCELED, Role.MEMBER)); // 등록
+        lessonRepository.save(createLesson(member, gymTrainer1, lessonSchedule3, LessonStatus.RESERVED, Role.TRAINER, Role.MEMBER)); // 트레이너가 등록 후 회원이 변경 요청 후 트레이너가 수락
+        Lesson savedLesson = lessonRepository.save(createLesson(member, gymTrainer1, lessonSchedule4, LessonStatus.TIME_OUT_CANCELED, Role.MEMBER, Role.TRAINER));// 회원이 등록 트레이너가 변경
+
+        final Long lessonId = savedLesson.getId();
+
+        // when
+        lessonService.deleteLesson(lessonId);
+
+        // then
+        List<Lesson> result = lessonRepository.findAll();
+
+        assertThat(result).hasSize(3);
+    }
+
+    @DisplayName("취소 혹은 자동 취소된 수업이 아니면 삭제가 불가능하다.")
+    @Test
+    void deleteLessonThrowException() {
+        // given
+        Member member = memberRepository.save(createMember("회원"));
+
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너1"));
+        Gym gym = gymRepository.save(createGym("체육관1"));
+
+        GymTrainer gymTrainer1 = gymTrainerRepository.save(createGymTrainer(gym, trainer));
+        LessonSchedule lessonSchedule1 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(9, 0), Day.SAT);
+        LessonSchedule lessonSchedule2 = createLessonSchedule(LocalDate.of(2024, 10, 6), LocalTime.of(11, 0), Day.SAT);
+        LessonSchedule lessonSchedule3 = createLessonSchedule(LocalDate.of(2024, 10, 7), LocalTime.of(12, 0), Day.SAT);
+        LessonSchedule lessonSchedule4 = createLessonSchedule(LocalDate.of(2024, 10, 8), LocalTime.of(14, 0), Day.SAT);
+
+        lessonRepository.save(createLesson(member, gymTrainer1, lessonSchedule1, LessonStatus.PENDING_APPROVAL, Role.TRAINER, Role.MEMBER)); // 변경
+        lessonRepository.save(createLesson(member, gymTrainer1, lessonSchedule2, LessonStatus.CANCELED, Role.MEMBER)); // 등록
+        lessonRepository.save(createLesson(member, gymTrainer1, lessonSchedule4, LessonStatus.TIME_OUT_CANCELED, Role.MEMBER, Role.TRAINER));// 회원이 등록 트레이너가 변경
+        Lesson savedLesson = lessonRepository.save(createLesson(member, gymTrainer1, lessonSchedule3, LessonStatus.RESERVED, Role.TRAINER, Role.MEMBER));// 트레이너가 등록 후 회원이 변경 요청 후 트레이너가 수락
+
+        final Long lessonId = savedLesson.getId();
+
+        // when // then
+        assertThatThrownBy(() -> lessonService.deleteLesson(lessonId))
+            .isInstanceOf(LessonException.class)
+            .hasMessage("\"취소\" 혹은 \"자동 취소\" 된 수업만 삭제가 가능합니다")
+        ;
+    }
+
     private LessonSchedule createLessonSchedule(LocalDate date, LocalTime time, Day day) {
         return LessonSchedule.builder()
             .date(date)

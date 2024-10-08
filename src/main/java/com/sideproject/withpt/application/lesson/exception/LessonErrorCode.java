@@ -12,6 +12,7 @@ public enum LessonErrorCode implements ErrorCode {
     ALREADY_RESERVATION(HttpStatus.BAD_REQUEST, "이미 예약된 수업입니다."),
     NON_BOOKED_SESSION(HttpStatus.BAD_REQUEST, "예약 상태가 아닌 수업은 스케줄 변경이 불가능합니다."),
     NON_CANCEL_SESSION(HttpStatus.BAD_REQUEST, "예약 상태가 아닌 수업은 취소가 불가능합니다."),
+    ONLY_CANCELLED_OR_AUTO_CANCELLED(HttpStatus.BAD_REQUEST, "\"취소\" 혹은 \"자동 취소\" 된 수업만 삭제가 가능합니다"),
     ALREADY_PENDING_APPROVAL(HttpStatus.BAD_REQUEST, "승인 대기 중인 수업입니다.")
     ;
 

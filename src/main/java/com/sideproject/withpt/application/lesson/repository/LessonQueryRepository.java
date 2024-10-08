@@ -28,7 +28,9 @@ public interface LessonQueryRepository {
     List<LocalDate> getTrainerLessonScheduleOfMonth(List<GymTrainer> gymTrainers, YearMonth yearMonth);
 
     List<LocalDate> getMemberLessonScheduleOfMonth(List<GymTrainer> gymTrainers, Member member, YearMonth yearMonth);
+
     Slice<Lesson> findAllRegisteredByAndLessonStatus(Role role, LessonStatus status, List<GymTrainer> gymTrainers, Pageable pageable);
+
     Slice<Lesson> findAllModifiedByAndLessonStatus(Role role, LessonStatus status, List<GymTrainer> gymTrainers, Pageable pageable);
 
     TrainerLessonInfoResponse findLessonScheduleInfoBy(Long lessonId);

@@ -23,11 +23,9 @@ import com.sideproject.withpt.application.lesson.repository.dto.QTrainerLessonIn
 import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInfoResponse;
 import com.sideproject.withpt.application.type.LessonStatus;
 import com.sideproject.withpt.application.type.Role;
-import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.pt.Lesson;
-import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
@@ -41,7 +39,6 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 
 @Slf4j
 @Repository
@@ -297,18 +294,6 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
             .fetchOne();
     }
 
-    private BooleanExpression memberNameContains(String name) {
-        return StringUtils.hasText(name) ? lesson.member.name.contains(name) : null;
-    }
-
-    private BooleanExpression trainerEq(Trainer trainer) {
-        return ObjectUtils.isEmpty(trainer) ? null : lesson.trainer.eq(trainer);
-    }
-
-    private BooleanExpression gymEq(Gym gym) {
-        return ObjectUtils.isEmpty(gym) ? null : lesson.gym.eq(gym);
-    }
-
     private BooleanExpression gymTrainersIn(List<GymTrainer> gymTrainers) {
         return CollectionUtils.isEmpty(gymTrainers) ? null : lesson.gymTrainer.in(gymTrainers);
     }
@@ -316,17 +301,4 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
     private BooleanExpression lessonScheduleDateEq(LocalDate date) {
         return ObjectUtils.isEmpty(date) ? null : lesson.schedule.date.eq(date);
     }
-
-    private BooleanExpression gymIdEq(Long gymId) {
-        return ObjectUtils.isEmpty(gymId) ? null : lesson.gym.id.eq(gymId);
-    }
-
-    private BooleanExpression statusNotInOrEq(LessonStatus status) {
-        return ObjectUtils.isEmpty(status) ? lesson.status.notIn(LessonStatus.PENDING_APPROVAL) : lesson.status.eq(status);
-    }
-
-    private BooleanExpression scheduleDateEq(LocalDate date) {
-        return ObjectUtils.isEmpty(date) ? null : lesson.schedule.date.eq(date);
-    }
-
 }
