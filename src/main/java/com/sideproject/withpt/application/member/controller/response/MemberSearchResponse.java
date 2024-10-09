@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.member.controller.response;
 
-import com.sideproject.withpt.application.type.Sex;
+import com.sideproject.withpt.common.type.Sex;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

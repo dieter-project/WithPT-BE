@@ -4,7 +4,7 @@ import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.IN
 import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.INVALID_USER_IDENTIFIER;
 
 import com.sideproject.withpt.application.chat.exception.ChatException;
-import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import java.util.Arrays;
 import java.util.Map;

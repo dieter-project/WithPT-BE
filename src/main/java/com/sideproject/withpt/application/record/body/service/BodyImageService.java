@@ -5,7 +5,7 @@ import com.sideproject.withpt.application.image.repository.ImageRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.record.body.controller.request.DeleteBodyImageRequest;
 import com.sideproject.withpt.application.record.body.controller.response.BodyImageInfoResponse;
-import com.sideproject.withpt.application.type.Usages;
+import com.sideproject.withpt.common.type.Usages;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.member.Member;
 import java.time.LocalDate;

@@ -1,7 +1,7 @@
 package com.sideproject.withpt.domain.trainer;
 
-import com.sideproject.withpt.application.type.AcademicInstitution;
-import com.sideproject.withpt.application.type.Degree;
+import com.sideproject.withpt.common.type.AcademicInstitution;
+import com.sideproject.withpt.common.type.Degree;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.common.convertor.YearToShortConverter;
 import java.time.Year;

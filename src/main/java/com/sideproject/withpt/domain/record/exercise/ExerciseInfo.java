@@ -1,6 +1,6 @@
 package com.sideproject.withpt.domain.record.exercise;
 
-import com.sideproject.withpt.application.type.ExerciseType;
+import com.sideproject.withpt.common.type.ExerciseType;
 import com.sideproject.withpt.domain.BaseEntity;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;

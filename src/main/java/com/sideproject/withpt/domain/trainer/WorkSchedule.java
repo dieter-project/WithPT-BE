@@ -1,6 +1,6 @@
 package com.sideproject.withpt.domain.trainer;
 
-import com.sideproject.withpt.application.type.Day;
+import com.sideproject.withpt.common.type.Day;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
@@ -57,11 +57,6 @@ public class WorkSchedule extends BaseEntity {
 
     @Column(name = "OUT_TIME", columnDefinition = "TIME")
     private LocalTime outTime;
-
-    public static WorkSchedule createWorkSchedule(Gym gym, WorkSchedule workSchedule) {
-        workSchedule.setGym(gym);
-        return workSchedule;
-    }
 
     public void editWorkScheduleTime(LocalTime inTime, LocalTime outTime){
         this.inTime = inTime;

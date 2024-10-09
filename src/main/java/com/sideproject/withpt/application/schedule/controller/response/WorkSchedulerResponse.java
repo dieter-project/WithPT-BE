@@ -1,23 +1,10 @@
 package com.sideproject.withpt.application.schedule.controller.response;
 
-import com.sideproject.withpt.application.type.Day;
-import com.sideproject.withpt.application.type.EmploymentStatus;
-import com.sideproject.withpt.domain.gym.Gym;
-import com.sideproject.withpt.domain.trainer.Trainer;
+import com.sideproject.withpt.common.type.Day;
 import com.sideproject.withpt.domain.trainer.WorkSchedule;
 import java.time.LocalTime;
-import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.persistence.Column;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

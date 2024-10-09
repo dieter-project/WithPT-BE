@@ -1,8 +1,9 @@
 package com.sideproject.withpt.application.record.exercise.controller;
 
+import com.sideproject.withpt.application.record.bookmark.service.BookmarkService;
+import com.sideproject.withpt.application.record.bookmark.service.response.BookmarkCheckResponse;
 import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseEditRequest;
 import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseRequest;
-import com.sideproject.withpt.application.record.exercise.controller.response.BookmarkCheckResponse;
 import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseInfoResponse;
 import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseResponse;
 import com.sideproject.withpt.application.record.exercise.service.ExerciseService;
@@ -37,6 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ExerciseController {
 
     private final ExerciseService exerciseService;
+    private final BookmarkService bookmarkService;
 
     @Operation(summary = "해당하는 날짜의 운동 기록 정보 조회")
     @GetMapping
@@ -57,13 +59,6 @@ public class ExerciseController {
         );
     }
 
-    @Operation(summary = "북마크명과 중복되는 이름 있는지 체크")
-    @GetMapping("/check")
-    public ApiSuccessResponse<BookmarkCheckResponse> checkBookmark(@RequestParam String title,
-        @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        return ApiSuccessResponse.from(exerciseService.checkBookmark(title, memberId));
-    }
-
     @Operation(summary = "운동 기록 입력")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void saveExercise(
@@ -74,7 +69,7 @@ public class ExerciseController {
             throw GlobalException.AT_LEAST_ONE_DATA_MUST_BE_INCLUDED;
         }
         LocalDate uploadDate = request.get(0).getUploadDate();
-        exerciseService.saveExercise(memberId, request, files, uploadDate);
+        exerciseService.saveExerciseAndBookmark(memberId, request, files, uploadDate);
     }
 
     @Operation(summary = "운동 정보 수정")

@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.trainer.controller.request;
 
 import com.sideproject.withpt.application.trainer.service.dto.single.WorkScheduleDto;
-import com.sideproject.withpt.application.type.Day;
+import com.sideproject.withpt.common.type.Day;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import java.time.LocalTime;
 import java.util.List;

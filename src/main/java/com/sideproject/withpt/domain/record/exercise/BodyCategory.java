@@ -1,6 +1,6 @@
 package com.sideproject.withpt.domain.record.exercise;
 
-import com.sideproject.withpt.application.type.BodyPart;
+import com.sideproject.withpt.common.type.BodyPart;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;

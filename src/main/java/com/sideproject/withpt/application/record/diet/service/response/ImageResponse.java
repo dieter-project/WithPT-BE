@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.record.diet.service.response;
 
 import com.sideproject.withpt.application.record.diet.repository.response.ImageDto;
-import com.sideproject.withpt.application.type.Usages;
+import com.sideproject.withpt.common.type.Usages;
 import com.sideproject.withpt.domain.record.Image;
 import java.time.LocalDate;
 import lombok.AccessLevel;

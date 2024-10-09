@@ -6,8 +6,8 @@ import com.sideproject.withpt.application.pt.controller.response.ReRegistrationH
 import com.sideproject.withpt.application.pt.repository.dto.EachGymMemberListResponse;
 import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
 import com.sideproject.withpt.application.pt.repository.dto.MonthlyMemberCount;
-import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
-import com.sideproject.withpt.application.type.PtRegistrationStatus;
+import com.sideproject.withpt.common.type.PtRegistrationAllowedStatus;
+import com.sideproject.withpt.common.type.PtRegistrationStatus;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.member.Member;

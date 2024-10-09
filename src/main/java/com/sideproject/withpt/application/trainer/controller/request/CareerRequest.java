@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.trainer.controller.request;
 
 import com.sideproject.withpt.application.trainer.service.dto.single.CareerDto;
-import com.sideproject.withpt.application.type.EmploymentStatus;
+import com.sideproject.withpt.common.type.EmploymentStatus;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.common.exception.validator.YearMonthType;
 import java.time.YearMonth;

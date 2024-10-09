@@ -3,7 +3,7 @@ package com.sideproject.withpt.application.auth.infra.kakao;
 import com.sideproject.withpt.application.auth.infra.OAuthApiClient;
 import com.sideproject.withpt.application.auth.infra.OAuthInfoResponse;
 import com.sideproject.withpt.application.auth.infra.OAuthLoginParams;
-import com.sideproject.withpt.application.type.OAuthProvider;
+import com.sideproject.withpt.common.type.OAuthProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;

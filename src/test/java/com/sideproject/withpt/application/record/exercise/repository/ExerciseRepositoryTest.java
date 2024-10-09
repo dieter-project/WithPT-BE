@@ -1,16 +1,16 @@
 package com.sideproject.withpt.application.record.exercise.repository;
 
-import static com.sideproject.withpt.application.type.ExerciseType.AEROBIC;
-import static com.sideproject.withpt.application.type.ExerciseType.ANAEROBIC;
-import static com.sideproject.withpt.application.type.ExerciseType.STRETCHING;
+import static com.sideproject.withpt.common.type.ExerciseType.AEROBIC;
+import static com.sideproject.withpt.common.type.ExerciseType.ANAEROBIC;
+import static com.sideproject.withpt.common.type.ExerciseType.STRETCHING;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.BDDAssertions.tuple;
 
 import com.sideproject.withpt.application.member.repository.MemberRepository;
-import com.sideproject.withpt.application.type.BodyPart;
-import com.sideproject.withpt.application.type.DietType;
-import com.sideproject.withpt.application.type.ExerciseType;
-import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.common.type.BodyPart;
+import com.sideproject.withpt.common.type.DietType;
+import com.sideproject.withpt.common.type.ExerciseType;
+import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.exercise.BodyCategory;
 import com.sideproject.withpt.domain.record.exercise.Exercise;

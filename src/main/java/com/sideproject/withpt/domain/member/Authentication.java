@@ -1,7 +1,7 @@
 package com.sideproject.withpt.domain.member;
 
-import com.sideproject.withpt.application.type.LoginType;
-import com.sideproject.withpt.application.type.Sex;
+import com.sideproject.withpt.common.type.LoginType;
+import com.sideproject.withpt.common.type.Sex;
 import com.sideproject.withpt.domain.BaseEntity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

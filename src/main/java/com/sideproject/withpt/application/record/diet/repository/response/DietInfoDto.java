@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.record.diet.repository.response;
 
 import com.querydsl.core.annotations.QueryProjection;
-import com.sideproject.withpt.application.type.DietCategory;
+import com.sideproject.withpt.common.type.DietCategory;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AccessLevel;

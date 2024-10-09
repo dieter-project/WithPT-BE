@@ -6,12 +6,8 @@ import com.sideproject.withpt.application.member.controller.request.EditMemberIn
 import com.sideproject.withpt.application.member.controller.request.EditMemberTargetWeightRequest;
 import com.sideproject.withpt.application.member.controller.response.MemberInfoResponse;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
-import com.sideproject.withpt.application.pt.repository.dto.PtMemberListDto.MemberInfo;
-import com.sideproject.withpt.application.type.DietType;
 import com.sideproject.withpt.common.exception.GlobalException;
-import com.sideproject.withpt.domain.member.Authentication;
 import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.member.SocialLogin;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

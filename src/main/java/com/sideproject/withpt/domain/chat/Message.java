@@ -1,6 +1,6 @@
 package com.sideproject.withpt.domain.chat;
 
-import com.sideproject.withpt.application.type.MessageType;
+import com.sideproject.withpt.common.type.MessageType;
 import com.sideproject.withpt.domain.BaseEntity;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;

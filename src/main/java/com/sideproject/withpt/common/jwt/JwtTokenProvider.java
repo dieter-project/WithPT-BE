@@ -1,6 +1,6 @@
 package com.sideproject.withpt.common.jwt;
 
-import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.security.CustomDetailService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;

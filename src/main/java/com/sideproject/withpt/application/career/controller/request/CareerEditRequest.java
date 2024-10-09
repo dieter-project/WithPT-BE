@@ -1,12 +1,11 @@
 package com.sideproject.withpt.application.career.controller.request;
 
-import com.sideproject.withpt.application.type.EmploymentStatus;
+import com.sideproject.withpt.common.type.EmploymentStatus;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.common.exception.validator.YearMonthType;
 import java.time.YearMonth;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

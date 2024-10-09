@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.chat.contoller.request;
 
-import com.sideproject.withpt.application.type.MessageType;
-import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.common.type.MessageType;
+import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.domain.chat.Message;
 import com.sideproject.withpt.domain.chat.Room;

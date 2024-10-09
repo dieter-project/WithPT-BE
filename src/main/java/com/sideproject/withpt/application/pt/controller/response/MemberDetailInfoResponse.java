@@ -1,15 +1,13 @@
 package com.sideproject.withpt.application.pt.controller.response;
 
 import com.querydsl.core.annotations.QueryProjection;
-import com.sideproject.withpt.application.type.DietType;
-import com.sideproject.withpt.application.type.PTInfoInputStatus;
-import com.sideproject.withpt.application.type.PtRegistrationStatus;
-import com.sideproject.withpt.application.type.Sex;
+import com.sideproject.withpt.common.type.DietType;
+import com.sideproject.withpt.common.type.PTInfoInputStatus;
+import com.sideproject.withpt.common.type.PtRegistrationStatus;
+import com.sideproject.withpt.common.type.Sex;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;

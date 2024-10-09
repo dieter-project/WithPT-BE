@@ -3,8 +3,8 @@ package com.sideproject.withpt.application.record.diet.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.sideproject.withpt.application.member.repository.MemberRepository;
-import com.sideproject.withpt.application.type.DietType;
-import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.common.type.DietType;
+import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.diet.Diets;
 import java.time.LocalDate;

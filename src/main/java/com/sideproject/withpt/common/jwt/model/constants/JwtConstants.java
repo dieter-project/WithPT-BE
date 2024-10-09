@@ -1,6 +1,6 @@
 package com.sideproject.withpt.common.jwt.model.constants;
 
-import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.common.type.Role;
 
 public interface JwtConstants {
     String TOKEN_HEADER = "Authorization";

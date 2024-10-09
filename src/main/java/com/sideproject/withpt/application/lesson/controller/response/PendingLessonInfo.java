@@ -2,7 +2,8 @@ package com.sideproject.withpt.application.lesson.controller.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.sideproject.withpt.application.type.LessonStatus;
+import com.sideproject.withpt.common.type.LessonStatus;
+import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.pt.Lesson;
@@ -26,8 +27,8 @@ public class PendingLessonInfo {
     private LessonSchedule schedule;
     private LessonSchedule beforeSchedule;
     private LessonStatus status;
-    private String registeredBy;
-    private String modifiedBy;
+    private Role registeredBy;
+    private Role modifiedBy;
     private MemberInfo member;
     private GymInfo gym;
 
@@ -44,9 +45,9 @@ public class PendingLessonInfo {
     }
 
 
-
     @Getter
     public static class MemberInfo {
+
         private final Long id;
         private final String name;
 
@@ -58,6 +59,7 @@ public class PendingLessonInfo {
 
     @Getter
     public static class GymInfo {
+
         private final Long id;
         private final String name;
 

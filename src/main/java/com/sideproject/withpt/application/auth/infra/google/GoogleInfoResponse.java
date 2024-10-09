@@ -3,7 +3,7 @@ package com.sideproject.withpt.application.auth.infra.google;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sideproject.withpt.application.auth.infra.OAuthInfoResponse;
-import com.sideproject.withpt.application.type.OAuthProvider;
+import com.sideproject.withpt.common.type.OAuthProvider;
 import lombok.Builder;
 import lombok.Getter;
 

@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.auth.infra;
 
-import com.sideproject.withpt.application.type.OAuthProvider;
+import com.sideproject.withpt.common.type.OAuthProvider;
 
 public interface OAuthApiClient {
     OAuthProvider oAuthProvider(); // Client 의 타입 반환

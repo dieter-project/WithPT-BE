@@ -1,6 +1,6 @@
 package com.sideproject.withpt.common.batch;
 
-import com.sideproject.withpt.application.Food.dto.FoodDto;
+import com.sideproject.withpt.application.food.dto.FoodDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;

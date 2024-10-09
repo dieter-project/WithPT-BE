@@ -1,17 +1,14 @@
 package com.sideproject.withpt.domain.record;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.sideproject.withpt.application.type.Usages;
+import com.sideproject.withpt.common.type.Usages;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.trainer.Trainer;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter

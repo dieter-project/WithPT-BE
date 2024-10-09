@@ -1,6 +1,6 @@
 package com.sideproject.withpt.domain.pt;
 
-import com.sideproject.withpt.application.type.PtRegistrationStatus;
+import com.sideproject.withpt.common.type.PtRegistrationStatus;
 import com.sideproject.withpt.domain.BaseEntity;
 import java.time.LocalDateTime;
 import javax.persistence.Entity;

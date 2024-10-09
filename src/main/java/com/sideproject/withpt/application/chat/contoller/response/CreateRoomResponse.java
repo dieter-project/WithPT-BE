@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.chat.contoller.response;
 
-import com.sideproject.withpt.application.type.RoomType;
+import com.sideproject.withpt.common.type.RoomType;
 import com.sideproject.withpt.domain.chat.Participant;
 import com.sideproject.withpt.domain.chat.Room;
 import java.time.LocalDateTime;

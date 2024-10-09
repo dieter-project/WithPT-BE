@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.career.controller.response;
 
 import com.querydsl.core.annotations.QueryProjection;
-import com.sideproject.withpt.application.type.EmploymentStatus;
+import com.sideproject.withpt.common.type.EmploymentStatus;
 import com.sideproject.withpt.domain.trainer.Career;
 import java.time.YearMonth;
 import lombok.Builder;

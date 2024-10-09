@@ -9,7 +9,7 @@ import com.sideproject.withpt.application.schedule.service.WorkScheduleService;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.application.trainer.service.dto.TrainerSignUpResponse;
 import com.sideproject.withpt.application.trainer.service.dto.complex.TrainerSignUpDto;
-import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.jwt.AuthTokenGenerator;
 import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;

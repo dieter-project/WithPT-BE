@@ -1,9 +1,11 @@
 package com.sideproject.withpt.domain.pt;
 
-import com.sideproject.withpt.application.type.Day;
-import com.sideproject.withpt.application.type.LessonStatus;
+import com.sideproject.withpt.common.type.Day;
+import com.sideproject.withpt.common.type.LessonStatus;
+import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.domain.gym.Gym;
+import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import java.time.LocalDate;
@@ -22,19 +24,12 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
 @Entity
 @Getter
-@Setter(AccessLevel.PROTECTED)
-@ToString(exclude = {"member", "trainer", "gym"})
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Lesson extends BaseEntity {
 
@@ -54,6 +49,10 @@ public class Lesson extends BaseEntity {
     @JoinColumn(name = "gym_id")
     private Gym gym;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gym_trainer_id")
+    private GymTrainer gymTrainer;
+
     @Embedded
     private LessonSchedule schedule;
 
@@ -68,28 +67,79 @@ public class Lesson extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private LessonStatus status;
 
-    private String registeredBy;
+    private String requester;
 
-    private String modifiedBy;
+    private String receiver;
 
-    public void changeLessonStatus(LessonStatus status) {
+    @Enumerated
+    private Role registeredBy;
+
+    @Enumerated
+    private Role modifiedBy;
+
+    @Builder
+    private Lesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonSchedule beforeSchedule, LessonStatus status, String requester, String receiver, Role registeredBy, Role modifiedBy) {
+        this.member = member;
+        this.gymTrainer = gymTrainer;
+        this.schedule = schedule;
+        this.beforeSchedule = beforeSchedule;
+        this.status = status;
+        this.requester = requester;
+        this.receiver = receiver;
+        this.registeredBy = registeredBy;
+        this.modifiedBy = modifiedBy;
+    }
+
+    public void cancel(LessonStatus status) {
         this.status = status;
     }
 
-    public void changeLessonSchedule(LocalDate date, LocalTime time, Day weekday, String loginRole) {
+    public void changeLessonSchedule(LocalDate date, LocalTime time, Day weekday, Role requestByRole) {
         this.beforeSchedule = LessonSchedule.builder()
             .date(this.schedule.getDate())
             .time(this.schedule.getTime())
             .weekday(this.schedule.getWeekday())
             .build();
 
-        this.schedule.changeSchedule(
-            LessonSchedule.builder()
-                .date(date)
-                .time(time)
-                .weekday(weekday)
-                .build());
+        this.schedule = LessonSchedule.builder()
+            .date(date)
+            .time(time)
+            .weekday(weekday)
+            .build();
         this.status = LessonStatus.PENDING_APPROVAL;
-        this.modifiedBy = loginRole;
+        this.modifiedBy = requestByRole;
+    }
+
+    public static Lesson createNewLessonRegistration(Member member, GymTrainer gymTrainer, LocalDate date, LocalTime time, Day weekday, Role requestByRole, Long registrationRequestId, Long registrationReceiverId) {
+        LessonSchedule firstRegisteredLesson = LessonSchedule.builder()
+            .date(date)
+            .time(time)
+            .weekday(weekday)
+            .build();
+
+        String requester = getRequester(registrationRequestId, requestByRole);
+        String receiver = getReceiver(registrationReceiverId, requestByRole);
+        return Lesson.builder()
+            .member(member)
+            .gymTrainer(gymTrainer)
+            .schedule(firstRegisteredLesson)
+            .status(
+                requestByRole == Role.TRAINER ? LessonStatus.RESERVED : LessonStatus.PENDING_APPROVAL
+            )
+            .requester(requester)
+            .receiver(receiver)
+            .registeredBy(requestByRole)
+            .build();
+    }
+
+    public void registrationOrScheduleChangeAccept() {
+        this.status = LessonStatus.RESERVED;
+    }
+    public static String getRequester(Long requestId, Role requestByRole) {
+        return requestByRole == Role.MEMBER ? requestId + "_" + Role.MEMBER : requestId + "_" + Role.TRAINER;
+    }
+
+    public static String getReceiver(Long receiverId, Role requestByRole) {
+        return requestByRole == Role.MEMBER ? receiverId + "_" + Role.TRAINER : receiverId + "_" + Role.MEMBER;
     }
 }

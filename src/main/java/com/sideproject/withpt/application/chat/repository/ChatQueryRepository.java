@@ -9,7 +9,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.chat.contoller.response.MessageResponse;
 import com.sideproject.withpt.application.chat.contoller.response.QRoomListResponse_RoomInfo;
 import com.sideproject.withpt.application.chat.contoller.response.RoomListResponse.RoomInfo;
-import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.chat.Message;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.trainer.Trainer;

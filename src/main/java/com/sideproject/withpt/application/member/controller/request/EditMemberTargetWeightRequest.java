@@ -1,7 +1,5 @@
 package com.sideproject.withpt.application.member.controller.request;
 
-import com.sideproject.withpt.application.type.ExerciseFrequency;
-import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;

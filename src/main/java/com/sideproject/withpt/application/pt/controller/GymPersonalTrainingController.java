@@ -12,8 +12,8 @@ import com.sideproject.withpt.application.pt.controller.response.PersonalTrainin
 import com.sideproject.withpt.application.pt.controller.response.ReRegistrationHistoryResponse;
 import com.sideproject.withpt.application.pt.repository.dto.EachGymMemberListResponse;
 import com.sideproject.withpt.application.pt.service.PersonalTrainingService;
-import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
+import com.sideproject.withpt.common.type.PtRegistrationAllowedStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import java.time.LocalDate;
@@ -95,7 +95,7 @@ public class GymPersonalTrainingController {
         );
     }
 
-    @Operation(summary = "알림 - 회원이 PT 등록 승인")
+    @Operation(summary = "회원 -  PT 등록 승인")
     @PatchMapping("/api/v1/personal-trainings/{ptId}/registration-acceptance")
     public void allowPtRegistrationNotification(@PathVariable Long ptId) {
         personalTrainingService.approvedPersonalTrainingRegistration(ptId, LocalDateTime.now());

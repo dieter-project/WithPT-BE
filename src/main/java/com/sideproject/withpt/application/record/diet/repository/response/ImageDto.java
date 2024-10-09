@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.record.diet.repository.response;
 
 import com.querydsl.core.annotations.QueryProjection;
-import com.sideproject.withpt.application.type.Usages;
+import com.sideproject.withpt.common.type.Usages;
 import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Getter;

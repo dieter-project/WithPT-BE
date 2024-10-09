@@ -1,8 +1,8 @@
 package com.sideproject.withpt.domain.pt;
 
-import com.sideproject.withpt.application.type.PTInfoInputStatus;
-import com.sideproject.withpt.application.type.PtRegistrationAllowedStatus;
-import com.sideproject.withpt.application.type.PtRegistrationStatus;
+import com.sideproject.withpt.common.type.PTInfoInputStatus;
+import com.sideproject.withpt.common.type.PtRegistrationAllowedStatus;
+import com.sideproject.withpt.common.type.PtRegistrationStatus;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;

@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.chat.contoller.request;
 
-import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.common.type.Role;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

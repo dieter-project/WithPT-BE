@@ -1,8 +1,6 @@
 package com.sideproject.withpt.application.schedule.controller.request;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.sideproject.withpt.application.type.Day;
+import com.sideproject.withpt.common.type.Day;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.trainer.Trainer;

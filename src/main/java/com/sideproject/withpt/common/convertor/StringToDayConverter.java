@@ -1,6 +1,6 @@
 package com.sideproject.withpt.common.convertor;
 
-import com.sideproject.withpt.application.type.Day;
+import com.sideproject.withpt.common.type.Day;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.converter.Converter;
 

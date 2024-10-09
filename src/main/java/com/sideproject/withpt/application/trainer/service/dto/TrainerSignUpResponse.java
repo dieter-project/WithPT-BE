@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.trainer.service.dto;
 
-import com.sideproject.withpt.application.type.OAuthProvider;
-import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.common.type.OAuthProvider;
+import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import lombok.Builder;
 import lombok.Getter;

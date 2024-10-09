@@ -8,7 +8,7 @@ import com.sideproject.withpt.application.chat.contoller.response.MessageRespons
 import com.sideproject.withpt.application.chat.contoller.response.RoomListResponse;
 import com.sideproject.withpt.application.chat.facade.ChatFacade;
 import com.sideproject.withpt.application.chat.service.ChatService;
-import com.sideproject.withpt.application.type.Role;
+import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
