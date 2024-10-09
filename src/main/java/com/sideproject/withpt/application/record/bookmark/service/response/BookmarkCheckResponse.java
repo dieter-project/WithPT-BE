@@ -13,11 +13,12 @@ import lombok.NoArgsConstructor;
 public class BookmarkCheckResponse {
 
     private boolean isDuplicated;
-    private final String message = "북마크 등록이 가능합니다";
+    private String message;
 
-    public static BookmarkCheckResponse from(boolean isDuplicated) {
+    public static BookmarkCheckResponse from(boolean isDuplicated, String message) {
         return BookmarkCheckResponse.builder()
             .isDuplicated(isDuplicated)
+            .message(message)
             .build();
     }
 }

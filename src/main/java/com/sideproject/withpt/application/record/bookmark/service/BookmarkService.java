@@ -29,10 +29,6 @@ public class BookmarkService {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
-        if (bookmarkRepository.existsByMemberAndTitle(member, bookmarkSaveDto.getTitle())) {
-            throw BookmarkException.BOOKMARK_ALREADY_EXISTS;
-        }
-
         return BookmarkResponse.of(
             bookmarkRepository.save(bookmarkSaveDto.toEntity(member))
         );
@@ -88,15 +84,15 @@ public class BookmarkService {
         return BookmarkResponse.of(bookmark);
     }
 
-    public BookmarkCheckResponse checkBookmark(String title, Long memberId) {
+    public BookmarkCheckResponse checkBookmarkDuplicate(String title, Long memberId) {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         if (bookmarkRepository.existsByMemberAndTitle(member, title)) {
-            throw BookmarkException.BOOKMARK_ALREADY_EXISTS;
+            return BookmarkCheckResponse.from(true, "중복된 북마크명이 존재합니다.");
         }
 
-        return BookmarkCheckResponse.from(false);
+        return BookmarkCheckResponse.from(false, "북마크 등록이 가능합니다.");
     }
 
 }

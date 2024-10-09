@@ -125,7 +125,7 @@ class BookmarkServiceTest {
                 );
         }
 
-        @DisplayName("이미 북마크가 존재할 때")
+        @DisplayName("이미 북마크가 존재하더라도 중복 title 로 저장 가능 - 중복 체크는 단순 참고용 체크")
         @Test
         void alreadyExists() {
             // given
@@ -144,11 +144,23 @@ class BookmarkServiceTest {
 
             final Long memberId = member.getId();
 
-            // when // then
-            assertThatThrownBy(() -> bookmarkService.saveBookmark(memberId, bookmarkSaveDto))
-                .isInstanceOf(BookmarkException.class)
-                .hasMessage("이미 존재하는 북마크명입니다.")
-            ;
+            // when
+            BookmarkResponse response = bookmarkService.saveBookmark(memberId, bookmarkSaveDto);
+
+            // then
+            assertThat(response)
+                .extracting("uploadDate", "title", "exerciseType", "bodyPart", "specificBodyParts", "exerciseTime", "weight", "times")
+                .contains(
+                    LocalDate.of(2024, 10, 10), "스트레칭", STRETCHING, BodyPart.FULL_BODY, null, 60, 0, 0
+                );
+
+            List<Bookmark> result = bookmarkRepository.findAll();
+            assertThat(result).hasSize(2)
+                .extracting("uploadDate", "title", "exerciseType")
+                .contains(
+                    tuple(LocalDate.of(2024, 10, 4), "스트레칭", STRETCHING),
+                    tuple(LocalDate.of(2024, 10, 10), "스트레칭", STRETCHING)
+                );
         }
     }
 
@@ -326,17 +338,17 @@ class BookmarkServiceTest {
         final Long memberId = member.getId();
 
         // when
-        BookmarkCheckResponse response = bookmarkService.checkBookmark(title, memberId);
+        BookmarkCheckResponse response = bookmarkService.checkBookmarkDuplicate(title, memberId);
 
         // then
         assertThat(response)
             .extracting("isDuplicated", "message")
             .contains(
-                false, "북마크 등록이 가능합니다"
+                false, "북마크 등록이 가능합니다."
             );
     }
 
-    @DisplayName("북마크명과 중복되는 이름이 이미 있어서 에러")
+    @DisplayName("북마크명과 중복되는 이름이 이미 있으면 true 응답")
     @Test
     void checkBookmarkThrowException() {
         // given
@@ -348,11 +360,15 @@ class BookmarkServiceTest {
         final String title = "스트레칭";
         final Long memberId = member.getId();
 
-        // when    // then
-        assertThatThrownBy(() -> bookmarkService.checkBookmark(title, memberId))
-            .isInstanceOf(BookmarkException.class)
-            .hasMessage("이미 존재하는 북마크명입니다.")
-        ;
+        // when
+        BookmarkCheckResponse response = bookmarkService.checkBookmarkDuplicate(title, memberId);
+
+        // then
+        assertThat(response)
+            .extracting("isDuplicated", "message")
+            .contains(
+                true, "중복된 북마크명이 존재합니다."
+            );
     }
 
     private Bookmark createBookmark(LocalDate uploadDate, String title, ExerciseType exerciseType, int exerciseTime, Member member) {

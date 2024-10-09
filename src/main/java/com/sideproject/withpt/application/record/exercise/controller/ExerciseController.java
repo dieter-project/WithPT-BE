@@ -59,15 +59,6 @@ public class ExerciseController {
         );
     }
 
-    @Operation(summary = "북마크 등록 여부 확인")
-    @GetMapping("/bookmark-check")
-    public ApiSuccessResponse<BookmarkCheckResponse> checkBookmark(@RequestParam String title,
-        @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        return ApiSuccessResponse.from(
-            bookmarkService.checkBookmark(title, memberId)
-        );
-    }
-
     @Operation(summary = "운동 기록 입력")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void saveExercise(
