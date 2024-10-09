@@ -8,6 +8,7 @@ public enum LessonStatus {
     PENDING_APPROVAL("승인 대기 중"),
     COMPLETION("완료"),
     TIME_OUT_CANCELED("자동 취소"),
+    REJECT("수업 변경 거절"),
     CANCELED("취소");
 
     private final String status;

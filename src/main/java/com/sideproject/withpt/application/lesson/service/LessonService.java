@@ -233,6 +233,15 @@ public class LessonService {
         );
     }
 
+    public LessonResponse registrationOrScheduleChangeLessonAccept(Long lessonId) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+            .orElseThrow(() -> LessonException.LESSON_NOT_FOUND);
+
+        lesson.registrationOrScheduleChangeAccept();
+
+        return LessonResponse.of(lesson);
+    }
+
     @Transactional
     public void deleteLesson(Long lessonId) {
         lessonRepository.findById(lessonId)

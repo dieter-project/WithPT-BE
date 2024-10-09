@@ -132,6 +132,9 @@ public class Lesson extends BaseEntity {
             .build();
     }
 
+    public void registrationOrScheduleChangeAccept() {
+        this.status = LessonStatus.RESERVED;
+    }
     public static String getRequester(Long requestId, Role requestByRole) {
         return requestByRole == Role.MEMBER ? requestId + "_" + Role.MEMBER : requestId + "_" + Role.TRAINER;
     }

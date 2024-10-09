@@ -10,11 +10,11 @@ import com.sideproject.withpt.application.lesson.service.response.LessonResponse
 import com.sideproject.withpt.application.lesson.service.response.LessonScheduleOfMonthResponse;
 import com.sideproject.withpt.application.lesson.service.response.MemberLessonScheduleResponse;
 import com.sideproject.withpt.application.lesson.service.response.TrainerLessonScheduleResponse;
+import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import com.sideproject.withpt.common.type.Day;
 import com.sideproject.withpt.common.type.LessonRequestStatus;
 import com.sideproject.withpt.common.type.LessonStatus;
 import com.sideproject.withpt.common.type.Role;
-import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import java.time.LocalDate;
@@ -174,6 +174,14 @@ public class LessonController {
     public ApiSuccessResponse<Slice<LessonResponse>> getSentLessonRequests(@Parameter(hidden = true) @AuthenticationPrincipal Long trainerId, Pageable pageable) {
         return ApiSuccessResponse.from(
             lessonService.getSentLessonRequests(trainerId, pageable)
+        );
+    }
+
+    @Operation(summary = "수업 등록 or 수업 스케줄 변경 수락하기")
+    @PostMapping("/lessons/{lessonId}/accept")
+    public ApiSuccessResponse<LessonResponse> lessonAccept(@PathVariable Long lessonId) {
+        return ApiSuccessResponse.from(
+            lessonService.registrationOrScheduleChangeLessonAccept(lessonId)
         );
     }
 
