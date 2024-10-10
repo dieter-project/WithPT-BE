@@ -14,6 +14,7 @@ import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,13 +30,12 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/members/record/diets")
 public class DietController {
 
     private final DietService dietService;
 
     @Operation(summary = "날짜별 식단 조회")
-    @GetMapping
+    @GetMapping("/api/v1/members/record/diets")
     public ApiSuccessResponse<DailyDietResponse> findDietByUploadDate(
         @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate uploadDate,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
@@ -45,8 +44,18 @@ public class DietController {
         );
     }
 
+    @Operation(summary = "최근 식단 리스트 조회")
+    @GetMapping("/api/v1/members/record/diets/recent")
+    public ApiSuccessResponse<List<DailyDietResponse>> findRecentDiets(
+        @RequestParam(required = false, defaultValue = "3") int size,
+        @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
+        return ApiSuccessResponse.from(
+            dietService.findRecentDiets(memberId, LocalDate.now(), PageRequest.of(0, size))
+        );
+    }
+
     @Operation(summary = "식단 입력하기")
-    @PostMapping
+    @PostMapping("/api/v1/members/record/diets")
     public void saveDiet(@Valid @RequestPart SaveDietRequest request, @RequestPart(required = false) List<MultipartFile> files,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
         if (request.getDietFoods() == null || request.getDietFoods().isEmpty()) {
@@ -56,7 +65,7 @@ public class DietController {
     }
 
     @Operation(summary = "식단 정보 조회")
-    @GetMapping("/{dietId}/dietInfos/{dietInfoId}")
+    @GetMapping("/api/v1/members/record/diets/{dietId}/dietInfos/{dietInfoId}")
     public ApiSuccessResponse<DietInfoResponse> findDietInfoById(@PathVariable Long dietId, @PathVariable Long dietInfoId,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
         return ApiSuccessResponse.from(
@@ -65,7 +74,7 @@ public class DietController {
     }
 
     @Operation(summary = "식단 정보 수정하기")
-    @PatchMapping("/{dietId}/dietInfos/{dietInfoId}")
+    @PatchMapping("/api/v1/members/record/diets/{dietId}/dietInfos/{dietInfoId}")
     public void modifyDiet(@Valid @RequestPart EditDietInfoRequest request, @PathVariable Long dietId, @PathVariable Long dietInfoId,
         @RequestPart(required = false) List<MultipartFile> files,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
@@ -73,7 +82,7 @@ public class DietController {
     }
 
     @Operation(summary = "식단 정보 삭제하기")
-    @DeleteMapping("/{dietId}/dietInfos/{dietInfoId}")
+    @DeleteMapping("/api/v1/members/record/diets/{dietId}/dietInfos/{dietInfoId}")
     public void deleteDietInfo(@PathVariable Long dietId, @PathVariable Long dietInfoId,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
         dietService.deleteDietInfo(memberId, dietId, dietInfoId);

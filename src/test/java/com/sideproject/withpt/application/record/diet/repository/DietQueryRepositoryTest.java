@@ -23,10 +23,15 @@ import com.sideproject.withpt.domain.record.diet.Diets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,7 +53,42 @@ class DietQueryRepositoryTest {
     private ImageRepository imageRepository;
 
     @Autowired
-    private DietQueryRepository dietQueryRepository;
+    private DietQueryRepositoryImpl dietQueryRepository;
+
+    @DisplayName("uploadDate 기준으로 n 건의 식단 데이터 조회")
+    @Test
+    void findAllPageableByMemberAndUploadDate() {
+        //given
+        Member member = saveMember(DietType.Carb_Protein_Fat);
+
+        LocalDate uploadDate1 = LocalDate.of(2024, 10, 3);
+        dietRepository.save(createDiets(DietType.Carb_Protein_Fat, member, uploadDate1));
+
+        LocalDate uploadDate2 = LocalDate.of(2024, 10, 5);
+        dietRepository.save(createDiets(DietType.DIET, member, uploadDate2));
+
+        LocalDate uploadDate3 = LocalDate.of(2024, 10, 8);
+        dietRepository.save(createDiets(DietType.KETO, member, uploadDate3));
+
+        LocalDate uploadDate4 = LocalDate.of(2024, 10, 10);
+        dietRepository.save(createDiets(DietType.PROTEIN, member, uploadDate4));
+
+        LocalDate requestDate = LocalDate.of(2024, 10, 12);
+        Pageable pageable = PageRequest.of(0, 3);
+
+        //when
+        Slice<Diets> result = dietRepository.findAllPageableByMemberAndUploadDate(member, requestDate, pageable);
+
+        //then
+       assertThat(result.getSize()).isEqualTo(3);
+       assertThat(result.getContent()).hasSize(3)
+           .extracting("targetDietType", "uploadDate")
+           .containsExactly(
+               tuple(DietType.PROTEIN, uploadDate4),
+               tuple(DietType.KETO, uploadDate3),
+               tuple(DietType.DIET, uploadDate2)
+           );
+    }
 
     @DisplayName("식단으로 하위에 있는 식단 정보, 식단 음식, 음식 이미지를 조회할 수 있다.")
     @Test

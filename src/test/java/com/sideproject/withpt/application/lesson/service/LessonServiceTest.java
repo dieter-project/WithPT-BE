@@ -1189,7 +1189,7 @@ class LessonServiceTest {
         // then
         assertThat(response)
             .extracting("schedule.date", "schedule.time", "schedule.weekday", "beforeSchedule", "status", "registeredBy", "modifiedBy")
-            .contains(LocalDate.of(2024, 10, 10), LocalTime.of(15, 0), Day.SAT, null, LessonStatus.RESERVED, Role.TRAINER, Role.MEMBER);
+            .contains(LocalDate.of(2024, 10, 10), LocalTime.of(15, 0), Day.SAT, boforeLessonSchedule, LessonStatus.RESERVED, Role.TRAINER, Role.MEMBER);
     }
 
     private LessonSchedule createLessonSchedule(LocalDate date, LocalTime time, Day day) {
