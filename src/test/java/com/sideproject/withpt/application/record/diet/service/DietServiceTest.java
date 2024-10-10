@@ -33,6 +33,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -170,74 +171,81 @@ class DietServiceTest {
             );
     }
 
-    @DisplayName("요청 날짜에 저장된 식단 정보를 조회할 수 있다.")
-    @Test
-    void findDietByMemberAndUploadDate() {
-        // given
-        final LocalDate uploadDate = LocalDate.of(2024, 9, 7);
+    @Nested
+    @DisplayName("식단 조회")
+    class FindDietByMemberAndUploadDate {
 
-        Member member = saveMember();
+        @DisplayName("요청 날짜에 저장된 식단 정보를 조회할 수 있다.")
+        @Test
+        void findDietByMemberAndUploadDate() {
+            // given
+            final LocalDate uploadDate = LocalDate.of(2024, 9, 7);
 
-        DietFood dietFood1 = createDietFood("음식1", 1200, 150, 200, 100);
-        DietFood dietFood2 = createDietFood("음식2", 1200, 150, 200, 100);
-        DietFood dietFood3 = createDietFood("음식3", 1200, 150, 200, 100);
-        DietFood dietFood4 = createDietFood("음식4", 1200, 150, 200, 100);
-        DietFood dietFood5 = createDietFood("음식5", 1200, 150, 200, 100);
-        DietFood dietFood6 = createDietFood("음식6", 1200, 150, 200, 100);
-        List<DietFood> dietFoods1 = List.of(dietFood1, dietFood2);
-        List<DietFood> dietFoods2 = List.of(dietFood3, dietFood4);
-        List<DietFood> dietFoods3 = List.of(dietFood5, dietFood6);
+            Member member = saveMember();
 
-        Diets diets = saveDiets(member, uploadDate, List.of(dietFoods1, dietFoods2, dietFoods3));
-        DietInfo dietInfo1 = saveDietInfo(diets, BREAKFAST, LocalDateTime.of(2024, 9, 7, 8, 30), dietFoods1);
-        DietInfo dietInfo2 = saveDietInfo(diets, LUNCH, LocalDateTime.of(2024, 9, 7, 12, 0), dietFoods2);
-        DietInfo dietInfo3 = saveDietInfo(diets, DINNER, LocalDateTime.of(2024, 9, 7, 19, 20), dietFoods3);
+            DietFood dietFood1 = createDietFood("음식1", 1200, 150, 200, 100);
+            DietFood dietFood2 = createDietFood("음식2", 1200, 150, 200, 100);
+            DietFood dietFood3 = createDietFood("음식3", 1200, 150, 200, 100);
+            DietFood dietFood4 = createDietFood("음식4", 1200, 150, 200, 100);
+            DietFood dietFood5 = createDietFood("음식5", 1200, 150, 200, 100);
+            DietFood dietFood6 = createDietFood("음식6", 1200, 150, 200, 100);
+            List<DietFood> dietFoods1 = List.of(dietFood1, dietFood2);
+            List<DietFood> dietFoods2 = List.of(dietFood3, dietFood4);
+            List<DietFood> dietFoods3 = List.of(dietFood5, dietFood6);
 
-        saveImage(member, "DIET_" + diets.getId() + "/DIETINFO_" + dietInfo1.getId(), uploadDate);
-        saveImage(member, "DIET_" + diets.getId() + "/DIETINFO_" + dietInfo2.getId(), uploadDate);
-        saveImage(member, "DIET_" + diets.getId() + "/DIETINFO_" + dietInfo3.getId(), uploadDate);
+            Diets diets = saveDiets(member, uploadDate, List.of(dietFoods1, dietFoods2, dietFoods3));
+            DietInfo dietInfo1 = saveDietInfo(diets, BREAKFAST, LocalDateTime.of(2024, 9, 7, 8, 30), dietFoods1);
+            DietInfo dietInfo2 = saveDietInfo(diets, LUNCH, LocalDateTime.of(2024, 9, 7, 12, 0), dietFoods2);
+            DietInfo dietInfo3 = saveDietInfo(diets, DINNER, LocalDateTime.of(2024, 9, 7, 19, 20), dietFoods3);
 
-        // when
-        DailyDietResponse dailyDietResponse = dietService.findDietByMemberAndUploadDate(uploadDate, member.getId());
+            saveImage(member, "DIET_" + diets.getId() + "/DIETINFO_" + dietInfo1.getId(), uploadDate);
+            saveImage(member, "DIET_" + diets.getId() + "/DIETINFO_" + dietInfo2.getId(), uploadDate);
+            saveImage(member, "DIET_" + diets.getId() + "/DIETINFO_" + dietInfo3.getId(), uploadDate);
 
-        // then
-        assertThat(dailyDietResponse).isNotNull();
-        assertThat(dailyDietResponse)
-            .extracting("uploadDate", "targetDietType")
-            .contains(uploadDate, DietType.DIET);
 
-        List<DietInfoResponse> dietInfoResponses = dailyDietResponse.getDietInfos();
-        assertThat(dietInfoResponses).hasSize(3)
-            .extracting("dietCategory", "dietTime")
-            .containsExactlyInAnyOrder(
-                tuple(BREAKFAST, LocalDateTime.of(2024, 9, 7, 8, 30)),
-                tuple(LUNCH, LocalDateTime.of(2024, 9, 7, 12, 0)),
-                tuple(DINNER, LocalDateTime.of(2024, 9, 7, 19, 20))
-            );
+            // when
+            DailyDietResponse dailyDietResponse = dietService.findDietByMemberAndUploadDate(uploadDate, member.getId());
 
-        List<DietFoodResponse> dietFoodResponses1 = dailyDietResponse.getDietInfos().get(0).getDietFoods();
-        assertThat(dietFoodResponses1).hasSize(2);
+            // then
+            assertThat(dailyDietResponse).isNotNull();
+            assertThat(dailyDietResponse)
+                .extracting("uploadDate", "targetDietType")
+                .contains(uploadDate, DietType.DIET);
 
-        List<DietFoodResponse> dietFoodResponses2 = dailyDietResponse.getDietInfos().get(1).getDietFoods();
-        assertThat(dietFoodResponses2).hasSize(2);
+            List<DietInfoResponse> dietInfoResponses = dailyDietResponse.getDietInfos();
+            assertThat(dietInfoResponses).hasSize(3)
+                .extracting("dietCategory", "dietTime")
+                .containsExactlyInAnyOrder(
+                    tuple(BREAKFAST, LocalDateTime.of(2024, 9, 7, 8, 30)),
+                    tuple(LUNCH, LocalDateTime.of(2024, 9, 7, 12, 0)),
+                    tuple(DINNER, LocalDateTime.of(2024, 9, 7, 19, 20))
+                );
 
-        List<DietFoodResponse> dietFoodResponses3 = dailyDietResponse.getDietInfos().get(2).getDietFoods();
-        assertThat(dietFoodResponses3).hasSize(2);
+            List<DietFoodResponse> dietFoodResponses1 = dailyDietResponse.getDietInfos().get(0).getDietFoods();
+            assertThat(dietFoodResponses1).hasSize(2);
+
+            List<DietFoodResponse> dietFoodResponses2 = dailyDietResponse.getDietInfos().get(1).getDietFoods();
+            assertThat(dietFoodResponses2).hasSize(2);
+
+            List<DietFoodResponse> dietFoodResponses3 = dailyDietResponse.getDietInfos().get(2).getDietFoods();
+            assertThat(dietFoodResponses3).hasSize(2);
+        }
+
+        @DisplayName("요청 날짜에 저장된 식단 정보가 없다면 null 을 응답한다.")
+        @Test
+        void findDietByMemberAndUploadDateWhenDietIsEmpty() {
+            // given
+            final LocalDate uploadDate = LocalDate.of(2024, 9, 7);
+            Member member = saveMember();
+
+            // when
+            DailyDietResponse dailyDietResponse = dietService.findDietByMemberAndUploadDate(uploadDate, member.getId());
+
+            // then
+            assertThat(dailyDietResponse).isNull();
+        }
     }
 
-    @DisplayName("요청 날짜에 저장된 식단 정보가 없다면 null 을 응답한다.")
-    @Test
-    void findDietByMemberAndUploadDateWhenDietIsEmpty() {
-        // given
-        final LocalDate uploadDate = LocalDate.of(2024, 9, 7);
-        Member member = saveMember();
-
-        // when
-        DailyDietResponse dailyDietResponse = dietService.findDietByMemberAndUploadDate(uploadDate, member.getId());
-
-        // then
-        assertThat(dailyDietResponse).isNull();
-    }
 
     @DisplayName("식단 정보 ID로 단일 식단 정보를 조회할 수 있다.")
     @Test

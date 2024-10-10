@@ -9,13 +9,12 @@ import com.sideproject.withpt.application.record.diet.controller.request.SaveDie
 import com.sideproject.withpt.application.record.diet.exception.DietException;
 import com.sideproject.withpt.application.record.diet.repository.DietFoodRepository;
 import com.sideproject.withpt.application.record.diet.repository.DietInfoRepository;
-import com.sideproject.withpt.application.record.diet.repository.DietQueryRepository;
+import com.sideproject.withpt.application.record.diet.repository.DietQueryRepositoryImpl;
 import com.sideproject.withpt.application.record.diet.repository.DietRepository;
-import com.sideproject.withpt.application.record.diet.repository.response.DietInfoDto;
 import com.sideproject.withpt.application.record.diet.service.response.DailyDietResponse;
 import com.sideproject.withpt.application.record.diet.service.response.DietInfoResponse;
-import com.sideproject.withpt.common.type.Usages;
 import com.sideproject.withpt.common.exception.GlobalException;
+import com.sideproject.withpt.common.type.Usages;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.Image;
 import com.sideproject.withpt.domain.record.diet.DietFood;
@@ -29,6 +28,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,15 +42,17 @@ public class DietService {
     private final DietRepository dietRepository;
     private final DietInfoRepository dietInfoRepository;
     private final DietFoodRepository dietFoodRepository;
-    private final DietQueryRepository dietQueryRepository;
+    private final DietQueryRepositoryImpl dietQueryRepository;
     private final MemberRepository memberRepository;
     private final ImageUploader imageUploader;
     private final ImageRepository imageRepository;
 
     @Transactional
     public void saveOrUpdateDiet(Long memberId, SaveDietRequest request, List<MultipartFile> files) {
-        Member member = validateMemberId(memberId);
-        dietQueryRepository.findByMemberAndUploadDate(member, request.getUploadDate())
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+
+        dietRepository.findByMemberAndUploadDate(member, request.getUploadDate())
             .ifPresentOrElse(existingDiets -> {
                     handleDietUpdate(request, files, member, existingDiets);
                 },
@@ -61,19 +63,27 @@ public class DietService {
     }
 
     public DailyDietResponse findDietByMemberAndUploadDate(LocalDate uploadDate, Long memberId) {
-        Member member = validateMemberId(memberId);
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         return dietRepository.findByMemberAndUploadDate(member, uploadDate)
-            .map(diets -> {
-                    List<DietInfoDto> dietInfoDtos = dietQueryRepository.findAllDietInfoAndDietFoodByDiets(member, diets);
-                    return DailyDietResponse.of(diets, dietInfoDtos);
-                }
-            )
+            .map(diets -> DailyDietResponse.of(diets, dietQueryRepository.findAllDietInfoAndDietFoodByDiets(member, diets)))
             .orElse(null);
     }
 
+    public List<DailyDietResponse> findRecentDiets(Long memberId, LocalDate uploadDate, Pageable pageable) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+
+        return dietRepository.findAllPageableByMemberAndUploadDate(member, uploadDate, pageable)
+            .map(diets -> DailyDietResponse.of(diets, dietQueryRepository.findAllDietInfoAndDietFoodByDiets(member, diets)))
+            .getContent();
+    }
+
     public DietInfoResponse findDietInfoById(Long memberId, Long dietInfoId) {
-        Member member = validateMemberId(memberId);
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+
         Optional<DietInfo> optionalDietInfo = dietInfoRepository.findById(dietInfoId);
 
         if (optionalDietInfo.isEmpty()) {
@@ -91,7 +101,9 @@ public class DietService {
 
     @Transactional
     public void modifyDietInfo(Long memberId, Long dietId, Long dietInfoId, EditDietInfoRequest request, List<MultipartFile> files) {
-        Member member = validateMemberId(memberId);
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+
         Diets diets = dietRepository.findById(dietId)
             .orElseThrow(() -> DietException.DIET_NOT_EXIST);
 
@@ -111,7 +123,9 @@ public class DietService {
 
     @Transactional
     public void deleteDietInfo(Long memberId, Long dietId, Long dietInfoId) {
-        Member member = validateMemberId(memberId);
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+
         Diets diets = dietRepository.findById(dietId)
             .orElseThrow(() -> DietException.DIET_NOT_EXIST);
 
@@ -125,11 +139,6 @@ public class DietService {
 
         imageUploader.deleteImageByIdentificationAndMember("DIET_" + diets.getId() + "/DIETINFO_" + dietInfo.getId(), member);
         dietInfoRepository.delete(dietInfo);
-    }
-
-    private Member validateMemberId(Long memberId) {
-        return memberRepository.findById(memberId)
-            .orElseThrow(() -> GlobalException.TEST_ERROR);
     }
 
     private void handleDietUpdate(SaveDietRequest request, List<MultipartFile> files, Member member, Diets diets) {

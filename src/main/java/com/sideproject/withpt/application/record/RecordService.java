@@ -5,7 +5,7 @@ import com.sideproject.withpt.application.record.AllDatesRecordResponse.BodyInfo
 import com.sideproject.withpt.application.record.AllDatesRecordResponse.DietResponse;
 import com.sideproject.withpt.application.record.AllDatesRecordResponse.ExerciseResponse;
 import com.sideproject.withpt.application.record.body.repository.BodyRepository;
-import com.sideproject.withpt.application.record.diet.repository.DietQueryRepository;
+import com.sideproject.withpt.application.record.diet.repository.DietQueryRepositoryImpl;
 import com.sideproject.withpt.application.record.exercise.repository.ExerciseRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.utils.DateUtility;
@@ -28,7 +28,7 @@ public class RecordService {
 
     private final MemberRepository memberRepository;
     private final ExerciseRepository exerciseRepository;
-    private final DietQueryRepository dietQueryRepository;
+    private final DietQueryRepositoryImpl dietQueryRepository;
     private final BodyRepository bodyRepository;
 
     public Map<String, AllDatesRecordResponse> getAllDatesRecord(Long memberId, int year, int month) {

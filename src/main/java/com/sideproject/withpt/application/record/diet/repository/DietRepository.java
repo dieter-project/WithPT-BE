@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface DietRepository extends JpaRepository<Diets, Long> {
+public interface DietRepository extends JpaRepository<Diets, Long>, DietQueryRepository {
 
     Optional<Diets> findByMemberAndUploadDate(Member member, LocalDate uploadDate);
 }
