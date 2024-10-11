@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.trainer.controller.request;
 
 import com.sideproject.withpt.application.trainer.service.dto.complex.TrainerSignUpDto;
-import com.sideproject.withpt.common.type.OAuthProvider;
+import com.sideproject.withpt.common.type.AuthProvider;
 import com.sideproject.withpt.common.type.Sex;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import java.time.LocalDate;
@@ -35,8 +35,8 @@ public class TrainerSignUpRequest {
     @ValidEnum(regexp = "MAN|WOMAN", enumClass = Sex.class)
     private Sex sex;
 
-    @ValidEnum(regexp = "KAKAO|GOOGLE", enumClass = OAuthProvider.class)
-    private OAuthProvider oauthProvider;
+    @ValidEnum(regexp = "KAKAO|GOOGLE", enumClass = AuthProvider.class)
+    private AuthProvider oauthProvider;
 
     @Valid
     private List<CareerRequest> careers = new ArrayList<>();

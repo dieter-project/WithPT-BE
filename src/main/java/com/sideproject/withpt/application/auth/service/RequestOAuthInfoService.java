@@ -1,9 +1,9 @@
 package com.sideproject.withpt.application.auth.service;
 
-import com.sideproject.withpt.application.auth.infra.OAuthApiClient;
+import com.sideproject.withpt.application.auth.infra.AuthApiClient;
 import com.sideproject.withpt.application.auth.infra.OAuthInfoResponse;
-import com.sideproject.withpt.application.auth.infra.OAuthLoginParams;
-import com.sideproject.withpt.common.type.OAuthProvider;
+import com.sideproject.withpt.application.auth.infra.AuthLoginParams;
+import com.sideproject.withpt.common.type.AuthProvider;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -15,17 +15,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class RequestOAuthInfoService {
 
-    private final Map<OAuthProvider, OAuthApiClient> clients;
+    private final Map<AuthProvider, AuthApiClient> clients;
 
-    public RequestOAuthInfoService(List<OAuthApiClient> clients) {
+    public RequestOAuthInfoService(List<AuthApiClient> clients) {
         this.clients = clients.stream().collect(
-            Collectors.toUnmodifiableMap(OAuthApiClient::oAuthProvider, Function.identity())
+            Collectors.toUnmodifiableMap(AuthApiClient::authProvider, Function.identity())
         );
     }
 
-    public OAuthInfoResponse request(OAuthLoginParams params) {
-        OAuthApiClient client = clients.get(params.oAuthProvider());
+    public OAuthInfoResponse request(AuthLoginParams params) {
+        AuthApiClient client = clients.get(params.authProvider());
         String accessToken = client.requestAccessToken(params);
-        return client.requestOauthInfo(accessToken);
+        return client.requestAuthInfo(accessToken);
     }
 }

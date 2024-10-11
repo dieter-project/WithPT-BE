@@ -29,7 +29,7 @@ public class MemberService {
 
     public MemberInfoResponse getMemberInfo(Long memberId) {
         Member findMember = getMemberById(memberId);
-        return MemberInfoResponse.of(findMember, findMember.getAuthentication(), findMember.getSocialLogin());
+        return MemberInfoResponse.of(findMember, findMember.getAuthentication());
     }
 
     @Transactional

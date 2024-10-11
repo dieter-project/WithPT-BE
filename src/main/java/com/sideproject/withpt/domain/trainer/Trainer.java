@@ -1,7 +1,7 @@
 package com.sideproject.withpt.domain.trainer;
 
+import com.sideproject.withpt.common.type.AuthProvider;
 import com.sideproject.withpt.common.type.LoginType;
-import com.sideproject.withpt.common.type.OAuthProvider;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.type.Sex;
 import com.sideproject.withpt.domain.BaseEntity;
@@ -52,7 +52,7 @@ public class Trainer extends BaseEntity {
     private LoginType loginType;
 
     @Enumerated(EnumType.STRING)
-    private OAuthProvider oauthProvider;
+    private AuthProvider oauthProvider;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -76,7 +76,7 @@ public class Trainer extends BaseEntity {
 
     @Builder(builderClassName = "BySignUpBuilder", builderMethodName = "BySignUpBuilder")
     public Trainer(String email, String name, String imageUrl, LocalDate birth, Sex sex,
-        LoginType loginType, OAuthProvider oauthProvider, Role role, LocalDateTime joinDate) {
+        LoginType loginType, AuthProvider oauthProvider, Role role, LocalDateTime joinDate) {
         Assert.notNull(email, "email must not be null");
         Assert.notNull(imageUrl, "imageUrl must not be null");
         Assert.notNull(birth, "birth must not be null");
@@ -102,7 +102,7 @@ public class Trainer extends BaseEntity {
     }
 
     @Builder(builderClassName = "signUpBuilder", builderMethodName = "signUpBuilder")
-    public Trainer(Long id, String email, String name, String imageUrl, LocalDate birth, Sex sex, LoginType loginType, OAuthProvider oauthProvider,
+    public Trainer(Long id, String email, String name, String imageUrl, LocalDate birth, Sex sex, LoginType loginType, AuthProvider oauthProvider,
         Role role, LocalDateTime joinDate) {
         this.id = id;
         this.email = email;

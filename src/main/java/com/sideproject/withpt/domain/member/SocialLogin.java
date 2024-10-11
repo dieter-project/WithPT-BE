@@ -1,6 +1,6 @@
 package com.sideproject.withpt.domain.member;
 
-import com.sideproject.withpt.common.type.OAuthProvider;
+import com.sideproject.withpt.common.type.AuthProvider;
 import com.sideproject.withpt.domain.BaseEntity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -30,6 +30,6 @@ public class SocialLogin extends BaseEntity {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private OAuthProvider oauthProvider;
+    private AuthProvider oauthProvider;
 
 }

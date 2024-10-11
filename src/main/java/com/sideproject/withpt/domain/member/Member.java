@@ -1,5 +1,6 @@
 package com.sideproject.withpt.domain.member;
 
+import com.sideproject.withpt.common.type.AuthProvider;
 import com.sideproject.withpt.common.type.DietType;
 import com.sideproject.withpt.common.type.ExerciseFrequency;
 import com.sideproject.withpt.common.type.Role;
@@ -37,6 +38,8 @@ public class Member extends BaseEntity {
 
     private String email;
 
+    private String password;
+
     private String name;
 
     private String nickname;
@@ -58,13 +61,13 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Enumerated(EnumType.STRING)
+    private AuthProvider authProvider;
+
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "authentication_id")
     private Authentication authentication;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "social_login_id")
-    private SocialLogin socialLogin;
 
     public void changeCurrentWeight(double weight) {
         this.weight = weight;

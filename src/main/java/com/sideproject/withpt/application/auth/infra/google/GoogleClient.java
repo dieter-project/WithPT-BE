@@ -1,10 +1,10 @@
 package com.sideproject.withpt.application.auth.infra.google;
 
-import com.sideproject.withpt.application.auth.infra.OAuthApiClient;
+import com.sideproject.withpt.application.auth.infra.AuthApiClient;
 import com.sideproject.withpt.application.auth.infra.OAuthInfoResponse;
-import com.sideproject.withpt.application.auth.infra.OAuthLoginParams;
+import com.sideproject.withpt.application.auth.infra.AuthLoginParams;
 import com.sideproject.withpt.application.auth.infra.google.GoogleInfoResponse.GoogleAccount;
-import com.sideproject.withpt.common.type.OAuthProvider;
+import com.sideproject.withpt.common.type.AuthProvider;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.Map;
@@ -23,7 +23,7 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class GoogleClient implements OAuthApiClient {
+public class GoogleClient implements AuthApiClient {
 
     private static final String GRANT_TYPE = "authorization_code";
 
@@ -45,12 +45,12 @@ public class GoogleClient implements OAuthApiClient {
     private final RestTemplate restTemplate;
 
     @Override
-    public OAuthProvider oAuthProvider() {
-        return OAuthProvider.GOOGLE;
+    public AuthProvider authProvider() {
+        return AuthProvider.GOOGLE;
     }
 
     @Override
-    public String requestAccessToken(OAuthLoginParams params) {
+    public String requestAccessToken(AuthLoginParams params) {
         String url = authTokenUrl;
 
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -73,7 +73,7 @@ public class GoogleClient implements OAuthApiClient {
 
 
     @Override
-    public OAuthInfoResponse requestOauthInfo(String accessToken) {
+    public OAuthInfoResponse requestAuthInfo(String accessToken) {
         final String payloadJWT = accessToken.split("\\.")[1];
 
         Decoder urlDecoder = Base64.getUrlDecoder();

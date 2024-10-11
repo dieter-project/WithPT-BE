@@ -9,7 +9,7 @@ import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.TRA
 import com.sideproject.withpt.application.auth.controller.dto.LogoutResponse;
 import com.sideproject.withpt.application.auth.controller.dto.OAuthLoginResponse;
 import com.sideproject.withpt.application.auth.controller.dto.ReissueResponse;
-import com.sideproject.withpt.application.auth.infra.OAuthLoginParams;
+import com.sideproject.withpt.application.auth.infra.AuthLoginParams;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.jwt.AuthTokenGenerator;
@@ -52,7 +52,7 @@ public class OAuthLoginService {
     }
 
     @Transactional
-    public OAuthLoginResponse login(OAuthLoginParams params) {
+    public OAuthLoginResponse login(AuthLoginParams params) {
         OAuthLoginClient oAuthLoginClient = loginClients.get(params.registerRole());
         log.info(oAuthLoginClient.toString());
         return oAuthLoginClient.login(params);

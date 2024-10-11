@@ -3,7 +3,7 @@ package com.sideproject.withpt.application.auth.infra.kakao;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sideproject.withpt.application.auth.infra.OAuthInfoResponse;
-import com.sideproject.withpt.common.type.OAuthProvider;
+import com.sideproject.withpt.common.type.AuthProvider;
 import lombok.Getter;
 
 public class KakaoInfoResponse implements OAuthInfoResponse {
@@ -24,7 +24,7 @@ public class KakaoInfoResponse implements OAuthInfoResponse {
     }
 
     @Override
-    public OAuthProvider getOAuthProvider() {
-        return OAuthProvider.KAKAO;
+    public AuthProvider getOAuthProvider() {
+        return AuthProvider.KAKAO;
     }
 }

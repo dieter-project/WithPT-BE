@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.trainer.service;
 
 
-import static com.sideproject.withpt.common.type.OAuthProvider.KAKAO;
+import static com.sideproject.withpt.common.type.AuthProvider.KAKAO;
 import static com.sideproject.withpt.common.type.Role.TRAINER;
 import static com.sideproject.withpt.common.type.Sex.MAN;
 import static org.assertj.core.api.Assertions.assertThat;

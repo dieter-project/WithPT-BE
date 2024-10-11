@@ -1,15 +1,14 @@
 package com.sideproject.withpt.application.member.controller.request;
 
+import com.sideproject.withpt.common.exception.validator.ValidEnum;
+import com.sideproject.withpt.common.type.AuthProvider;
 import com.sideproject.withpt.common.type.DietType;
 import com.sideproject.withpt.common.type.ExerciseFrequency;
 import com.sideproject.withpt.common.type.LoginType;
-import com.sideproject.withpt.common.type.OAuthProvider;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.type.Sex;
-import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.domain.member.Authentication;
 import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.member.SocialLogin;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import javax.validation.constraints.Email;
@@ -31,6 +30,8 @@ public class MemberSignUpRequest {
     @Email(message = "이메일 형식이 올바르지 않습니다.")
     private String email;
 
+    private String password;
+
     @NotBlank(message = "이름은 필수 입력입니다.")
     private String name;
 
@@ -51,12 +52,13 @@ public class MemberSignUpRequest {
     @ValidEnum(enumClass = ExerciseFrequency.class)
     private ExerciseFrequency exerciseFrequency;
 
-    @ValidEnum(regexp = "KAKAO|GOOGLE", enumClass = OAuthProvider.class)
-    private OAuthProvider oauthProvider;
+    @ValidEnum(regexp = "KAKAO|GOOGLE", enumClass = AuthProvider.class)
+    private AuthProvider oauthProvider;
 
     public Member toMemberEntity() {
         return Member.builder()
             .email(this.email)
+            .password(this.password)
             .name(this.name)
             .height(this.height)
             .weight(this.weight)
@@ -64,8 +66,8 @@ public class MemberSignUpRequest {
             .targetWeight(this.targetWeight)
             .exerciseFrequency(this.exerciseFrequency)
             .role(Role.MEMBER)
+            .authProvider(oauthProvider)
             .authentication(toAuthenticationEntity())
-            .socialLogin(toSocialLoginEntity())
             .build();
     }
 
@@ -75,12 +77,6 @@ public class MemberSignUpRequest {
             .sex(this.sex)
             .loginType(LoginType.SOCIAL)
             .joinDate(LocalDateTime.now())
-            .build();
-    }
-
-    private SocialLogin toSocialLoginEntity() {
-        return SocialLogin.builder()
-            .oauthProvider(this.oauthProvider)
             .build();
     }
 }

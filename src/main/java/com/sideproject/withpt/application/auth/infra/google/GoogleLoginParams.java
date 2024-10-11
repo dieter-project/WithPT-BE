@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.auth.infra.google;
 
-import com.sideproject.withpt.application.auth.infra.OAuthLoginParams;
-import com.sideproject.withpt.common.type.OAuthProvider;
+import com.sideproject.withpt.application.auth.infra.AuthLoginParams;
+import com.sideproject.withpt.common.type.AuthProvider;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import lombok.Getter;
@@ -13,7 +13,7 @@ import org.springframework.util.MultiValueMap;
 @Slf4j
 @Getter
 @NoArgsConstructor
-public class GoogleLoginParams implements OAuthLoginParams {
+public class GoogleLoginParams implements AuthLoginParams {
 
     private String authorizationCode;
 
@@ -26,8 +26,8 @@ public class GoogleLoginParams implements OAuthLoginParams {
     }
 
     @Override
-    public OAuthProvider oAuthProvider() {
-        return OAuthProvider.GOOGLE;
+    public AuthProvider authProvider() {
+        return AuthProvider.GOOGLE;
     }
 
     @Override

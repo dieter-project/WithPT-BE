@@ -4,7 +4,7 @@ import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.TRA
 
 import com.sideproject.withpt.application.auth.controller.dto.OAuthLoginResponse;
 import com.sideproject.withpt.application.auth.infra.OAuthInfoResponse;
-import com.sideproject.withpt.application.auth.infra.OAuthLoginParams;
+import com.sideproject.withpt.application.auth.infra.AuthLoginParams;
 import com.sideproject.withpt.application.auth.service.OAuthLoginClient;
 import com.sideproject.withpt.application.auth.service.RequestOAuthInfoService;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
@@ -33,7 +33,7 @@ public class TrainerOAuthLoginClient implements OAuthLoginClient {
     }
 
     @Override
-    public OAuthLoginResponse login(OAuthLoginParams params) {
+    public OAuthLoginResponse login(AuthLoginParams params) {
         OAuthInfoResponse oAuthInfoResponse = getOAuthInfo(params);
 
         // 회원 존재 여부 확인
@@ -46,7 +46,7 @@ public class TrainerOAuthLoginClient implements OAuthLoginClient {
     }
 
     // 소셜 정보 획득
-    private OAuthInfoResponse getOAuthInfo(OAuthLoginParams params) {
+    private OAuthInfoResponse getOAuthInfo(AuthLoginParams params) {
         return requestOAuthInfoService.request(params);
     }
 

@@ -7,8 +7,8 @@ import com.sideproject.withpt.application.trainer.service.dto.single.AwardDto;
 import com.sideproject.withpt.application.trainer.service.dto.single.CareerDto;
 import com.sideproject.withpt.application.trainer.service.dto.single.CertificateDto;
 import com.sideproject.withpt.application.trainer.service.dto.single.EducationDto;
+import com.sideproject.withpt.common.type.AuthProvider;
 import com.sideproject.withpt.common.type.LoginType;
-import com.sideproject.withpt.common.type.OAuthProvider;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.type.Sex;
 import com.sideproject.withpt.domain.trainer.Trainer;
@@ -30,7 +30,7 @@ public class TrainerSignUpDto {
     private String name;
     private LocalDate birth;
     private Sex sex;
-    private OAuthProvider oauthProvider;
+    private AuthProvider oauthProvider;
     private List<CareerDto> careers;
     private List<AcademicDto> academics;
     private List<CertificateDto> certificates;
@@ -39,7 +39,7 @@ public class TrainerSignUpDto {
     private List<GymScheduleDto> gyms;
 
     @Builder
-    public TrainerSignUpDto(String email, String name, LocalDate birth, Sex sex, OAuthProvider oauthProvider, List<CareerDto> careers,
+    public TrainerSignUpDto(String email, String name, LocalDate birth, Sex sex, AuthProvider oauthProvider, List<CareerDto> careers,
         List<AcademicDto> academics, List<CertificateDto> certificates, List<AwardDto> awards, List<EducationDto> educations,
         List<GymScheduleDto> gyms) {
         this.email = email;
