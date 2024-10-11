@@ -39,6 +39,8 @@ public class Trainer extends BaseEntity {
 
     private String email;
 
+    private String password;
+
     private String name;
 
     private String imageUrl;
@@ -49,10 +51,7 @@ public class Trainer extends BaseEntity {
     private Sex sex;
 
     @Enumerated(EnumType.STRING)
-    private LoginType loginType;
-
-    @Enumerated(EnumType.STRING)
-    private AuthProvider oauthProvider;
+    private AuthProvider authProvider;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -75,23 +74,23 @@ public class Trainer extends BaseEntity {
     private List<Education> educations = new ArrayList<>();
 
     @Builder(builderClassName = "BySignUpBuilder", builderMethodName = "BySignUpBuilder")
-    public Trainer(String email, String name, String imageUrl, LocalDate birth, Sex sex,
-        LoginType loginType, AuthProvider oauthProvider, Role role, LocalDateTime joinDate) {
+    public Trainer(String email, String password, String name, String imageUrl, LocalDate birth, Sex sex,
+        LoginType loginType, AuthProvider authProvider, Role role, LocalDateTime joinDate) {
         Assert.notNull(email, "email must not be null");
         Assert.notNull(imageUrl, "imageUrl must not be null");
         Assert.notNull(birth, "birth must not be null");
         Assert.notNull(sex, "sex must not be null");
         Assert.notNull(loginType, "loginType must not be null");
-        Assert.notNull(oauthProvider, "oauthProvider must not be null");
+        Assert.notNull(authProvider, "oauthProvider must not be null");
         Assert.notNull(role, "role must not be null");
 
         this.email = email;
+        this.password = password;
         this.name = name;
         this.imageUrl = imageUrl;
         this.birth = birth;
         this.sex = sex;
-        this.loginType = loginType;
-        this.oauthProvider = oauthProvider;
+        this.authProvider = authProvider;
         this.role = role;
         this.joinDate = joinDate;
         this.careers = new ArrayList<>();
@@ -102,16 +101,16 @@ public class Trainer extends BaseEntity {
     }
 
     @Builder(builderClassName = "signUpBuilder", builderMethodName = "signUpBuilder")
-    public Trainer(Long id, String email, String name, String imageUrl, LocalDate birth, Sex sex, LoginType loginType, AuthProvider oauthProvider,
+    public Trainer(Long id, String email, String password, String name, String imageUrl, LocalDate birth, Sex sex, AuthProvider authProvider,
         Role role, LocalDateTime joinDate) {
         this.id = id;
         this.email = email;
+        this.password = password;
         this.name = name;
         this.imageUrl = imageUrl;
         this.birth = birth;
         this.sex = sex;
-        this.loginType = loginType;
-        this.oauthProvider = oauthProvider;
+        this.authProvider = authProvider;
         this.role = role;
         this.joinDate = joinDate;
     }

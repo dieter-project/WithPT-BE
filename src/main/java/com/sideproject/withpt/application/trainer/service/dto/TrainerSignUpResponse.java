@@ -29,7 +29,7 @@ public class TrainerSignUpResponse {
             .id(trainer.getId())
             .email(trainer.getEmail())
             .name(trainer.getName())
-            .oAuthProvider(trainer.getOauthProvider())
+            .oAuthProvider(trainer.getAuthProvider())
             .role(trainer.getRole())
             .build();
     }

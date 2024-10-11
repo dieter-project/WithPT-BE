@@ -63,7 +63,7 @@ public class OAuthLoginResponse {
             .id(trainer.getId())
             .email(trainer.getEmail())
             .name(trainer.getName())
-            .authProvider(trainer.getOauthProvider())
+            .authProvider(trainer.getAuthProvider())
             .role(trainer.getRole())
             .grantType(tokenSetDto.getGrantType())
             .accessToken(tokenSetDto.getAccessToken())

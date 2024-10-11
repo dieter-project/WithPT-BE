@@ -52,8 +52,8 @@ public class MemberSignUpRequest {
     @ValidEnum(enumClass = ExerciseFrequency.class)
     private ExerciseFrequency exerciseFrequency;
 
-    @ValidEnum(regexp = "KAKAO|GOOGLE", enumClass = AuthProvider.class)
-    private AuthProvider oauthProvider;
+    @ValidEnum(regexp = "KAKAO|GOOGLE|EMAIL", enumClass = AuthProvider.class)
+    private AuthProvider authProvider;
 
     public Member toMemberEntity() {
         return Member.builder()
@@ -66,7 +66,7 @@ public class MemberSignUpRequest {
             .targetWeight(this.targetWeight)
             .exerciseFrequency(this.exerciseFrequency)
             .role(Role.MEMBER)
-            .authProvider(oauthProvider)
+            .authProvider(authProvider)
             .authentication(toAuthenticationEntity())
             .build();
     }

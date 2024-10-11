@@ -30,11 +30,6 @@ public class MemberAuthenticationController {
         return ApiSuccessResponse.from(memberAuthenticationService.signUpMember(request));
     }
 
-//    @GetMapping("/nickname/check")
-//    public ApiSuccessResponse<NicknameCheckResponse> nicknameCheck(@RequestParam String nickname) {
-//        return ApiSuccessResponse.from(memberAuthenticationService.checkNickname(nickname));
-//    }
-
     @Operation(summary = "회원 탈퇴")
     @DeleteMapping("/withdrawal")
     public void deleteMember(@Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {

@@ -8,7 +8,6 @@ import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.type.Sex;
 import com.sideproject.withpt.domain.member.Authentication;
 import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.member.SocialLogin;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;

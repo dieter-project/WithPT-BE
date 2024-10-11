@@ -27,10 +27,11 @@ import lombok.ToString;
 public class TrainerSignUpDto {
 
     private String email;
+    private String password;
     private String name;
     private LocalDate birth;
     private Sex sex;
-    private AuthProvider oauthProvider;
+    private AuthProvider authProvider;
     private List<CareerDto> careers;
     private List<AcademicDto> academics;
     private List<CertificateDto> certificates;
@@ -39,14 +40,15 @@ public class TrainerSignUpDto {
     private List<GymScheduleDto> gyms;
 
     @Builder
-    public TrainerSignUpDto(String email, String name, LocalDate birth, Sex sex, AuthProvider oauthProvider, List<CareerDto> careers,
+    public TrainerSignUpDto(String email, String password, String name, LocalDate birth, Sex sex, AuthProvider authProvider, List<CareerDto> careers,
         List<AcademicDto> academics, List<CertificateDto> certificates, List<AwardDto> awards, List<EducationDto> educations,
         List<GymScheduleDto> gyms) {
         this.email = email;
+        this.password = password;
         this.name = name;
         this.birth = birth;
         this.sex = sex;
-        this.oauthProvider = oauthProvider;
+        this.authProvider = authProvider;
         this.careers = careers;
         this.academics = academics;
         this.certificates = certificates;
@@ -59,12 +61,12 @@ public class TrainerSignUpDto {
 
         Trainer trainer = Trainer.signUpBuilder()
             .email(this.email)
+            .password(this.password)
             .name(this.name)
             .birth(this.birth)
             .imageUrl(getProfileImageUrlBySex(this.sex))
             .sex(this.sex)
-            .loginType(LoginType.SOCIAL)
-            .oauthProvider(this.oauthProvider)
+            .authProvider(this.authProvider)
             .role(Role.TRAINER)
             .joinDate(LocalDateTime.now())
             .build();
