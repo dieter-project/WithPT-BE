@@ -60,7 +60,8 @@ public class SecurityConfig {
                 "/api/v1/members/nickname/check",
                 "/api/v1/trainers/sign-up",
                 "/api/v1/oauth/google",
-                "/api/v1/oauth/kakao").permitAll() // 회원가입과 로그인은 모두 승인
+                "/api/v1/oauth/kakao",
+                "/api/v1/auth/login").permitAll() // 회원가입과 로그인은 모두 승인
             .antMatchers("/ws-stomp/**", "/topic/**", "/exchange/**", "/pub/**").permitAll()
             .antMatchers("/api/v1/oauth/logout", "/api/v1/oauth/reissue").hasAnyRole("TRAINER", "MEMBER")
             .antMatchers(HttpMethod.GET,

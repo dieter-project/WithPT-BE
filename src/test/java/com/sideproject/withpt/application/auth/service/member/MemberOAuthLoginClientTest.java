@@ -74,7 +74,7 @@ class MemberOAuthLoginClientTest {
             .contains(email, AuthProvider.EMAIL, Role.MEMBER);
     }
 
-    @DisplayName("이메일 - 패스워드 기반 로그인")
+    @DisplayName("패스워드가 유효하기 않으면 로그인 불가능하다.")
     @Test
     void loginWhenInvalidPassword() {
         // given

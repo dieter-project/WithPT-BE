@@ -39,7 +39,7 @@ public class MemberAuthenticationService {
 
     @Transactional
     public OAuthLoginResponse signUpMember(MemberSignUpRequest params) {
-        memberRepository.findByEmail(params.getEmail())
+        memberRepository.findByEmailAndAuthProvider(params.getEmail(), params.getOauthProvider())
             .ifPresent(member -> {
                 throw GlobalException.ALREADY_REGISTERED_USER;
             });

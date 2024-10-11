@@ -46,7 +46,7 @@ public class MemberOAuthLoginClient implements OAuthLoginClient {
 
             // 회원 존재 여부 확인 - 이미 가입된 회원 토큰 발급
             if (memberRepository.existsByEmail(oAuthInfoResponse.getEmail())) { // true : 이미 존재하면
-                return existinglogin(oAuthInfoResponse.getEmail(), params.registerRole());
+                return existinglogin(oAuthInfoResponse.getEmail(), oAuthInfoResponse.getOAuthProvider(), params.registerRole());
             }
 
             // 신규 회원이면 email, provider, role 반환
@@ -74,8 +74,8 @@ public class MemberOAuthLoginClient implements OAuthLoginClient {
     }
 
     // 이미 가입된 회원 : 토큰 발급
-    private OAuthLoginResponse existinglogin(String email, Role role) {
-        Member member = memberRepository.findByEmail(email).get();
+    private OAuthLoginResponse existinglogin(String email, AuthProvider authProvider, Role role) {
+        Member member = memberRepository.findByEmailAndAuthProvider(email, authProvider).get();
         return getAuthLoginResponse(role, member);
     }
 
