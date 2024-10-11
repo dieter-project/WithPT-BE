@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.auth.controller.dto;
+package com.sideproject.withpt.application.auth.service.dto;
 
 import lombok.Builder;
 import lombok.Getter;

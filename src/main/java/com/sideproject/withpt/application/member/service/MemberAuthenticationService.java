@@ -2,7 +2,7 @@ package com.sideproject.withpt.application.member.service;
 
 import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.MEMBER_REFRESH_TOKEN_PREFIX;
 
-import com.sideproject.withpt.application.auth.controller.dto.OAuthLoginResponse;
+import com.sideproject.withpt.application.auth.service.dto.AuthLoginResponse;
 import com.sideproject.withpt.application.member.controller.request.MemberSignUpRequest;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.common.type.Role;
@@ -27,7 +27,7 @@ public class MemberAuthenticationService {
     private final RedisClient redisClient;
 
     @Transactional
-    public OAuthLoginResponse signUpMember(MemberSignUpRequest params) {
+    public AuthLoginResponse signUpMember(MemberSignUpRequest params) {
         memberRepository.findByEmailAndAuthProvider(params.getEmail(), params.getAuthProvider())
             .ifPresent(member -> {
                 throw GlobalException.ALREADY_REGISTERED_USER;
@@ -46,7 +46,7 @@ public class MemberAuthenticationService {
             tokenSetDto.getRefreshExpiredAt()
         );
 
-        return OAuthLoginResponse.of(userId, params.getEmail(), params.getName(), params.getAuthProvider(),
+        return AuthLoginResponse.of(userId, params.getEmail(), params.getName(), params.getAuthProvider(),
             params.toMemberEntity().getRole(), tokenSetDto);
     }
 

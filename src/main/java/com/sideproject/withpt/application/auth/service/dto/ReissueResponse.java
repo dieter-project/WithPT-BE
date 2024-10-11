@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.auth.controller.dto;
+package com.sideproject.withpt.application.auth.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;

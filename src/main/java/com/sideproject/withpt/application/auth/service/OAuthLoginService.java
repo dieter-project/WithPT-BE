@@ -6,9 +6,10 @@ import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.MEM
 import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.REFRESH_TOKEN_VALID_TIME;
 import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.TRAINER_REFRESH_TOKEN_PREFIX;
 
-import com.sideproject.withpt.application.auth.controller.dto.LogoutResponse;
-import com.sideproject.withpt.application.auth.controller.dto.OAuthLoginResponse;
-import com.sideproject.withpt.application.auth.controller.dto.ReissueResponse;
+import com.sideproject.withpt.application.auth.service.dto.LoginResponse;
+import com.sideproject.withpt.application.auth.service.dto.LogoutResponse;
+import com.sideproject.withpt.application.auth.service.dto.AuthLoginResponse;
+import com.sideproject.withpt.application.auth.service.dto.ReissueResponse;
 import com.sideproject.withpt.application.auth.infra.AuthLoginParams;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.exception.GlobalException;
@@ -52,7 +53,7 @@ public class OAuthLoginService {
     }
 
     @Transactional
-    public OAuthLoginResponse login(AuthLoginParams params) {
+    public LoginResponse login(AuthLoginParams params) {
         OAuthLoginClient oAuthLoginClient = loginClients.get(params.registerRole());
         log.info(oAuthLoginClient.toString());
         return oAuthLoginClient.login(params);

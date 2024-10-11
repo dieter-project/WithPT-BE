@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.auth.controller.dto;
+package com.sideproject.withpt.application.auth.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -21,7 +21,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @JsonInclude(Include.NON_NULL) // null 값 제외
-public class OAuthLoginResponse {
+public class AuthLoginResponse {
 
     private Long id;
     private String email;
@@ -29,22 +29,22 @@ public class OAuthLoginResponse {
     private AuthProvider authProvider;
     private Role role;
 
-    private String accessToken;
-    private String refreshToken;
     private String grantType;
+    private String accessToken;
     private Long accessExpiredAt;
+    private String refreshToken;
     private Long refreshExpiredAt;
 
-    public static OAuthLoginResponse of(OAuthInfoResponse oAuthInfoResponse, Role role) {
-        return OAuthLoginResponse.builder()
+    public static AuthLoginResponse of(OAuthInfoResponse oAuthInfoResponse, Role role) {
+        return AuthLoginResponse.builder()
             .email(oAuthInfoResponse.getEmail())
             .authProvider(oAuthInfoResponse.getOAuthProvider())
             .role(role)
             .build();
     }
 
-    public static OAuthLoginResponse of(Long id, String email, String name, AuthProvider oAuthProvider, Role role, TokenSetDto tokenSetDto) {
-        return OAuthLoginResponse.builder()
+    public static AuthLoginResponse of(Long id, String email, String name, AuthProvider oAuthProvider, Role role, TokenSetDto tokenSetDto) {
+        return AuthLoginResponse.builder()
             .id(id)
             .email(email)
             .name(name)
@@ -58,8 +58,8 @@ public class OAuthLoginResponse {
             .build();
     }
 
-    public static OAuthLoginResponse of(Trainer trainer, TokenSetDto tokenSetDto) {
-        return OAuthLoginResponse.builder()
+    public static AuthLoginResponse of(Trainer trainer, TokenSetDto tokenSetDto) {
+        return AuthLoginResponse.builder()
             .id(trainer.getId())
             .email(trainer.getEmail())
             .name(trainer.getName())
@@ -73,8 +73,8 @@ public class OAuthLoginResponse {
             .build();
     }
 
-    public static OAuthLoginResponse of(TrainerSignUpResponse signUpResponse, TokenSetDto tokenSetDto) {
-        return OAuthLoginResponse.builder()
+    public static AuthLoginResponse of(TrainerSignUpResponse signUpResponse, TokenSetDto tokenSetDto) {
+        return AuthLoginResponse.builder()
             .id(signUpResponse.getId())
             .email(signUpResponse.getEmail())
             .name(signUpResponse.getName())
