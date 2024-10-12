@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -64,6 +65,7 @@ public class ExerciseService {
             .orElseThrow(() -> ExerciseException.EXERCISE_INFO_NOT_EXIST);
     }
 
+    @Transactional
     public void saveExerciseAndBookmark(Long memberId, List<ExerciseRequest> request, List<MultipartFile> files, LocalDate uploadDate) {
         this.saveExercise(memberId, request, files, uploadDate);
         request.forEach(
@@ -75,7 +77,7 @@ public class ExerciseService {
         );
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveExercise(Long memberId, List<ExerciseRequest> request, List<MultipartFile> files, LocalDate uploadDate) {
 
         Member member = memberRepository.findById(memberId)
@@ -86,11 +88,12 @@ public class ExerciseService {
                     request.forEach(e -> exercise.addExerciseInfo(e.toExerciseInfo()));
                 },
                 () -> {
+                    List<ExerciseInfo> infos = request.stream()
+                        .map(ExerciseRequest::toExerciseInfo)
+                        .collect(Collectors.toList());
                     Exercise exercise = Exercise.builder()
                         .member(member)
-                        .exerciseInfos(request.stream()
-                            .map(ExerciseRequest::toExerciseInfo)
-                            .collect(Collectors.toList()))
+                        .exerciseInfos(infos)
                         .uploadDate(uploadDate)
                         .build();
                     exerciseRepository.save(exercise);
@@ -137,11 +140,6 @@ public class ExerciseService {
 
         exerciseInfoRepository.deleteExerciseInfoById(exerciseInfoId);
 
-    }
-
-    @Transactional
-    public void deleteExerciseImage(String url) {
-        imageUploader.deleteImage(url);
     }
 
     /**

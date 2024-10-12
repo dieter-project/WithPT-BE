@@ -27,6 +27,7 @@ import com.sideproject.withpt.domain.record.exercise.ExerciseInfo;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import javax.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -169,6 +170,7 @@ class ExerciseServiceTest {
     @Nested
     @DisplayName("upload 날짜 운동 데이터가 존재하지 않을 때 운동 요청 데이터들이 저장된다.")
     class SaveExercise {
+
         @DisplayName("upload 날짜 운동 데이터가 존재하지 않을 때 운동 요청 데이터들이 저장된다.")
         @Test
         void saveExerciseWhenExerciseDatsIsNotSavedInDB() {
@@ -208,10 +210,11 @@ class ExerciseServiceTest {
             // then
             Optional<Exercise> optionalExercise = exerciseRepository.findFirstByMemberAndUploadDate(member, uploadDate);
             assertThat(optionalExercise).isPresent();
-
             Exercise savedExercise = optionalExercise.get();
             assertThat(savedExercise.getUploadDate()).isEqualTo(uploadDate);
-            assertThat(savedExercise.getExerciseInfos()).hasSize(3)
+
+            List<ExerciseInfo> exerciseInfos = exerciseInfoRepository.findAll();
+            assertThat(exerciseInfos).hasSize(3)
                 .extracting("title", "exerciseType")
                 .containsExactlyInAnyOrder(
                     tuple("유산소", AEROBIC),
@@ -219,10 +222,10 @@ class ExerciseServiceTest {
                     tuple("스트레칭", STRETCHING)
                 );
 
-            ExerciseInfo savedAerobic = savedExercise.getExerciseInfos().get(0);
+            ExerciseInfo savedAerobic = exerciseInfos.get(0);
             assertThat(savedAerobic.getBodyCategory()).isNull();
 
-            ExerciseInfo savedAnaerobic = savedExercise.getExerciseInfos().get(1);
+            ExerciseInfo savedAnaerobic = exerciseInfos.get(1);
             assertThat(savedAnaerobic.getBodyCategory().getName()).isEqualTo(BodyPart.UPPER_BODY);
             assertThat(savedAnaerobic.getBodyCategory().getChildren()).hasSize(3)
                 .extracting("name", "depth")
@@ -232,7 +235,7 @@ class ExerciseServiceTest {
                     tuple(BodyPart.ARMS, 2)
                 );
 
-            ExerciseInfo savedStretching = savedExercise.getExerciseInfos().get(2);
+            ExerciseInfo savedStretching = exerciseInfos.get(2);
             assertThat(savedStretching.getBodyCategory().getName()).isEqualTo(BodyPart.FULL_BODY);
         }
 
@@ -298,7 +301,10 @@ class ExerciseServiceTest {
 
             Exercise savedExercise = optionalExercise.get();
             assertThat(savedExercise.getUploadDate()).isEqualTo(uploadDate);
-            assertThat(savedExercise.getExerciseInfos()).hasSize(6)
+
+            List<ExerciseInfo> savedExerciseInfos = exerciseInfoRepository.findAll();
+
+            assertThat(savedExerciseInfos).hasSize(6)
                 .extracting("title", "exerciseType")
                 .containsExactlyInAnyOrder(
                     tuple("유산소", AEROBIC),
