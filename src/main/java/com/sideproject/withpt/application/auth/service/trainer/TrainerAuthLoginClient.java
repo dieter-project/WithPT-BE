@@ -4,7 +4,7 @@ import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.TRA
 
 import com.sideproject.withpt.application.auth.infra.AuthLoginParams;
 import com.sideproject.withpt.application.auth.infra.OAuthInfoResponse;
-import com.sideproject.withpt.application.auth.service.OAuthLoginClient;
+import com.sideproject.withpt.application.auth.service.AuthLoginClient;
 import com.sideproject.withpt.application.auth.service.RequestOAuthInfoService;
 import com.sideproject.withpt.application.auth.service.dto.AuthLoginResponse;
 import com.sideproject.withpt.application.auth.service.dto.LoginResponse;
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class TrainerOAuthLoginClient implements OAuthLoginClient {
+public class TrainerAuthLoginClient implements AuthLoginClient {
 
     private final AuthTokenGenerator authTokenGenerator;
     private final RequestOAuthInfoService requestOAuthInfoService;

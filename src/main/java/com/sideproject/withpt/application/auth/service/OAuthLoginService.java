@@ -8,7 +8,6 @@ import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.TRA
 
 import com.sideproject.withpt.application.auth.service.dto.LoginResponse;
 import com.sideproject.withpt.application.auth.service.dto.LogoutResponse;
-import com.sideproject.withpt.application.auth.service.dto.AuthLoginResponse;
 import com.sideproject.withpt.application.auth.service.dto.ReissueResponse;
 import com.sideproject.withpt.application.auth.infra.AuthLoginParams;
 import com.sideproject.withpt.common.type.Role;
@@ -32,19 +31,19 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class OAuthLoginService {
 
-    private final Map<Role, OAuthLoginClient> loginClients;
+    private final Map<Role, AuthLoginClient> loginClients;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthTokenGenerator authTokenGenerator;
     private final RedisClient redisClient;
 
     private static final String LOGOUT_MESSAGE = "로그아웃되셨습니다.";
 
-    public OAuthLoginService(List<OAuthLoginClient> clients,
+    public OAuthLoginService(List<AuthLoginClient> clients,
         JwtTokenProvider jwtTokenProvider,
         AuthTokenGenerator authTokenGenerator,
         RedisClient redisClient) {
         this.loginClients = clients.stream().collect(
-            Collectors.toUnmodifiableMap(OAuthLoginClient::role, Function.identity())
+            Collectors.toUnmodifiableMap(AuthLoginClient::role, Function.identity())
         );
 
         this.jwtTokenProvider = jwtTokenProvider;
@@ -54,9 +53,9 @@ public class OAuthLoginService {
 
     @Transactional
     public LoginResponse login(AuthLoginParams params) {
-        OAuthLoginClient oAuthLoginClient = loginClients.get(params.registerRole());
-        log.info(oAuthLoginClient.toString());
-        return oAuthLoginClient.login(params);
+        AuthLoginClient authLoginClient = loginClients.get(params.registerRole());
+        log.info(authLoginClient.toString());
+        return authLoginClient.login(params);
     }
 
     @Transactional
