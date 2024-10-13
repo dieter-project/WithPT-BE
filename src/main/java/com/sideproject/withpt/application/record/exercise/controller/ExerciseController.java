@@ -84,11 +84,4 @@ public class ExerciseController {
     public void deleteExercise(@PathVariable Long exerciseId, @PathVariable Long exerciseInfoId) {
         exerciseService.deleteExerciseInfo(exerciseId, exerciseInfoId);
     }
-
-    @Operation(summary = "운동 이미지 삭제")
-    @DeleteMapping("/image")
-    public void deleteExerciseImage(@RequestParam String url) {
-        exerciseService.deleteExerciseImage(url);
-    }
-
 }

@@ -65,7 +65,6 @@ public class ExerciseService {
             .orElseThrow(() -> ExerciseException.EXERCISE_INFO_NOT_EXIST);
     }
 
-    @Transactional
     public void saveExerciseAndBookmark(Long memberId, List<ExerciseRequest> request, List<MultipartFile> files, LocalDate uploadDate) {
         this.saveExercise(memberId, request, files, uploadDate);
         request.forEach(
@@ -77,7 +76,7 @@ public class ExerciseService {
         );
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void saveExercise(Long memberId, List<ExerciseRequest> request, List<MultipartFile> files, LocalDate uploadDate) {
 
         Member member = memberRepository.findById(memberId)

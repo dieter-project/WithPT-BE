@@ -56,17 +56,10 @@ public class BodyImageController {
     @Operation(summary = "눈바디 이미지 업로드")
     @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void saveBodyImage(
-        @RequestPart(value = "test", required = false) List<MultipartFile> test,
+        @RequestPart(value = "files", required = false) List<MultipartFile> files,
         @RequestPart(value = "request") BodyImageRequest request,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        log.info("요청 json {}", request);
-        log.info("요청 files {}", test.getClass());
-        log.info("요청 files {}", test);
-
-        for (MultipartFile file : test) {
-            log.info("파일 명 {}", file.getOriginalFilename());
-        }
-        bodyImageService.saveBodyImage(test, request.getUploadDate(), memberId);
+        bodyImageService.saveBodyImage(files, request.getUploadDate(), memberId);
     }
 
     @Operation(summary = "눈바디 이미지 삭제")
