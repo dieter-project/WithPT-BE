@@ -9,6 +9,7 @@ import static org.assertj.core.api.BDDAssertions.tuple;
 
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.record.bookmark.repository.BookmarkRepository;
+import com.sideproject.withpt.application.record.delegator.RecordDelegator;
 import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseEditRequest;
 import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseRequest;
 import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseInfoResponse;
@@ -27,7 +28,6 @@ import com.sideproject.withpt.domain.record.exercise.ExerciseInfo;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import javax.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -57,6 +57,9 @@ class ExerciseServiceTest {
 
     @Autowired
     private ExerciseService exerciseService;
+
+    @Autowired
+    private RecordDelegator recordDelegator;
 
     @DisplayName("요청하는 날짜의 운동 기록 조회")
     @Test
@@ -353,15 +356,16 @@ class ExerciseServiceTest {
             Member member = saveMember();
 
             // when
-            exerciseService.saveExerciseAndBookmark(member.getId(), request, null, uploadDate);
+            recordDelegator.saveExerciseAndBookmark(member.getId(), request, null, uploadDate);
 
             // then
             Optional<Exercise> optionalExercise = exerciseRepository.findFirstByMemberAndUploadDate(member, uploadDate);
             assertThat(optionalExercise).isPresent();
-
             Exercise savedExercise = optionalExercise.get();
             assertThat(savedExercise.getUploadDate()).isEqualTo(uploadDate);
-            assertThat(savedExercise.getExerciseInfos()).hasSize(3)
+
+            List<ExerciseInfo> exerciseInfos = exerciseInfoRepository.findAll();
+            assertThat(exerciseInfos).hasSize(3)
                 .extracting("title", "exerciseType")
                 .containsExactlyInAnyOrder(
                     tuple("유산소", AEROBIC),
@@ -369,10 +373,10 @@ class ExerciseServiceTest {
                     tuple("스트레칭", STRETCHING)
                 );
 
-            ExerciseInfo savedAerobic = savedExercise.getExerciseInfos().get(0);
+            ExerciseInfo savedAerobic = exerciseInfos.get(0);
             assertThat(savedAerobic.getBodyCategory()).isNull();
 
-            ExerciseInfo savedAnaerobic = savedExercise.getExerciseInfos().get(1);
+            ExerciseInfo savedAnaerobic = exerciseInfos.get(1);
             assertThat(savedAnaerobic.getBodyCategory().getName()).isEqualTo(BodyPart.UPPER_BODY);
             assertThat(savedAnaerobic.getBodyCategory().getChildren()).hasSize(3)
                 .extracting("name", "depth")
@@ -382,7 +386,7 @@ class ExerciseServiceTest {
                     tuple(BodyPart.ARMS, 2)
                 );
 
-            ExerciseInfo savedStretching = savedExercise.getExerciseInfos().get(2);
+            ExerciseInfo savedStretching = exerciseInfos.get(2);
             assertThat(savedStretching.getBodyCategory().getName()).isEqualTo(BodyPart.FULL_BODY);
 
             List<Bookmark> bookmarks = bookmarkRepository.findAll();

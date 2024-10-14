@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -65,16 +64,6 @@ public class ExerciseService {
             .orElseThrow(() -> ExerciseException.EXERCISE_INFO_NOT_EXIST);
     }
 
-    public void saveExerciseAndBookmark(Long memberId, List<ExerciseRequest> request, List<MultipartFile> files, LocalDate uploadDate) {
-        this.saveExercise(memberId, request, files, uploadDate);
-        request.forEach(
-            exerciseRequest -> {
-                if (exerciseRequest.getBookmarkYn()) {
-                    bookmarkService.saveBookmark(memberId, exerciseRequest.toBookmarkSaveDto());
-                }
-            }
-        );
-    }
 
     @Transactional
     public void saveExercise(Long memberId, List<ExerciseRequest> request, List<MultipartFile> files, LocalDate uploadDate) {
@@ -87,15 +76,17 @@ public class ExerciseService {
                     request.forEach(e -> exercise.addExerciseInfo(e.toExerciseInfo()));
                 },
                 () -> {
-                    List<ExerciseInfo> infos = request.stream()
+                    List<ExerciseInfo> exerciseInfos = request.stream()
                         .map(ExerciseRequest::toExerciseInfo)
                         .collect(Collectors.toList());
-                    Exercise exercise = Exercise.builder()
-                        .member(member)
-                        .exerciseInfos(infos)
-                        .uploadDate(uploadDate)
-                        .build();
-                    exerciseRepository.save(exercise);
+                    exerciseRepository.save(
+                        Exercise.builder()
+                            .member(member)
+                            .exerciseInfos(exerciseInfos)
+                            .uploadDate(uploadDate)
+                            .build()
+                    );
+                    exerciseInfoRepository.saveAll(exerciseInfos);
                 });
 
         if (files != null && files.size() > 0) {
