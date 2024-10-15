@@ -49,7 +49,6 @@ public class ImageUploader {
         for (MultipartFile file : files) {
             Map<String, String> imageUrl = awsS3Uploader.upload(usage.toString(), member.getId() + "/" + uploadDate, file);
             String fullPath = awsUrl + "/" + imageUrl.get("uploadUrlPath");
-            log.info("fileName {}", fullPath);
 
             Image image = Image.builder()
                 .member(member)
@@ -74,14 +73,6 @@ public class ImageUploader {
 
     public void deleteImageByIdentificationAndMember(String usageIdentificationId, Member member) {
         imageRepository.deleteAllByUsageIdentificationIdAndMember(usageIdentificationId, member);
-    }
-
-    public void deleteImage(String url) {
-        Image image = imageRepository.findByUrl(url)
-            .orElseThrow(() -> GlobalException.EMPTY_DELETE_FILE);
-
-        awsS3Uploader.delete(image.getUsages().toString(), image.getUrl());
-        imageRepository.deleteByUrl(url);
     }
 
 }

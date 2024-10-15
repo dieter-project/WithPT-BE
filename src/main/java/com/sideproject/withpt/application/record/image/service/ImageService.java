@@ -1,12 +1,12 @@
-package com.sideproject.withpt.application.record.body.service;
+package com.sideproject.withpt.application.record.image.service;
 
 import com.sideproject.withpt.application.image.ImageUploader;
 import com.sideproject.withpt.application.image.repository.ImageRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
-import com.sideproject.withpt.application.record.body.controller.request.DeleteBodyImageRequest;
-import com.sideproject.withpt.application.record.body.controller.response.BodyImageInfoResponse;
-import com.sideproject.withpt.common.type.Usages;
+import com.sideproject.withpt.application.record.image.controller.request.DeleteImageRequest;
+import com.sideproject.withpt.application.record.image.service.response.ImageInfoResponse;
 import com.sideproject.withpt.common.exception.GlobalException;
+import com.sideproject.withpt.common.type.Usages;
 import com.sideproject.withpt.domain.member.Member;
 import java.time.LocalDate;
 import java.util.List;
@@ -20,38 +20,35 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class BodyImageService {
+public class ImageService {
 
     private final ImageRepository imageRepository;
     private final MemberRepository memberRepository;
     private final ImageUploader imageUploader;
 
-    public Slice<BodyImageInfoResponse> findAllBodyImage(Long memberId, LocalDate uploadDate, Pageable pageable) {
-        try {
-            Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-            return imageRepository.findAllByMemberAndUsagesAndUploadDate(pageable, member, Usages.BODY, uploadDate);
-        } catch (Exception e) {
-            throw GlobalException.EMPTY_FILE;
-        }
+    public Slice<ImageInfoResponse> findAllImage(Long memberId, LocalDate uploadDate, Usages usages, Pageable pageable) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+        return imageRepository.findAllByMemberAndUsagesAndUploadDate(member, usages, uploadDate, pageable);
     }
 
     @Transactional
-    public void saveBodyImage(List<MultipartFile> files, LocalDate uploadDate, Long memberId) {
+    public void saveImage(List<MultipartFile> files, LocalDate uploadDate, Long memberId, Usages usages) {
 
         if (files == null || files.size() == 0) {
             throw GlobalException.EMPTY_FILE;
         }
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-        imageUploader.uploadAndSaveImages(files, Usages.BODY, uploadDate, member);
+        imageUploader.uploadAndSaveImages(files, usages, uploadDate, member);
     }
 
     @Transactional
-    public void deleteBodyImage(Long memberId, DeleteBodyImageRequest request) {
+    public void deleteImage(Long memberId, DeleteImageRequest request) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
         for (long id : request.getImageIds()) {
             imageUploader.deleteImage(id);
         }
-//        imageUploader.deleteImage(url);
     }
 }

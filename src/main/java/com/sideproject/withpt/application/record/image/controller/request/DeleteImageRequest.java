@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.record.body.controller.request;
+package com.sideproject.withpt.application.record.image.controller.request;
 
 import java.util.List;
 import lombok.AccessLevel;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class DeleteBodyImageRequest {
+public class DeleteImageRequest {
 
     private List<Long> imageIds;
 }

@@ -1,10 +1,11 @@
-package com.sideproject.withpt.application.record.body.controller;
+package com.sideproject.withpt.application.record.image.controller;
 
-import com.sideproject.withpt.application.record.body.controller.request.BodyImageRequest;
-import com.sideproject.withpt.application.record.body.controller.request.DeleteBodyImageRequest;
-import com.sideproject.withpt.application.record.body.controller.response.BodyImageInfoResponse;
-import com.sideproject.withpt.application.record.body.service.BodyImageService;
+import com.sideproject.withpt.application.record.image.controller.request.DeleteImageRequest;
+import com.sideproject.withpt.application.record.image.controller.request.ImageRequest;
+import com.sideproject.withpt.application.record.image.service.ImageService;
+import com.sideproject.withpt.application.record.image.service.response.ImageInfoResponse;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
+import com.sideproject.withpt.common.type.Usages;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import java.time.LocalDate;
@@ -32,24 +33,24 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/v1/members/record/body-info")
 public class BodyImageController {
 
-    private final BodyImageService bodyImageService;
+    private final ImageService imageService;
 
     @Operation(summary = "회원의 전체 눈바디 히스토리 조회")
     @GetMapping("/images")
-    public ApiSuccessResponse<Slice<BodyImageInfoResponse>> findAllBodyImage(
+    public ApiSuccessResponse<Slice<ImageInfoResponse>> findAllBodyImage(
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId, Pageable pageable) {
         return ApiSuccessResponse.from(
-            bodyImageService.findAllBodyImage(memberId, null, pageable)
+            imageService.findAllImage(memberId, null, Usages.BODY, pageable)
         );
     }
 
     @Operation(summary = "해당하는 날짜의 눈바디 이미지 조회")
     @GetMapping("/image")
-    public ApiSuccessResponse<Slice<BodyImageInfoResponse>> findTodayBodyImage(
+    public ApiSuccessResponse<Slice<ImageInfoResponse>> findTodayBodyImage(
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam LocalDate uploadDate, Pageable pageable,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
         return ApiSuccessResponse.from(
-            bodyImageService.findAllBodyImage(memberId, uploadDate, pageable)
+            imageService.findAllImage(memberId, uploadDate, Usages.BODY, pageable)
         );
     }
 
@@ -57,17 +58,17 @@ public class BodyImageController {
     @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void saveBodyImage(
         @RequestPart(value = "files", required = false) List<MultipartFile> files,
-        @RequestPart(value = "request") BodyImageRequest request,
+        @RequestPart(value = "request") ImageRequest request,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        bodyImageService.saveBodyImage(files, request.getUploadDate(), memberId);
+        imageService.saveImage(files, request.getUploadDate(), memberId, Usages.BODY);
     }
 
     @Operation(summary = "눈바디 이미지 삭제")
     @DeleteMapping("/image")
-    public void deleteBodyImage(@RequestBody DeleteBodyImageRequest request,
+    public void deleteBodyImage(@RequestBody DeleteImageRequest request,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
         log.info("images {}", request.getImageIds());
-        bodyImageService.deleteBodyImage(memberId, request);
+        imageService.deleteImage(memberId, request);
     }
 
 }

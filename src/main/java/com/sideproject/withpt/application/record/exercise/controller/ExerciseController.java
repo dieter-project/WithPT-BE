@@ -1,7 +1,6 @@
 package com.sideproject.withpt.application.record.exercise.controller;
 
-import com.sideproject.withpt.application.record.bookmark.service.BookmarkService;
-import com.sideproject.withpt.application.record.bookmark.service.response.BookmarkCheckResponse;
+import com.sideproject.withpt.application.record.RecordDelegator;
 import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseEditRequest;
 import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseRequest;
 import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseInfoResponse;
@@ -38,7 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ExerciseController {
 
     private final ExerciseService exerciseService;
-    private final BookmarkService bookmarkService;
+    private final RecordDelegator recordDelegator;
 
     @Operation(summary = "해당하는 날짜의 운동 기록 정보 조회")
     @GetMapping
@@ -69,7 +68,7 @@ public class ExerciseController {
             throw GlobalException.AT_LEAST_ONE_DATA_MUST_BE_INCLUDED;
         }
         LocalDate uploadDate = request.get(0).getUploadDate();
-        exerciseService.saveExerciseAndBookmark(memberId, request, files, uploadDate);
+        recordDelegator.saveExerciseAndBookmark(memberId, request, files, uploadDate);
     }
 
     @Operation(summary = "운동 정보 수정")

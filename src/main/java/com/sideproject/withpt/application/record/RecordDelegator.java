@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.record.delegator;
+package com.sideproject.withpt.application.record;
 
 import com.sideproject.withpt.application.record.bookmark.service.BookmarkService;
 import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseRequest;
