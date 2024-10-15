@@ -43,19 +43,9 @@ public class Exercise extends BaseEntity {
     private LocalDate uploadDate;
 
     @Builder
-    public Exercise(Member member, List<ExerciseInfo> exerciseInfos, LocalDate uploadDate) {
+    public Exercise(Member member, LocalDate uploadDate) {
         this.member = member;
         this.uploadDate = uploadDate;
-        addExerciseInfos(exerciseInfos);
-    }
-
-    public void addExerciseInfos(List<ExerciseInfo> exerciseInfos) {
-        exerciseInfos.forEach(this::addExerciseInfo);
-    }
-
-    public void addExerciseInfo(ExerciseInfo exerciseInfo) {
-        exerciseInfos.add(exerciseInfo);
-        exerciseInfo.setExercise(this);
     }
 
 }

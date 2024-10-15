@@ -3,9 +3,9 @@ package com.sideproject.withpt.application.record.exercise.controller.request;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sideproject.withpt.application.record.bookmark.service.request.BookmarkSaveDto;
 import com.sideproject.withpt.application.record.exercise.exception.validator.ValidExerciseType;
+import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.common.type.BodyPart;
 import com.sideproject.withpt.common.type.ExerciseType;
-import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.domain.record.exercise.BodyCategory;
 import com.sideproject.withpt.domain.record.exercise.Exercise;
 import com.sideproject.withpt.domain.record.exercise.ExerciseInfo;
@@ -55,18 +55,6 @@ public class ExerciseRequest {
 
     @NotBlank(message = "북마크 여부를 입력해주세요.")
     private Boolean bookmarkYn;
-
-    public ExerciseInfo toExerciseInfo() {
-        return ExerciseInfo.builder()
-            .title(title)
-            .exerciseType(exerciseType)
-            .bodyCategory(toParentBodyCategory())
-            .weight(weight)
-            .exerciseSet(exerciseSet)
-            .times(times)
-            .exerciseTime(exerciseTime)
-            .build();
-    }
 
     public ExerciseInfo toExerciseInfo(Exercise exercise) {
         return ExerciseInfo.builder()

@@ -60,6 +60,10 @@ class ExerciseServiceTest {
         @Test
         void findExerciseAndExerciseInfos() {
             // given
+            Member member = saveMember();
+            LocalDate uploadDate = LocalDate.of(2024, 9, 3);
+            Exercise exercise = exerciseRepository.save(createExercise(member, uploadDate));
+
             BodyCategory FULL_BODY = createParentBodyCategory(BodyPart.FULL_BODY, null);
 
             List<BodyCategory> childBodyCategory1 = List.of(
@@ -76,17 +80,13 @@ class ExerciseServiceTest {
             );
             BodyCategory LOWER_BODY = createParentBodyCategory(BodyPart.LOWER_BODY, childBodyCategory2);
 
-            Member member = saveMember();
-            LocalDate uploadDate = LocalDate.of(2024, 9, 3);
+            ExerciseInfo aerobic = createExerciseInfo("유산소", AEROBIC, null, 0, 0, 0, 100, exercise);
+            ExerciseInfo anaerobic1 = createExerciseInfo("무산소_전신", ANAEROBIC, FULL_BODY, 100, 10, 5, 0, exercise);
+            ExerciseInfo anaerobic2 = createExerciseInfo("무산소_상체", ANAEROBIC, UPPER_BODY, 100, 10, 5, 0, exercise);
+            ExerciseInfo anaerobic3 = createExerciseInfo("무산소_하체", ANAEROBIC, LOWER_BODY, 100, 10, 5, 0, exercise);
+            ExerciseInfo stretching = createExerciseInfo("스트레칭", STRETCHING, FULL_BODY, 0, 0, 0, 60, exercise);
 
-            ExerciseInfo aerobic = createExerciseInfo("유산소", AEROBIC, null, 0, 0, 0, 100);
-            ExerciseInfo anaerobic1 = createExerciseInfo("무산소_전신", ANAEROBIC, FULL_BODY, 100, 10, 5, 0);
-            ExerciseInfo anaerobic2 = createExerciseInfo("무산소_상체", ANAEROBIC, UPPER_BODY, 100, 10, 5, 0);
-            ExerciseInfo anaerobic3 = createExerciseInfo("무산소_하체", ANAEROBIC, LOWER_BODY, 100, 10, 5, 0);
-            ExerciseInfo stretching = createExerciseInfo("스트레칭", STRETCHING, FULL_BODY, 0, 0, 0, 60);
-            Exercise exercise = createExercise(member, uploadDate, List.of(aerobic, anaerobic1, anaerobic2, anaerobic3, stretching));
-
-            exerciseRepository.save(exercise);
+            exerciseInfoRepository.saveAll(List.of(aerobic, anaerobic1, anaerobic2, anaerobic3, stretching));
 
             // when
             ExerciseResponse exerciseResponse = exerciseService.findExerciseAndExerciseInfos(member.getId(), uploadDate);
@@ -123,6 +123,10 @@ class ExerciseServiceTest {
     @Test
     void findOneExerciseInfo() {
         //given
+        Member member = saveMember();
+        LocalDate uploadDate = LocalDate.of(2024, 9, 3);
+        Exercise exercise = exerciseRepository.save(createExercise(member, uploadDate));
+
         BodyCategory FULL_BODY = createParentBodyCategory(BodyPart.FULL_BODY, null);
 
         List<BodyCategory> childBodyCategory1 = List.of(
@@ -139,24 +143,17 @@ class ExerciseServiceTest {
         );
         BodyCategory LOWER_BODY = createParentBodyCategory(BodyPart.LOWER_BODY, childBodyCategory2);
 
-        Member member = saveMember();
-        LocalDate uploadDate = LocalDate.of(2024, 9, 3);
+        ExerciseInfo aerobic = createExerciseInfo("유산소", AEROBIC, null, 0, 0, 0, 100, exercise);
+        ExerciseInfo anaerobic1 = createExerciseInfo("무산소_전신", ANAEROBIC, FULL_BODY, 100, 10, 5, 0, exercise);
+        ExerciseInfo anaerobic2 = createExerciseInfo("무산소_상체", ANAEROBIC, UPPER_BODY, 100, 10, 5, 0, exercise);
+        ExerciseInfo anaerobic3 = createExerciseInfo("무산소_하체", ANAEROBIC, LOWER_BODY, 100, 10, 5, 0, exercise);
+        ExerciseInfo stretching = createExerciseInfo("스트레칭", STRETCHING, FULL_BODY, 0, 0, 0, 60, exercise);
+        exerciseInfoRepository.saveAll(List.of(aerobic, anaerobic1, anaerobic2, anaerobic3, stretching));
 
-        ExerciseInfo aerobic = createExerciseInfo("유산소", AEROBIC, null, 0, 0, 0, 100);
-        ExerciseInfo anaerobic1 = createExerciseInfo("무산소_전신", ANAEROBIC, FULL_BODY, 100, 10, 5, 0);
-        ExerciseInfo anaerobic2 = createExerciseInfo("무산소_상체", ANAEROBIC, UPPER_BODY, 100, 10, 5, 0);
-        ExerciseInfo anaerobic3 = createExerciseInfo("무산소_하체", ANAEROBIC, LOWER_BODY, 100, 10, 5, 0);
-        ExerciseInfo stretching = createExerciseInfo("스트레칭", STRETCHING, FULL_BODY, 0, 0, 0, 60);
-        List<ExerciseInfo> exerciseInfos = List.of(aerobic, anaerobic1, anaerobic2, anaerobic3, stretching);
-        exerciseInfoRepository.saveAll(exerciseInfos);
-
-        Exercise exercise = createExercise(member, uploadDate, exerciseInfos);
-        Exercise savedExercise = exerciseRepository.save(exercise);
-
-        Long savedAerobicId = savedExercise.getExerciseInfos().get(0).getId();
+        Long savedAerobicId = exercise.getExerciseInfos().get(0).getId();
 
         //when
-        ExerciseInfoResponse response = exerciseService.findOneExerciseInfo(savedExercise.getId(), savedAerobicId);
+        ExerciseInfoResponse response = exerciseService.findOneExerciseInfo(exercise.getId(), savedAerobicId);
 
         //then
         assertThat(response).isNotNull();
@@ -242,6 +239,10 @@ class ExerciseServiceTest {
         @Test
         void saveExerciseWhenExerciseDatsExistInDB() {
             // given
+            Member member = saveMember();
+            LocalDate uploadDate = LocalDate.of(2024, 9, 3);
+            Exercise exercise = exerciseRepository.save(createExercise(member, uploadDate));
+
             List<BodyCategory> childBodyCategory1 = List.of(
                 createChildBodyCategory(BodyPart.CHEST),
                 createChildBodyCategory(BodyPart.SHOULDERS),
@@ -250,17 +251,11 @@ class ExerciseServiceTest {
             BodyCategory UPPER_BODY = createParentBodyCategory(BodyPart.UPPER_BODY, childBodyCategory1);
             BodyCategory LOWER_BODY = createParentBodyCategory(BodyPart.LOWER_BODY, null);
 
-            Member member = saveMember();
-            LocalDate uploadDate = LocalDate.of(2024, 9, 3);
-
-            ExerciseInfo aerobic = createExerciseInfo("유산소", AEROBIC, null, 0, 0, 0, 100);
-            ExerciseInfo anaerobic = createExerciseInfo("무산소", ANAEROBIC, UPPER_BODY, 100, 10, 5, 0);
-            ExerciseInfo stretching = createExerciseInfo("스트레칭", STRETCHING, LOWER_BODY, 0, 0, 0, 60);
+            ExerciseInfo aerobic = createExerciseInfo("유산소", AEROBIC, null, 0, 0, 0, 100, exercise);
+            ExerciseInfo anaerobic = createExerciseInfo("무산소", ANAEROBIC, UPPER_BODY, 100, 10, 5, 0, exercise);
+            ExerciseInfo stretching = createExerciseInfo("스트레칭", STRETCHING, LOWER_BODY, 0, 0, 0, 60, exercise);
             List<ExerciseInfo> exerciseInfos = List.of(aerobic, anaerobic, stretching);
             exerciseInfoRepository.saveAll(exerciseInfos);
-
-            Exercise exercise = createExercise(member, uploadDate, exerciseInfos);
-            exerciseRepository.save(exercise);
 
             log.info("==== 운동 데이터 저장 ====");
 
@@ -331,14 +326,13 @@ class ExerciseServiceTest {
             Member member = saveMember();
             LocalDate uploadDate = LocalDate.of(2024, 9, 3);
 
-            ExerciseInfo aerobic = createExerciseInfo("유산소", AEROBIC, null, 0, 0, 0, 100);
-            List<ExerciseInfo> exerciseInfos = List.of(aerobic);
-            exerciseInfoRepository.saveAll(exerciseInfos);
+            Exercise exercise = exerciseRepository.save(createExercise(member, uploadDate));
 
-            Exercise savedExercise = exerciseRepository.save(createExercise(member, uploadDate, exerciseInfos));
+            ExerciseInfo aerobic = createExerciseInfo("유산소", AEROBIC, null, 0, 0, 0, 100, exercise);
+            exerciseInfoRepository.saveAll(List.of(aerobic));
 
-            final Long exerciseId = savedExercise.getId();
-            final Long exerciseInfoId = savedExercise.getExerciseInfos().get(0).getId();
+            final Long exerciseId = exercise.getId();
+            final Long exerciseInfoId = exercise.getExerciseInfos().get(0).getId();
             final ExerciseEditRequest request = ExerciseEditRequest.builder()
                 .title("무산소")
                 .exerciseType(ANAEROBIC)
@@ -379,11 +373,11 @@ class ExerciseServiceTest {
             Member member = saveMember();
             LocalDate uploadDate = LocalDate.of(2024, 9, 3);
 
-            ExerciseInfo aerobic = createExerciseInfo("유산소", AEROBIC, null, 0, 0, 0, 100);
-            List<ExerciseInfo> exerciseInfos = List.of(aerobic);
-            exerciseInfoRepository.saveAll(exerciseInfos);
+            Exercise exercise = createExercise(member, uploadDate);
 
-            Exercise exercise = createExercise(member, uploadDate, exerciseInfos);
+            ExerciseInfo aerobic = createExerciseInfo("유산소", AEROBIC, null, 0, 0, 0, 100, exercise);
+            exerciseInfoRepository.saveAll(List.of(aerobic));
+
             Exercise savedExercise = exerciseRepository.save(exercise);
 
             final Long exerciseId = savedExercise.getId();
@@ -419,11 +413,11 @@ class ExerciseServiceTest {
             Member member = saveMember();
             LocalDate uploadDate = LocalDate.of(2024, 9, 3);
 
-            ExerciseInfo aerobic = createExerciseInfo("유산소", AEROBIC, null, 0, 0, 0, 100);
-            List<ExerciseInfo> exerciseInfos = List.of(aerobic);
-            exerciseInfoRepository.saveAll(exerciseInfos);
+            Exercise exercise = createExercise(member, uploadDate);
 
-            Exercise exercise = createExercise(member, uploadDate, exerciseInfos);
+            ExerciseInfo aerobic = createExerciseInfo("유산소", AEROBIC, null, 0, 0, 0, 100, exercise);
+            exerciseInfoRepository.saveAll(List.of(aerobic));
+
             Exercise savedExercise = exerciseRepository.save(exercise);
 
             final Long exerciseId = savedExercise.getId();
@@ -457,20 +451,20 @@ class ExerciseServiceTest {
             Member member = saveMember();
             LocalDate uploadDate = LocalDate.of(2024, 9, 3);
 
+            Exercise exercise = exerciseRepository.save(createExercise(member, uploadDate));
+
             List<BodyCategory> childBodyCategory = List.of(
                 createChildBodyCategory(BodyPart.CHEST),
                 createChildBodyCategory(BodyPart.SHOULDERS),
                 createChildBodyCategory(BodyPart.ARMS)
             );
             BodyCategory UPPER_BODY = createParentBodyCategory(BodyPart.UPPER_BODY, childBodyCategory);
-            ExerciseInfo anaerobic = createExerciseInfo("무산소", ANAEROBIC, UPPER_BODY, 100, 10, 5, 0);
+            ExerciseInfo anaerobic = createExerciseInfo("무산소", ANAEROBIC, UPPER_BODY, 100, 10, 5, 0, exercise);
             List<ExerciseInfo> exerciseInfos = List.of(anaerobic);
             exerciseInfoRepository.saveAll(exerciseInfos);
 
-            Exercise savedExercise = exerciseRepository.save(createExercise(member, uploadDate, exerciseInfos));
-
-            final Long exerciseId = savedExercise.getId();
-            final Long exerciseInfoId = savedExercise.getExerciseInfos().get(0).getId();
+            final Long exerciseId = exercise.getId();
+            final Long exerciseInfoId = exercise.getExerciseInfos().get(0).getId();
             final ExerciseEditRequest request = ExerciseEditRequest.builder()
                 .title("유산소_수정")
                 .exerciseType(AEROBIC)
@@ -500,20 +494,20 @@ class ExerciseServiceTest {
             Member member = saveMember();
             LocalDate uploadDate = LocalDate.of(2024, 9, 3);
 
+            Exercise exercise = exerciseRepository.save(createExercise(member, uploadDate));
+
             List<BodyCategory> childBodyCategory = List.of(
                 createChildBodyCategory(BodyPart.CHEST),
                 createChildBodyCategory(BodyPart.SHOULDERS),
                 createChildBodyCategory(BodyPart.ARMS)
             );
             BodyCategory UPPER_BODY = createParentBodyCategory(BodyPart.UPPER_BODY, childBodyCategory);
-            ExerciseInfo anaerobic = createExerciseInfo("무산소", ANAEROBIC, UPPER_BODY, 100, 10, 5, 0);
+            ExerciseInfo anaerobic = createExerciseInfo("무산소", ANAEROBIC, UPPER_BODY, 100, 10, 5, 0, exercise);
             List<ExerciseInfo> exerciseInfos = List.of(anaerobic);
             exerciseInfoRepository.saveAll(exerciseInfos);
 
-            Exercise savedExercise = exerciseRepository.save(createExercise(member, uploadDate, exerciseInfos));
-
-            final Long exerciseId = savedExercise.getId();
-            final Long exerciseInfoId = savedExercise.getExerciseInfos().get(0).getId();
+            final Long exerciseId = exercise.getId();
+            final Long exerciseInfoId = exercise.getExerciseInfos().get(0).getId();
             final ExerciseEditRequest request = ExerciseEditRequest.builder()
                 .title("스트레칭")
                 .exerciseType(STRETCHING)
@@ -543,20 +537,20 @@ class ExerciseServiceTest {
             Member member = saveMember();
             LocalDate uploadDate = LocalDate.of(2024, 9, 3);
 
+            Exercise exercise = exerciseRepository.save(createExercise(member, uploadDate));
+
             List<BodyCategory> childBodyCategory = List.of(
                 createChildBodyCategory(BodyPart.CHEST),
                 createChildBodyCategory(BodyPart.SHOULDERS),
                 createChildBodyCategory(BodyPart.ARMS)
             );
             BodyCategory UPPER_BODY = createParentBodyCategory(BodyPart.UPPER_BODY, childBodyCategory);
-            ExerciseInfo anaerobic = createExerciseInfo("무산소", ANAEROBIC, UPPER_BODY, 100, 10, 5, 0);
+            ExerciseInfo anaerobic = createExerciseInfo("무산소", ANAEROBIC, UPPER_BODY, 100, 10, 5, 0, exercise);
             List<ExerciseInfo> exerciseInfos = List.of(anaerobic);
             exerciseInfoRepository.saveAll(exerciseInfos);
 
-            Exercise savedExercise = exerciseRepository.save(createExercise(member, uploadDate, exerciseInfos));
-
-            final Long exerciseId = savedExercise.getId();
-            final Long exerciseInfoId = savedExercise.getExerciseInfos().get(0).getId();
+            final Long exerciseId = exercise.getId();
+            final Long exerciseInfoId = exercise.getExerciseInfos().get(0).getId();
             final ExerciseEditRequest request = ExerciseEditRequest.builder()
                 .title("무산소")
                 .exerciseType(ANAEROBIC)
@@ -598,15 +592,15 @@ class ExerciseServiceTest {
             Member member = saveMember();
             LocalDate uploadDate = LocalDate.of(2024, 9, 3);
 
+            Exercise exercise = exerciseRepository.save(createExercise(member, uploadDate));
+
             BodyCategory UPPER_BODY = createParentBodyCategory(BodyPart.UPPER_BODY, null);
-            ExerciseInfo stretching = createExerciseInfo("스트레칭", STRETCHING, UPPER_BODY, 0, 0, 0, 60);
+            ExerciseInfo stretching = createExerciseInfo("스트레칭", STRETCHING, UPPER_BODY, 0, 0, 0, 60, exercise);
             List<ExerciseInfo> exerciseInfos = List.of(stretching);
             exerciseInfoRepository.saveAll(exerciseInfos);
 
-            Exercise savedExercise = exerciseRepository.save(createExercise(member, uploadDate, exerciseInfos));
-
-            final Long exerciseId = savedExercise.getId();
-            final Long exerciseInfoId = savedExercise.getExerciseInfos().get(0).getId();
+            final Long exerciseId = exercise.getId();
+            final Long exerciseInfoId = exercise.getExerciseInfos().get(0).getId();
             final ExerciseEditRequest request = ExerciseEditRequest.builder()
                 .title("유산소_수정")
                 .exerciseType(AEROBIC)
@@ -636,15 +630,15 @@ class ExerciseServiceTest {
             Member member = saveMember();
             LocalDate uploadDate = LocalDate.of(2024, 9, 3);
 
+            Exercise exercise = exerciseRepository.save(createExercise(member, uploadDate));
+
             BodyCategory UPPER_BODY = createParentBodyCategory(BodyPart.UPPER_BODY, null);
-            ExerciseInfo stretching = createExerciseInfo("스트레칭", STRETCHING, UPPER_BODY, 0, 0, 0, 60);
+            ExerciseInfo stretching = createExerciseInfo("스트레칭", STRETCHING, UPPER_BODY, 0, 0, 0, 60, exercise);
             List<ExerciseInfo> exerciseInfos = List.of(stretching);
             exerciseInfoRepository.saveAll(exerciseInfos);
 
-            Exercise savedExercise = exerciseRepository.save(createExercise(member, uploadDate, exerciseInfos));
-
-            final Long exerciseId = savedExercise.getId();
-            final Long exerciseInfoId = savedExercise.getExerciseInfos().get(0).getId();
+            final Long exerciseId = exercise.getId();
+            final Long exerciseInfoId = exercise.getExerciseInfos().get(0).getId();
             final ExerciseEditRequest request = ExerciseEditRequest.builder()
                 .title("무산소")
                 .exerciseType(ANAEROBIC)
@@ -686,15 +680,15 @@ class ExerciseServiceTest {
             Member member = saveMember();
             LocalDate uploadDate = LocalDate.of(2024, 9, 3);
 
+            Exercise exercise = exerciseRepository.save(createExercise(member, uploadDate));
+
             BodyCategory UPPER_BODY = createParentBodyCategory(BodyPart.UPPER_BODY, null);
-            ExerciseInfo stretching = createExerciseInfo("스트레칭", STRETCHING, UPPER_BODY, 0, 0, 0, 60);
+            ExerciseInfo stretching = createExerciseInfo("스트레칭", STRETCHING, UPPER_BODY, 0, 0, 0, 60, exercise);
             List<ExerciseInfo> exerciseInfos = List.of(stretching);
             exerciseInfoRepository.saveAll(exerciseInfos);
 
-            Exercise savedExercise = exerciseRepository.save(createExercise(member, uploadDate, exerciseInfos));
-
-            final Long exerciseId = savedExercise.getId();
-            final Long exerciseInfoId = savedExercise.getExerciseInfos().get(0).getId();
+            final Long exerciseId = exercise.getId();
+            final Long exerciseInfoId = exercise.getExerciseInfos().get(0).getId();
             final ExerciseEditRequest request = ExerciseEditRequest.builder()
                 .title("스트레칭_수정")
                 .exerciseType(STRETCHING)
@@ -722,6 +716,11 @@ class ExerciseServiceTest {
     @Test
     void deleteExerciseInfo() {
         // given
+        Member member = saveMember();
+        LocalDate uploadDate = LocalDate.of(2024, 9, 3);
+
+        Exercise exercise = exerciseRepository.save(createExercise(member, uploadDate));
+
         BodyCategory FULL_BODY = createParentBodyCategory(BodyPart.FULL_BODY, null);
 
         List<BodyCategory> childBodyCategory1 = List.of(
@@ -738,31 +737,25 @@ class ExerciseServiceTest {
         );
         BodyCategory LOWER_BODY = createParentBodyCategory(BodyPart.LOWER_BODY, childBodyCategory2);
 
-        Member member = saveMember();
-        LocalDate uploadDate = LocalDate.of(2024, 9, 3);
+        ExerciseInfo aerobic = createExerciseInfo("유산소", AEROBIC, null, 0, 0, 0, 100, exercise);
+        ExerciseInfo anaerobic1 = createExerciseInfo("무산소_전신", ANAEROBIC, FULL_BODY, 100, 10, 5, 0, exercise);
+        ExerciseInfo anaerobic2 = createExerciseInfo("무산소_상체", ANAEROBIC, UPPER_BODY, 100, 10, 5, 0, exercise);
+        ExerciseInfo anaerobic3 = createExerciseInfo("무산소_하체", ANAEROBIC, LOWER_BODY, 100, 10, 5, 0, exercise);
+        ExerciseInfo stretching = createExerciseInfo("스트레칭", STRETCHING, FULL_BODY, 0, 0, 0, 60, exercise);
+        exerciseInfoRepository.saveAll(List.of(aerobic, anaerobic1, anaerobic2, anaerobic3, stretching));
 
-        ExerciseInfo aerobic = createExerciseInfo("유산소", AEROBIC, null, 0, 0, 0, 100);
-        ExerciseInfo anaerobic1 = createExerciseInfo("무산소_전신", ANAEROBIC, FULL_BODY, 100, 10, 5, 0);
-        ExerciseInfo anaerobic2 = createExerciseInfo("무산소_상체", ANAEROBIC, UPPER_BODY, 100, 10, 5, 0);
-        ExerciseInfo anaerobic3 = createExerciseInfo("무산소_하체", ANAEROBIC, LOWER_BODY, 100, 10, 5, 0);
-        ExerciseInfo stretching = createExerciseInfo("스트레칭", STRETCHING, FULL_BODY, 0, 0, 0, 60);
-        List<ExerciseInfo> exerciseInfos = List.of(aerobic, anaerobic1, anaerobic2, anaerobic3, stretching);
-        exerciseInfoRepository.saveAll(exerciseInfos);
-
-        Exercise exercise = createExercise(member, uploadDate, exerciseInfos);
-        Exercise savedExercise = exerciseRepository.save(exercise);
-
-        final Long exerciseId = savedExercise.getId();
-        final Long exerciseInfoId = savedExercise.getExerciseInfos().get(2).getId();
+        final Long exerciseId = exercise.getId();
+        final Long exerciseInfoId = exercise.getExerciseInfos().get(2).getId();
 
         // when
         exerciseService.deleteExerciseInfo(exerciseId, exerciseInfoId);
 
         // then
         Exercise findExercise = exerciseRepository.findById(exerciseId).get();
-
         assertThat(findExercise.getUploadDate()).isEqualTo(uploadDate);
-        assertThat(findExercise.getExerciseInfos()).hasSize(4)
+
+        List<ExerciseInfo> exerciseInfos = exerciseInfoRepository.findAll();
+        assertThat(exerciseInfos).hasSize(4)
             .extracting("title", "exerciseType")
             .containsExactlyInAnyOrder(
                 tuple("유산소", AEROBIC),
@@ -772,16 +765,16 @@ class ExerciseServiceTest {
             );
     }
 
-    private Exercise createExercise(Member member, LocalDate uploadDate, List<ExerciseInfo> exerciseInfos) {
+    private Exercise createExercise(Member member, LocalDate uploadDate) {
         return Exercise.builder()
             .member(member)
-            .exerciseInfos(exerciseInfos)
             .uploadDate(uploadDate)
             .build();
     }
 
-    private ExerciseInfo createExerciseInfo(String title, ExerciseType exerciseType, BodyCategory bodyCategory, int weight, int exerciseSet, int times, int exerciseTime) {
-        return ExerciseInfo.builder() // 유산소는 운동 시간만 작성
+    private ExerciseInfo createExerciseInfo(String title, ExerciseType exerciseType, BodyCategory bodyCategory, int weight, int exerciseSet, int times, int exerciseTime, Exercise exercise) {
+
+        ExerciseInfo exerciseInfo = ExerciseInfo.builder() // 유산소는 운동 시간만 작성
             .title(title)
             .exerciseType(exerciseType)
             .bodyCategory(bodyCategory)
@@ -790,6 +783,9 @@ class ExerciseServiceTest {
             .times(times)
             .exerciseTime(exerciseTime)
             .build();
+        exerciseInfo.addExercise(exercise);
+
+        return exerciseInfo;
     }
 
     private BodyCategory createParentBodyCategory(BodyPart bodyPart, List<BodyCategory> children) {

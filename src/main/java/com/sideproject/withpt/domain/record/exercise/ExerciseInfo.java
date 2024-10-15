@@ -63,10 +63,6 @@ public class ExerciseInfo extends BaseEntity {
         this.exerciseTime = exerciseTime;
     }
 
-    public void setExercise(Exercise exercise) {
-        this.exercise = exercise;
-    }
-
     public void addExercise(Exercise exercise) {
         this.exercise = exercise;
         exercise.getExerciseInfos().add(this);

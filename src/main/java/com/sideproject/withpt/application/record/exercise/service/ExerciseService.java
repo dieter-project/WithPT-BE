@@ -79,16 +79,15 @@ public class ExerciseService {
                     exerciseInfoRepository.saveAll(exerciseInfos);
                 },
                 () -> {
-                    List<ExerciseInfo> exerciseInfos = request.stream()
-                        .map(ExerciseRequest::toExerciseInfo)
-                        .collect(Collectors.toList());
-                    exerciseRepository.save(
+                    Exercise exercise = exerciseRepository.save(
                         Exercise.builder()
                             .member(member)
-                            .exerciseInfos(exerciseInfos)
                             .uploadDate(uploadDate)
                             .build()
                     );
+                    List<ExerciseInfo> exerciseInfos = request.stream()
+                        .map(e -> e.toExerciseInfo(exercise))
+                        .collect(Collectors.toList());
                     exerciseInfoRepository.saveAll(exerciseInfos);
                 });
 
