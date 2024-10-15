@@ -2,7 +2,6 @@ package com.sideproject.withpt.application.record.exercise.service;
 
 import com.sideproject.withpt.application.image.ImageUploader;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
-import com.sideproject.withpt.application.record.bookmark.service.BookmarkService;
 import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseEditRequest;
 import com.sideproject.withpt.application.record.exercise.controller.request.ExerciseRequest;
 import com.sideproject.withpt.application.record.exercise.controller.response.ExerciseInfoResponse;
@@ -14,7 +13,7 @@ import com.sideproject.withpt.application.record.exercise.repository.ExerciseInf
 import com.sideproject.withpt.application.record.exercise.repository.ExerciseRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.type.ExerciseType;
-import com.sideproject.withpt.common.type.Usages;
+import com.sideproject.withpt.common.type.UsageType;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.exercise.BodyCategory;
 import com.sideproject.withpt.domain.record.exercise.Exercise;
@@ -39,12 +38,12 @@ public class ExerciseService {
     private final BodyCategoryRepository bodyCategoryRepository;
     private final MemberRepository memberRepository;
 
-    private final BookmarkService bookmarkService;
     private final ImageUploader imageUploader;
 
     public ExerciseResponse findExerciseAndExerciseInfos(Long memberId, LocalDate uploadDate) {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+
         return exerciseRepository.findFirstByMemberAndUploadDate(member, uploadDate)
             .map(ExerciseResponse::of)
             .orElse(null);
@@ -73,7 +72,11 @@ public class ExerciseService {
 
         exerciseRepository.findFirstByMemberAndUploadDate(member, uploadDate)
             .ifPresentOrElse(exercise -> {
-                    request.forEach(e -> exercise.addExerciseInfo(e.toExerciseInfo()));
+                    List<ExerciseInfo> exerciseInfos = request.stream()
+                        .map(e -> e.toExerciseInfo(exercise))
+                        .collect(Collectors.toList());
+
+                    exerciseInfoRepository.saveAll(exerciseInfos);
                 },
                 () -> {
                     List<ExerciseInfo> exerciseInfos = request.stream()
@@ -90,7 +93,7 @@ public class ExerciseService {
                 });
 
         if (files != null && files.size() > 0) {
-            imageUploader.uploadAndSaveImages(files, Usages.EXERCISE, uploadDate, member);
+            imageUploader.uploadAndSaveImages(files, UsageType.EXERCISE, uploadDate, member);
         }
     }
 

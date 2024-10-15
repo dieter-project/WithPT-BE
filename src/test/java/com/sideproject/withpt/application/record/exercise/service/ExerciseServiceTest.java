@@ -266,13 +266,13 @@ class ExerciseServiceTest {
 
             ExerciseRequest aerobicRequest = ExerciseRequest.builder()
                 .uploadDate(uploadDate)
-                .title("유산소")
+                .title("유산소2")
                 .exerciseType(AEROBIC)
                 .exerciseTime(100)
                 .build();
             ExerciseRequest anaerobicRequest = ExerciseRequest.builder() // 무산소는 부위 다중 선택 가능
                 .uploadDate(uploadDate)
-                .title("무산소")
+                .title("무산소2")
                 .exerciseType(ANAEROBIC)
                 .bodyPart(BodyPart.UPPER_BODY.name())
                 .specificBodyParts(List.of(BodyPart.CHEST.name(), BodyPart.SHOULDERS.name(), BodyPart.ARMS.name()))
@@ -283,7 +283,7 @@ class ExerciseServiceTest {
 
             ExerciseRequest stretchingRequest = ExerciseRequest.builder()
                 .uploadDate(uploadDate)
-                .title("스트레칭")
+                .title("스트레칭2")
                 .exerciseType(STRETCHING)
                 .bodyPart(BodyPart.FULL_BODY.name())
                 .exerciseTime(60)
@@ -295,7 +295,7 @@ class ExerciseServiceTest {
             exerciseService.saveExercise(member.getId(), request, null, uploadDate);
 
             // then
-            Optional<Exercise> optionalExercise = exerciseRepository.findFirstByMemberAndUploadDate(member, uploadDate);
+            Optional<Exercise> optionalExercise = exerciseRepository.findById(exercise.getId());
             assertThat(optionalExercise).isPresent();
 
             Exercise savedExercise = optionalExercise.get();
@@ -309,9 +309,9 @@ class ExerciseServiceTest {
                     tuple("유산소", AEROBIC),
                     tuple("무산소", ANAEROBIC),
                     tuple("스트레칭", STRETCHING),
-                    tuple("유산소", AEROBIC),
-                    tuple("무산소", ANAEROBIC),
-                    tuple("스트레칭", STRETCHING)
+                    tuple("유산소2", AEROBIC),
+                    tuple("무산소2", ANAEROBIC),
+                    tuple("스트레칭2", STRETCHING)
                 );
         }
 
@@ -775,13 +775,12 @@ class ExerciseServiceTest {
     private Exercise createExercise(Member member, LocalDate uploadDate, List<ExerciseInfo> exerciseInfos) {
         return Exercise.builder()
             .member(member)
-            .uploadDate(uploadDate)
             .exerciseInfos(exerciseInfos)
+            .uploadDate(uploadDate)
             .build();
     }
 
-    private ExerciseInfo createExerciseInfo(String title, ExerciseType exerciseType, BodyCategory bodyCategory, int weight, int exerciseSet,
-        int times, int exerciseTime) {
+    private ExerciseInfo createExerciseInfo(String title, ExerciseType exerciseType, BodyCategory bodyCategory, int weight, int exerciseSet, int times, int exerciseTime) {
         return ExerciseInfo.builder() // 유산소는 운동 시간만 작성
             .title(title)
             .exerciseType(exerciseType)

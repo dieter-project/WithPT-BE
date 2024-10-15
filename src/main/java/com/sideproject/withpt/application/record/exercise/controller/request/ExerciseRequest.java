@@ -7,6 +7,7 @@ import com.sideproject.withpt.common.type.BodyPart;
 import com.sideproject.withpt.common.type.ExerciseType;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.domain.record.exercise.BodyCategory;
+import com.sideproject.withpt.domain.record.exercise.Exercise;
 import com.sideproject.withpt.domain.record.exercise.ExerciseInfo;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -57,6 +58,19 @@ public class ExerciseRequest {
 
     public ExerciseInfo toExerciseInfo() {
         return ExerciseInfo.builder()
+            .title(title)
+            .exerciseType(exerciseType)
+            .bodyCategory(toParentBodyCategory())
+            .weight(weight)
+            .exerciseSet(exerciseSet)
+            .times(times)
+            .exerciseTime(exerciseTime)
+            .build();
+    }
+
+    public ExerciseInfo toExerciseInfo(Exercise exercise) {
+        return ExerciseInfo.builder()
+            .exercise(exercise)
             .title(title)
             .exerciseType(exerciseType)
             .bodyCategory(toParentBodyCategory())

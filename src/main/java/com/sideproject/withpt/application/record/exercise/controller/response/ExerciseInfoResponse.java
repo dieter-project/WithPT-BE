@@ -3,7 +3,6 @@ package com.sideproject.withpt.application.record.exercise.controller.response;
 import com.sideproject.withpt.common.type.BodyPart;
 import com.sideproject.withpt.common.type.ExerciseType;
 import com.sideproject.withpt.domain.record.exercise.BodyCategory;
-import com.sideproject.withpt.domain.record.exercise.Exercise;
 import com.sideproject.withpt.domain.record.exercise.ExerciseInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
@@ -70,18 +69,4 @@ public class ExerciseInfoResponse {
                 .build();
         }
     }
-
-    public static ExerciseInfoResponse from(Exercise exercise) {
-        return ExerciseInfoResponse.builder()
-            .id(exercise.getId())
-//                .title(exercise.getTitle())
-//                .weight(exercise.getWeight())
-//                .set(exercise.getExerciseSet())
-//                .times(exercise.getTimes())
-//                .hour(exercise.getExerciseTime())
-//                .bodyPart(exercise.getBodyPart())
-//                .exerciseType(exercise.getExerciseType())
-            .build();
-    }
-
 }
