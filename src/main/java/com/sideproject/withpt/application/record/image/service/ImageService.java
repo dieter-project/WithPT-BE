@@ -47,8 +47,8 @@ public class ImageService {
     public void deleteImage(Long memberId, DeleteImageRequest request) {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-        for (long id : request.getImageIds()) {
-            imageUploader.deleteImage(id);
-        }
+
+        imageRepository.findAllByMemberAndIdIn(member, request.getImageIds())
+            .forEach(imageUploader::deleteImage);
     }
 }

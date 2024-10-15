@@ -2,7 +2,6 @@ package com.sideproject.withpt.application.image;
 
 import com.sideproject.withpt.application.image.repository.ImageRepository;
 import com.sideproject.withpt.common.type.UsageType;
-import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.utils.AwsS3Uploader;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.Image;
@@ -63,12 +62,9 @@ public class ImageUploader {
         }
     }
 
-    public void deleteImage(Long id) {
-        Image image = imageRepository.findById(id)
-            .orElseThrow(() -> GlobalException.EMPTY_DELETE_FILE);
-
+    public void deleteImage(Image image) {
         awsS3Uploader.delete(image.getUsageType().toString(), image.getUploadUrlPath());
-        imageRepository.deleteById(id);
+        imageRepository.delete(image);
     }
 
     public void deleteImageByIdentificationAndMember(String usageIdentificationId, Member member) {

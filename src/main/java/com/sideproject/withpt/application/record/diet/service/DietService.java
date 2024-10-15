@@ -117,7 +117,7 @@ public class DietService {
 
         removeDietFoods(request, diets, dietInfo);
         addDietFood(request, diets, dietInfo);
-        imageDeletion(request);
+        imageDeletion(member, request);
         imageUpload(files, member, diets, dietInfo);
     }
 
@@ -213,9 +213,10 @@ public class DietService {
         }
     }
 
-    private void imageDeletion(EditDietInfoRequest request) {
+    private void imageDeletion(Member member, EditDietInfoRequest request) {
         if (!request.getDeletedImageIds().isEmpty()) {
-            request.getDeletedImageIds().forEach(imageUploader::deleteImage);
+            imageRepository.findAllByMemberAndIdIn(member, request.getDeletedImageIds())
+                    .forEach(imageUploader::deleteImage);
         }
     }
 }
