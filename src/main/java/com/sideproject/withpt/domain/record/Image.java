@@ -1,7 +1,7 @@
 package com.sideproject.withpt.domain.record;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.sideproject.withpt.common.type.Usages;
+import com.sideproject.withpt.common.type.UsageType;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.domain.member.Member;
 import java.time.LocalDate;
@@ -40,7 +40,7 @@ public class Image extends BaseEntity {
     private String usageIdentificationId;
 
     @Enumerated(EnumType.STRING)
-    private Usages usages;
+    private UsageType usageType;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private LocalDate uploadDate;

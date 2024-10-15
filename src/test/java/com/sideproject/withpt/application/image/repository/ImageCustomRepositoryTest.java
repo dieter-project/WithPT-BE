@@ -4,7 +4,7 @@ import static org.assertj.core.groups.Tuple.tuple;
 
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.record.image.service.response.ImageInfoResponse;
-import com.sideproject.withpt.common.type.Usages;
+import com.sideproject.withpt.common.type.UsageType;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.Image;
 import java.time.LocalDate;
@@ -41,35 +41,35 @@ class ImageCustomRepositoryTest {
 
         imageRepository.saveAll(
             List.of(
-                createImage(member, Usages.EXERCISE, uploadDate, "https://withpt-s3.test1", "https://withpt-s3.test1"),
-                createImage(member, Usages.EXERCISE, uploadDate, "https://withpt-s3.test2", "https://withpt-s3.test2"),
-                createImage(member, Usages.EXERCISE, uploadDate, "https://withpt-s3.test3", "https://withpt-s3.test3"),
-                createImage(member, Usages.EXERCISE, uploadDate, "https://withpt-s3.test4", "https://withpt-s3.test4"),
-                createImage(member, Usages.BODY, uploadDate, "https://withpt-s3.test5", "https://withpt-s3.test5"),
-                createImage(member, "DIET_1/DIETINFO_2", Usages.DIET, uploadDate, "https://withpt-s3.test6", "https://withpt-s3.test6")
+                createImage(member, UsageType.EXERCISE, uploadDate, "https://withpt-s3.test1", "https://withpt-s3.test1"),
+                createImage(member, UsageType.EXERCISE, uploadDate, "https://withpt-s3.test2", "https://withpt-s3.test2"),
+                createImage(member, UsageType.EXERCISE, uploadDate, "https://withpt-s3.test3", "https://withpt-s3.test3"),
+                createImage(member, UsageType.EXERCISE, uploadDate, "https://withpt-s3.test4", "https://withpt-s3.test4"),
+                createImage(member, UsageType.BODY, uploadDate, "https://withpt-s3.test5", "https://withpt-s3.test5"),
+                createImage(member, "DIET_1/DIETINFO_2", UsageType.DIET, uploadDate, "https://withpt-s3.test6", "https://withpt-s3.test6")
             )
         );
 
         Pageable pageable = PageRequest.of(0, 10);
 
         // when
-        Slice<ImageInfoResponse> result = imageRepository.findAllByMemberAndUsagesAndUploadDate(member, Usages.EXERCISE, uploadDate, pageable);
+        Slice<ImageInfoResponse> result = imageRepository.findAllByMemberAndUsagesAndUploadDate(member, UsageType.EXERCISE, uploadDate, pageable);
 
         // then
         Assertions.assertThat(result.getContent()).hasSize(4)
-            .extracting("usages", "uploadDate", "url")
+            .extracting("usageType", "uploadDate", "url")
             .containsExactlyInAnyOrder(
-                tuple(Usages.EXERCISE, uploadDate, "https://withpt-s3.test1"),
-                tuple(Usages.EXERCISE, uploadDate, "https://withpt-s3.test2"),
-                tuple(Usages.EXERCISE, uploadDate, "https://withpt-s3.test3"),
-                tuple(Usages.EXERCISE, uploadDate, "https://withpt-s3.test4")
+                tuple(UsageType.EXERCISE, uploadDate, "https://withpt-s3.test1"),
+                tuple(UsageType.EXERCISE, uploadDate, "https://withpt-s3.test2"),
+                tuple(UsageType.EXERCISE, uploadDate, "https://withpt-s3.test3"),
+                tuple(UsageType.EXERCISE, uploadDate, "https://withpt-s3.test4")
             );
     }
 
-    private Image createImage(Member member, Usages usages, LocalDate uploadDate, String url, String uploadUrlPath) {
+    private Image createImage(Member member, UsageType usageType, LocalDate uploadDate, String url, String uploadUrlPath) {
         return Image.builder()
             .member(member)
-            .usages(usages)
+            .usageType(usageType)
             .uploadDate(uploadDate)
             .url(url)
             .uploadUrlPath(uploadUrlPath)
@@ -77,11 +77,11 @@ class ImageCustomRepositoryTest {
             .build();
     }
 
-    private Image createImage(Member member, String usageIdentificationId, Usages usages, LocalDate uploadDate, String url, String uploadUrlPath) {
+    private Image createImage(Member member, String usageIdentificationId, UsageType usageType, LocalDate uploadDate, String url, String uploadUrlPath) {
         return Image.builder()
             .member(member)
             .usageIdentificationId(usageIdentificationId)
-            .usages(usages)
+            .usageType(usageType)
             .uploadDate(uploadDate)
             .url(url)
             .uploadUrlPath(uploadUrlPath)

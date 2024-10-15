@@ -14,7 +14,7 @@ import com.sideproject.withpt.application.record.diet.repository.response.ImageD
 import com.sideproject.withpt.common.type.DietCategory;
 import com.sideproject.withpt.common.type.DietType;
 import com.sideproject.withpt.common.type.Role;
-import com.sideproject.withpt.common.type.Usages;
+import com.sideproject.withpt.common.type.UsageType;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.Image;
 import com.sideproject.withpt.domain.record.diet.DietFood;
@@ -23,12 +23,10 @@ import com.sideproject.withpt.domain.record.diet.Diets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -200,7 +198,7 @@ class DietQueryRepositoryTest {
         imageRepository.save(Image.builder()
             .member(member)
             .usageIdentificationId(usageIdentificationId)
-            .usages(Usages.DIET)
+            .usageType(UsageType.DIET)
             .uploadDate(uploadDate)
             .url("URL")
             .uploadUrlPath("uploadUrlPath")

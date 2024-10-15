@@ -101,7 +101,7 @@ public class DietQueryRepositoryImpl implements DietQueryRepository {
                             new QImageDto(
                                 image.id,
                                 image.usageIdentificationId,
-                                image.usages,
+                                image.usageType,
                                 image.uploadDate,
                                 image.url,
                                 image.attachType

@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.record.diet.service.response;
 
 import com.sideproject.withpt.application.record.diet.repository.response.ImageDto;
-import com.sideproject.withpt.common.type.Usages;
+import com.sideproject.withpt.common.type.UsageType;
 import com.sideproject.withpt.domain.record.Image;
 import java.time.LocalDate;
 import lombok.AccessLevel;
@@ -15,16 +15,16 @@ public class ImageResponse {
 
     private Long id;
     private String usageIdentificationId;
-    private Usages usages;
+    private UsageType usageType;
     private LocalDate uploadDate;
     private String url;
     private String attachType;
 
     @Builder
-    private ImageResponse(Long id, String usageIdentificationId, Usages usages, LocalDate uploadDate, String url, String attachType) {
+    private ImageResponse(Long id, String usageIdentificationId, UsageType usageType, LocalDate uploadDate, String url, String attachType) {
         this.id = id;
         this.usageIdentificationId = usageIdentificationId;
-        this.usages = usages;
+        this.usageType = usageType;
         this.uploadDate = uploadDate;
         this.url = url;
         this.attachType = attachType;
@@ -34,7 +34,7 @@ public class ImageResponse {
         return ImageResponse.builder()
             .id(imageDto.getId())
             .usageIdentificationId(imageDto.getUsageIdentificationId())
-            .usages(imageDto.getUsages())
+            .usageType(imageDto.getUsageType())
             .uploadDate(imageDto.getUploadDate())
             .url(imageDto.getUrl())
             .attachType(imageDto.getAttachType())
@@ -45,7 +45,7 @@ public class ImageResponse {
         return ImageResponse.builder()
             .id(image.getId())
             .usageIdentificationId(image.getUsageIdentificationId())
-            .usages(image.getUsages())
+            .usageType(image.getUsageType())
             .uploadDate(image.getUploadDate())
             .url(image.getUrl())
             .attachType(image.getAttachType())

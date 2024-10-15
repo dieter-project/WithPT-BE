@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.image;
 
 import com.sideproject.withpt.application.image.repository.ImageRepository;
-import com.sideproject.withpt.common.type.Usages;
+import com.sideproject.withpt.common.type.UsageType;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.utils.AwsS3Uploader;
 import com.sideproject.withpt.domain.member.Member;
@@ -26,7 +26,7 @@ public class ImageUploader {
     @Value("${cloud.aws.url}")
     private String awsUrl;
 
-    public void uploadAndSaveImages(List<MultipartFile> files, Usages usage, String usageIdentificationId, Member member) {
+    public void uploadAndSaveImages(List<MultipartFile> files, UsageType usage, String usageIdentificationId, Member member) {
         for (MultipartFile file : files) {
             Map<String, String> imageUrl = awsS3Uploader.upload(usage.toString(), member.getId() + "/" + usageIdentificationId, file);
             String fullPath = awsUrl + "/" + imageUrl.get("uploadUrlPath");
@@ -34,7 +34,7 @@ public class ImageUploader {
             Image image = Image.builder()
                 .member(member)
                 .usageIdentificationId(usageIdentificationId)
-                .usages(usage)
+                .usageType(usage)
                 .uploadDate(LocalDate.now())
                 .url(imageUrl.get("url"))
                 .uploadUrlPath(fullPath)
@@ -45,14 +45,14 @@ public class ImageUploader {
         }
     }
 
-    public void uploadAndSaveImages(List<MultipartFile> files, Usages usage, LocalDate uploadDate, Member member) {
+    public void uploadAndSaveImages(List<MultipartFile> files, UsageType usage, LocalDate uploadDate, Member member) {
         for (MultipartFile file : files) {
             Map<String, String> imageUrl = awsS3Uploader.upload(usage.toString(), member.getId() + "/" + uploadDate, file);
             String fullPath = awsUrl + "/" + imageUrl.get("uploadUrlPath");
 
             Image image = Image.builder()
                 .member(member)
-                .usages(usage)
+                .usageType(usage)
                 .uploadDate(uploadDate)
                 .url(imageUrl.get("url"))
                 .uploadUrlPath(fullPath)
@@ -67,7 +67,7 @@ public class ImageUploader {
         Image image = imageRepository.findById(id)
             .orElseThrow(() -> GlobalException.EMPTY_DELETE_FILE);
 
-        awsS3Uploader.delete(image.getUsages().toString(), image.getUploadUrlPath());
+        awsS3Uploader.delete(image.getUsageType().toString(), image.getUploadUrlPath());
         imageRepository.deleteById(id);
     }
 

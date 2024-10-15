@@ -4,12 +4,11 @@ import static com.sideproject.withpt.domain.record.QImage.image;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sideproject.withpt.application.record.body.controller.response.QBodyImageInfoResponse;
 import com.sideproject.withpt.application.record.image.service.response.ImageInfoResponse;
-import com.sideproject.withpt.common.type.Usages;
+import com.sideproject.withpt.application.record.image.service.response.QImageInfoResponse;
+import com.sideproject.withpt.common.type.UsageType;
 import com.sideproject.withpt.domain.member.Member;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -25,12 +24,12 @@ public class ImageCustomRepositoryImpl implements ImageCustomRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public Slice<ImageInfoResponse> findAllByMemberAndUsagesAndUploadDate(Member member, Usages usages, LocalDate uploadDate, Pageable pageable) {
+    public Slice<ImageInfoResponse> findAllByMemberAndUsagesAndUploadDate(Member member, UsageType usageType, LocalDate uploadDate, Pageable pageable) {
         List<ImageInfoResponse> contents = jpaQueryFactory
             .select(
-                new QBodyImageInfoResponse(
+                new QImageInfoResponse(
                     image.id,
-                    image.usages,
+                    image.usageType,
                     image.uploadDate,
                     image.url,
                     image.attachType
@@ -38,7 +37,7 @@ public class ImageCustomRepositoryImpl implements ImageCustomRepository {
             )
             .from(image)
             .where(image.member.eq(member)
-                .and(image.usages.eq(usages))
+                .and(image.usageType.eq(usageType))
                 .and(uploadDateEq(uploadDate))
             )
             .orderBy(image.uploadDate.desc())
