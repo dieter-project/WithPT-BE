@@ -1,8 +1,11 @@
 package com.sideproject.withpt.domain.trainer;
 
+import com.sideproject.withpt.common.convertor.YearMonthToDateConverter;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.common.convertor.YearToShortConverter;
 import java.time.Year;
+import java.time.YearMonth;
+import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -38,12 +41,13 @@ public class Award extends BaseEntity {
 
     private String institution;
 
-    @Convert(converter = YearToShortConverter.class)
-    private Year acquisitionYear;
+    @Column(name = "ACQUISITION_YEAR_MONTH", columnDefinition = "date")
+    @Convert(converter = YearMonthToDateConverter.class)
+    private YearMonth acquisitionYearMonth;
 
-    public void editAward(String name, String institution, Year acquisitionYear) {
+    public void editAward(String name, String institution, YearMonth acquisitionYear) {
         this.name = name;
         this.institution = institution;
-        this.acquisitionYear = acquisitionYear;
+        this.acquisitionYearMonth = acquisitionYear;
     }
 }

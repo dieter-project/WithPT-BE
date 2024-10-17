@@ -5,11 +5,9 @@ import static com.sideproject.withpt.application.academic.exception.AcademicErro
 import static com.sideproject.withpt.application.career.exception.CareerErrorCode.CAREER_NOT_FOUND;
 
 import com.sideproject.withpt.application.academic.controller.request.AcademicEditRequest;
-import com.sideproject.withpt.application.academic.controller.request.AcademicSaveRequest;
-import com.sideproject.withpt.application.academic.controller.response.AcademicResponse;
 import com.sideproject.withpt.application.academic.exception.AcademicException;
-import com.sideproject.withpt.application.academic.repository.AcademicQueryRepository;
 import com.sideproject.withpt.application.academic.repository.AcademicRepository;
+import com.sideproject.withpt.application.academic.service.response.AcademicResponse;
 import com.sideproject.withpt.application.career.exception.CareerException;
 import com.sideproject.withpt.application.trainer.service.TrainerService;
 import com.sideproject.withpt.domain.trainer.Academic;
@@ -25,14 +23,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class AcademicQueryService {
+public class AcademicService {
 
-    private final AcademicQueryRepository academicQueryRepository;
     private final AcademicRepository academicRepository;
     private final TrainerService trainerService;
 
     public Slice<AcademicResponse> getAllAcademics(Long trainerId, Pageable pageable) {
-        return academicQueryRepository.findAllAcademicPageableByTrainerId(trainerId, pageable);
+        return academicRepository.findAllAcademicPageableByTrainerId(trainerId, pageable);
     }
 
     public AcademicResponse getAcademic(Long trainerId, Long academicId) {
@@ -66,12 +63,12 @@ public class AcademicQueryService {
 
         academic.editAcademic(
             request.getName(),
-            request.getMajor(),
             request.getInstitution(),
+            request.getMajor(),
             request.getDegree(),
             request.getCountry(),
-            request.getEnrollmentYear(),
-            request.getGraduationYear()
+            request.getEnrollmentYearMonth(),
+            request.getGraduationYearMonth()
         );
 
         return AcademicResponse.of(academic);
@@ -89,7 +86,7 @@ public class AcademicQueryService {
 
 
     private void validateDuplicationAllColumn(Academic academic, Long trainerId) {
-        if (academicQueryRepository.existAllColumns(academic, trainerId)) {
+        if (academicRepository.existAllColumns(academic, trainerId)) {
             throw new AcademicException(DUPLICATE_ACADEMIC);
         }
     }

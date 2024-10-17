@@ -2,7 +2,6 @@ package com.sideproject.withpt.application.award.controller.reponse;
 
 import com.querydsl.core.annotations.QueryProjection;
 import com.sideproject.withpt.domain.trainer.Award;
-import com.sideproject.withpt.domain.trainer.Certificate;
 import java.time.Year;
 import java.time.YearMonth;
 import lombok.Builder;
@@ -19,14 +18,14 @@ public class AwardResponse {
     private Long id;
     private String name;
     private String institution;
-    private Year acquisitionYear;
+    private YearMonth acquisitionYearMonth;
 
     @QueryProjection
-    public AwardResponse(Long id, String name, String institution, Year acquisitionYear) {
+    public AwardResponse(Long id, String name, String institution, YearMonth acquisitionYearMonth) {
         this.id = id;
         this.name = name;
         this.institution = institution;
-        this.acquisitionYear = acquisitionYear;
+        this.acquisitionYearMonth = acquisitionYearMonth;
     }
 
     public static AwardResponse of(Award award) {
@@ -34,7 +33,7 @@ public class AwardResponse {
             .id(award.getId())
             .name(award.getName())
             .institution(award.getInstitution())
-            .acquisitionYear(award.getAcquisitionYear())
+            .acquisitionYearMonth(award.getAcquisitionYearMonth())
             .build();
     }
 }

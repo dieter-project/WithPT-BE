@@ -2,6 +2,7 @@ package com.sideproject.withpt.application.trainer.service.dto.single;
 
 import com.sideproject.withpt.domain.trainer.Award;
 import java.time.Year;
+import java.time.YearMonth;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -12,20 +13,20 @@ public class AwardDto {
 
     private final String name;
     private final String institution;
-    private final Year acquisitionYear;
+    private final YearMonth acquisitionYearMonth;
 
     @Builder
-    private AwardDto(String name, String institution, Year acquisitionYear) {
+    private AwardDto(String name, String institution, YearMonth acquisitionYearMonth) {
         this.name = name;
         this.institution = institution;
-        this.acquisitionYear = acquisitionYear;
+        this.acquisitionYearMonth = acquisitionYearMonth;
     }
 
     public Award toEntity() {
         return Award.builder()
             .name(this.name)
             .institution(this.institution)
-            .acquisitionYear(this.acquisitionYear)
+            .acquisitionYearMonth(this.acquisitionYearMonth)
             .build();
     }
 

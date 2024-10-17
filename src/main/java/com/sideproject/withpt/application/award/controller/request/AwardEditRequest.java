@@ -1,8 +1,6 @@
 package com.sideproject.withpt.application.award.controller.request;
 
 import com.sideproject.withpt.common.exception.validator.YearMonthType;
-import com.sideproject.withpt.common.exception.validator.YearType;
-import java.time.Year;
 import java.time.YearMonth;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -28,10 +26,10 @@ public class AwardEditRequest {
     @NotBlank(message = "기관명을 입력해주세요")
     private String institution;
 
-    @YearType
-    private String acquisitionYear;
+    @YearMonthType
+    private String acquisitionYearMonth;
 
-    public Year getAcquisitionYear() {
-        return Year.parse(this.acquisitionYear);
+    public YearMonth getAcquisitionYearMonth() {
+        return YearMonth.parse(this.acquisitionYearMonth);
     }
 }

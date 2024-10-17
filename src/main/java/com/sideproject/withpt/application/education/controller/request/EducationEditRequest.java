@@ -1,8 +1,6 @@
 package com.sideproject.withpt.application.education.controller.request;
 
 import com.sideproject.withpt.common.exception.validator.YearMonthType;
-import com.sideproject.withpt.common.exception.validator.YearType;
-import java.time.Year;
 import java.time.YearMonth;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;

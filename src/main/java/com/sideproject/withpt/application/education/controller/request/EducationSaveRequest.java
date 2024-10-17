@@ -1,13 +1,9 @@
 package com.sideproject.withpt.application.education.controller.request;
 
 import com.sideproject.withpt.common.exception.validator.YearMonthType;
-import com.sideproject.withpt.common.exception.validator.YearType;
-import com.sideproject.withpt.domain.trainer.Award;
 import com.sideproject.withpt.domain.trainer.Education;
-import java.time.Year;
 import java.time.YearMonth;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

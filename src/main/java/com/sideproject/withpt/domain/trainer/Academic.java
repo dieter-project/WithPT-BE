@@ -1,10 +1,11 @@
 package com.sideproject.withpt.domain.trainer;
 
+import com.sideproject.withpt.common.convertor.YearMonthToDateConverter;
 import com.sideproject.withpt.common.type.AcademicInstitution;
 import com.sideproject.withpt.common.type.Degree;
 import com.sideproject.withpt.domain.BaseEntity;
-import com.sideproject.withpt.common.convertor.YearToShortConverter;
-import java.time.Year;
+import java.time.YearMonth;
+import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -50,20 +51,21 @@ public class Academic extends BaseEntity {
 
     private String country;
 
-    @Convert(converter = YearToShortConverter.class)
-    private Year enrollmentYear;
+    @Column(name = "EMROLLMENT_YEAR_MONTH", columnDefinition = "date")
+    @Convert(converter = YearMonthToDateConverter.class)
+    private YearMonth enrollmentYearMonth;
 
-    @Convert(converter = YearToShortConverter.class)
-    private Year graduationYear;
+    @Column(name = "GRADUATION_YEAR_MONTH", columnDefinition = "date")
+    @Convert(converter = YearMonthToDateConverter.class)
+    private YearMonth graduationYearMonth;
 
-    public void editAcademic(String name, String major, AcademicInstitution institution, Degree degree, String country, Year enrollmentYear, Year graduationYear) {
+    public void editAcademic(String name, AcademicInstitution institution, String major, Degree degree, String country, YearMonth enrollmentYearMonth, YearMonth graduationYearMonth) {
         this.name = name;
-        this.major = major;
         this.institution = institution;
+        this.major = major;
         this.degree = degree;
         this.country = country;
-        this.enrollmentYear = enrollmentYear;
-        this.graduationYear = graduationYear;
+        this.enrollmentYearMonth = enrollmentYearMonth;
+        this.graduationYearMonth = graduationYearMonth;
     }
-
 }
