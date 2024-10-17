@@ -2,10 +2,8 @@ package com.sideproject.withpt.application.member.service;
 
 import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.MEMBER_REFRESH_TOKEN_PREFIX;
 
-import com.sideproject.withpt.application.auth.controller.dto.OAuthLoginResponse;
+import com.sideproject.withpt.application.auth.service.dto.AuthLoginResponse;
 import com.sideproject.withpt.application.member.controller.request.MemberSignUpRequest;
-import com.sideproject.withpt.application.member.controller.response.NicknameCheckResponse;
-import com.sideproject.withpt.application.member.exception.MemberException;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.type.Sex;
@@ -28,18 +26,9 @@ public class MemberAuthenticationService {
     private final AuthTokenGenerator authTokenGenerator;
     private final RedisClient redisClient;
 
-    public NicknameCheckResponse checkNickname(String nickname) {
-        memberRepository.findByNickname(nickname).ifPresent(member -> {
-            throw MemberException.DUPLICATE_NICKNAME;
-        });
-
-        // 사용 가능 시 : true
-        return NicknameCheckResponse.from(true);
-    }
-
     @Transactional
-    public OAuthLoginResponse signUpMember(MemberSignUpRequest params) {
-        memberRepository.findByEmail(params.getEmail())
+    public AuthLoginResponse signUpMember(MemberSignUpRequest params) {
+        memberRepository.findByEmailAndAuthProvider(params.getEmail(), params.getAuthProvider())
             .ifPresent(member -> {
                 throw GlobalException.ALREADY_REGISTERED_USER;
             });
@@ -57,7 +46,7 @@ public class MemberAuthenticationService {
             tokenSetDto.getRefreshExpiredAt()
         );
 
-        return OAuthLoginResponse.of(userId, params.getEmail(), params.getName(), params.getOauthProvider(),
+        return AuthLoginResponse.of(userId, params.getEmail(), params.getName(), params.getAuthProvider(),
             params.toMemberEntity().getRole(), tokenSetDto);
     }
 

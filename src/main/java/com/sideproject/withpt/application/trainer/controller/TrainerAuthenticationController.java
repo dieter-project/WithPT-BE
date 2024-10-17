@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.trainer.controller;
 
-import com.sideproject.withpt.application.auth.controller.dto.OAuthLoginResponse;
+import com.sideproject.withpt.application.auth.service.dto.AuthLoginResponse;
 import com.sideproject.withpt.application.trainer.controller.request.TrainerSignUpRequest;
 import com.sideproject.withpt.application.trainer.service.TrainerAuthenticationService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
@@ -21,7 +21,7 @@ public class TrainerAuthenticationController {
     private final TrainerAuthenticationService trainerAuthenticationService;
 
     @PostMapping("/sign-up")
-    public ApiSuccessResponse<OAuthLoginResponse> signUp(@Valid @RequestBody TrainerSignUpRequest request) {
+    public ApiSuccessResponse<AuthLoginResponse> signUp(@Valid @RequestBody TrainerSignUpRequest request) {
 
         log.info("가입 정보 : {}", request);
         return ApiSuccessResponse.from(

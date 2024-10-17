@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.trainer.controller.request;
 
 import com.sideproject.withpt.application.trainer.service.dto.complex.TrainerSignUpDto;
-import com.sideproject.withpt.common.type.OAuthProvider;
+import com.sideproject.withpt.common.type.AuthProvider;
 import com.sideproject.withpt.common.type.Sex;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import java.time.LocalDate;
@@ -27,6 +27,8 @@ public class TrainerSignUpRequest {
     @Email(message = "이메일 형식이 올바르지 않습니다.")
     private String email;
 
+    private String password;
+
     @NotBlank(message = "이름은 필수 입력입니다.")
     private String name;
 
@@ -35,8 +37,8 @@ public class TrainerSignUpRequest {
     @ValidEnum(regexp = "MAN|WOMAN", enumClass = Sex.class)
     private Sex sex;
 
-    @ValidEnum(regexp = "KAKAO|GOOGLE", enumClass = OAuthProvider.class)
-    private OAuthProvider oauthProvider;
+    @ValidEnum(regexp = "KAKAO|GOOGLE|EMAIL", enumClass = AuthProvider.class)
+    private AuthProvider authProvider;
 
     @Valid
     private List<CareerRequest> careers = new ArrayList<>();
@@ -59,10 +61,11 @@ public class TrainerSignUpRequest {
     public TrainerSignUpDto toServiceTrainerSignUpDto() {
         return TrainerSignUpDto.builder()
             .email(this.email)
+            .password(this.password)
             .name(this.name)
             .birth(this.birth)
             .sex(this.sex)
-            .oauthProvider(this.oauthProvider)
+            .authProvider(this.authProvider)
             .careers(CareerRequest.toCareerDtos(careers))
             .academics(AcademicRequest.toAcademicDtos(academics))
             .certificates(CertificateRequest.toCertificateDtos(certificates))

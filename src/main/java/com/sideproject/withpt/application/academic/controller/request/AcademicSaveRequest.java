@@ -1,11 +1,11 @@
 package com.sideproject.withpt.application.academic.controller.request;
 
+import com.sideproject.withpt.common.exception.validator.ValidEnum;
+import com.sideproject.withpt.common.exception.validator.YearMonthType;
 import com.sideproject.withpt.common.type.AcademicInstitution;
 import com.sideproject.withpt.common.type.Degree;
-import com.sideproject.withpt.common.exception.validator.ValidEnum;
-import com.sideproject.withpt.common.exception.validator.YearType;
 import com.sideproject.withpt.domain.trainer.Academic;
-import java.time.Year;
+import java.time.YearMonth;
 import javax.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -45,32 +45,32 @@ public class AcademicSaveRequest {
     @Default
     private String country = "Korea";
 
-    @YearType
-    private String enrollmentYear;
+    @YearMonthType
+    private String enrollmentYearMonth;
 
-    @YearType
-    private String graduationYear;
+    @YearMonthType
+    private String graduationYearMonth;
 
-    public Year getEnrollmentYear() {
-        return Year.parse(this.enrollmentYear);
+    public YearMonth getEnrollmentYearMonth() {
+        return YearMonth.parse(this.enrollmentYearMonth);
     }
 
-    public Year getGraduationYear() {
-        return Year.parse(this.graduationYear);
+    public YearMonth getGraduationYearMonth() {
+        return YearMonth.parse(this.graduationYearMonth);
     }
 
     public Academic toEntity() {
-        if(!StringUtils.hasText(country)) {
+        if (!StringUtils.hasText(country)) {
             country = "Korea";
         }
 
-        if(institution == AcademicInstitution.HIGH_SCHOOL) {
+        if (institution == AcademicInstitution.HIGH_SCHOOL) {
             this.major = NO_MAJOR;
             this.degree = Degree.HIGH_SCHOOL_DIPLOMA;
         }
 
         // 기관이 국내 대학이면 degree는 학사
-        if(institution != AcademicInstitution.HIGH_SCHOOL && institution != AcademicInstitution.OVERSEAS_UNIVERSITY) {
+        if (institution != AcademicInstitution.HIGH_SCHOOL && institution != AcademicInstitution.OVERSEAS_UNIVERSITY) {
             this.degree = Degree.BACHELOR;
         }
 
@@ -80,8 +80,8 @@ public class AcademicSaveRequest {
             .institution(this.institution)
             .degree(this.degree)
             .country(this.country)
-            .enrollmentYear(this.getEnrollmentYear())
-            .graduationYear(this.getGraduationYear())
+            .enrollmentYearMonth(this.getEnrollmentYearMonth())
+            .graduationYearMonth(this.getGraduationYearMonth())
             .build();
     }
 }

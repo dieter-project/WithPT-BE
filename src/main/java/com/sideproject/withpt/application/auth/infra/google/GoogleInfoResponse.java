@@ -3,7 +3,7 @@ package com.sideproject.withpt.application.auth.infra.google;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sideproject.withpt.application.auth.infra.OAuthInfoResponse;
-import com.sideproject.withpt.common.type.OAuthProvider;
+import com.sideproject.withpt.common.type.AuthProvider;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -27,7 +27,7 @@ public class GoogleInfoResponse implements OAuthInfoResponse {
     }
 
     @Override
-    public OAuthProvider getOAuthProvider() {
-        return OAuthProvider.GOOGLE;
+    public AuthProvider getOAuthProvider() {
+        return AuthProvider.GOOGLE;
     }
 }

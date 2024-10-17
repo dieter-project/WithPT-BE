@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.auth.infra.kakao;
 
-import com.sideproject.withpt.application.auth.infra.OAuthLoginParams;
-import com.sideproject.withpt.common.type.OAuthProvider;
+import com.sideproject.withpt.application.auth.infra.AuthLoginParams;
+import com.sideproject.withpt.common.type.AuthProvider;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import lombok.Getter;
@@ -13,7 +13,7 @@ import org.springframework.util.MultiValueMap;
 @Slf4j
 @Getter
 @NoArgsConstructor
-public class KakaoLoginParams implements OAuthLoginParams {
+public class KakaoLoginParams implements AuthLoginParams {
 
     private String authorizationCode;
 
@@ -26,8 +26,8 @@ public class KakaoLoginParams implements OAuthLoginParams {
     }
 
     @Override
-    public OAuthProvider oAuthProvider() {
-        return OAuthProvider.KAKAO;
+    public AuthProvider authProvider() {
+        return AuthProvider.KAKAO;
     }
 
     @Override

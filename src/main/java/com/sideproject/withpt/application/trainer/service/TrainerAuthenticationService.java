@@ -2,18 +2,18 @@ package com.sideproject.withpt.application.trainer.service;
 
 import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.TRAINER_REFRESH_TOKEN_PREFIX;
 
-import com.sideproject.withpt.application.auth.controller.dto.OAuthLoginResponse;
+import com.sideproject.withpt.application.auth.service.dto.AuthLoginResponse;
 import com.sideproject.withpt.application.gym.service.GymService;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
 import com.sideproject.withpt.application.schedule.service.WorkScheduleService;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.application.trainer.service.dto.TrainerSignUpResponse;
 import com.sideproject.withpt.application.trainer.service.dto.complex.TrainerSignUpDto;
-import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.jwt.AuthTokenGenerator;
 import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
 import com.sideproject.withpt.common.redis.RedisClient;
+import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.trainer.Trainer;
@@ -38,7 +38,7 @@ public class TrainerAuthenticationService {
     private final AuthTokenGenerator authTokenGenerator;
     private final RedisClient redisClient;
 
-    public OAuthLoginResponse signUp(TrainerSignUpDto signUpDto) {
+    public AuthLoginResponse signUp(TrainerSignUpDto signUpDto) {
 
         TrainerSignUpResponse trainerSignUpResponse = registerTrainerWithGymsAndSchedules(signUpDto);
 
@@ -51,12 +51,12 @@ public class TrainerAuthenticationService {
             tokenSetDto.getRefreshExpiredAt()
         );
 
-        return OAuthLoginResponse.of(trainerSignUpResponse, tokenSetDto);
+        return AuthLoginResponse.of(trainerSignUpResponse, tokenSetDto);
     }
 
     @Transactional
     public TrainerSignUpResponse registerTrainerWithGymsAndSchedules(TrainerSignUpDto signUpDto) {
-        if (trainerRepository.existsByEmail(signUpDto.getEmail())) {
+        if (trainerRepository.existsByEmailAndAuthProvider(signUpDto.getEmail(), signUpDto.getAuthProvider())) {
             throw GlobalException.ALREADY_REGISTERED_USER;
         }
 

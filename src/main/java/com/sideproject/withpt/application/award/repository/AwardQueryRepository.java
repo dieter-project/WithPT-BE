@@ -1,17 +1,12 @@
 package com.sideproject.withpt.application.award.repository;
 
 import static com.sideproject.withpt.domain.trainer.QAward.*;
-import static com.sideproject.withpt.domain.trainer.QCertificate.certificate;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.award.controller.reponse.AwardResponse;
 import com.sideproject.withpt.application.award.controller.reponse.QAwardResponse;
-import com.sideproject.withpt.application.certificate.controller.reponse.QCertificateResponse;
 import com.sideproject.withpt.domain.trainer.Award;
-import com.sideproject.withpt.domain.trainer.Certificate;
-import com.sideproject.withpt.domain.trainer.QAward;
-import java.time.Year;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,12 +34,12 @@ public class AwardQueryRepository {
                     award.id,
                     award.name,
                     award.institution,
-                    award.acquisitionYear
+                    award.acquisitionYearMonth
                 )
             )
             .from(award)
             .where(award.trainer.id.eq(trainerId))
-            .orderBy(award.acquisitionYear.desc())
+            .orderBy(award.acquisitionYearMonth.desc())
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize() + 1)
             .fetch();
@@ -70,7 +65,7 @@ public class AwardQueryRepository {
                 award.trainer.id.eq(trainerId),
                 nameEq(awardEntity.getName()),
                 institutionEq(awardEntity.getInstitution()),
-                acquisitionYearEq(awardEntity.getAcquisitionYear())
+                acquisitionYearMonthEq(awardEntity.getAcquisitionYearMonth())
             ).fetchFirst();
 
         return fetchOne != null;
@@ -84,7 +79,7 @@ public class AwardQueryRepository {
         return StringUtils.hasText(institution) ? award.institution.eq(institution) : null;
     }
 
-    private BooleanExpression acquisitionYearEq(Year acquisitionYear) {
-        return ObjectUtils.isEmpty(acquisitionYear) ? null : award.acquisitionYear.eq(acquisitionYear);
+    private BooleanExpression acquisitionYearMonthEq(YearMonth acquisitionYearMonth) {
+        return ObjectUtils.isEmpty(acquisitionYearMonth) ? null : award.acquisitionYearMonth.eq(acquisitionYearMonth);
     }
 }

@@ -3,7 +3,7 @@ package com.sideproject.withpt.application.trainer.service.dto.single;
 import com.sideproject.withpt.common.type.AcademicInstitution;
 import com.sideproject.withpt.common.type.Degree;
 import com.sideproject.withpt.domain.trainer.Academic;
-import java.time.Year;
+import java.time.YearMonth;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -19,19 +19,18 @@ public class AcademicDto {
     private final AcademicInstitution institution;
     private Degree degree;
     private final String country;
-    private final Year enrollmentYear;
-    private final Year graduationYear;
+    private final YearMonth enrollmentYearMonth;
+    private final YearMonth graduationYearMonth;
 
     @Builder
-    private AcademicDto(String name, String major, AcademicInstitution institution, Degree degree, String country, Year enrollmentYear,
-        Year graduationYear) {
+    private AcademicDto(String name, String major, AcademicInstitution institution, Degree degree, String country, YearMonth enrollmentYearMonth, YearMonth graduationYearMonth) {
         this.name = name;
         this.major = major;
         this.institution = institution;
         this.degree = degree;
         this.country = country;
-        this.enrollmentYear = enrollmentYear;
-        this.graduationYear = graduationYear;
+        this.enrollmentYearMonth = enrollmentYearMonth;
+        this.graduationYearMonth = graduationYearMonth;
     }
 
     public Academic toEntity() {
@@ -53,8 +52,8 @@ public class AcademicDto {
             .institution(this.institution)
             .degree(this.degree)
             .country(this.country)
-            .enrollmentYear(this.enrollmentYear)
-            .graduationYear(this.graduationYear)
+            .enrollmentYearMonth(this.enrollmentYearMonth)
+            .graduationYearMonth(this.graduationYearMonth)
             .build();
     }
 }

@@ -1,7 +1,7 @@
-package com.sideproject.withpt.application.record.body.controller.response;
+package com.sideproject.withpt.application.record.image.service.response;
 
 import com.querydsl.core.annotations.QueryProjection;
-import com.sideproject.withpt.common.type.Usages;
+import com.sideproject.withpt.common.type.UsageType;
 import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -11,18 +11,18 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BodyImageInfoResponse {
+public class ImageInfoResponse {
 
     private Long id;
-    private Usages usages;
+    private UsageType usageType;
     private LocalDate uploadDate;
     private String url;
     private String attachType;
 
     @QueryProjection
-    public BodyImageInfoResponse(Long id, Usages usages, LocalDate uploadDate, String url, String attachType) {
+    public ImageInfoResponse(Long id, UsageType usageType, LocalDate uploadDate, String url, String attachType) {
         this.id = id;
-        this.usages = usages;
+        this.usageType = usageType;
         this.uploadDate = uploadDate;
         this.url = url;
         this.attachType = attachType;

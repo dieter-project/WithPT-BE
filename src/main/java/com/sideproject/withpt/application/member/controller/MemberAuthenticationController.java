@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.member.controller;
 
-import com.sideproject.withpt.application.auth.controller.dto.OAuthLoginResponse;
+import com.sideproject.withpt.application.auth.service.dto.AuthLoginResponse;
 import com.sideproject.withpt.application.member.controller.request.MemberSignUpRequest;
 import com.sideproject.withpt.application.member.service.MemberAuthenticationService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
@@ -26,14 +26,9 @@ public class MemberAuthenticationController {
 
     @Operation(summary = "회원 회원가입")
     @PostMapping("/sign-up")
-    public ApiSuccessResponse<OAuthLoginResponse> signUp(@Valid @RequestBody MemberSignUpRequest request) {
+    public ApiSuccessResponse<AuthLoginResponse> signUp(@Valid @RequestBody MemberSignUpRequest request) {
         return ApiSuccessResponse.from(memberAuthenticationService.signUpMember(request));
     }
-
-//    @GetMapping("/nickname/check")
-//    public ApiSuccessResponse<NicknameCheckResponse> nicknameCheck(@RequestParam String nickname) {
-//        return ApiSuccessResponse.from(memberAuthenticationService.checkNickname(nickname));
-//    }
 
     @Operation(summary = "회원 탈퇴")
     @DeleteMapping("/withdrawal")

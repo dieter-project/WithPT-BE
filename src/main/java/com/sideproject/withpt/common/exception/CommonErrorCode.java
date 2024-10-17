@@ -22,6 +22,7 @@ public enum CommonErrorCode implements ErrorCode {
 
     /* 401 UNAUTHORIZED : 인증되지 않은 사용자 */
     CREDENTIALS_DO_NOT_EXIST(HttpStatus.UNAUTHORIZED, "인증 정보가 존재하지 않습니다."),
+    INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "Invalid password"),
     WRONG_TYPE_SIGNATURE(HttpStatus.UNAUTHORIZED, "잘못된 JWT 서명입니다."),
     WRONG_TYPE_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 구성의 JWT 토큰입니다."),
     EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "Access Token이 만료되었습니다."),

@@ -9,6 +9,7 @@ public class GlobalException extends RuntimeException {
 
     public static final GlobalException TEST_ERROR = new GlobalException(CommonErrorCode.TEST_ERROR);
     public static final GlobalException ALREADY_REGISTERED_USER = new GlobalException(CommonErrorCode.ALREADY_REGISTERED_USER);
+    public static final GlobalException INVALID_PASSWORD = new GlobalException(CommonErrorCode.INVALID_PASSWORD);
     public static final GlobalException INVALID_PARAMETER = new GlobalException(CommonErrorCode.INVALID_PARAMETER);
     public static final GlobalException USER_NOT_FOUND = new GlobalException(CommonErrorCode.USER_NOT_FOUND);
     public static final GlobalException INVALID_HEADER = new GlobalException(CommonErrorCode.INVALID_HEADER);

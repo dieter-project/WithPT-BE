@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.academic.controller.response;
+package com.sideproject.withpt.application.academic.service.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -6,7 +6,7 @@ import com.querydsl.core.annotations.QueryProjection;
 import com.sideproject.withpt.common.type.AcademicInstitution;
 import com.sideproject.withpt.common.type.Degree;
 import com.sideproject.withpt.domain.trainer.Academic;
-import java.time.Year;
+import java.time.YearMonth;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,20 +25,19 @@ public class AcademicResponse {
     private AcademicInstitution institution;
     private Degree degree;
     private String country;
-    private Year enrollmentYear;
-    private Year graduationYear;
+    private YearMonth enrollmentYearMonth;
+    private YearMonth graduationYearMonth;
 
     @QueryProjection
-    public AcademicResponse(Long id, String name, String major, AcademicInstitution institution, Degree degree,
-        String country, Year enrollmentYear, Year graduationYear) {
+    public AcademicResponse(Long id, String name, String major, AcademicInstitution institution, Degree degree, String country, YearMonth enrollmentYearMonth, YearMonth graduationYearMonth) {
         this.id = id;
         this.name = name;
         this.major = major;
         this.institution = institution;
         this.degree = degree;
         this.country = country;
-        this.enrollmentYear = enrollmentYear;
-        this.graduationYear = graduationYear;
+        this.enrollmentYearMonth = enrollmentYearMonth;
+        this.graduationYearMonth = graduationYearMonth;
     }
 
     public static AcademicResponse of(Academic academic) {
@@ -49,8 +48,8 @@ public class AcademicResponse {
             .institution(academic.getInstitution())
             .degree(academic.getDegree())
             .country(academic.getCountry())
-            .enrollmentYear(academic.getEnrollmentYear())
-            .graduationYear(academic.getGraduationYear())
+            .enrollmentYearMonth(academic.getEnrollmentYearMonth())
+            .graduationYearMonth(academic.getGraduationYearMonth())
             .build();
     }
 }

@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.trainer.service;
 
 
-import static com.sideproject.withpt.common.type.OAuthProvider.KAKAO;
+import static com.sideproject.withpt.common.type.AuthProvider.KAKAO;
 import static com.sideproject.withpt.common.type.Role.TRAINER;
 import static com.sideproject.withpt.common.type.Sex.MAN;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,12 +25,12 @@ import com.sideproject.withpt.application.trainer.service.dto.single.CareerDto;
 import com.sideproject.withpt.application.trainer.service.dto.single.CertificateDto;
 import com.sideproject.withpt.application.trainer.service.dto.single.EducationDto;
 import com.sideproject.withpt.application.trainer.service.dto.single.WorkScheduleDto;
+import com.sideproject.withpt.common.exception.GlobalException;
+import com.sideproject.withpt.common.redis.RedisClient;
 import com.sideproject.withpt.common.type.AcademicInstitution;
 import com.sideproject.withpt.common.type.Day;
 import com.sideproject.withpt.common.type.Degree;
 import com.sideproject.withpt.common.type.EmploymentStatus;
-import com.sideproject.withpt.common.exception.GlobalException;
-import com.sideproject.withpt.common.redis.RedisClient;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.trainer.Academic;
@@ -116,7 +116,7 @@ class TrainerAuthenticationServiceTest {
             .name("test")
             .birth(LocalDate.of(1994, 7, 19))
             .sex(MAN)
-            .oauthProvider(KAKAO)
+            .authProvider(KAKAO)
             .careers(careers)
             .academics(academics)
             .certificates(certificates)
@@ -183,7 +183,7 @@ class TrainerAuthenticationServiceTest {
             .name("test")
             .birth(LocalDate.of(1994, 7, 19))
             .sex(MAN)
-            .oauthProvider(KAKAO)
+            .authProvider(KAKAO)
             .careers(careers)
             .academics(academics)
             .certificates(certificates)
@@ -253,7 +253,7 @@ class TrainerAuthenticationServiceTest {
             .name("test")
             .birth(LocalDate.of(1994, 7, 19))
             .sex(MAN)
-            .oauthProvider(KAKAO)
+            .authProvider(KAKAO)
             .careers(careers)
             .academics(academics)
             .certificates(certificates)
@@ -355,7 +355,7 @@ class TrainerAuthenticationServiceTest {
         return List.of(AwardDto.builder()
             .name("수상명")
             .institution("수상 기관명")
-            .acquisitionYear(Year.of(2023))
+            .acquisitionYearMonth(YearMonth.of(2023, 8))
             .build());
     }
 
@@ -374,8 +374,8 @@ class TrainerAuthenticationServiceTest {
             .institution(AcademicInstitution.FOUR_YEAR_UNIVERSITY)
             .degree(Degree.BACHELOR)
             .country("한국")
-            .enrollmentYear(Year.of(2015))
-            .graduationYear(Year.of(2020))
+            .enrollmentYearMonth(YearMonth.of(2015, 2))
+            .graduationYearMonth(YearMonth.of(2020, 3))
             .build());
     }
 

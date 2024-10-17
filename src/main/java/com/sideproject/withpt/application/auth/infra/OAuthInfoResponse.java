@@ -1,8 +1,8 @@
 package com.sideproject.withpt.application.auth.infra;
 
-import com.sideproject.withpt.common.type.OAuthProvider;
+import com.sideproject.withpt.common.type.AuthProvider;
 
 public interface OAuthInfoResponse {
     String getEmail();
-    OAuthProvider getOAuthProvider();
+    AuthProvider getOAuthProvider();
 }

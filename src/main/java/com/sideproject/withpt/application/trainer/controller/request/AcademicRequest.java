@@ -1,11 +1,11 @@
 package com.sideproject.withpt.application.trainer.controller.request;
 
 import com.sideproject.withpt.application.trainer.service.dto.single.AcademicDto;
-import com.sideproject.withpt.common.type.Degree;
-import com.sideproject.withpt.common.type.AcademicInstitution;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
-import com.sideproject.withpt.common.exception.validator.YearType;
-import java.time.Year;
+import com.sideproject.withpt.common.exception.validator.YearMonthType;
+import com.sideproject.withpt.common.type.AcademicInstitution;
+import com.sideproject.withpt.common.type.Degree;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotBlank;
@@ -39,11 +39,11 @@ public class AcademicRequest {
     @Default
     private String country = "Korea";
 
-    @YearType
-    private String enrollmentYear;
+    @YearMonthType
+    private String enrollmentYearMonth;
 
-    @YearType
-    private String graduationYear;
+    @YearMonthType
+    private String graduationYearMonth;
 
     public AcademicDto toAcademicDto() {
         return AcademicDto.builder()
@@ -52,8 +52,8 @@ public class AcademicRequest {
             .institution(this.institution)
             .degree(this.degree)
             .country(this.country)
-            .enrollmentYear(Year.parse(this.enrollmentYear))
-            .graduationYear(Year.parse(this.graduationYear))
+            .enrollmentYearMonth(YearMonth.parse(this.enrollmentYearMonth))
+            .graduationYearMonth(YearMonth.parse(this.graduationYearMonth))
             .build();
     }
 

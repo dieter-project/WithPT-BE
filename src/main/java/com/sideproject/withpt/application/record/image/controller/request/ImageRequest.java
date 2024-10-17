@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.record.body.controller.request;
+package com.sideproject.withpt.application.record.image.controller.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDate;
@@ -14,7 +14,7 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BodyImageRequest {
+public class ImageRequest {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private LocalDate uploadDate;

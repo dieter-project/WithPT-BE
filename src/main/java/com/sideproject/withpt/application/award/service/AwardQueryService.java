@@ -1,19 +1,14 @@
 package com.sideproject.withpt.application.award.service;
 
 import static com.sideproject.withpt.application.award.exception.AwardErrorCode.*;
-import static com.sideproject.withpt.application.certificate.exception.CertificateErrorCode.CERTIFICATE_NOT_FOUND;
-import static com.sideproject.withpt.application.certificate.exception.CertificateErrorCode.DUPLICATE_CERTIFICATE;
 
 import com.sideproject.withpt.application.award.controller.reponse.AwardResponse;
 import com.sideproject.withpt.application.award.controller.request.AwardEditRequest;
-import com.sideproject.withpt.application.award.controller.request.AwardSaveRequest;
-import com.sideproject.withpt.application.award.exception.AwardErrorCode;
 import com.sideproject.withpt.application.award.exception.AwardException;
 import com.sideproject.withpt.application.award.repository.AwardQueryRepository;
 import com.sideproject.withpt.application.award.repository.AwardRepository;
 import com.sideproject.withpt.application.trainer.service.TrainerService;
 import com.sideproject.withpt.domain.trainer.Award;
-import com.sideproject.withpt.domain.trainer.Certificate;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -68,7 +63,7 @@ public class AwardQueryService {
         award.editAward(
             request.getName(),
             request.getInstitution(),
-            request.getAcquisitionYear()
+            request.getAcquisitionYearMonth()
         );
 
         return AwardResponse.of(award);

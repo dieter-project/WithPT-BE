@@ -2,8 +2,8 @@ package com.sideproject.withpt.application.academic.controller;
 
 import com.sideproject.withpt.application.academic.controller.request.AcademicEditRequest;
 import com.sideproject.withpt.application.academic.controller.request.AcademicSaveRequest;
-import com.sideproject.withpt.application.academic.controller.response.AcademicResponse;
-import com.sideproject.withpt.application.academic.service.AcademicQueryService;
+import com.sideproject.withpt.application.academic.service.response.AcademicResponse;
+import com.sideproject.withpt.application.academic.service.AcademicService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import javax.validation.Valid;
@@ -26,14 +26,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/trainers/{trainerId}/academics")
 public class AcademicController {
 
-    private final AcademicQueryService academicQueryService;
+    private final AcademicService academicService;
 
     @Operation(summary = "트레이너 모든 학력 조회")
     @GetMapping
-    public ApiSuccessResponse<Slice<AcademicResponse>> getAllAcademics(@PathVariable Long trainerId,
-        Pageable pageable) {
+    public ApiSuccessResponse<Slice<AcademicResponse>> getAllAcademics(@PathVariable Long trainerId, Pageable pageable) {
         return ApiSuccessResponse.from(
-            academicQueryService.getAllAcademics(trainerId, pageable)
+            academicService.getAllAcademics(trainerId, pageable)
         );
     }
 
@@ -41,7 +40,7 @@ public class AcademicController {
     @GetMapping("/{academicId}")
     public ApiSuccessResponse<AcademicResponse> getAcademic(@PathVariable Long trainerId, @PathVariable Long academicId) {
         return ApiSuccessResponse.from(
-            academicQueryService.getAcademic(trainerId, academicId)
+            academicService.getAcademic(trainerId, academicId)
         );
     }
 
@@ -49,7 +48,7 @@ public class AcademicController {
     @PostMapping
     public ApiSuccessResponse<AcademicResponse> saveAcademic(@PathVariable Long trainerId, @Valid @RequestBody AcademicSaveRequest request) {
         return ApiSuccessResponse.from(
-            academicQueryService.saveAcademic(trainerId, request.toEntity())
+            academicService.saveAcademic(trainerId, request.toEntity())
         );
     }
 
@@ -57,13 +56,13 @@ public class AcademicController {
     @PatchMapping
     public ApiSuccessResponse<AcademicResponse> editAcademic(@PathVariable Long trainerId, @Valid @RequestBody AcademicEditRequest request) {
         return ApiSuccessResponse.from(
-            academicQueryService.editAcademic(trainerId, request)
+            academicService.editAcademic(trainerId, request)
         );
     }
 
     @Operation(summary = "학력 삭제")
     @DeleteMapping("/{academicId}")
     public void deleteAcademic(@PathVariable Long trainerId, @PathVariable Long academicId) {
-        academicQueryService.deleteAcademic(trainerId, academicId);
+        academicService.deleteAcademic(trainerId, academicId);
     }
 }

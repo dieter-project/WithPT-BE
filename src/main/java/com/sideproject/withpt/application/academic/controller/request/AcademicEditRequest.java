@@ -1,10 +1,10 @@
 package com.sideproject.withpt.application.academic.controller.request;
 
+import com.sideproject.withpt.common.exception.validator.ValidEnum;
+import com.sideproject.withpt.common.exception.validator.YearMonthType;
 import com.sideproject.withpt.common.type.AcademicInstitution;
 import com.sideproject.withpt.common.type.Degree;
-import com.sideproject.withpt.common.exception.validator.ValidEnum;
-import com.sideproject.withpt.common.exception.validator.YearType;
-import java.time.Year;
+import java.time.YearMonth;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -47,17 +47,17 @@ public class AcademicEditRequest {
     @Default
     private String country = "Korea";
 
-    @YearType
-    private String enrollmentYear;
+    @YearMonthType
+    private String enrollmentYearMonth;
 
-    @YearType
-    private String graduationYear;
+    @YearMonthType
+    private String graduationYearMonth;
 
-    public Year getEnrollmentYear() {
-        return Year.parse(this.enrollmentYear);
+    public YearMonth getEnrollmentYearMonth() {
+        return YearMonth.parse(this.enrollmentYearMonth);
     }
 
-    public Year getGraduationYear() {
-        return Year.parse(this.graduationYear);
+    public YearMonth getGraduationYearMonth() {
+        return YearMonth.parse(this.graduationYearMonth);
     }
 }

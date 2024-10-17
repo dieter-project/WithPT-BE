@@ -21,7 +21,7 @@ import com.sideproject.withpt.application.record.diet.service.response.ImageResp
 import com.sideproject.withpt.common.type.DietCategory;
 import com.sideproject.withpt.common.type.DietType;
 import com.sideproject.withpt.common.type.Role;
-import com.sideproject.withpt.common.type.Usages;
+import com.sideproject.withpt.common.type.UsageType;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.Image;
 import com.sideproject.withpt.domain.record.diet.DietFood;
@@ -62,15 +62,6 @@ class DietServiceTest {
 
     @Autowired
     private ImageRepository imageRepository;
-
-//    @AfterEach
-//    void tearDown() {
-//        dietFoodRepository.deleteAllInBatch();
-//        dietInfoRepository.deleteAllInBatch();
-//        dietRepository.deleteAllInBatch();
-//        imageRepository.deleteAllInBatch();
-//        memberRepository.deleteAllInBatch();
-//    }
 
     @DisplayName("DB에 식단 데이터가 존재하지 않을 떄 식단 정보가 신규 생성된다.")
     @Test
@@ -482,7 +473,7 @@ class DietServiceTest {
         return imageRepository.save(Image.builder()
             .member(member)
             .usageIdentificationId(usageIdentificationId)
-            .usages(Usages.DIET)
+            .usageType(UsageType.DIET)
             .uploadDate(uploadDate)
             .url("URL")
             .uploadUrlPath("uploadUrlPath")

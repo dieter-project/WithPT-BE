@@ -14,7 +14,7 @@ import com.sideproject.withpt.application.record.diet.repository.DietRepository;
 import com.sideproject.withpt.application.record.diet.service.response.DailyDietResponse;
 import com.sideproject.withpt.application.record.diet.service.response.DietInfoResponse;
 import com.sideproject.withpt.common.exception.GlobalException;
-import com.sideproject.withpt.common.type.Usages;
+import com.sideproject.withpt.common.type.UsageType;
 import com.sideproject.withpt.domain.member.Member;
 import com.sideproject.withpt.domain.record.Image;
 import com.sideproject.withpt.domain.record.diet.DietFood;
@@ -117,7 +117,7 @@ public class DietService {
 
         removeDietFoods(request, diets, dietInfo);
         addDietFood(request, diets, dietInfo);
-        imageDeletion(request);
+        imageDeletion(member, request);
         imageUpload(files, member, diets, dietInfo);
     }
 
@@ -158,7 +158,7 @@ public class DietService {
         );
 
         if (files != null) {
-            imageUploader.uploadAndSaveImages(files, Usages.DIET,
+            imageUploader.uploadAndSaveImages(files, UsageType.DIET,
                 "DIET_" + diets.getId() + "/DIETINFO_" + saveDietInfo.getId(), member);
         }
     }
@@ -208,14 +208,15 @@ public class DietService {
 
     private void imageUpload(List<MultipartFile> files, Member member, Diets diets, DietInfo dietInfo) {
         if (files != null && !files.isEmpty()) {
-            imageUploader.uploadAndSaveImages(files, Usages.DIET,
+            imageUploader.uploadAndSaveImages(files, UsageType.DIET,
                 "DIET_" + diets.getId() + "/DIETINFO_" + dietInfo.getId(), member);
         }
     }
 
-    private void imageDeletion(EditDietInfoRequest request) {
+    private void imageDeletion(Member member, EditDietInfoRequest request) {
         if (!request.getDeletedImageIds().isEmpty()) {
-            request.getDeletedImageIds().forEach(imageUploader::deleteImage);
+            imageRepository.findAllByMemberAndIdIn(member, request.getDeletedImageIds())
+                    .forEach(imageUploader::deleteImage);
         }
     }
 }

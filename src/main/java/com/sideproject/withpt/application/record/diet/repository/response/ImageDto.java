@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.record.diet.repository.response;
 
 import com.querydsl.core.annotations.QueryProjection;
-import com.sideproject.withpt.common.type.Usages;
+import com.sideproject.withpt.common.type.UsageType;
 import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,16 +13,16 @@ public class ImageDto {
 
     private Long id;
     private String usageIdentificationId;
-    private Usages usages;
+    private UsageType usageType;
     private LocalDate uploadDate;
     private String url;
     private String attachType;
 
     @QueryProjection
-    public ImageDto(Long id, String usageIdentificationId, Usages usages, LocalDate uploadDate, String url, String attachType) {
+    public ImageDto(Long id, String usageIdentificationId, UsageType usageType, LocalDate uploadDate, String url, String attachType) {
         this.id = id;
         this.usageIdentificationId = usageIdentificationId;
-        this.usages = usages;
+        this.usageType = usageType;
         this.uploadDate = uploadDate;
         this.url = url;
         this.attachType = attachType;

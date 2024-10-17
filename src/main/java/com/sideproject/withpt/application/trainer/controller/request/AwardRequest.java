@@ -1,8 +1,8 @@
 package com.sideproject.withpt.application.trainer.controller.request;
 
 import com.sideproject.withpt.application.trainer.service.dto.single.AwardDto;
-import com.sideproject.withpt.common.exception.validator.YearType;
-import java.time.Year;
+import com.sideproject.withpt.common.exception.validator.YearMonthType;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotBlank;
@@ -26,14 +26,14 @@ public class AwardRequest {
     @NotBlank(message = "기관명을 입력해주세요")
     private String institution;
 
-    @YearType
-    private String acquisitionYear;
+    @YearMonthType
+    private String acquisitionYearMonth;
 
     public AwardDto toAwardDto() {
         return AwardDto.builder()
             .name(this.name)
             .institution(this.institution)
-            .acquisitionYear(Year.parse(this.acquisitionYear))
+            .acquisitionYearMonth(YearMonth.parse(this.acquisitionYearMonth))
             .build();
     }
 

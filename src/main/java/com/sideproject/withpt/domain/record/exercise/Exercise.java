@@ -6,8 +6,6 @@ import com.sideproject.withpt.domain.member.Member;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -45,19 +43,9 @@ public class Exercise extends BaseEntity {
     private LocalDate uploadDate;
 
     @Builder
-    public Exercise(Member member, List<ExerciseInfo> exerciseInfos, LocalDate uploadDate) {
+    public Exercise(Member member, LocalDate uploadDate) {
         this.member = member;
         this.uploadDate = uploadDate;
-        addExerciseInfos(exerciseInfos);
-    }
-
-    public void addExerciseInfos(List<ExerciseInfo> exerciseInfos) {
-        exerciseInfos.forEach(this::addExerciseInfo);
-    }
-
-    public void addExerciseInfo(ExerciseInfo exerciseInfo) {
-        exerciseInfos.add(exerciseInfo);
-        exerciseInfo.setExercise(this);
     }
 
 }

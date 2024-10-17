@@ -1,9 +1,9 @@
 package com.sideproject.withpt.application.auth.infra.kakao;
 
-import com.sideproject.withpt.application.auth.infra.OAuthApiClient;
+import com.sideproject.withpt.application.auth.infra.AuthApiClient;
 import com.sideproject.withpt.application.auth.infra.OAuthInfoResponse;
-import com.sideproject.withpt.application.auth.infra.OAuthLoginParams;
-import com.sideproject.withpt.common.type.OAuthProvider;
+import com.sideproject.withpt.application.auth.infra.AuthLoginParams;
+import com.sideproject.withpt.common.type.AuthProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -16,7 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Component
 @RequiredArgsConstructor
-public class KakaoClient implements OAuthApiClient {
+public class KakaoClient implements AuthApiClient {
 
     private static final String GRANT_TYPE = "authorization_code";
 
@@ -35,12 +35,12 @@ public class KakaoClient implements OAuthApiClient {
     private final RestTemplate restTemplate;
 
     @Override
-    public OAuthProvider oAuthProvider() {
-        return OAuthProvider.KAKAO;
+    public AuthProvider authProvider() {
+        return AuthProvider.KAKAO;
     }
 
     @Override
-    public String requestAccessToken(OAuthLoginParams params) {
+    public String requestAccessToken(AuthLoginParams params) {
         String url = authUrl + "/oauth/token";
 
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -60,7 +60,7 @@ public class KakaoClient implements OAuthApiClient {
     }
 
     @Override
-    public OAuthInfoResponse requestOauthInfo(String accessToken) {
+    public OAuthInfoResponse requestAuthInfo(String accessToken) {
         String url = apiUrl + "/v2/user/me";
 
         HttpHeaders httpHeaders = new HttpHeaders();
