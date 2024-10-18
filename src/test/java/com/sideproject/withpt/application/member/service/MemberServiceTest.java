@@ -49,6 +49,8 @@ class MemberServiceTest {
     @DisplayName("회원 정보 수정")
     public void editMemberInfo() {
         //given
+        Member member = memberRepository.save(createMember("test2", "test2@test.com"));
+
         EditMemberInfoRequest request = new EditMemberInfoRequest(
             "test2",
             Sex.WOMAN,
@@ -57,15 +59,13 @@ class MemberServiceTest {
             73.5
         );
 
-        Long memberId = 11L;
-
-        given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
+        Long memberId = member.getId();
 
         //when
         memberService.editMemberInfo(request, memberId);
 
         //then
-        Member findMember = memberService.getMemberById(memberId);
+        Member findMember = memberRepository.findById(memberId).get();
         assertThat(findMember.getHeight()).isEqualTo(request.getHeight());
         assertThat(findMember.getName()).isEqualTo("test2");
     }
@@ -74,16 +74,16 @@ class MemberServiceTest {
     @DisplayName("식단 수정")
     public void editDietType() {
         //given
-        EditMemberDietTypeRequest request = new EditMemberDietTypeRequest(DietType.PROTEIN);
-        Long memberId = 11L;
+        Member member = memberRepository.save(createMember("test2", "test2@test.com"));
 
-        given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
+        EditMemberDietTypeRequest request = new EditMemberDietTypeRequest(DietType.PROTEIN);
+        Long memberId = member.getId();
 
         //when
         memberService.editDietType(request, memberId);
 
         //then
-        Member findMember = memberService.getMemberById(memberId);
+        Member findMember = memberRepository.findById(memberId).get();
         assertThat(findMember.getDietType()).isEqualTo(DietType.PROTEIN);
     }
 
@@ -91,16 +91,16 @@ class MemberServiceTest {
     @DisplayName("운동목표 수정")
     public void editExerciseFrequency() {
         //given
-        EditMemberExerciseFrequencyRequest request = new EditMemberExerciseFrequencyRequest(ExerciseFrequency.FIRST_TIME);
-        Long memberId = 11L;
+        Member member = memberRepository.save(createMember("test2", "test2@test.com"));
 
-        given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
+        EditMemberExerciseFrequencyRequest request = new EditMemberExerciseFrequencyRequest(ExerciseFrequency.FIRST_TIME);
+        Long memberId = member.getId();
 
         //when
         memberService.editExerciseFrequency(request, memberId);
 
         //then
-        Member findMember = memberService.getMemberById(memberId);
+        Member findMember = memberRepository.findById(memberId).get();
         assertThat(findMember.getExerciseFrequency()).isEqualTo(ExerciseFrequency.FIRST_TIME);
     }
 
@@ -108,16 +108,16 @@ class MemberServiceTest {
     @DisplayName("목표체중 수정")
     public void editTargetWeight() {
         //given
-        EditMemberTargetWeightRequest request = new EditMemberTargetWeightRequest(80.5);
-        Long memberId = 11L;
+        Member member = memberRepository.save(createMember("test2", "test2@test.com"));
 
-        given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
+        EditMemberTargetWeightRequest request = new EditMemberTargetWeightRequest(80.5);
+        Long memberId = member.getId();
 
         //when
         memberService.editTargetWeight(request, memberId);
 
         //then
-        Member findMember = memberService.getMemberById(memberId);
+        Member findMember = memberRepository.findById(memberId).get();
         assertThat(findMember.getTargetWeight()).isEqualTo(request.getTargetWeight());
     }
 
