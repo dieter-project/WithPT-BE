@@ -2,16 +2,15 @@ package com.sideproject.withpt.application.member.repository;
 
 import static com.sideproject.withpt.domain.member.QMember.member;
 
-import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.member.controller.response.MemberSearchResponse;
+import com.sideproject.withpt.application.member.controller.response.QMemberSearchResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.util.StringUtils;
 
 @RequiredArgsConstructor
@@ -20,37 +19,41 @@ public class MemberQueryRepositoryImpl implements MemberQueryRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public Page<MemberSearchResponse> findBySearchOption(Pageable pageable, String name, String nickname) {
-        List<MemberSearchResponse> members = jpaQueryFactory
-            .select(Projections.bean(
-                MemberSearchResponse.class,
-                member.id,
-                member.name,
-                member.imageUrl,
-                member.authentication.birth,
-                member.authentication.sex
-            ))
+    public Slice<MemberSearchResponse> findBySearchOption(Pageable pageable, String name) {
+
+        List<MemberSearchResponse> contents = jpaQueryFactory
+            .select(
+                new QMemberSearchResponse(
+                    member.id,
+                    member.name,
+                    member.email,
+                    member.imageUrl,
+                    member.authentication.birth,
+                    member.authentication.sex
+                )
+            )
             .from(member)
-            .where(eqName(name), eqNickName(nickname))
+            .where(eqName(name))
             .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
+            .limit(pageable.getPageSize() + 1)
+            .orderBy(
+                member.name.asc(),
+                member.authentication.birth.asc()
+            )
             .fetch();
 
-        JPAQuery<Long> countQuery = jpaQueryFactory
-            .select(member.count())
-            .from(member)
-            .where(eqName(name), eqNickName(nickname));
+        boolean hasNext = false;
 
-        return PageableExecutionUtils.getPage(members, pageable, countQuery::fetchOne);
+        if (contents.size() > pageable.getPageSize()) {
+            contents.remove(pageable.getPageSize());
+            hasNext = true;
+        }
+
+        return new SliceImpl<>(contents, pageable, hasNext);
     }
 
     private BooleanExpression eqName(String name) {
-        return StringUtils.hasText(name) ? member.name.eq(name) : null;
+        return StringUtils.hasText(name) ? member.name.contains(name) : null;
     }
-
-    private BooleanExpression eqNickName(String nickname) {
-        return StringUtils.hasText(nickname) ? member.name.eq(nickname) : null;
-    }
-
 
 }

@@ -72,7 +72,7 @@ public class SecurityConfig {
                 "/api/v1/trainers/{trainerId}/educations", // 교육
                 "/api/v1/trainers/{trainerId}/academics" // 학력
             ).hasAnyRole("TRAINER", "MEMBER")
-            .antMatchers("/api/v1/trainers/**").hasRole("TRAINER") // /trainers 로 시작하는 요청은 TRAINER 권한이 있는 유저에게만 허용
+            .antMatchers("/api/v1/trainers/**", "/api/v1/members/search").hasRole("TRAINER") // /trainers 로 시작하는 요청은 TRAINER 권한이 있는 유저에게만 허용
             .antMatchers("/api/v1/members/**").hasRole("MEMBER") // /members 로 시작하는 요청은 MEMBER 권한이 있는 유저에게만 허용
             .anyRequest().authenticated()
             .and()
