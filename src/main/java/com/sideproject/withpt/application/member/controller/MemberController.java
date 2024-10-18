@@ -31,6 +31,7 @@ public class MemberController {
 
     private final MemberService memberService;
 
+    @Operation(summary = "이름으로 회원 검색")
     @GetMapping("/search")
     public ApiSuccessResponse<Slice<MemberSearchResponse>> searchMembers(Pageable pageable,
         @RequestParam(defaultValue = "WithPT") String name) {
