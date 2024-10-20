@@ -29,13 +29,15 @@ public class TrainerService {
 
     public TrainerInfoResponse getTrainerInfo(Long trainerId) {
         return TrainerInfoResponse.of(
-            this.getTrainerById(trainerId)
+            trainerRepository.findById(trainerId)
+                .orElseThrow(() -> GlobalException.USER_NOT_FOUND)
         );
     }
 
     @Transactional
     public void editTrainerInfo(Long trainerId, InfoEditRequest request, MultipartFile file) {
-        Trainer trainer = getTrainerById(trainerId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         String imageUrl = trainer.getImageUrl();
 

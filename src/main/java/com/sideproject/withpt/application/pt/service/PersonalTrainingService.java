@@ -12,7 +12,7 @@ import com.sideproject.withpt.application.pt.controller.request.SavePtMemberDeta
 import com.sideproject.withpt.application.pt.controller.request.UpdatePtMemberDetailInfoRequest;
 import com.sideproject.withpt.application.pt.controller.response.AssignedPTInfoResponse;
 import com.sideproject.withpt.application.pt.controller.response.CountOfMembersAndGymsResponse;
-import com.sideproject.withpt.application.pt.controller.response.GymResponse;
+import com.sideproject.withpt.application.pt.controller.response.GymAndMemberCountResponse;
 import com.sideproject.withpt.application.pt.controller.response.MemberDetailInfoResponse;
 import com.sideproject.withpt.application.pt.controller.response.MonthlyStatisticsResponse;
 import com.sideproject.withpt.application.pt.controller.response.MonthlyStatisticsResponse.MonthStatistic;
@@ -84,7 +84,7 @@ public class PersonalTrainingService {
 
         int totalMemberCount = calculateTotalPTMembersCountBy(gymMemberCountMap);
 
-        List<GymResponse> contents = mappingGymAndMemberCount(gymMemberCountMap, gyms);
+        List<GymAndMemberCountResponse> contents = mappingGymAndMemberCount(gymMemberCountMap, gyms);
 
         return CountOfMembersAndGymsResponse.from(
             totalMemberCount, currentDateTime.toLocalDate(),
@@ -309,14 +309,14 @@ public class PersonalTrainingService {
             .sum();
     }
 
-    private List<GymResponse> mappingGymAndMemberCount(Map<String, Long> gymMemberCountMap, List<Gym> gyms) {
+    private List<GymAndMemberCountResponse> mappingGymAndMemberCount(Map<String, Long> gymMemberCountMap, List<Gym> gyms) {
         return gyms.stream()
             .map(gym -> {
                 Long memberCount = 0L;
                 if (gymMemberCountMap.containsKey(gym.getName())) {
                     memberCount = gymMemberCountMap.get(gym.getName());
                 }
-                return GymResponse.from(gym, memberCount);
+                return GymAndMemberCountResponse.from(gym, memberCount);
             })
             .collect(Collectors.toList());
     }

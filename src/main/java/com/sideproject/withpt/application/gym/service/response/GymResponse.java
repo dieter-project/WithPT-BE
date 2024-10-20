@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.pt.controller.response;
+package com.sideproject.withpt.application.gym.service.response;
 
 import com.sideproject.withpt.domain.gym.Gym;
 import lombok.AccessLevel;
@@ -15,26 +15,23 @@ public class GymResponse {
     private String address;
     private double latitude;
     private double longitude;
-    private Long memberCount;
 
     @Builder
-    private GymResponse(Long id, String name, String address, double latitude, double longitude, Long memberCount) {
+    private GymResponse(Long id, String name, String address, double latitude, double longitude) {
         this.id = id;
         this.name = name;
         this.address = address;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.memberCount = memberCount;
     }
 
-    public static GymResponse from(Gym gym, Long memberCount) {
+    public static GymResponse of(Gym gym) {
         return GymResponse.builder()
             .id(gym.getId())
             .name(gym.getName())
             .address(gym.getAddress())
             .latitude(gym.getLatitude())
             .longitude(gym.getLongitude())
-            .memberCount(memberCount)
             .build();
     }
 }

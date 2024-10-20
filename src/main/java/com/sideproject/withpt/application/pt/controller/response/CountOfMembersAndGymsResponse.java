@@ -13,16 +13,16 @@ public class CountOfMembersAndGymsResponse {
 
     private LocalDate date;
     private int totalMemberCount;
-    private Slice<GymResponse> gyms;
+    private Slice<GymAndMemberCountResponse> gyms;
 
     @Builder
-    private CountOfMembersAndGymsResponse(LocalDate date, int totalMemberCount, Slice<GymResponse> gyms) {
+    private CountOfMembersAndGymsResponse(LocalDate date, int totalMemberCount, Slice<GymAndMemberCountResponse> gyms) {
         this.date = date;
         this.totalMemberCount = totalMemberCount;
         this.gyms = gyms;
     }
 
-    public static CountOfMembersAndGymsResponse from(int totalMemberCount, LocalDate date, Slice<GymResponse> gyms) {
+    public static CountOfMembersAndGymsResponse from(int totalMemberCount, LocalDate date, Slice<GymAndMemberCountResponse> gyms) {
         return CountOfMembersAndGymsResponse.builder()
             .date(date)
             .totalMemberCount(totalMemberCount)
