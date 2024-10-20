@@ -8,7 +8,8 @@ import com.sideproject.withpt.application.education.controller.request.Education
 import com.sideproject.withpt.application.education.exception.EducationException;
 import com.sideproject.withpt.application.education.repository.EducationQueryRepository;
 import com.sideproject.withpt.application.education.repository.EducationRepository;
-import com.sideproject.withpt.application.trainer.service.TrainerService;
+import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
+import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.trainer.Education;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import lombok.RequiredArgsConstructor;
@@ -22,18 +23,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class EducationQueryService {
+public class EducationService {
 
-    private final EducationQueryRepository educationQueryRepository;
     private final EducationRepository educationRepository;
-    private final TrainerService trainerService;
+    private final TrainerRepository trainerRepository;
 
     public Slice<EducationResponse> getAllEducations(Long trainerId, Pageable pageable) {
-        return educationQueryRepository.findAllEducationPageableByTrainerId(trainerId, pageable);
+        return educationRepository.findAllEducationPageableByTrainerId(trainerId, pageable);
     }
 
     public EducationResponse getEducation(Long trainerId, Long educationId) {
-        Trainer trainer = trainerService.getTrainerById(trainerId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         return EducationResponse.of(
             educationRepository.findByIdAndTrainer(educationId, trainer)
@@ -43,7 +44,8 @@ public class EducationQueryService {
 
     @Transactional
     public EducationResponse saveEducation(Long trainerId, Education education) {
-        Trainer trainer = trainerService.getTrainerById(trainerId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         validateDuplicationAllColumn(education, trainerId);
 
@@ -56,7 +58,8 @@ public class EducationQueryService {
 
     @Transactional
     public EducationResponse editEducation(Long trainerId, EducationEditRequest request) {
-        Trainer trainer = trainerService.getTrainerById(trainerId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         Education education = educationRepository.findByIdAndTrainer(request.getId(), trainer)
             .orElseThrow(() -> new EducationException(EDUCATION_NOT_FOUND));
@@ -72,7 +75,8 @@ public class EducationQueryService {
 
     @Transactional
     public void deleteEducation(Long trainerId, Long educationId) {
-        Trainer trainer = trainerService.getTrainerById(trainerId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         Education education = educationRepository.findByIdAndTrainer(educationId, trainer)
             .orElseThrow(() -> new EducationException(EDUCATION_NOT_FOUND));
@@ -81,7 +85,7 @@ public class EducationQueryService {
     }
 
     private void validateDuplicationAllColumn(Education education, Long trainerId) {
-        if (educationQueryRepository.existAllColumns(education, trainerId)) {
+        if (educationRepository.existAllColumns(education, trainerId)) {
             throw new EducationException(DUPLICATE_EDUCATION);
         }
     }
