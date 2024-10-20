@@ -5,11 +5,12 @@ import static com.sideproject.withpt.application.certificate.exception.Certifica
 
 import com.sideproject.withpt.application.certificate.controller.reponse.CertificateResponse;
 import com.sideproject.withpt.application.certificate.controller.request.CertificateEditRequest;
-import com.sideproject.withpt.application.certificate.controller.request.CertificateSaveRequest;
 import com.sideproject.withpt.application.certificate.exception.CertificateException;
 import com.sideproject.withpt.application.certificate.repository.CertificateQueryRepository;
 import com.sideproject.withpt.application.certificate.repository.CertificateRepository;
+import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.application.trainer.service.TrainerService;
+import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.trainer.Certificate;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import lombok.RequiredArgsConstructor;
@@ -23,18 +24,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CertificateQueryService {
+public class CertificateService {
 
-    private final CertificateQueryRepository certificateQueryRepository;
     private final CertificateRepository certificateRepository;
-    private final TrainerService trainerService;
+    private final TrainerRepository trainerRepository;
 
     public Slice<CertificateResponse> getAllCertificate(Long trainerId, Pageable pageable) {
-        return certificateQueryRepository.findAllCertificatePageableByTrainerId(trainerId, pageable);
+        return certificateRepository.findAllCertificatePageableByTrainerId(trainerId, pageable);
     }
 
     public CertificateResponse getCertificate(Long trainerId, Long certificateId) {
-        Trainer trainer = trainerService.getTrainerById(trainerId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         return CertificateResponse.of(
             certificateRepository.findByIdAndTrainer(certificateId, trainer)
@@ -44,7 +45,8 @@ public class CertificateQueryService {
 
     @Transactional
     public CertificateResponse saveCertificate(Long trainerId, Certificate certificate) {
-        Trainer trainer = trainerService.getTrainerById(trainerId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         validateDuplicationAllColumn(certificate, trainerId);
 
@@ -57,7 +59,8 @@ public class CertificateQueryService {
 
     @Transactional
     public CertificateResponse editCertificate(Long trainerId, CertificateEditRequest request) {
-        Trainer trainer = trainerService.getTrainerById(trainerId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         Certificate certificate = certificateRepository.findByIdAndTrainer(request.getId(), trainer)
             .orElseThrow(() -> new CertificateException(CERTIFICATE_NOT_FOUND));
@@ -73,7 +76,8 @@ public class CertificateQueryService {
 
     @Transactional
     public void deleteCertificate(Long trainerId, Long certificateId) {
-        Trainer trainer = trainerService.getTrainerById(trainerId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         Certificate certificate = certificateRepository.findByIdAndTrainer(certificateId, trainer)
             .orElseThrow(() -> new CertificateException(CERTIFICATE_NOT_FOUND));
@@ -82,7 +86,7 @@ public class CertificateQueryService {
     }
 
     private void validateDuplicationAllColumn(Certificate certificate, Long trainerId) {
-        if(certificateQueryRepository.existAllColumns(certificate, trainerId)) {
+        if(certificateRepository.existAllColumns(certificate, trainerId)) {
             throw new CertificateException(DUPLICATE_CERTIFICATE);
         }
     }
