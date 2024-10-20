@@ -1,8 +1,10 @@
 package com.sideproject.withpt.application.academic.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.sideproject.withpt.application.academic.controller.request.AcademicEditRequest;
+import com.sideproject.withpt.application.academic.exception.AcademicException;
 import com.sideproject.withpt.application.academic.repository.AcademicRepository;
 import com.sideproject.withpt.application.academic.service.response.AcademicResponse;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
@@ -135,6 +137,41 @@ class AcademicServiceTest {
         assertThat(academics).hasSize(1);
     }
 
+    @DisplayName("이미 동일한 학력이 있으면 저장할 수 없다.")
+    @Test
+    void validateDuplicationAllColumn() {
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+        academicRepository.save(
+            Academic.builder()
+                .trainer(trainer)
+                .name("학교3")
+                .major("전공")
+                .institution(AcademicInstitution.FOUR_YEAR_UNIVERSITY)
+                .degree(Degree.BACHELOR)
+                .country("한국")
+                .enrollmentYearMonth(YearMonth.of(2015, 2))
+                .graduationYearMonth(YearMonth.of(2020, 3))
+                .build()
+        );
+
+        Academic academic = Academic.builder()
+            .name("학교3")
+            .major("전공")
+            .institution(AcademicInstitution.FOUR_YEAR_UNIVERSITY)
+            .degree(Degree.BACHELOR)
+            .country("한국")
+            .enrollmentYearMonth(YearMonth.of(2015, 2))
+            .graduationYearMonth(YearMonth.of(2020, 3))
+            .build();
+
+        Long trainerId = trainer.getId();
+
+        // when // then
+        assertThatThrownBy(() -> academicService.saveAcademic(trainerId, academic))
+            .isInstanceOf(AcademicException.class)
+            .hasMessage("이미 동일한 학력사항이 존재합니다.");
+    }
+
     @DisplayName("학력 사항 수정")
     @Test
     void editAcademic() {
@@ -203,6 +240,7 @@ class AcademicServiceTest {
         Optional<Academic> result = academicRepository.findById(academicId);
         assertThat(result).isEmpty();
     }
+
 
     private Trainer createTrainer(String name) {
         return Trainer.signUpBuilder()
