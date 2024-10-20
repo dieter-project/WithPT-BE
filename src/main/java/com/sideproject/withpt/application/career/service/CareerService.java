@@ -4,16 +4,13 @@ import static com.sideproject.withpt.application.career.exception.CareerErrorCod
 import static com.sideproject.withpt.application.career.exception.CareerErrorCode.DUPLICATE_CAREER;
 
 import com.sideproject.withpt.application.career.controller.request.CareerEditRequest;
-import com.sideproject.withpt.application.career.controller.request.CareerSaveRequest;
 import com.sideproject.withpt.application.career.controller.response.CareerResponse;
 import com.sideproject.withpt.application.career.exception.CareerException;
-import com.sideproject.withpt.application.career.repository.CareerQueryRepository;
 import com.sideproject.withpt.application.career.repository.CareerRepository;
-import com.sideproject.withpt.application.trainer.service.TrainerService;
-import com.sideproject.withpt.application.trainer.service.dto.single.CareerDto;
+import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
+import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.trainer.Career;
 import com.sideproject.withpt.domain.trainer.Trainer;
-import java.time.YearMonth;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -25,18 +22,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CareerQueryService {
+public class CareerService {
 
-    private final CareerQueryRepository careerQueryRepository;
     private final CareerRepository careerRepository;
-    private final TrainerService trainerService;
+    private final TrainerRepository trainerRepository;
 
     public Slice<CareerResponse> getAllCareers(Long trainerId, Pageable pageable) {
-        return careerQueryRepository.findAllCareerPageableByTrainerId(trainerId, pageable);
+        return careerRepository.findAllCareerPageableByTrainerId(trainerId, pageable);
     }
 
     public CareerResponse getCareer(Long trainerId, Long careerId) {
-        Trainer trainer = trainerService.getTrainerById(trainerId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         return CareerResponse.of(
             careerRepository.findByIdAndTrainer(careerId, trainer)
@@ -46,7 +43,8 @@ public class CareerQueryService {
 
     @Transactional
     public CareerResponse saveCareer(Long trainerId, Career career) {
-        Trainer trainer = trainerService.getTrainerById(trainerId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         validateDuplicationAllColumn(career, trainerId);
 
@@ -59,7 +57,8 @@ public class CareerQueryService {
 
     @Transactional
     public CareerResponse editCareer(Long trainerId, CareerEditRequest request) {
-        Trainer trainer = trainerService.getTrainerById(trainerId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         Career career = careerRepository.findByIdAndTrainer(request.getId(), trainer)
             .orElseThrow(() -> new CareerException(CAREER_NOT_FOUND));
@@ -77,7 +76,8 @@ public class CareerQueryService {
 
     @Transactional
     public void deleteCareer(Long trainerId, Long careerId) {
-        Trainer trainer = trainerService.getTrainerById(trainerId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         Career career = careerRepository.findByIdAndTrainer(careerId, trainer)
             .orElseThrow(() -> new CareerException(CAREER_NOT_FOUND));
@@ -86,7 +86,7 @@ public class CareerQueryService {
     }
 
     private void validateDuplicationAllColumn(Career career, Long trainerId) {
-        if (careerQueryRepository.existAllColumns(career, trainerId)) {
+        if (careerRepository.existAllColumns(career, trainerId)) {
             throw new CareerException(DUPLICATE_CAREER);
         }
     }

@@ -7,7 +7,6 @@ import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.utils.AwsS3Uploader;
 import com.sideproject.withpt.common.utils.constants.AwsS3Constants;
 import com.sideproject.withpt.domain.trainer.Trainer;
-import io.jsonwebtoken.lang.Objects;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +39,7 @@ public class TrainerService {
 
         String imageUrl = trainer.getImageUrl();
 
-        if(isNotEmptyFile(file)) {
+        if (isNotEmptyFile(file)) {
             imageUrl = saveProfileImage(trainerId, file);
         }
 
