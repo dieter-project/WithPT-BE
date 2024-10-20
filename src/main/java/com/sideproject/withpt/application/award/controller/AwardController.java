@@ -3,7 +3,7 @@ package com.sideproject.withpt.application.award.controller;
 import com.sideproject.withpt.application.award.controller.reponse.AwardResponse;
 import com.sideproject.withpt.application.award.controller.request.AwardEditRequest;
 import com.sideproject.withpt.application.award.controller.request.AwardSaveRequest;
-import com.sideproject.withpt.application.award.service.AwardQueryService;
+import com.sideproject.withpt.application.award.service.AwardService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import javax.validation.Valid;
@@ -26,13 +26,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/trainers/{trainerId}/awards")
 public class AwardController {
 
-    private final AwardQueryService awardQueryService;
+    private final AwardService awardService;
 
     @Operation(summary = "트레이너 모든 수상내역 조회")
     @GetMapping
     public ApiSuccessResponse<Slice<AwardResponse>> getAllAwards(@PathVariable Long trainerId, Pageable pageable) {
         return ApiSuccessResponse.from(
-            awardQueryService.getAllAwards(trainerId, pageable)
+            awardService.getAllAwards(trainerId, pageable)
         );
     }
 
@@ -40,7 +40,7 @@ public class AwardController {
     @GetMapping("/{awardId}")
     public ApiSuccessResponse<AwardResponse> getAward(@PathVariable Long trainerId, @PathVariable Long awardId) {
         return ApiSuccessResponse.from(
-            awardQueryService.getAward(trainerId, awardId)
+            awardService.getAward(trainerId, awardId)
         );
     }
 
@@ -48,7 +48,7 @@ public class AwardController {
     @PostMapping
     public ApiSuccessResponse<AwardResponse> saveAward(@PathVariable Long trainerId, @Valid @RequestBody AwardSaveRequest request) {
         return ApiSuccessResponse.from(
-           awardQueryService.saveAward(trainerId, request.toEntity())
+           awardService.saveAward(trainerId, request.toEntity())
         );
     }
 
@@ -56,13 +56,13 @@ public class AwardController {
     @PatchMapping
     public ApiSuccessResponse<AwardResponse> editAward(@PathVariable Long trainerId, @Valid @RequestBody AwardEditRequest request) {
         return ApiSuccessResponse.from(
-            awardQueryService.editAward(trainerId, request)
+            awardService.editAward(trainerId, request)
         );
     }
 
     @Operation(summary = "수상내역 삭제")
     @DeleteMapping("/{awardId}")
     public void deleteAward(@PathVariable Long trainerId, @PathVariable Long awardId) {
-        awardQueryService.deleteAward(trainerId, awardId);
+        awardService.deleteAward(trainerId, awardId);
     }
 }
