@@ -20,8 +20,6 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DiscriminatorValue("TRAINER")
 public class Trainer extends User {

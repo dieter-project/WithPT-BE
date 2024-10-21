@@ -9,13 +9,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BodyImageResponse {
 
     private LocalDate uploadDate;
-    private List<String> url = new ArrayList<>();
+    private List<String> url;
+
+    @Builder
+    private BodyImageResponse(LocalDate uploadDate, List<String> url) {
+        this.uploadDate = uploadDate;
+        this.url = url;
+    }
 
     public static BodyImageResponse from(List<Image> image) {
         List<String> imageUrls = image.stream()

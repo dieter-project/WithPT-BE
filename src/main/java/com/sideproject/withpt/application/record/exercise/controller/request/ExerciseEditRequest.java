@@ -1,17 +1,14 @@
 package com.sideproject.withpt.application.record.exercise.controller.request;
 
+import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.common.type.BodyPart;
 import com.sideproject.withpt.common.type.ExerciseType;
-import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.domain.record.exercise.BodyCategory;
-import com.sideproject.withpt.domain.record.exercise.ExerciseInfo;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotBlank;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,8 +16,6 @@ import lombok.ToString;
 
 @ToString
 @Getter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ExerciseEditRequest {
 
@@ -32,7 +27,7 @@ public class ExerciseEditRequest {
 
     private String bodyPart;
 
-    private List<String> specificBodyParts = new ArrayList<>();
+    private List<String> specificBodyParts;
 
     private int weight; // 무게(kg)
     private int times; // 횟수
@@ -40,16 +35,16 @@ public class ExerciseEditRequest {
 
     private int exerciseTime; // 유산소, 스트레칭
 
-    public ExerciseInfo toExerciseInfo() {
-        return ExerciseInfo.builder()
-            .title(title)
-            .exerciseType(exerciseType)
-            .bodyCategory(toParentBodyCategory())
-            .weight(weight)
-            .exerciseSet(exerciseSet)
-            .times(times)
-            .exerciseTime(exerciseTime)
-            .build();
+    @Builder
+    private ExerciseEditRequest(String title, ExerciseType exerciseType, String bodyPart, List<String> specificBodyParts, int weight, int times, int exerciseSet, int exerciseTime) {
+        this.title = title;
+        this.exerciseType = exerciseType;
+        this.bodyPart = bodyPart;
+        this.specificBodyParts = specificBodyParts;
+        this.weight = weight;
+        this.times = times;
+        this.exerciseSet = exerciseSet;
+        this.exerciseTime = exerciseTime;
     }
 
     public BodyCategory toParentBodyCategory() {

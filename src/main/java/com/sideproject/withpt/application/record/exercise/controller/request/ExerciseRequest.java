@@ -10,14 +10,12 @@ import com.sideproject.withpt.domain.record.exercise.BodyCategory;
 import com.sideproject.withpt.domain.record.exercise.Exercise;
 import com.sideproject.withpt.domain.record.exercise.ExerciseInfo;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,8 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @ToString
 @Getter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ValidExerciseType
 public class ExerciseRequest {
@@ -45,7 +41,7 @@ public class ExerciseRequest {
 
     private String bodyPart;
 
-    private List<String> specificBodyParts = new ArrayList<>();
+    private List<String> specificBodyParts;
 
     private int weight; // 무게(kg)
     private int times; // 횟수
@@ -55,6 +51,20 @@ public class ExerciseRequest {
 
     @NotBlank(message = "북마크 여부를 입력해주세요.")
     private Boolean bookmarkYn;
+
+    @Builder
+    private ExerciseRequest(LocalDate uploadDate, String title, ExerciseType exerciseType, String bodyPart, List<String> specificBodyParts, int weight, int times, int exerciseSet, int exerciseTime, Boolean bookmarkYn) {
+        this.uploadDate = uploadDate;
+        this.title = title;
+        this.exerciseType = exerciseType;
+        this.bodyPart = bodyPart;
+        this.specificBodyParts = specificBodyParts;
+        this.weight = weight;
+        this.times = times;
+        this.exerciseSet = exerciseSet;
+        this.exerciseTime = exerciseTime;
+        this.bookmarkYn = bookmarkYn;
+    }
 
     public ExerciseInfo toExerciseInfo(Exercise exercise) {
         return ExerciseInfo.builder()

@@ -19,8 +19,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BookmarkEditRequest {
 
@@ -36,13 +34,26 @@ public class BookmarkEditRequest {
 
     private String bodyPart;
 
-    private List<String> specificBodyParts = new ArrayList<>();
+    private List<String> specificBodyParts;
 
     private int weight; // 무게(kg)
     private int times; // 횟수
     private int exerciseSet; // 운동 set
 
     private int exerciseTime; // 유산소, 스트레칭
+
+    @Builder
+    private BookmarkEditRequest(LocalDate uploadDate, String title, ExerciseType exerciseType, String bodyPart, List<String> specificBodyParts, int weight, int times, int exerciseSet, int exerciseTime) {
+        this.uploadDate = uploadDate;
+        this.title = title;
+        this.exerciseType = exerciseType;
+        this.bodyPart = bodyPart;
+        this.specificBodyParts = specificBodyParts;
+        this.weight = weight;
+        this.times = times;
+        this.exerciseSet = exerciseSet;
+        this.exerciseTime = exerciseTime;
+    }
 
     public BookmarkBodyCategory toParentBodyCategory() {
         return Optional.ofNullable(bodyPart)
