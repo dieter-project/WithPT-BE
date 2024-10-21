@@ -38,10 +38,10 @@ import com.sideproject.withpt.common.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.common.type.PtRegistrationStatus;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.pt.QPersonalTrainingInfo;
-import com.sideproject.withpt.domain.trainer.Trainer;
+import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -189,8 +189,8 @@ public class PersonalTrainingQueryRepositoryImpl implements PersonalTrainingQuer
                         member.id,
                         member.name,
                         member.imageUrl,
-                        member.authentication.birth,
-                        member.authentication.sex,
+                        member.birth,
+                        member.sex,
                         member.height,
                         member.weight,
                         member.dietType
@@ -293,8 +293,8 @@ public class PersonalTrainingQueryRepositoryImpl implements PersonalTrainingQuer
                         member.id,
                         member.name,
                         member.imageUrl,
-                        member.authentication.birth,
-                        member.authentication.sex,
+                        member.birth,
+                        member.sex,
                         member.height,
                         member.weight,
                         member.dietType

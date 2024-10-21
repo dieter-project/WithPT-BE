@@ -7,7 +7,7 @@ import com.sideproject.withpt.application.image.repository.ImageRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.record.image.service.response.ImageInfoResponse;
 import com.sideproject.withpt.common.type.UsageType;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.record.Image;
 import java.time.LocalDate;
 import java.util.List;

@@ -6,7 +6,7 @@ import static org.assertj.core.groups.Tuple.tuple;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.common.type.DietType;
 import com.sideproject.withpt.common.type.Role;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.record.body.Body;
 import java.time.LocalDate;
 import java.util.List;

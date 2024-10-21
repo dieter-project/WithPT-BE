@@ -2,8 +2,8 @@ package com.sideproject.withpt.domain.chat;
 
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.BaseEntity;
-import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.trainer.Trainer;
+import com.sideproject.withpt.domain.user.member.Member;
+import com.sideproject.withpt.domain.user.trainer.Trainer;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;

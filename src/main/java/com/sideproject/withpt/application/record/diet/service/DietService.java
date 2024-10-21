@@ -15,7 +15,7 @@ import com.sideproject.withpt.application.record.diet.service.response.DailyDiet
 import com.sideproject.withpt.application.record.diet.service.response.DietInfoResponse;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.type.UsageType;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.record.Image;
 import com.sideproject.withpt.domain.record.diet.DietFood;
 import com.sideproject.withpt.domain.record.diet.DietInfo;

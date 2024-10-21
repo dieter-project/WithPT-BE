@@ -15,7 +15,7 @@ import com.sideproject.withpt.application.record.diet.repository.response.DietIn
 import com.sideproject.withpt.application.record.diet.repository.response.QDietFoodDto;
 import com.sideproject.withpt.application.record.diet.repository.response.QDietInfoDto;
 import com.sideproject.withpt.application.record.diet.repository.response.QImageDto;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.record.diet.Diets;
 import java.time.LocalDate;
 import java.time.YearMonth;

@@ -2,7 +2,7 @@ package com.sideproject.withpt.application.record.diet.controller.request;
 
 import com.sideproject.withpt.common.type.DietCategory;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.record.diet.Diets;
 import java.time.LocalDate;
 import java.time.LocalTime;

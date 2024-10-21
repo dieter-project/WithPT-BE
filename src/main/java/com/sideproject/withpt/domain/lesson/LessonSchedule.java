@@ -1,4 +1,4 @@
-package com.sideproject.withpt.domain.pt;
+package com.sideproject.withpt.domain.lesson;
 
 import com.sideproject.withpt.common.type.Day;
 import java.time.LocalDate;

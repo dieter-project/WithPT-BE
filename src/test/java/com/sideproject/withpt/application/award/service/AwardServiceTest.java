@@ -8,8 +8,8 @@ import com.sideproject.withpt.application.award.controller.request.AwardEditRequ
 import com.sideproject.withpt.application.award.exception.AwardException;
 import com.sideproject.withpt.application.award.repository.AwardRepository;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
-import com.sideproject.withpt.domain.trainer.Award;
-import com.sideproject.withpt.domain.trainer.Trainer;
+import com.sideproject.withpt.domain.user.trainer.Award;
+import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;

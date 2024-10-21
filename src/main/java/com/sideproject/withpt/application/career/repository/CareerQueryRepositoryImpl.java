@@ -7,7 +7,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.career.controller.response.CareerResponse;
 import com.sideproject.withpt.application.career.controller.response.QCareerResponse;
 import com.sideproject.withpt.common.type.EmploymentStatus;
-import com.sideproject.withpt.domain.trainer.Career;
+import com.sideproject.withpt.domain.user.trainer.Career;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;

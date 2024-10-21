@@ -3,7 +3,7 @@ package com.sideproject.withpt.application.schedule.controller.request;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.common.type.Day;
 import com.sideproject.withpt.domain.gym.GymTrainer;
-import com.sideproject.withpt.domain.trainer.WorkSchedule;
+import com.sideproject.withpt.domain.gym.WorkSchedule;
 import java.time.LocalTime;
 import java.util.List;
 import javax.validation.Valid;

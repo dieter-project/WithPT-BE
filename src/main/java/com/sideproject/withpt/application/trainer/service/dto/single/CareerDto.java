@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.trainer.service.dto.single;
 
 import com.sideproject.withpt.common.type.EmploymentStatus;
-import com.sideproject.withpt.domain.trainer.Career;
+import com.sideproject.withpt.domain.user.trainer.Career;
 import java.time.YearMonth;
 import lombok.Builder;
 import lombok.Getter;

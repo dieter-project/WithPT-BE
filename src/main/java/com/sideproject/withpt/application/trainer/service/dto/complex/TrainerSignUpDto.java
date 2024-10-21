@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.trainer.service.dto.complex;
 
-import static com.sideproject.withpt.domain.trainer.Trainer.getProfileImageUrlBySex;
+import static com.sideproject.withpt.domain.user.trainer.Trainer.getProfileImageUrlBySex;
 
 import com.sideproject.withpt.application.trainer.service.dto.single.AcademicDto;
 import com.sideproject.withpt.application.trainer.service.dto.single.AwardDto;
@@ -8,10 +8,9 @@ import com.sideproject.withpt.application.trainer.service.dto.single.CareerDto;
 import com.sideproject.withpt.application.trainer.service.dto.single.CertificateDto;
 import com.sideproject.withpt.application.trainer.service.dto.single.EducationDto;
 import com.sideproject.withpt.common.type.AuthProvider;
-import com.sideproject.withpt.common.type.LoginType;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.type.Sex;
-import com.sideproject.withpt.domain.trainer.Trainer;
+import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;

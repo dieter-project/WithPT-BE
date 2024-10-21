@@ -7,7 +7,7 @@ import com.sideproject.withpt.application.record.image.controller.request.Delete
 import com.sideproject.withpt.application.record.image.service.response.ImageInfoResponse;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.type.UsageType;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

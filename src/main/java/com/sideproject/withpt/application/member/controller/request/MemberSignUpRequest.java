@@ -4,11 +4,9 @@ import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.common.type.AuthProvider;
 import com.sideproject.withpt.common.type.DietType;
 import com.sideproject.withpt.common.type.ExerciseFrequency;
-import com.sideproject.withpt.common.type.LoginType;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.type.Sex;
-import com.sideproject.withpt.domain.member.Authentication;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import javax.validation.constraints.Email;
@@ -67,16 +65,19 @@ public class MemberSignUpRequest {
             .exerciseFrequency(this.exerciseFrequency)
             .role(Role.MEMBER)
             .authProvider(authProvider)
-            .authentication(toAuthenticationEntity())
+            .birth(this.birth)
+            .sex(this.sex)
+            .joinDate(LocalDateTime.now())
+//            .authentication(toAuthenticationEntity())
             .build();
     }
 
-    private Authentication toAuthenticationEntity() {
-        return Authentication.builder()
-            .birth(this.birth)
-            .sex(this.sex)
-            .loginType(LoginType.SOCIAL)
-            .joinDate(LocalDateTime.now())
-            .build();
-    }
+//    private Authentication toAuthenticationEntity() {
+//        return Authentication.builder()
+//            .birth(this.birth)
+//            .sex(this.sex)
+//            .loginType(LoginType.SOCIAL)
+//            .joinDate(LocalDateTime.now())
+//            .build();
+//    }
 }

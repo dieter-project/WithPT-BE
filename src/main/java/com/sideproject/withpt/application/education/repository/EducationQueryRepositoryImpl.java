@@ -6,7 +6,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.education.controller.reponse.EducationResponse;
 import com.sideproject.withpt.application.education.controller.reponse.QEducationResponse;
-import com.sideproject.withpt.domain.trainer.Education;
+import com.sideproject.withpt.domain.user.trainer.Education;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;

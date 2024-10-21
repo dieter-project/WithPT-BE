@@ -6,12 +6,11 @@ import static com.sideproject.withpt.application.education.exception.EducationEr
 import com.sideproject.withpt.application.education.controller.reponse.EducationResponse;
 import com.sideproject.withpt.application.education.controller.request.EducationEditRequest;
 import com.sideproject.withpt.application.education.exception.EducationException;
-import com.sideproject.withpt.application.education.repository.EducationQueryRepository;
 import com.sideproject.withpt.application.education.repository.EducationRepository;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
-import com.sideproject.withpt.domain.trainer.Education;
-import com.sideproject.withpt.domain.trainer.Trainer;
+import com.sideproject.withpt.domain.user.trainer.Education;
+import com.sideproject.withpt.domain.user.trainer.Trainer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;

@@ -6,7 +6,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.award.controller.reponse.AwardResponse;
 import com.sideproject.withpt.application.award.controller.reponse.QAwardResponse;
-import com.sideproject.withpt.domain.trainer.Award;
+import com.sideproject.withpt.domain.user.trainer.Award;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;

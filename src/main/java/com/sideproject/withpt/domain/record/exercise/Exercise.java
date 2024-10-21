@@ -2,7 +2,7 @@ package com.sideproject.withpt.domain.record.exercise;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sideproject.withpt.domain.BaseEntity;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;

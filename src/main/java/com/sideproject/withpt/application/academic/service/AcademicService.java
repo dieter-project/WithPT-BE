@@ -11,8 +11,8 @@ import com.sideproject.withpt.application.academic.service.response.AcademicResp
 import com.sideproject.withpt.application.career.exception.CareerException;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
-import com.sideproject.withpt.domain.trainer.Academic;
-import com.sideproject.withpt.domain.trainer.Trainer;
+import com.sideproject.withpt.domain.user.trainer.Academic;
+import com.sideproject.withpt.domain.user.trainer.Trainer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
