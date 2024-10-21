@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.career.repository;
 
-import static com.sideproject.withpt.domain.trainer.QCareer.career;
+import static com.sideproject.withpt.domain.user.trainer.QCareer.career;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;

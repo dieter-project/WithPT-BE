@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.education.repository;
 
-import static com.sideproject.withpt.domain.trainer.QEducation.education;
+import static com.sideproject.withpt.domain.user.trainer.QEducation.education;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;

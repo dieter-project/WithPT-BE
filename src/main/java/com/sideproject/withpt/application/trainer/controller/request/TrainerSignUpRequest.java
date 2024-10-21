@@ -1,9 +1,9 @@
 package com.sideproject.withpt.application.trainer.controller.request;
 
 import com.sideproject.withpt.application.trainer.service.dto.complex.TrainerSignUpDto;
+import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.common.type.AuthProvider;
 import com.sideproject.withpt.common.type.Sex;
-import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,16 +11,12 @@ import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Getter
-@Builder
 @ToString
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TrainerSignUpRequest {
 
@@ -56,7 +52,7 @@ public class TrainerSignUpRequest {
     private List<EducationRequest> educations = new ArrayList<>();
 
     @Valid
-    private List<TrainerGymScheduleRequest> gyms = new ArrayList<>();;
+    private List<TrainerGymScheduleRequest> gyms = new ArrayList<>();
 
     public TrainerSignUpDto toServiceTrainerSignUpDto() {
         return TrainerSignUpDto.builder()

@@ -2,10 +2,10 @@ package com.sideproject.withpt.application.pt.repository;
 
 import static com.sideproject.withpt.domain.gym.QGym.gym;
 import static com.sideproject.withpt.domain.gym.QGymTrainer.gymTrainer;
-import static com.sideproject.withpt.domain.member.QMember.member;
 import static com.sideproject.withpt.domain.pt.QPersonalTraining.personalTraining;
 import static com.sideproject.withpt.domain.pt.QPersonalTrainingInfo.personalTrainingInfo;
-import static com.sideproject.withpt.domain.trainer.QTrainer.trainer;
+import static com.sideproject.withpt.domain.user.member.QMember.member;
+import static com.sideproject.withpt.domain.user.trainer.QTrainer.trainer;
 
 import com.querydsl.core.types.ConstantImpl;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -36,12 +36,10 @@ import com.sideproject.withpt.application.pt.repository.dto.QPtMemberListDto_Mem
 import com.sideproject.withpt.application.pt.repository.dto.QPtMemberListDto_PtInfo;
 import com.sideproject.withpt.common.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.common.type.PtRegistrationStatus;
-import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
-import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.pt.QPersonalTrainingInfo;
-import com.sideproject.withpt.domain.user.trainer.Trainer;
+import com.sideproject.withpt.domain.user.member.Member;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -136,48 +134,6 @@ public class PersonalTrainingQueryRepositoryImpl implements PersonalTrainingQuer
             .totalMembers(totalMembers)
             .memberList(new SliceImpl<>(content, pageable, hasNext))
             .build();
-    }
-
-    @Override
-    public Long countOfAllPtMembers(Long trainerId) {
-        return jpaQueryFactory
-            .select(personalTraining.count())
-            .from(personalTraining)
-            .where(
-                personalTraining.gym.id.in(
-                    JPAExpressions
-                        .select(gymTrainer.gym.id)
-                        .from(gymTrainer)
-                        .where(gymTrainer.trainer.id.eq(trainerId))
-
-                ),
-                personalTraining.registrationAllowedStatus.eq(PtRegistrationAllowedStatus.ALLOWED)
-            ).fetchOne();
-    }
-
-    @Override
-    public long deleteAllByMembersAndTrainerAndGym(List<Member> members, Trainer trainer, Gym gym) {
-        return jpaQueryFactory
-            .delete(personalTraining)
-            .where(
-                membersIn(members),
-                trainerEq(trainer),
-                gymEq(gym)
-            )
-            .execute();
-    }
-
-    @Override
-    public Long countByGymAndTrainer(Gym gym, Trainer trainer) {
-        return
-            jpaQueryFactory
-                .select(
-                    personalTraining.count()
-                )
-                .from(personalTraining)
-                .leftJoin(personalTraining.gym)
-                .where(gymEq(gym), trainerEq(trainer))
-                .fetchOne();
     }
 
     @Override
@@ -432,18 +388,6 @@ public class PersonalTrainingQueryRepositoryImpl implements PersonalTrainingQuer
 
     private BooleanExpression gymTrainerEq(GymTrainer gymTrainer) {
         return ObjectUtils.isEmpty(gymTrainer) ? null : personalTraining.gymTrainer.eq(gymTrainer);
-    }
-
-    private BooleanExpression gymsIn(List<Gym> gyms) {
-        return CollectionUtils.isEmpty(gyms) ? null : personalTraining.gym.in(gyms);
-    }
-
-    private BooleanExpression gymEq(Gym gym) {
-        return ObjectUtils.isEmpty(gym) ? null : personalTraining.gym.eq(gym);
-    }
-
-    private BooleanExpression trainerEq(Trainer trainer) {
-        return ObjectUtils.isEmpty(trainer) ? null : personalTraining.trainer.eq(trainer);
     }
 
     private BooleanExpression registrationAllowedStatusEq(PtRegistrationAllowedStatus registrationAllowedStatus) {

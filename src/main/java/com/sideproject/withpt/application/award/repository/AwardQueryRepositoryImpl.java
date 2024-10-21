@@ -1,6 +1,7 @@
 package com.sideproject.withpt.application.award.repository;
 
-import static com.sideproject.withpt.domain.trainer.QAward.award;
+
+import static com.sideproject.withpt.domain.user.trainer.QAward.award;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
