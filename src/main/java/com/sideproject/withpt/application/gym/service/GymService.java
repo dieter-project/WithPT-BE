@@ -32,11 +32,6 @@ public class GymService {
         return new SliceImpl<>(convertGymsToGymResponses(gyms), pageable, gyms.hasNext());
     }
 
-    public Gym getGymById(Long gymId) {
-        return gymRepository.findById(gymId)
-            .orElseThrow(() -> GymException.GYM_NOT_FOUND);
-    }
-
     @Transactional
     public List<Gym> registerGyms(List<GymScheduleDto> gymSchedules) {
         return gymSchedules.stream()

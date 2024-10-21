@@ -42,14 +42,6 @@ public class Lesson extends BaseEntity {
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "trainer_id")
-    private Trainer trainer;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gym_id")
-    private Gym gym;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "gym_trainer_id")
     private GymTrainer gymTrainer;
 
