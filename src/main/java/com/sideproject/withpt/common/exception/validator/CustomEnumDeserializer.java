@@ -8,7 +8,7 @@ import java.lang.reflect.Field;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class CustomEnumDeserializer <T extends Enum<T>> extends JsonDeserializer<T> {
+public class CustomEnumDeserializer<T extends Enum<T>> extends JsonDeserializer<T> {
 
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
@@ -24,8 +24,15 @@ public class CustomEnumDeserializer <T extends Enum<T>> extends JsonDeserializer
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static <T extends Enum<T>> Class<T> getEnumClass(Class<?> dtoClass, String fieldName) throws NoSuchFieldException {
         Field field = dtoClass.getDeclaredField(fieldName);
-        return (Class<T>) field.getType();
+        Class<?> fieldType = field.getType();
+
+        if (Enum.class.isAssignableFrom(fieldType)) {
+            return (Class<T>) fieldType.asSubclass(Enum.class); // Enum 타입으로 캐스팅
+        } else {
+            throw new IllegalArgumentException("Field " + fieldName + " is not an enum type");
+        }
     }
 }
