@@ -20,7 +20,7 @@ import com.sideproject.withpt.application.lesson.service.response.TrainerLessonS
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.pt.exception.PTException;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
-import com.sideproject.withpt.application.schedule.repository.ScheduleRepository;
+import com.sideproject.withpt.application.schedule.repository.WorkScheduleRepository;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.common.type.Day;
 import com.sideproject.withpt.common.type.DietType;
@@ -77,7 +77,7 @@ class LessonServiceTest {
     @Autowired
     private PersonalTrainingRepository personalTrainingRepository;
     @Autowired
-    private ScheduleRepository scheduleRepository;
+    private WorkScheduleRepository workScheduleRepository;
     @Autowired
     private LessonRepository lessonRepository;
 
@@ -474,7 +474,7 @@ class LessonServiceTest {
             )
         );
 
-        scheduleRepository.save(createWorkSchedule(Day.FRI, LocalTime.of(9, 0), LocalTime.of(18, 0), gymTrainer));
+        workScheduleRepository.save(createWorkSchedule(Day.FRI, LocalTime.of(9, 0), LocalTime.of(18, 0), gymTrainer));
 
         // when
         AvailableLessonScheduleResponse response = lessonService.getTrainerAvailableLessonSchedule(gym.getId(), trainer.getId(), Day.FRI, date);

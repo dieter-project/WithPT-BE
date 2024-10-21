@@ -24,7 +24,7 @@ import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.pt.exception.PTException;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
 import com.sideproject.withpt.application.schedule.exception.ScheduleException;
-import com.sideproject.withpt.application.schedule.repository.ScheduleRepository;
+import com.sideproject.withpt.application.schedule.repository.WorkScheduleRepository;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.common.type.Day;
 import com.sideproject.withpt.common.type.LessonRequestStatus;
@@ -66,7 +66,7 @@ public class LessonService {
     private final TrainerRepository trainerRepository;
 
     private final GymTrainerRepository gymTrainerRepository;
-    private final ScheduleRepository scheduleRepository;
+    private final WorkScheduleRepository workScheduleRepository;
     private final PersonalTrainingRepository personalTrainingRepository;
 
     private final LessonRepository lessonRepository;
@@ -329,7 +329,7 @@ public class LessonService {
     }
 
     private List<LessonTime> generateLessonTimes(Day weekday, GymTrainer gymTrainer, List<LocalTime> times) {
-        WorkSchedule workSchedule = scheduleRepository.findByGymTrainerAndWeekday(gymTrainer, weekday)
+        WorkSchedule workSchedule = workScheduleRepository.findByGymTrainerAndWeekday(gymTrainer, weekday)
             .orElseThrow(() -> new ScheduleException(WORK_SCHEDULE_NOT_FOUND));
 
         LocalTime startTime = workSchedule.getInTime();

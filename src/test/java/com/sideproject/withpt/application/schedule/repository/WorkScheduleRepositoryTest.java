@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @ActiveProfiles("test")
 @SpringBootTest
-class ScheduleRepositoryTest {
+class WorkScheduleRepositoryTest {
 
     @Autowired
     private TrainerRepository trainerRepository;
@@ -33,7 +33,7 @@ class ScheduleRepositoryTest {
     private GymTrainerRepository gymTrainerRepository;
 
     @Autowired
-    private ScheduleRepository scheduleRepository;
+    private WorkScheduleRepository workScheduleRepository;
 
     @DisplayName("해당 요일에 등록된 트레이너의 근무 날짜 조회")
     @Test
@@ -50,7 +50,7 @@ class ScheduleRepositoryTest {
         saveWorkSchedule(Day.FRI, LocalTime.of(12, 0), LocalTime.of(22, 0), gymTrainer);
 
         // when
-        WorkSchedule workSchedule = scheduleRepository.findByGymTrainerAndWeekday(gymTrainer, Day.WED).get();
+        WorkSchedule workSchedule = workScheduleRepository.findByGymTrainerAndWeekday(gymTrainer, Day.WED).get();
 
         // then
         assertThat(workSchedule.getWeekday()).isEqualTo(Day.WED);
@@ -72,7 +72,7 @@ class ScheduleRepositoryTest {
         saveWorkSchedule(Day.FRI, LocalTime.of(12, 0), LocalTime.of(22, 0), gymTrainer);
 
         // when // then
-        Optional<WorkSchedule> optionalWorkSchedule = scheduleRepository.findByGymTrainerAndWeekday(gymTrainer, Day.WED);
+        Optional<WorkSchedule> optionalWorkSchedule = workScheduleRepository.findByGymTrainerAndWeekday(gymTrainer, Day.WED);
 
         assertThat(optionalWorkSchedule).isEmpty();
     }
@@ -99,7 +99,7 @@ class ScheduleRepositoryTest {
     }
 
     private WorkSchedule saveWorkSchedule(Day day, LocalTime inTime, LocalTime outTime, GymTrainer gymTrainer) {
-        return scheduleRepository.save(WorkSchedule.builder()
+        return workScheduleRepository.save(WorkSchedule.builder()
             .weekday(day)
             .inTime(inTime)
             .outTime(outTime)

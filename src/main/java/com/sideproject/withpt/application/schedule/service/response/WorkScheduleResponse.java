@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.schedule.controller.response;
+package com.sideproject.withpt.application.schedule.service.response;
 
 import com.sideproject.withpt.common.type.Day;
 import com.sideproject.withpt.domain.trainer.WorkSchedule;
@@ -16,15 +16,15 @@ import lombok.ToString;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class WorkSchedulerResponse {
+public class WorkScheduleResponse {
 
     private Long id;
     private Day weekday;
     private LocalTime inTime;
     private LocalTime outTime;
 
-    public static WorkSchedulerResponse of(WorkSchedule workSchedule) {
-        return WorkSchedulerResponse.builder()
+    public static WorkScheduleResponse of(WorkSchedule workSchedule) {
+        return WorkScheduleResponse.builder()
             .id(workSchedule.getId())
             .weekday(workSchedule.getWeekday())
             .inTime(workSchedule.getInTime())
@@ -32,9 +32,9 @@ public class WorkSchedulerResponse {
             .build();
     }
 
-    public static List<WorkSchedulerResponse> of(List<WorkSchedule> workSchedules) {
+    public static List<WorkScheduleResponse> of(List<WorkSchedule> workSchedules) {
         return workSchedules.stream()
-            .map(WorkSchedulerResponse::of)
+            .map(WorkScheduleResponse::of)
             .collect(Collectors.toList());
     }
 

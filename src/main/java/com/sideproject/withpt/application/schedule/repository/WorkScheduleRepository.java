@@ -9,9 +9,10 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ScheduleRepository extends JpaRepository<WorkSchedule, Long> {
+public interface WorkScheduleRepository extends JpaRepository<WorkSchedule, Long> {
 
     // TODO : GymTrainer 로 관리하므로 Trainer 랑 Gym 은 삭제하기
     List<WorkSchedule> findAllByTrainerAndGym(Trainer trainer, Gym gym);
+    List<WorkSchedule> findAllByGymTrainer(GymTrainer gymTrainer);
     Optional<WorkSchedule> findByGymTrainerAndWeekday(GymTrainer gymTrainer, Day weekDay);
 }
