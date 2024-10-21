@@ -8,13 +8,12 @@ import com.sideproject.withpt.application.record.bookmark.service.request.Bookma
 import com.sideproject.withpt.application.record.bookmark.service.response.BookmarkCheckResponse;
 import com.sideproject.withpt.application.record.bookmark.service.response.BookmarkResponse;
 import com.sideproject.withpt.common.exception.GlobalException;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.record.bookmark.Bookmark;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service

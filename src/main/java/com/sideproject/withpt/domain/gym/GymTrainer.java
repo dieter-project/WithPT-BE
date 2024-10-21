@@ -1,7 +1,7 @@
 package com.sideproject.withpt.domain.gym;
 
 import com.sideproject.withpt.domain.BaseEntity;
-import com.sideproject.withpt.domain.trainer.Trainer;
+import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.time.LocalDate;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;

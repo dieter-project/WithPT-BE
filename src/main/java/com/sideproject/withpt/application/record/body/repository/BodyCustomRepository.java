@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.record.body.repository;
 
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.record.body.Body;
 import java.time.LocalDate;
 import java.util.List;

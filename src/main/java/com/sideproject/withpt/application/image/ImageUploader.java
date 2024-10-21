@@ -3,7 +3,7 @@ package com.sideproject.withpt.application.image;
 import com.sideproject.withpt.application.image.repository.ImageRepository;
 import com.sideproject.withpt.common.type.UsageType;
 import com.sideproject.withpt.common.utils.AwsS3Uploader;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.record.Image;
 import java.time.LocalDate;
 import java.util.List;

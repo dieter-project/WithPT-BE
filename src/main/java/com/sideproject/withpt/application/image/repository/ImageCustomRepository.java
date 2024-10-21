@@ -2,7 +2,7 @@ package com.sideproject.withpt.application.image.repository;
 
 import com.sideproject.withpt.application.record.image.service.response.ImageInfoResponse;
 import com.sideproject.withpt.common.type.UsageType;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import java.time.LocalDate;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;

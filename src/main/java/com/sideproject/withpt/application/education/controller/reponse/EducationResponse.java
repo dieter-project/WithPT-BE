@@ -1,9 +1,7 @@
 package com.sideproject.withpt.application.education.controller.reponse;
 
 import com.querydsl.core.annotations.QueryProjection;
-import com.sideproject.withpt.domain.trainer.Award;
-import com.sideproject.withpt.domain.trainer.Education;
-import java.time.Year;
+import com.sideproject.withpt.domain.user.trainer.Education;
 import java.time.YearMonth;
 import lombok.Builder;
 import lombok.Getter;

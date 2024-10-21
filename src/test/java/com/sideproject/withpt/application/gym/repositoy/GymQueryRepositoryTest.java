@@ -6,7 +6,7 @@ import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerReposi
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
-import com.sideproject.withpt.domain.trainer.Trainer;
+import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,9 +36,6 @@ class GymQueryRepositoryTest {
     @Autowired
     private GymTrainerRepository gymTrainerRepository;
 
-    @Autowired
-    private GymQueryRepository gymQueryRepository;
-
     @DisplayName("트레이너가 소속된 체육관 목록들을 가져온다.")
     @Test
     void findAllTrainerGymsByPageable_firstPage() {
@@ -61,10 +58,9 @@ class GymQueryRepositoryTest {
 
         // when
         PageRequest pageRequest = PageRequest.of(0, 5);
-        Slice<Gym> gymSlice = gymQueryRepository.findAllTrainerGymsByPageable(savedTrainer, pageRequest);
+        Slice<Gym> gymSlice = gymRepository.findAllTrainerGymsByPageable(savedTrainer, pageRequest);
 
         // then
-
         assertThat(gymSlice.getContent()).hasSize(5)
             .extracting("name")
             .contains("체육관1", "체육관2", "체육관3", "체육관4", "체육관5");
@@ -98,10 +94,9 @@ class GymQueryRepositoryTest {
 
         // when
         PageRequest pageRequest = PageRequest.of(1, 5);
-        Slice<Gym> gymSlice = gymQueryRepository.findAllTrainerGymsByPageable(savedTrainer, pageRequest);
+        Slice<Gym> gymSlice = gymRepository.findAllTrainerGymsByPageable(savedTrainer, pageRequest);
 
         // then
-
         assertThat(gymSlice.getContent()).hasSize(2)
             .extracting("name")
             .contains("체육관6", "체육관7");

@@ -14,7 +14,7 @@ import com.sideproject.withpt.application.certificate.repository.CertificateRepo
 import com.sideproject.withpt.application.education.repository.EducationRepository;
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
-import com.sideproject.withpt.application.schedule.repository.ScheduleRepository;
+import com.sideproject.withpt.application.schedule.repository.WorkScheduleRepository;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.application.trainer.service.dto.TrainerSignUpResponse;
 import com.sideproject.withpt.application.trainer.service.dto.complex.GymScheduleDto;
@@ -33,16 +33,15 @@ import com.sideproject.withpt.common.type.Degree;
 import com.sideproject.withpt.common.type.EmploymentStatus;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
-import com.sideproject.withpt.domain.trainer.Academic;
-import com.sideproject.withpt.domain.trainer.Award;
-import com.sideproject.withpt.domain.trainer.Career;
-import com.sideproject.withpt.domain.trainer.Certificate;
-import com.sideproject.withpt.domain.trainer.Education;
-import com.sideproject.withpt.domain.trainer.Trainer;
-import com.sideproject.withpt.domain.trainer.WorkSchedule;
+import com.sideproject.withpt.domain.user.trainer.Academic;
+import com.sideproject.withpt.domain.user.trainer.Award;
+import com.sideproject.withpt.domain.user.trainer.Career;
+import com.sideproject.withpt.domain.user.trainer.Certificate;
+import com.sideproject.withpt.domain.user.trainer.Education;
+import com.sideproject.withpt.domain.user.trainer.Trainer;
+import com.sideproject.withpt.domain.gym.WorkSchedule;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.Year;
 import java.time.YearMonth;
 import java.util.Collections;
 import java.util.List;
@@ -69,7 +68,7 @@ class TrainerAuthenticationServiceTest {
     private GymTrainerRepository gymTrainerRepository;
 
     @Autowired
-    private ScheduleRepository scheduleRepository;
+    private WorkScheduleRepository workScheduleRepository;
 
     @Autowired
     private CareerRepository careerRepository;
@@ -133,7 +132,7 @@ class TrainerAuthenticationServiceTest {
             .extracting("email", "name", "oAuthProvider", "role")
             .contains("test@test.com", "test", KAKAO, TRAINER);
 
-        List<WorkSchedule> workScheduleList = scheduleRepository.findAll();
+        List<WorkSchedule> workScheduleList = workScheduleRepository.findAll();
         assertThat(workScheduleList).hasSize(5);
 
         List<GymTrainer> gymTrainerList = gymTrainerRepository.findAll();
@@ -200,7 +199,7 @@ class TrainerAuthenticationServiceTest {
             .extracting("email", "name", "oAuthProvider", "role")
             .contains("test@test.com", "test", KAKAO, TRAINER);
 
-        List<WorkSchedule> workScheduleList = scheduleRepository.findAll();
+        List<WorkSchedule> workScheduleList = workScheduleRepository.findAll();
         assertThat(workScheduleList).hasSize(2);
 
         List<GymTrainer> gymTrainerList = gymTrainerRepository.findAll();
@@ -270,7 +269,7 @@ class TrainerAuthenticationServiceTest {
             .extracting("email", "name", "oAuthProvider", "role")
             .contains("test@test.com", "test", KAKAO, TRAINER);
 
-        List<WorkSchedule> workScheduleList = scheduleRepository.findAll();
+        List<WorkSchedule> workScheduleList = workScheduleRepository.findAll();
         assertThat(workScheduleList).hasSize(2);
 
         List<GymTrainer> gymTrainerList = gymTrainerRepository.findAll();

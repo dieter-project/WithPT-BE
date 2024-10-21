@@ -5,7 +5,7 @@ import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.security.CustomDetailService;
 import com.sideproject.withpt.common.security.CustomUserDetails;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;

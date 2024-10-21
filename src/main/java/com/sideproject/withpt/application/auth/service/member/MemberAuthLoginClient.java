@@ -16,7 +16,7 @@ import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
 import com.sideproject.withpt.common.redis.RedisClient;
 import com.sideproject.withpt.common.type.AuthProvider;
 import com.sideproject.withpt.common.type.Role;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

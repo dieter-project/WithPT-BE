@@ -3,7 +3,7 @@ package com.sideproject.withpt.application.education.controller;
 import com.sideproject.withpt.application.education.controller.reponse.EducationResponse;
 import com.sideproject.withpt.application.education.controller.request.EducationEditRequest;
 import com.sideproject.withpt.application.education.controller.request.EducationSaveRequest;
-import com.sideproject.withpt.application.education.service.EducationQueryService;
+import com.sideproject.withpt.application.education.service.EducationService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import javax.validation.Valid;
@@ -26,13 +26,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/trainers/{trainerId}/educations")
 public class EducationController {
 
-    private final EducationQueryService educationQueryService;
+    private final EducationService educationService;
 
     @Operation(summary = "트레이너 모든 교육내역 조회")
     @GetMapping
     public ApiSuccessResponse<Slice<EducationResponse>> getAllEducations(@PathVariable Long trainerId, Pageable pageable) {
         return ApiSuccessResponse.from(
-            educationQueryService.getAllEducations(trainerId, pageable)
+            educationService.getAllEducations(trainerId, pageable)
         );
     }
 
@@ -40,7 +40,7 @@ public class EducationController {
     @GetMapping("/{educationId}")
     public ApiSuccessResponse<EducationResponse> getEducation(@PathVariable Long trainerId, @PathVariable Long educationId) {
         return ApiSuccessResponse.from(
-            educationQueryService.getEducation(trainerId, educationId)
+            educationService.getEducation(trainerId, educationId)
         );
     }
 
@@ -48,7 +48,7 @@ public class EducationController {
     @PostMapping
     public ApiSuccessResponse<EducationResponse> saveEducation(@PathVariable Long trainerId, @Valid @RequestBody EducationSaveRequest request) {
         return ApiSuccessResponse.from(
-            educationQueryService.saveEducation(trainerId, request.toEntity())
+            educationService.saveEducation(trainerId, request.toEntity())
         );
     }
 
@@ -56,13 +56,13 @@ public class EducationController {
     @PatchMapping
     public ApiSuccessResponse<EducationResponse> editEducation(@PathVariable Long trainerId, @Valid @RequestBody EducationEditRequest request) {
         return ApiSuccessResponse.from(
-            educationQueryService.editEducation(trainerId, request)
+            educationService.editEducation(trainerId, request)
         );
     }
 
     @Operation(summary = "교육내역 삭제")
     @DeleteMapping("/{educationId}")
     public void deleteEducation(@PathVariable Long trainerId, @PathVariable Long educationId) {
-        educationQueryService.deleteEducation(trainerId, educationId);
+        educationService.deleteEducation(trainerId, educationId);
     }
 }

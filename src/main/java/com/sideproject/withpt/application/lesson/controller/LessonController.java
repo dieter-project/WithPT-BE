@@ -66,7 +66,7 @@ public class LessonController {
         return ApiSuccessResponse.from(response);
     }
 
-    @Operation(summary = "확정/취소 수업 스케줄 조회")
+    @Operation(summary = "확정/취소 수업 스케줄 조회 - 수업 스케줄 정보 조회")
     @GetMapping("/lessons/{lessonId}")
     public ApiSuccessResponse<TrainerLessonInfoResponse> getLessonSchedule(@PathVariable Long lessonId) {
         return ApiSuccessResponse.from(

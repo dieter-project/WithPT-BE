@@ -15,7 +15,7 @@ import com.sideproject.withpt.common.type.DietCategory;
 import com.sideproject.withpt.common.type.DietType;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.type.UsageType;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.record.Image;
 import com.sideproject.withpt.domain.record.diet.DietFood;
 import com.sideproject.withpt.domain.record.diet.DietInfo;

@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.trainer.service.dto.single;
 
-import com.sideproject.withpt.domain.trainer.Certificate;
+import com.sideproject.withpt.domain.user.trainer.Certificate;
 import java.time.YearMonth;
 import lombok.Builder;
 import lombok.Getter;

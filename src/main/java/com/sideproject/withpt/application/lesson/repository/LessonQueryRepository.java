@@ -5,8 +5,8 @@ import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInf
 import com.sideproject.withpt.common.type.LessonStatus;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.gym.GymTrainer;
-import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.pt.Lesson;
+import com.sideproject.withpt.domain.user.member.Member;
+import com.sideproject.withpt.domain.lesson.Lesson;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;

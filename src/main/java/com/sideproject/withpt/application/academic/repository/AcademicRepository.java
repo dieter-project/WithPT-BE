@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.academic.repository;
 
-import com.sideproject.withpt.domain.trainer.Academic;
-import com.sideproject.withpt.domain.trainer.Trainer;
+import com.sideproject.withpt.domain.user.trainer.Academic;
+import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

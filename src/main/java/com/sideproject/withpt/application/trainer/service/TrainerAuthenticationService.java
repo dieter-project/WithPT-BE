@@ -16,7 +16,7 @@ import com.sideproject.withpt.common.redis.RedisClient;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
-import com.sideproject.withpt.domain.trainer.Trainer;
+import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;

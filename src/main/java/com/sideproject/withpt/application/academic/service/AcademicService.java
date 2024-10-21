@@ -9,9 +9,10 @@ import com.sideproject.withpt.application.academic.exception.AcademicException;
 import com.sideproject.withpt.application.academic.repository.AcademicRepository;
 import com.sideproject.withpt.application.academic.service.response.AcademicResponse;
 import com.sideproject.withpt.application.career.exception.CareerException;
-import com.sideproject.withpt.application.trainer.service.TrainerService;
-import com.sideproject.withpt.domain.trainer.Academic;
-import com.sideproject.withpt.domain.trainer.Trainer;
+import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
+import com.sideproject.withpt.common.exception.GlobalException;
+import com.sideproject.withpt.domain.user.trainer.Academic;
+import com.sideproject.withpt.domain.user.trainer.Trainer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -26,14 +27,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class AcademicService {
 
     private final AcademicRepository academicRepository;
-    private final TrainerService trainerService;
+    private final TrainerRepository trainerRepository;
 
     public Slice<AcademicResponse> getAllAcademics(Long trainerId, Pageable pageable) {
         return academicRepository.findAllAcademicPageableByTrainerId(trainerId, pageable);
     }
 
     public AcademicResponse getAcademic(Long trainerId, Long academicId) {
-        Trainer trainer = trainerService.getTrainerById(trainerId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         return AcademicResponse.of(
             academicRepository.findByIdAndTrainer(academicId, trainer)
@@ -43,7 +45,8 @@ public class AcademicService {
 
     @Transactional
     public AcademicResponse saveAcademic(Long trainerId, Academic academic) {
-        Trainer trainer = trainerService.getTrainerById(trainerId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         validateDuplicationAllColumn(academic, trainerId);
 
@@ -56,7 +59,8 @@ public class AcademicService {
 
     @Transactional
     public AcademicResponse editAcademic(Long trainerId, AcademicEditRequest request) {
-        Trainer trainer = trainerService.getTrainerById(trainerId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         Academic academic = academicRepository.findByIdAndTrainer(request.getId(), trainer)
             .orElseThrow(() -> new CareerException(CAREER_NOT_FOUND));
@@ -76,7 +80,8 @@ public class AcademicService {
 
     @Transactional
     public void deleteAcademic(Long trainerId, Long academicId) {
-        Trainer trainer = trainerService.getTrainerById(trainerId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         Academic academic = academicRepository.findByIdAndTrainer(academicId, trainer)
             .orElseThrow(() -> new AcademicException(ACADEMIC_NOT_FOUND));

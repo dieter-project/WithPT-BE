@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.record.body.controller.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.record.body.Body;
 import java.time.LocalDate;
 import javax.validation.constraints.NotNull;

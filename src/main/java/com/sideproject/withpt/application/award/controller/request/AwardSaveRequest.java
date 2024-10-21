@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.award.controller.request;
 
 import com.sideproject.withpt.common.exception.validator.YearMonthType;
-import com.sideproject.withpt.domain.trainer.Award;
+import com.sideproject.withpt.domain.user.trainer.Award;
 import java.time.YearMonth;
 import javax.validation.constraints.NotBlank;
 import lombok.AccessLevel;

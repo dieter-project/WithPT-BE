@@ -9,7 +9,7 @@ import com.sideproject.withpt.application.record.diet.repository.DietQueryReposi
 import com.sideproject.withpt.application.record.exercise.repository.ExerciseRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.utils.DateUtility;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.record.body.Body;
 import com.sideproject.withpt.domain.record.diet.Diets;
 import com.sideproject.withpt.domain.record.exercise.Exercise;

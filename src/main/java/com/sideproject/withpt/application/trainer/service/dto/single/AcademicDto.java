@@ -2,7 +2,7 @@ package com.sideproject.withpt.application.trainer.service.dto.single;
 
 import com.sideproject.withpt.common.type.AcademicInstitution;
 import com.sideproject.withpt.common.type.Degree;
-import com.sideproject.withpt.domain.trainer.Academic;
+import com.sideproject.withpt.domain.user.trainer.Academic;
 import java.time.YearMonth;
 import lombok.Builder;
 import lombok.Getter;

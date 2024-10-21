@@ -11,7 +11,7 @@ import com.sideproject.withpt.application.record.body.controller.response.Weight
 import com.sideproject.withpt.application.record.body.repository.BodyRepository;
 import com.sideproject.withpt.common.type.DietType;
 import com.sideproject.withpt.common.type.Role;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.record.body.Body;
 import java.time.LocalDate;
 import java.util.List;

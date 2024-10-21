@@ -2,12 +2,10 @@ package com.sideproject.withpt.application.member.controller.response;
 
 import com.sideproject.withpt.common.type.DietType;
 import com.sideproject.withpt.common.type.ExerciseFrequency;
-import com.sideproject.withpt.common.type.LoginType;
 import com.sideproject.withpt.common.type.AuthProvider;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.type.Sex;
-import com.sideproject.withpt.domain.member.Authentication;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -24,7 +22,6 @@ public class MemberInfoResponse {
     private Long id;
     private String email;
     private AuthProvider oauthProvider;
-    private LoginType loginType;
     private String name;
     private Double height;
     private Double weight;
@@ -38,7 +35,7 @@ public class MemberInfoResponse {
     private LocalDateTime joinDate;
     private LocalDateTime lastModifiedDate;
 
-    public static MemberInfoResponse of(Member member, Authentication authentication) {
+    public static MemberInfoResponse of(Member member) {
         return MemberInfoResponse.builder()
             .id(member.getId())
             .email(member.getEmail())
@@ -51,10 +48,9 @@ public class MemberInfoResponse {
             .targetWeight(member.getTargetWeight())
             .role(member.getRole())
             .oauthProvider(member.getAuthProvider())
-            .birth(authentication.getBirth())
-            .sex(authentication.getSex())
-            .loginType(authentication.getLoginType())
-            .joinDate(authentication.getJoinDate())
+            .birth(member.getBirth())
+            .sex(member.getSex())
+            .joinDate(member.getJoinDate())
             .lastModifiedDate(member.getLastModifiedDate())
             .build();
     }

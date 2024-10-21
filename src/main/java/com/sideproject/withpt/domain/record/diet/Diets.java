@@ -2,7 +2,7 @@ package com.sideproject.withpt.domain.record.diet;
 
 import com.sideproject.withpt.common.type.DietType;
 import com.sideproject.withpt.domain.BaseEntity;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.record.diet.utils.DietNutritionalStatistics;
 import com.sideproject.withpt.domain.record.diet.utils.NutritionalInfo;
 import java.time.LocalDate;

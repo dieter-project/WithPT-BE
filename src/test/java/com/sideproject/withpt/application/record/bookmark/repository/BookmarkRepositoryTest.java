@@ -11,7 +11,7 @@ import com.sideproject.withpt.common.type.BodyPart;
 import com.sideproject.withpt.common.type.DietType;
 import com.sideproject.withpt.common.type.ExerciseType;
 import com.sideproject.withpt.common.type.Role;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.record.bookmark.Bookmark;
 import com.sideproject.withpt.domain.record.bookmark.BookmarkBodyCategory;
 import java.time.LocalDate;

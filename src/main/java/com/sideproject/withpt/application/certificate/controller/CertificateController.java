@@ -3,7 +3,7 @@ package com.sideproject.withpt.application.certificate.controller;
 import com.sideproject.withpt.application.certificate.controller.reponse.CertificateResponse;
 import com.sideproject.withpt.application.certificate.controller.request.CertificateEditRequest;
 import com.sideproject.withpt.application.certificate.controller.request.CertificateSaveRequest;
-import com.sideproject.withpt.application.certificate.service.CertificateQueryService;
+import com.sideproject.withpt.application.certificate.service.CertificateService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import javax.validation.Valid;
@@ -26,14 +26,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/trainers/{trainerId}/certificates")
 public class CertificateController {
 
-    private final CertificateQueryService certificateQueryService;
+    private final CertificateService certificateService;
 
     @Operation(summary = "트레이너 모든 자격증 조회")
     @GetMapping
     public ApiSuccessResponse<Slice<CertificateResponse>> getAllCertificates(@PathVariable Long trainerId,
         Pageable pageable) {
         return ApiSuccessResponse.from(
-            certificateQueryService.getAllCertificate(trainerId, pageable)
+            certificateService.getAllCertificate(trainerId, pageable)
         );
     }
 
@@ -41,7 +41,7 @@ public class CertificateController {
     @GetMapping("/{certificateId}")
     public ApiSuccessResponse<CertificateResponse> getCertificate(@PathVariable Long trainerId, @PathVariable Long certificateId) {
         return ApiSuccessResponse.from(
-            certificateQueryService.getCertificate(trainerId, certificateId)
+            certificateService.getCertificate(trainerId, certificateId)
         );
     }
 
@@ -49,7 +49,7 @@ public class CertificateController {
     @PostMapping
     public ApiSuccessResponse<CertificateResponse> saveCertificate(@PathVariable Long trainerId, @Valid @RequestBody CertificateSaveRequest request) {
         return ApiSuccessResponse.from(
-            certificateQueryService.saveCertificate(trainerId, request.toEntity())
+            certificateService.saveCertificate(trainerId, request.toEntity())
         );
     }
 
@@ -57,13 +57,13 @@ public class CertificateController {
     @PatchMapping
     public ApiSuccessResponse<CertificateResponse> editCertificate(@PathVariable Long trainerId, @Valid @RequestBody CertificateEditRequest request) {
         return ApiSuccessResponse.from(
-            certificateQueryService.editCertificate(trainerId, request)
+            certificateService.editCertificate(trainerId, request)
         );
     }
 
     @Operation(summary = "자격증 삭제")
     @DeleteMapping("/{certificateId}")
     public void deleteCertificate(@PathVariable Long trainerId, @PathVariable Long certificateId) {
-        certificateQueryService.deleteCertificate(trainerId, certificateId);
+        certificateService.deleteCertificate(trainerId, certificateId);
     }
 }

@@ -20,7 +20,7 @@ import com.sideproject.withpt.application.lesson.service.response.TrainerLessonS
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.pt.exception.PTException;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
-import com.sideproject.withpt.application.schedule.repository.ScheduleRepository;
+import com.sideproject.withpt.application.schedule.repository.WorkScheduleRepository;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.common.type.Day;
 import com.sideproject.withpt.common.type.DietType;
@@ -34,13 +34,12 @@ import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.type.Sex;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
-import com.sideproject.withpt.domain.member.Authentication;
-import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.pt.Lesson;
-import com.sideproject.withpt.domain.pt.LessonSchedule;
+import com.sideproject.withpt.domain.user.member.Member;
+import com.sideproject.withpt.domain.lesson.Lesson;
+import com.sideproject.withpt.domain.lesson.LessonSchedule;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
-import com.sideproject.withpt.domain.trainer.Trainer;
-import com.sideproject.withpt.domain.trainer.WorkSchedule;
+import com.sideproject.withpt.domain.user.trainer.Trainer;
+import com.sideproject.withpt.domain.gym.WorkSchedule;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
@@ -77,7 +76,7 @@ class LessonServiceTest {
     @Autowired
     private PersonalTrainingRepository personalTrainingRepository;
     @Autowired
-    private ScheduleRepository scheduleRepository;
+    private WorkScheduleRepository workScheduleRepository;
     @Autowired
     private LessonRepository lessonRepository;
 
@@ -474,7 +473,7 @@ class LessonServiceTest {
             )
         );
 
-        scheduleRepository.save(createWorkSchedule(Day.FRI, LocalTime.of(9, 0), LocalTime.of(18, 0), gymTrainer));
+        workScheduleRepository.save(createWorkSchedule(Day.FRI, LocalTime.of(9, 0), LocalTime.of(18, 0), gymTrainer));
 
         // when
         AvailableLessonScheduleResponse response = lessonService.getTrainerAvailableLessonSchedule(gym.getId(), trainer.getId(), Day.FRI, date);
@@ -1243,14 +1242,10 @@ class LessonServiceTest {
     }
 
     private Member createMember(String name) {
-        Authentication authentication = Authentication.builder()
-            .birth(LocalDate.parse("1994-07-19"))
-            .sex(Sex.MAN)
-            .build();
-
         return Member.builder()
             .name(name)
-            .authentication(authentication)
+            .birth(LocalDate.parse("1994-07-19"))
+            .sex(Sex.MAN)
             .height(173.0)
             .weight(73.5)
             .dietType(DietType.Carb_Protein_Fat)

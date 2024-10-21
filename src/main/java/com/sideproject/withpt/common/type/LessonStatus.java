@@ -1,6 +1,6 @@
 package com.sideproject.withpt.common.type;
 
-import com.sideproject.withpt.domain.pt.Lesson;
+import com.sideproject.withpt.domain.lesson.Lesson;
 import java.util.List;
 
 public enum LessonStatus {

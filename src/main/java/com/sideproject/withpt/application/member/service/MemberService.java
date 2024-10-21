@@ -5,12 +5,14 @@ import com.sideproject.withpt.application.member.controller.request.EditMemberEx
 import com.sideproject.withpt.application.member.controller.request.EditMemberInfoRequest;
 import com.sideproject.withpt.application.member.controller.request.EditMemberTargetWeightRequest;
 import com.sideproject.withpt.application.member.controller.response.MemberInfoResponse;
+import com.sideproject.withpt.application.member.controller.response.MemberSearchResponse;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
-import com.sideproject.withpt.domain.member.Member;
-import java.util.List;
+import com.sideproject.withpt.domain.user.member.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,15 +29,21 @@ public class MemberService {
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
     }
 
+    public Slice<MemberSearchResponse> searchMembers(Pageable pageable, String name) {
+        return memberRepository.findBySearchOption(pageable, name);
+    }
+
     public MemberInfoResponse getMemberInfo(Long memberId) {
-        Member findMember = getMemberById(memberId);
-        return MemberInfoResponse.of(findMember, findMember.getAuthentication());
+        Member findMember = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+        return MemberInfoResponse.of(findMember);
     }
 
     @Transactional
     public void editMemberInfo(EditMemberInfoRequest request, Long memberId) {
-        Member findMember = getMemberById(memberId);
-        findMember.editMemberInfo(
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+        member.editMemberInfo(
             request.getName(),
             request.getBirth(),
             request.getSex(),
@@ -46,23 +54,23 @@ public class MemberService {
 
     @Transactional
     public void editDietType(EditMemberDietTypeRequest request, Long memberId) {
-        Member findMember = getMemberById(memberId);
-        findMember.editDietType(request.getDietType());
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+        member.editDietType(request.getDietType());
     }
 
     @Transactional
     public void editExerciseFrequency(EditMemberExerciseFrequencyRequest request, Long memberId) {
-        Member findMember = getMemberById(memberId);
-        findMember.editExerciseFrequency(request.getExerciseFrequency());
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+        member.editExerciseFrequency(request.getExerciseFrequency());
     }
 
     @Transactional
     public void editTargetWeight(EditMemberTargetWeightRequest request, Long memberId) {
-        Member findMember = getMemberById(memberId);
-        findMember.editTargetWeight(request.getTargetWeight());
-    }
-    public List<Member> getAllMemberById(List<Long> memberIds) {
-        return memberRepository.findAllByIdIn(memberIds);
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+        member.editTargetWeight(request.getTargetWeight());
     }
 
 }
