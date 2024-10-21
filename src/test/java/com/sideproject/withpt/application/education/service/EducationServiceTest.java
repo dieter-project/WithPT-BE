@@ -8,8 +8,8 @@ import com.sideproject.withpt.application.education.controller.request.Education
 import com.sideproject.withpt.application.education.exception.EducationException;
 import com.sideproject.withpt.application.education.repository.EducationRepository;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
-import com.sideproject.withpt.domain.trainer.Education;
-import com.sideproject.withpt.domain.trainer.Trainer;
+import com.sideproject.withpt.domain.user.trainer.Education;
+import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;

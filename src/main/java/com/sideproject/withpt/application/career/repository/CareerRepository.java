@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.career.repository;
 
-import com.sideproject.withpt.domain.trainer.Career;
-import com.sideproject.withpt.domain.trainer.Trainer;
+import com.sideproject.withpt.domain.user.trainer.Career;
+import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

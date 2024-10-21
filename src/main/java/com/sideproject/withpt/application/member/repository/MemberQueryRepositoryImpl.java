@@ -28,8 +28,8 @@ public class MemberQueryRepositoryImpl implements MemberQueryRepository {
                     member.name,
                     member.email,
                     member.imageUrl,
-                    member.authentication.birth,
-                    member.authentication.sex
+                    member.birth,
+                    member.sex
                 )
             )
             .from(member)
@@ -38,7 +38,7 @@ public class MemberQueryRepositoryImpl implements MemberQueryRepository {
             .limit(pageable.getPageSize() + 1)
             .orderBy(
                 member.name.asc(),
-                member.authentication.birth.asc()
+                member.birth.asc()
             )
             .fetch();
 

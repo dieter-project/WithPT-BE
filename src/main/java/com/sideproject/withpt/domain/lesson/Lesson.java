@@ -1,13 +1,11 @@
-package com.sideproject.withpt.domain.pt;
+package com.sideproject.withpt.domain.lesson;
 
 import com.sideproject.withpt.common.type.Day;
 import com.sideproject.withpt.common.type.LessonStatus;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.BaseEntity;
-import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
-import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.trainer.Trainer;
+import com.sideproject.withpt.domain.user.member.Member;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import javax.persistence.AttributeOverride;

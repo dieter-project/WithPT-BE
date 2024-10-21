@@ -22,11 +22,10 @@ import com.sideproject.withpt.common.type.PtRegistrationStatus;
 import com.sideproject.withpt.common.type.Sex;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
-import com.sideproject.withpt.domain.member.Authentication;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.pt.PersonalTrainingInfo;
-import com.sideproject.withpt.domain.trainer.Trainer;
+import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
@@ -652,14 +651,10 @@ class PersonalTrainingQueryRepositoryTest {
     }
 
     private Member createMember(String name) {
-        Authentication authentication = Authentication.builder()
-            .birth(LocalDate.parse("1994-07-19"))
-            .sex(Sex.MAN)
-            .build();
-
         return Member.builder()
             .name(name)
-            .authentication(authentication)
+            .birth(LocalDate.parse("1994-07-19"))
+            .sex(Sex.MAN)
             .height(173.0)
             .weight(73.5)
             .imageUrl("imageURL.jpa")

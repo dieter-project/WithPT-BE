@@ -14,7 +14,7 @@ import com.sideproject.withpt.application.record.exercise.repository.ExerciseRep
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.type.ExerciseType;
 import com.sideproject.withpt.common.type.UsageType;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.record.exercise.BodyCategory;
 import com.sideproject.withpt.domain.record.exercise.Exercise;
 import com.sideproject.withpt.domain.record.exercise.ExerciseInfo;

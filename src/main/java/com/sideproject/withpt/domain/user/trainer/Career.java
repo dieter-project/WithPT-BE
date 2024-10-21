@@ -1,4 +1,4 @@
-package com.sideproject.withpt.domain.trainer;
+package com.sideproject.withpt.domain.user.trainer;
 
 import com.sideproject.withpt.common.type.EmploymentStatus;
 import com.sideproject.withpt.domain.BaseEntity;

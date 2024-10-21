@@ -7,8 +7,7 @@ import com.sideproject.withpt.application.member.controller.response.MemberSearc
 import com.sideproject.withpt.common.type.DietType;
 import com.sideproject.withpt.common.type.ExerciseFrequency;
 import com.sideproject.withpt.common.type.Sex;
-import com.sideproject.withpt.domain.member.Authentication;
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -65,15 +64,11 @@ class MemberQueryRepositoryImplTest {
     }
 
     private Member createMember(String name, String email) {
-        Authentication authentication = Authentication.builder()
-            .birth(LocalDate.parse("1994-07-19"))
-            .sex(Sex.MAN)
-            .build();
-
         return Member.builder()
             .name(name)
             .email(email)
-            .authentication(authentication)
+            .birth(LocalDate.parse("1994-07-19"))
+            .sex(Sex.MAN)
             .height(173.0)
             .weight(73.5)
             .dietType(DietType.Carb_Protein_Fat)

@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.record.diet.repository;
 
-import com.sideproject.withpt.domain.member.Member;
+import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.record.diet.Diets;
 import java.time.LocalDate;
 import java.util.Optional;

@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.award.repository;
 
 import com.sideproject.withpt.application.award.controller.reponse.AwardResponse;
-import com.sideproject.withpt.domain.trainer.Award;
+import com.sideproject.withpt.domain.user.trainer.Award;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 

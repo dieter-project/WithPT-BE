@@ -8,9 +8,8 @@ import com.sideproject.withpt.application.academic.service.response.AcademicResp
 import com.sideproject.withpt.application.academic.service.response.QAcademicResponse;
 import com.sideproject.withpt.common.type.AcademicInstitution;
 import com.sideproject.withpt.common.type.Degree;
-import com.sideproject.withpt.domain.trainer.Academic;
+import com.sideproject.withpt.domain.user.trainer.Academic;
 import java.time.YearMonth;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

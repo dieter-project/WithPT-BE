@@ -7,7 +7,7 @@ import com.sideproject.withpt.application.trainer.service.dto.TrainerSignUpRespo
 import com.sideproject.withpt.common.type.AuthProvider;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;
-import com.sideproject.withpt.domain.trainer.Trainer;
+import com.sideproject.withpt.domain.user.trainer.Trainer;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

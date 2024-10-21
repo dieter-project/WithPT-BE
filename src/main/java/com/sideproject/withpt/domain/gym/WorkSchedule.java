@@ -1,4 +1,4 @@
-package com.sideproject.withpt.domain.trainer;
+package com.sideproject.withpt.domain.gym;
 
 import com.sideproject.withpt.common.type.Day;
 import com.sideproject.withpt.domain.BaseEntity;
@@ -28,7 +28,6 @@ import lombok.ToString;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString(exclude = {"trainer", "gym"})
 public class WorkSchedule extends BaseEntity {
 
     @Id

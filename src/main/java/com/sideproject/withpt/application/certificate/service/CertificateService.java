@@ -6,13 +6,11 @@ import static com.sideproject.withpt.application.certificate.exception.Certifica
 import com.sideproject.withpt.application.certificate.controller.reponse.CertificateResponse;
 import com.sideproject.withpt.application.certificate.controller.request.CertificateEditRequest;
 import com.sideproject.withpt.application.certificate.exception.CertificateException;
-import com.sideproject.withpt.application.certificate.repository.CertificateQueryRepository;
 import com.sideproject.withpt.application.certificate.repository.CertificateRepository;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
-import com.sideproject.withpt.application.trainer.service.TrainerService;
 import com.sideproject.withpt.common.exception.GlobalException;
-import com.sideproject.withpt.domain.trainer.Certificate;
-import com.sideproject.withpt.domain.trainer.Trainer;
+import com.sideproject.withpt.domain.user.trainer.Certificate;
+import com.sideproject.withpt.domain.user.trainer.Trainer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;

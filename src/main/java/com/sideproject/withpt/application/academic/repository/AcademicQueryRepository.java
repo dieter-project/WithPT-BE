@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.academic.repository;
 
 import com.sideproject.withpt.application.academic.service.response.AcademicResponse;
-import com.sideproject.withpt.domain.trainer.Academic;
+import com.sideproject.withpt.domain.user.trainer.Academic;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 

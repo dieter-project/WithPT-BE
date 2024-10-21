@@ -1,7 +1,7 @@
-package com.sideproject.withpt.domain.trainer;
+package com.sideproject.withpt.domain.user.trainer;
 
-import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.common.convertor.YearMonthToDateConverter;
+import com.sideproject.withpt.domain.BaseEntity;
 import java.time.YearMonth;
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -25,7 +25,7 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Education extends BaseEntity {
+public class Award extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,9 +43,9 @@ public class Education extends BaseEntity {
     @Convert(converter = YearMonthToDateConverter.class)
     private YearMonth acquisitionYearMonth;
 
-    public void editEducation(String name, String institution, YearMonth acquisitionYearMonth) {
+    public void editAward(String name, String institution, YearMonth acquisitionYear) {
         this.name = name;
         this.institution = institution;
-        this.acquisitionYearMonth = acquisitionYearMonth;
+        this.acquisitionYearMonth = acquisitionYear;
     }
 }

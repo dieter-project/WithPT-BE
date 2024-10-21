@@ -11,8 +11,8 @@ import com.sideproject.withpt.application.chat.contoller.response.QRoomListRespo
 import com.sideproject.withpt.application.chat.contoller.response.RoomListResponse.RoomInfo;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.chat.Message;
-import com.sideproject.withpt.domain.member.Member;
-import com.sideproject.withpt.domain.trainer.Trainer;
+import com.sideproject.withpt.domain.user.member.Member;
+import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

@@ -8,8 +8,7 @@ import com.sideproject.withpt.application.member.controller.response.MemberInfoR
 import com.sideproject.withpt.application.member.controller.response.MemberSearchResponse;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
-import com.sideproject.withpt.domain.member.Member;
-import java.util.List;
+import com.sideproject.withpt.domain.user.member.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -37,7 +36,7 @@ public class MemberService {
     public MemberInfoResponse getMemberInfo(Long memberId) {
         Member findMember = memberRepository.findById(memberId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-        return MemberInfoResponse.of(findMember, findMember.getAuthentication());
+        return MemberInfoResponse.of(findMember);
     }
 
     @Transactional
