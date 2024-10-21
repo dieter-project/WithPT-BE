@@ -1,9 +1,13 @@
 package com.sideproject.withpt.application.schedule.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.groups.Tuple.tuple;
 
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
+import com.sideproject.withpt.application.schedule.controller.request.WorkScheduleEditRequest;
+import com.sideproject.withpt.application.schedule.exception.ScheduleException;
 import com.sideproject.withpt.application.schedule.repository.WorkScheduleRepository;
 import com.sideproject.withpt.application.schedule.service.response.WorkScheduleResponse;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
@@ -17,7 +21,6 @@ import com.sideproject.withpt.domain.trainer.WorkSchedule;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,11 +83,11 @@ class WorkScheduleServiceTest {
         assertThat(responses).hasSize(5)
             .extracting("weekday", "inTime", "outTime")
             .contains(
-                Tuple.tuple(Day.MON, LocalTime.of(10, 0), LocalTime.of(18, 0)),
-                Tuple.tuple(Day.TUE, LocalTime.of(12, 0), LocalTime.of(22, 0)),
-                Tuple.tuple(Day.WED, LocalTime.of(10, 0), LocalTime.of(18, 0)),
-                Tuple.tuple(Day.THU, LocalTime.of(10, 0), LocalTime.of(18, 0)),
-                Tuple.tuple(Day.FRI, LocalTime.of(12, 0), LocalTime.of(22, 0))
+                tuple(Day.MON, LocalTime.of(10, 0), LocalTime.of(18, 0)),
+                tuple(Day.TUE, LocalTime.of(12, 0), LocalTime.of(22, 0)),
+                tuple(Day.WED, LocalTime.of(10, 0), LocalTime.of(18, 0)),
+                tuple(Day.THU, LocalTime.of(10, 0), LocalTime.of(18, 0)),
+                tuple(Day.FRI, LocalTime.of(12, 0), LocalTime.of(22, 0))
             );
     }
 
@@ -114,6 +117,78 @@ class WorkScheduleServiceTest {
         assertThat(response)
             .extracting("weekday", "inTime", "outTime")
             .contains(Day.WED, LocalTime.of(10, 0), LocalTime.of(18, 0));
+    }
+
+    @DisplayName("트레이너 근무 스케줄 수정")
+    @Test
+    void editWorkSchedule() {
+        // given
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+
+        Gym gym = gymRepository.save(createGym("체육관"));
+
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer));
+
+        WorkSchedule workSchedule1 = workScheduleRepository.save(createWorkSchedule(Day.MON, LocalTime.of(10, 0), LocalTime.of(18, 0), gymTrainer));
+        WorkSchedule workSchedule2 = workScheduleRepository.save(createWorkSchedule(Day.TUE, LocalTime.of(12, 0), LocalTime.of(22, 0), gymTrainer));
+        WorkSchedule workSchedule3 = workScheduleRepository.save(createWorkSchedule(Day.WED, LocalTime.of(10, 0), LocalTime.of(18, 0), gymTrainer));
+        WorkSchedule workSchedule4 = workScheduleRepository.save(createWorkSchedule(Day.THU, LocalTime.of(10, 0), LocalTime.of(18, 0), gymTrainer));
+        WorkSchedule workSchedule5 = workScheduleRepository.save(createWorkSchedule(Day.FRI, LocalTime.of(12, 0), LocalTime.of(22, 0), gymTrainer));
+
+        WorkScheduleEditRequest request = new WorkScheduleEditRequest(
+            List.of(
+                createEditWorkSchedule(workSchedule1.getId(), Day.MON, LocalTime.of(10, 0), LocalTime.of(18, 0)), // 원본 그대로
+                createEditWorkSchedule(workSchedule2.getId(), Day.TUE, LocalTime.of(12, 0), LocalTime.of(22, 0)), // 원본 그대로
+                createEditWorkSchedule(workSchedule3.getId(), Day.WED, LocalTime.of(10, 0), LocalTime.of(22, 0)), // 기존 스케줄 시간 수정
+                createEditWorkSchedule(null, Day.THU, LocalTime.of(8, 0), LocalTime.of(17, 0)), // 화면에서 지웠다가 새로 추가
+                createEditWorkSchedule(null, Day.FRI, LocalTime.of(8, 0), LocalTime.of(17, 0)), // 화면에서 지웠다가 새로 추가
+                createEditWorkSchedule(null, Day.SAT, LocalTime.of(12, 0), LocalTime.of(18, 0)) // 화면에서 지웠다가 새로 추가
+            ));
+
+        Long trainerId = trainer.getId();
+        Long gymId = gym.getId();
+
+        // when
+        workScheduleService.editWorkSchedule(trainerId, gymId, request);
+
+        // then
+        List<WorkSchedule> result = workScheduleRepository.findAll();
+        assertThat(result).hasSize(6)
+            .extracting("weekday", "inTime", "outTime")
+            .contains(
+                tuple(Day.MON, LocalTime.of(10, 0), LocalTime.of(18, 0)),
+                tuple(Day.TUE, LocalTime.of(12, 0), LocalTime.of(22, 0)),
+                tuple(Day.WED, LocalTime.of(10, 0), LocalTime.of(22, 0)),
+                tuple(Day.THU, LocalTime.of(8, 0), LocalTime.of(17, 0)),
+                tuple(Day.FRI, LocalTime.of(8, 0), LocalTime.of(17, 0)),
+                tuple(Day.SAT, LocalTime.of(12, 0), LocalTime.of(18, 0))
+            );
+    }
+
+    @DisplayName("트레이너 근무 스케줄 수정 요청에서 같은 요일이 2건 이상이면 에러")
+    @Test
+    void validateUniqueWeekdays() {
+        // given
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+
+        Gym gym = gymRepository.save(createGym("체육관"));
+
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer));
+
+        WorkScheduleEditRequest request = new WorkScheduleEditRequest(
+            List.of(
+                createEditWorkSchedule(null, Day.THU, LocalTime.of(8, 0), LocalTime.of(17, 0)), // 화면에서 지웠다가 새로 추가
+                createEditWorkSchedule(null, Day.THU, LocalTime.of(8, 0), LocalTime.of(17, 0)), // 화면에서 지웠다가 새로 추가
+                createEditWorkSchedule(null, Day.SAT, LocalTime.of(12, 0), LocalTime.of(18, 0)) // 화면에서 지웠다가 새로 추가
+            ));
+
+        Long trainerId = trainer.getId();
+        Long gymId = gym.getId();
+
+        // when // then
+        assertThatThrownBy(() -> workScheduleService.editWorkSchedule(trainerId, gymId, request))
+            .isInstanceOf(ScheduleException.class)
+            .hasMessage("동일한 요일이 존재하여 수정 및 저장이 불가능합니다.");
     }
 
     @DisplayName("요청 정보를 통해 트레이너의 체육관 별 스케줄을 등록할 수 있다.")
@@ -210,6 +285,15 @@ class WorkScheduleServiceTest {
             .latitude(3.143151)
             .longitude(4.151661)
             .workSchedules(workSchedules)
+            .build();
+    }
+
+    private WorkScheduleEditRequest.Schedule createEditWorkSchedule(Long id, Day weekday, LocalTime inTime, LocalTime outTime) {
+        return WorkScheduleEditRequest.Schedule.builder()
+            .id(id)
+            .weekday(weekday)
+            .inTime(inTime)
+            .outTime(outTime)
             .build();
     }
 }

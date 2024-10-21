@@ -5,26 +5,25 @@ import static com.sideproject.withpt.application.schedule.exception.ScheduleErro
 
 import com.sideproject.withpt.application.gym.exception.GymException;
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
-import com.sideproject.withpt.application.gym.service.GymService;
 import com.sideproject.withpt.application.gymtrainer.exception.GymTrainerException;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
 import com.sideproject.withpt.application.schedule.controller.request.WorkScheduleEditRequest;
 import com.sideproject.withpt.application.schedule.controller.request.WorkScheduleEditRequest.Schedule;
-import com.sideproject.withpt.application.schedule.service.response.WorkScheduleResponse;
 import com.sideproject.withpt.application.schedule.exception.ScheduleException;
 import com.sideproject.withpt.application.schedule.repository.WorkScheduleRepository;
+import com.sideproject.withpt.application.schedule.service.response.WorkScheduleResponse;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
-import com.sideproject.withpt.application.trainer.service.TrainerService;
 import com.sideproject.withpt.application.trainer.service.dto.complex.GymScheduleDto;
 import com.sideproject.withpt.application.trainer.service.dto.single.WorkScheduleDto;
 import com.sideproject.withpt.common.exception.GlobalException;
+import com.sideproject.withpt.common.type.Day;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.trainer.Trainer;
 import com.sideproject.withpt.domain.trainer.WorkSchedule;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,9 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class WorkScheduleService {
 
     private final WorkScheduleRepository workScheduleRepository;
-    private final TrainerService trainerService;
     private final TrainerRepository trainerRepository;
-    private final GymService gymService;
     private final GymRepository gymRepository;
     private final GymTrainerRepository gymTrainerRepository;
 
@@ -67,34 +64,28 @@ public class WorkScheduleService {
     @Transactional
     public void editWorkSchedule(Long trainerId, Long gymId, WorkScheduleEditRequest request) {
 
-        // 같은 요일이 2건 이상이면 에러
-        validExistSameWeekDay(request);
+        // 요청에서 같은 요일이 2건 이상이면 에러
+        validateUniqueWeekdays(request);
 
-        Trainer trainer = trainerService.getTrainerById(trainerId);
-        Gym gym = gymService.getGymById(gymId);
+        Trainer trainer = trainerRepository.findById(trainerId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
-        List<WorkSchedule> originWorkSchedules = workScheduleRepository.findAllByTrainerAndGym(trainer, gym);
+        Gym gym = gymRepository.findById(gymId)
+            .orElseThrow(() -> GymException.GYM_NOT_FOUND);
+
+        GymTrainer gymTrainer = gymTrainerRepository.findByTrainerAndGym(trainer, gym)
+            .orElseThrow(() -> GymTrainerException.GYM_TRAINER_NOT_MAPPING);
+
+        List<WorkSchedule> originWorkSchedules = workScheduleRepository.findAllByGymTrainer(gymTrainer);
         List<WorkScheduleEditRequest.Schedule> editWorkSchedules = request.getWorkSchedules();
 
         // id 가 존재하면 수정
-        originWorkSchedules.forEach(originWorkSchedule -> {
-            editWorkSchedules.stream()
-                .filter(workSchedule -> Objects.equals(originWorkSchedule.getId(), workSchedule.getId()))
-                .findFirst()
-                .ifPresent(workSchedule ->
-                    originWorkSchedule.editWorkScheduleTime(workSchedule.getInTime(), workSchedule.getOutTime())
-                );
-        });
+        updateWorkSchedule(originWorkSchedules, editWorkSchedules);
 
         // id 없이 요일, 시간이 들어오면 새로 저장
-        workScheduleRepository.saveAll(
-            editWorkSchedules.stream()
-                .filter(schedule -> schedule.getId() == null)
-                .map(schedule -> Schedule.toEntity(schedule, trainer, gym))
-                .collect(Collectors.toList())
-        );
+        saveNewSchedulesWithoutId(editWorkSchedules, gymTrainer);
 
-        // 원본 list에서 없는 id 가 있으면 삭제
+        // 원본 스케줄과 변경 요청된 스케줄을 비교해서 매칭되는 ID 가 없으면 삭제
         workScheduleRepository.deleteAllByIdInBatch(
             extractRemovedSchedules(originWorkSchedules, editWorkSchedules)
         );
@@ -115,24 +106,54 @@ public class WorkScheduleService {
         }
     }
 
-    private List<Long> extractRemovedSchedules(List<WorkSchedule> originWorkSchedules, List<Schedule> editWorkSchedules) {
-        return originWorkSchedules.stream()
-            .map(WorkSchedule::getId)
-            .filter(id -> !editWorkSchedules.stream()
-                .map(Schedule::getId)
-                .collect(Collectors.toList()).contains(id))
-            .collect(Collectors.toList());
+    private void validateUniqueWeekdays(WorkScheduleEditRequest request) {
+
+        Map<Day, List<Schedule>> weekdayGroups = request.getWorkSchedules().stream()
+            .collect(Collectors.groupingBy(Schedule::getWeekday));
+
+        weekdayGroups.forEach((weekday, schedules) -> {
+            if (schedules.size() > 1) {
+                throw new ScheduleException(IS_EXIST_SAME_WEEKDAY);
+            }
+        });
     }
 
-    private void validExistSameWeekDay(WorkScheduleEditRequest request) {
-        request.getWorkSchedules().stream()
-            .collect(Collectors.groupingBy(Schedule::getWeekday))
-            .values().stream()
-            .filter(list -> list.size() > 1)
-            .findAny()
-            .ifPresent(list -> {
-                throw new ScheduleException(IS_EXIST_SAME_WEEKDAY);
-            });
+    private void updateWorkSchedule(List<WorkSchedule> originWorkSchedules, List<Schedule> editWorkSchedules) {
+        // editWorkSchedules를 Map으로 변환 (id -> Schedule)
+        Map<Long, Schedule> editScheduleMap = editWorkSchedules.stream()
+            .filter(schedule -> schedule.getId() != null) // null id 필터링
+            .collect(Collectors.toMap(Schedule::getId, schedule -> schedule));
+
+        originWorkSchedules.forEach(originWorkSchedule -> {
+            Schedule matchingSchedule = editScheduleMap.get(originWorkSchedule.getId());  // id로 바로 검색
+            if (matchingSchedule != null) { // 일치하는 Schedule이 있을 경우 수정
+                originWorkSchedule.editWorkScheduleTime(matchingSchedule.getInTime(), matchingSchedule.getOutTime());
+            }
+        });
+    }
+
+    private void saveNewSchedulesWithoutId(List<Schedule> editWorkSchedules, GymTrainer gymTrainer) {
+        // id가 없는 새 Schedule만 필터링 후 저장
+        List<WorkSchedule> newSchedules = editWorkSchedules.stream()
+            .filter(schedule -> schedule.getId() == null)
+            .map(schedule -> schedule.toEntity(gymTrainer))
+            .collect(Collectors.toList());
+
+        // 새로 저장할 항목이 있는 경우에만 저장 처리
+        if (!newSchedules.isEmpty()) {
+            workScheduleRepository.saveAll(newSchedules);
+        }
+    }
+
+    private List<Long> extractRemovedSchedules(List<WorkSchedule> originWorkSchedules, List<Schedule> editWorkSchedules) {
+        Set<Long> editScheduleIds = editWorkSchedules.stream()
+            .map(Schedule::getId)
+            .collect(Collectors.toSet());
+
+        return originWorkSchedules.stream()
+            .map(WorkSchedule::getId)
+            .filter(id -> !editScheduleIds.contains(id))
+            .collect(Collectors.toList());
     }
 
     private Map<String, List<WorkScheduleDto>> createWorkScheduleDtoMap(List<GymScheduleDto> gymScheduleDtos) {

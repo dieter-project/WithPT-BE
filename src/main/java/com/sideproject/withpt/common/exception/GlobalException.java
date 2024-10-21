@@ -31,6 +31,10 @@ public class GlobalException extends RuntimeException {
         this.errorCode = errorCode;
     }
 
+    public GlobalException(String message) {
+        super(message);
+    }
+
     public GlobalException(HttpStatus httpStatus, String message) {
         super(message);
         this.errorCode = new ErrorCode() {

@@ -1,7 +1,6 @@
 package com.sideproject.withpt.application.trainer.service.dto.single;
 
 import com.sideproject.withpt.common.type.Day;
-import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.trainer.WorkSchedule;
 import java.time.LocalTime;
@@ -29,15 +28,6 @@ public class WorkScheduleDto {
     public WorkSchedule toEntity(GymTrainer gymTrainer) {
         return WorkSchedule.builder()
             .gymTrainer(gymTrainer)
-            .weekday(this.day)
-            .inTime(this.inTime)
-            .outTime(this.outTime)
-            .build();
-    }
-
-    public WorkSchedule toEntity(Gym gym) {
-        return WorkSchedule.builder()
-            .gym(gym)
             .weekday(this.day)
             .inTime(this.inTime)
             .outTime(this.outTime)

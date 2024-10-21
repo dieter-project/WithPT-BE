@@ -12,4 +12,5 @@ public class ScheduleException extends GlobalException {
         super(errorCode);
         this.errorCode = errorCode;
     }
+
 }
