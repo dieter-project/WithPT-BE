@@ -8,11 +8,9 @@ import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
 import com.sideproject.withpt.application.pt.repository.dto.MonthlyMemberCount;
 import com.sideproject.withpt.common.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.common.type.PtRegistrationStatus;
-import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
-import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
-import com.sideproject.withpt.domain.user.trainer.Trainer;
+import com.sideproject.withpt.domain.user.member.Member;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
@@ -26,12 +24,6 @@ public interface PersonalTrainingQueryRepository {
     List<GymMemberCountDto> getGymMemberCountBy(List<GymTrainer> gymTrainers, LocalDateTime currentDateTime);
 
     EachGymMemberListResponse findAllPtMembersByRegistrationAllowedStatusAndDate(GymTrainer gymTrainer, PtRegistrationAllowedStatus allowedStatus, LocalDateTime allowedDate, Pageable pageable);
-
-    Long countOfAllPtMembers(Long trainerId);
-
-    long deleteAllByMembersAndTrainerAndGym(List<Member> members, Trainer trainer, Gym gym);
-
-    Long countByGymAndTrainer(Gym gym, Trainer trainer);
 
     MemberDetailInfoResponse findPtMemberDetailInfo(PersonalTraining pt);
 

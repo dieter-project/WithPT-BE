@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.member.repository;
 
-import static com.sideproject.withpt.domain.member.QMember.member;
+import static com.sideproject.withpt.domain.user.member.QMember.member;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;

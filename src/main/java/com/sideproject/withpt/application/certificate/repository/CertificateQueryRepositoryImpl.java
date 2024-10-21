@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.certificate.repository;
 
-import static com.sideproject.withpt.domain.trainer.QCertificate.certificate;
+import static com.sideproject.withpt.domain.user.trainer.QCertificate.certificate;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;

@@ -1,6 +1,7 @@
 package com.sideproject.withpt.application.academic.repository;
 
-import static com.sideproject.withpt.domain.trainer.QAcademic.academic;
+
+import static com.sideproject.withpt.domain.user.trainer.QAcademic.academic;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;

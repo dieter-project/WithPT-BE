@@ -2,9 +2,9 @@ package com.sideproject.withpt.application.lesson.repository;
 
 import static com.sideproject.withpt.domain.gym.QGym.gym;
 import static com.sideproject.withpt.domain.gym.QGymTrainer.gymTrainer;
-import static com.sideproject.withpt.domain.member.QMember.member;
-import static com.sideproject.withpt.domain.pt.QLesson.lesson;
-import static com.sideproject.withpt.domain.trainer.QTrainer.trainer;
+import static com.sideproject.withpt.domain.lesson.QLesson.lesson;
+import static com.sideproject.withpt.domain.user.member.QMember.member;
+import static com.sideproject.withpt.domain.user.trainer.QTrainer.trainer;
 
 import com.querydsl.core.types.ConstantImpl;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -24,8 +24,8 @@ import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInf
 import com.sideproject.withpt.common.type.LessonStatus;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.gym.GymTrainer;
-import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.lesson.Lesson;
+import com.sideproject.withpt.domain.user.member.Member;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;

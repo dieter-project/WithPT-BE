@@ -383,22 +383,4 @@ public class PersonalTrainingService {
         }
         return result;
     }
-
-    public TotalPtsCountResponse countOfAllPtMembers(Long trainerId) {
-        return TotalPtsCountResponse.from(
-            personalTrainingRepository.countOfAllPtMembers(trainerId)
-        );
-    }
-
-    public GymMemberCountDto getGymAndNumberOfMembers(Long trainerId, Long gymId) {
-        Trainer trainer = trainerRepository.findById(trainerId)
-            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-        Gym gym = gymRepository.findById(gymId)
-            .orElseThrow(() -> GymException.GYM_NOT_FOUND);
-
-        return GymMemberCountDto.builder()
-            .gymName(gym.getName())
-            .memberCount(personalTrainingRepository.countByGymAndTrainer(gym, trainer))
-            .build();
-    }
 }

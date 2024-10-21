@@ -44,32 +44,6 @@ public class GymPersonalTrainingController {
 
     private final PersonalTrainingService personalTrainingService;
 
-//    @Operation(summary = "회원 관리 - 총 PT 회원 수 조회")
-//    @GetMapping("/api/v1/gyms/personal-trainings/members/count")
-//    public ApiSuccessResponse<TotalPtsCountResponse> countOfAllPtMembers(@Parameter(hidden = true) @AuthenticationPrincipal Long trainerId) {
-//        return ApiSuccessResponse.from(
-//            personalTrainingService.countOfAllPtMembers(trainerId)
-//        );
-//    }
-
-    // ?? 어디 사용,,,
-//    @Operation(summary = "특정 체육관 이름과 회원 수 조회")
-//    @GetMapping("/api/v1/personal-trainings/gyms/{gymId}")
-//    public ApiSuccessResponse<GymMemberCountDto> getGymAndNumberOfMembers(@Parameter(hidden = true) @AuthenticationPrincipal Long trainerId, @PathVariable Long gymId) {
-//        return ApiSuccessResponse.from(
-//            personalTrainingService.getGymAndNumberOfMembers(trainerId, gymId)
-//        );
-//    }
-
-    // ??
-//    @Operation(summary = "회원 PT 잔여 및 전체 횟수 조회")
-//    @GetMapping("/api/v1/personal-trainings/{ptId}/member/info/pt-count")
-//    public ApiSuccessResponse<TotalAndRemainingPtCountResponse> getPtTotalAndRemainingCount(@PathVariable Long ptId) {
-//        return ApiSuccessResponse.from(
-//            personalTrainingService.getPtTotalAndRemainingCount(ptId)
-//        );
-//    }
-
     @Operation(summary = "체육관 목록 및 PT 회원 수 조회", description = "체육관 목록과 각 회원 수 반환")
     @GetMapping("/api/v1/personal-trainings/gyms/members/count")
     public ApiSuccessResponse<CountOfMembersAndGymsResponse> listOfGymsAndNumberOfMembers(
