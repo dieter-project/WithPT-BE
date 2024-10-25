@@ -1,6 +1,5 @@
 package com.sideproject.withpt.application.lesson.service.response;
 
-import com.sideproject.withpt.application.lesson.repository.dto.MemberLessonInfoResponse;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -10,11 +9,11 @@ import lombok.ToString;
 @Getter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class MemberLessonScheduleResponse {
+public class LessonScheduleResponse {
 
-    private List<MemberLessonInfoResponse> lessonInfos;
+    private List<LessonInfoResponse> lessonInfos;
 
-    public MemberLessonScheduleResponse(List<MemberLessonInfoResponse> lessonInfos) {
+    public LessonScheduleResponse(List<LessonInfoResponse> lessonInfos) {
         this.lessonInfos = lessonInfos;
     }
 }

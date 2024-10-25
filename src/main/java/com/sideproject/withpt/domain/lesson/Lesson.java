@@ -5,6 +5,7 @@ import com.sideproject.withpt.common.type.LessonStatus;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.BaseEntity;
 import com.sideproject.withpt.domain.gym.GymTrainer;
+import com.sideproject.withpt.domain.user.User;
 import com.sideproject.withpt.domain.user.member.Member;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -57,9 +58,13 @@ public class Lesson extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private LessonStatus status;
 
-    private String requester;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "requester_id")
+    private User requester;
 
-    private String receiver;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "receiver_id")
+    private User receiver;
 
     @Enumerated
     private Role registeredBy;
@@ -68,7 +73,7 @@ public class Lesson extends BaseEntity {
     private Role modifiedBy;
 
     @Builder
-    private Lesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonSchedule beforeSchedule, LessonStatus status, String requester, String receiver, Role registeredBy, Role modifiedBy) {
+    public Lesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonSchedule beforeSchedule, LessonStatus status, User requester, User receiver, Role registeredBy, Role modifiedBy) {
         this.member = member;
         this.gymTrainer = gymTrainer;
         this.schedule = schedule;
@@ -100,36 +105,35 @@ public class Lesson extends BaseEntity {
         this.modifiedBy = requestByRole;
     }
 
-    public static Lesson createNewLessonRegistration(Member member, GymTrainer gymTrainer, LocalDate date, LocalTime time, Day weekday, Role requestByRole, Long registrationRequestId, Long registrationReceiverId) {
+    public static Lesson createNewLessonRegistration(Member member, GymTrainer gymTrainer, LocalDate date, LocalTime time, Day weekday, User requester, User receiver) {
         LessonSchedule firstRegisteredLesson = LessonSchedule.builder()
             .date(date)
             .time(time)
             .weekday(weekday)
             .build();
 
-        String requester = getRequester(registrationRequestId, requestByRole);
-        String receiver = getReceiver(registrationReceiverId, requestByRole);
         return Lesson.builder()
             .member(member)
             .gymTrainer(gymTrainer)
             .schedule(firstRegisteredLesson)
             .status(
-                requestByRole == Role.TRAINER ? LessonStatus.RESERVED : LessonStatus.PENDING_APPROVAL
+                requester.getRole() == Role.TRAINER ? LessonStatus.RESERVED : LessonStatus.PENDING_APPROVAL
             )
             .requester(requester)
             .receiver(receiver)
-            .registeredBy(requestByRole)
+            .registeredBy(requester.getRole())
             .build();
     }
 
     public void registrationOrScheduleChangeAccept() {
         this.status = LessonStatus.RESERVED;
     }
-    public static String getRequester(Long requestId, Role requestByRole) {
-        return requestByRole == Role.MEMBER ? requestId + "_" + Role.MEMBER : requestId + "_" + Role.TRAINER;
-    }
 
-    public static String getReceiver(Long receiverId, Role requestByRole) {
-        return requestByRole == Role.MEMBER ? receiverId + "_" + Role.TRAINER : receiverId + "_" + Role.MEMBER;
-    }
+//    public static String getRequester(Long requestId, Role requestByRole) {
+//        return requestByRole == Role.MEMBER ? requestId + "_" + Role.MEMBER : requestId + "_" + Role.TRAINER;
+//    }
+//
+//    public static String getReceiver(Long receiverId, Role requestByRole) {
+//        return requestByRole == Role.MEMBER ? receiverId + "_" + Role.TRAINER : receiverId + "_" + Role.MEMBER;
+//    }
 }

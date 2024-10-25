@@ -1,26 +1,12 @@
 package com.sideproject.withpt.application.lesson.repository;
 
-import static com.sideproject.withpt.domain.gym.QGym.gym;
-import static com.sideproject.withpt.domain.gym.QGymTrainer.gymTrainer;
 import static com.sideproject.withpt.domain.lesson.QLesson.lesson;
-import static com.sideproject.withpt.domain.user.member.QMember.member;
-import static com.sideproject.withpt.domain.user.trainer.QTrainer.trainer;
 
 import com.querydsl.core.types.ConstantImpl;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.DateTemplate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sideproject.withpt.application.lesson.repository.dto.MemberLessonInfoResponse;
-import com.sideproject.withpt.application.lesson.repository.dto.QMemberLessonInfoResponse;
-import com.sideproject.withpt.application.lesson.repository.dto.QMemberLessonInfoResponse_Gym;
-import com.sideproject.withpt.application.lesson.repository.dto.QMemberLessonInfoResponse_Lesson;
-import com.sideproject.withpt.application.lesson.repository.dto.QMemberLessonInfoResponse_Trainer;
-import com.sideproject.withpt.application.lesson.repository.dto.QTrainerLessonInfoResponse;
-import com.sideproject.withpt.application.lesson.repository.dto.QTrainerLessonInfoResponse_Gym;
-import com.sideproject.withpt.application.lesson.repository.dto.QTrainerLessonInfoResponse_Lesson;
-import com.sideproject.withpt.application.lesson.repository.dto.QTrainerLessonInfoResponse_Member;
-import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInfoResponse;
 import com.sideproject.withpt.common.type.LessonStatus;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.gym.GymTrainer;
@@ -71,34 +57,9 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
     }
 
     @Override
-    public List<TrainerLessonInfoResponse> getTrainerLessonScheduleByDate(List<GymTrainer> gymTrainers, LocalDate date) {
+    public List<Lesson> getTrainerLessonScheduleByDate(List<GymTrainer> gymTrainers, LocalDate date) {
         return jpaQueryFactory
-            .select(
-                new QTrainerLessonInfoResponse(
-                    new QTrainerLessonInfoResponse_Lesson(
-                        lesson.id,
-                        lesson.schedule,
-                        lesson.beforeSchedule,
-                        lesson.status,
-                        lesson.requester,
-                        lesson.receiver,
-                        lesson.registeredBy,
-                        lesson.modifiedBy
-                    ),
-                    new QTrainerLessonInfoResponse_Member(
-                        member.id,
-                        member.name
-                    ),
-                    new QTrainerLessonInfoResponse_Gym(
-                        gym.id,
-                        gym.name
-                    )
-                )
-            )
-            .from(lesson)
-            .join(lesson.member, member)
-            .join(lesson.gymTrainer, gymTrainer)
-            .join(gymTrainer.gym, gym)
+            .selectFrom(lesson)
             .where(
                 gymTrainersIn(gymTrainers),
                 lesson.schedule.date.eq(date),
@@ -107,44 +68,17 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
                     .or(lesson.status.eq(LessonStatus.TIME_OUT_CANCELED))
             )
             .orderBy(
-                lesson.schedule.time.asc(),
-                gym.name.asc()
+                lesson.schedule.time.asc()
             )
             .fetch();
     }
 
     @Override
-    public List<MemberLessonInfoResponse> getMemberLessonScheduleByDate(Member filteringMember, LocalDate date) {
+    public List<Lesson> getMemberLessonScheduleByDate(Member filteringMember, LocalDate date) {
         return jpaQueryFactory
-            .select(
-                new QMemberLessonInfoResponse(
-                    new QMemberLessonInfoResponse_Lesson(
-                        lesson.id,
-                        lesson.schedule,
-                        lesson.beforeSchedule,
-                        lesson.status,
-                        lesson.requester,
-                        lesson.receiver,
-                        lesson.registeredBy,
-                        lesson.modifiedBy
-                    ),
-                    new QMemberLessonInfoResponse_Trainer(
-                        trainer.id,
-                        trainer.name
-                    ),
-                    new QMemberLessonInfoResponse_Gym(
-                        gym.id,
-                        gym.name
-                    )
-                )
-            )
-            .from(lesson)
-            .join(lesson.member, member)
-            .join(lesson.gymTrainer, gymTrainer)
-            .join(gymTrainer.gym, gym)
-            .join(gymTrainer.trainer, trainer)
+            .selectFrom(lesson)
             .where(
-                member.eq(filteringMember),
+                lesson.member.eq(filteringMember),
                 lesson.status.eq(LessonStatus.RESERVED),
                 lessonScheduleDateEq(date)
             )
@@ -258,40 +192,6 @@ public class LessonQueryRepositoryImpl implements LessonQueryRepository {
         }
 
         return new SliceImpl<>(contents, pageable, hasNext);
-    }
-
-    @Override
-    public TrainerLessonInfoResponse findLessonScheduleInfoBy(Long lessonId) {
-        return jpaQueryFactory
-            .select(
-                new QTrainerLessonInfoResponse(
-                    new QTrainerLessonInfoResponse_Lesson(
-                        lesson.id,
-                        lesson.schedule,
-                        lesson.beforeSchedule,
-                        lesson.status,
-                        lesson.requester,
-                        lesson.receiver,
-                        lesson.registeredBy,
-                        lesson.modifiedBy
-                    ),
-                    new QTrainerLessonInfoResponse_Member(
-                        member.id,
-                        member.name
-                    ),
-                    new QTrainerLessonInfoResponse_Gym(
-                        gym.id,
-                        gym.name
-                    )
-                )
-            )
-            .from(lesson)
-            .join(lesson.member, member)
-            .join(lesson.gymTrainer.gym, gym)
-            .where(
-                lesson.id.eq(lessonId)
-            )
-            .fetchOne();
     }
 
     private BooleanExpression gymTrainersIn(List<GymTrainer> gymTrainers) {

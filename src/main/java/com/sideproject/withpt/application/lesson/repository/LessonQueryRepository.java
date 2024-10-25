@@ -1,12 +1,10 @@
 package com.sideproject.withpt.application.lesson.repository;
 
-import com.sideproject.withpt.application.lesson.repository.dto.MemberLessonInfoResponse;
-import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInfoResponse;
 import com.sideproject.withpt.common.type.LessonStatus;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.gym.GymTrainer;
-import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.lesson.Lesson;
+import com.sideproject.withpt.domain.user.member.Member;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
@@ -21,9 +19,9 @@ public interface LessonQueryRepository {
 
     List<Lesson> getBookedLessonBy(GymTrainer gymTrainer, LocalDate date);
 
-    List<TrainerLessonInfoResponse> getTrainerLessonScheduleByDate(List<GymTrainer> gymTrainers, LocalDate date);
+    List<Lesson> getTrainerLessonScheduleByDate(List<GymTrainer> gymTrainers, LocalDate date);
 
-    List<MemberLessonInfoResponse> getMemberLessonScheduleByDate(Member member, LocalDate date);
+    List<Lesson> getMemberLessonScheduleByDate(Member member, LocalDate date);
 
     List<LocalDate> getTrainerLessonScheduleOfMonth(List<GymTrainer> gymTrainers, YearMonth yearMonth);
 
@@ -32,7 +30,5 @@ public interface LessonQueryRepository {
     Slice<Lesson> findAllRegisteredByAndLessonStatus(Role role, LessonStatus status, List<GymTrainer> gymTrainers, Pageable pageable);
 
     Slice<Lesson> findAllModifiedByAndLessonStatus(Role role, LessonStatus status, List<GymTrainer> gymTrainers, Pageable pageable);
-
-    TrainerLessonInfoResponse findLessonScheduleInfoBy(Long lessonId);
 
 }

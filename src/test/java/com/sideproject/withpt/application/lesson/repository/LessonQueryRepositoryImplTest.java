@@ -5,8 +5,6 @@ import static org.assertj.core.api.Assertions.tuple;
 
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
-import com.sideproject.withpt.application.lesson.repository.dto.MemberLessonInfoResponse;
-import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInfoResponse;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
@@ -21,10 +19,11 @@ import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.type.Sex;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
-import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.lesson.Lesson;
 import com.sideproject.withpt.domain.lesson.LessonSchedule;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
+import com.sideproject.withpt.domain.user.User;
+import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -58,40 +57,6 @@ class LessonQueryRepositoryImplTest {
 
     @Autowired
     private LessonRepository lessonRepository;
-
-    @DisplayName("등록/취소 수업 스케줄 조회")
-    @Test
-    void findLessonScheduleInfoBy() {
-        // given
-        Member member = memberRepository.save(createMember("회원"));
-        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
-        Gym gym = gymRepository.save(createGym("체육관"));
-        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer));
-
-        LessonSchedule lessonSchedule = createLessonSchedule(LocalDate.of(2024, 10, 4), LocalTime.of(21, 35), Day.FRI);
-
-        Role registrationRequestByRole = Role.TRAINER;
-        String requester = Lesson.getRequester(trainer.getId(), registrationRequestByRole);
-        String receiver = Lesson.getReceiver(member.getId(), registrationRequestByRole);
-
-        Lesson lesson = lessonRepository.save(
-            createLesson(member, gymTrainer, lessonSchedule, null, LessonStatus.RESERVED, requester, receiver, registrationRequestByRole, null)
-        );
-
-        // when
-        TrainerLessonInfoResponse response = lessonRepository.findLessonScheduleInfoBy(lesson.getId());
-
-        // then
-        assertThat(response.getLesson())
-            .extracting("schedule.date", "schedule.time", "beforeSchedule",
-                "status", "requester", "receiver", "registeredBy", "modifiedBy")
-            .contains(
-                LocalDate.of(2024, 10, 4), LocalTime.of(21, 35), null,
-                LessonStatus.RESERVED, requester, receiver, Role.TRAINER, null);
-
-        assertThat(response.getMember().getName()).isEqualTo("회원");
-        assertThat(response.getGym().getName()).isEqualTo("체육관");
-    }
 
     @DisplayName("요청 날짜에 예약된 수업 목록 조회")
     @Test
@@ -169,12 +134,14 @@ class LessonQueryRepositoryImplTest {
             )
         );
 
+        LocalDate requestDate = LocalDate.of(2024, 10, 5);
+
         // when
-        List<TrainerLessonInfoResponse> responses = lessonRepository.getTrainerLessonScheduleByDate(List.of(gymTrainer1, gymTrainer2), LocalDate.of(2024, 10, 5));
+        List<Lesson> lessons = lessonRepository.getTrainerLessonScheduleByDate(List.of(gymTrainer1, gymTrainer2), requestDate);
 
         // then
-        assertThat(responses).hasSize(5)
-            .extracting("member.name", "lesson.schedule.time", "lesson.status", "gym.name")
+        assertThat(lessons).hasSize(5)
+            .extracting("member.name", "schedule.time", "status", "gymTrainer.gym.name")
             .contains(
                 tuple("회원1", LocalTime.of(9, 0), LessonStatus.RESERVED, "체육관1"),
                 tuple("회원2", LocalTime.of(11, 0), LessonStatus.RESERVED, "체육관1"),
@@ -198,8 +165,8 @@ class LessonQueryRepositoryImplTest {
         LessonSchedule lessonSchedule1 = createLessonSchedule(LocalDate.of(2024, 10, 7), LocalTime.of(9, 0), Day.MON);
         LessonSchedule lessonSchedule2 = createLessonSchedule(LocalDate.of(2024, 10, 9), LocalTime.of(11, 0), Day.WED);
         lessonRepository.saveAll(List.of(
-                createLesson(member, gymTrainer1, lessonSchedule1, LessonStatus.RESERVED),
-                createLesson(member, gymTrainer1, lessonSchedule2, LessonStatus.CANCELED)
+                createLesson(member, gymTrainer1, lessonSchedule1, null, LessonStatus.RESERVED, trainer1, member, Role.TRAINER, null),
+                createLesson(member, gymTrainer1, lessonSchedule2, null, LessonStatus.CANCELED, trainer1, member, Role.TRAINER, null)
             )
         );
 
@@ -207,19 +174,19 @@ class LessonQueryRepositoryImplTest {
         LessonSchedule lessonSchedule3 = createLessonSchedule(LocalDate.of(2024, 10, 7), LocalTime.of(12, 0), Day.MON);
         LessonSchedule lessonSchedule4 = createLessonSchedule(LocalDate.of(2024, 10, 10), LocalTime.of(14, 0), Day.THU);
         lessonRepository.saveAll(List.of(
-                createLesson(member, gymTrainer2, lessonSchedule3, LessonStatus.RESERVED),
-                createLesson(member, gymTrainer2, lessonSchedule4, LessonStatus.RESERVED)
+                createLesson(member, gymTrainer2, lessonSchedule3, null, LessonStatus.RESERVED, trainer2, member, Role.TRAINER, null),
+                createLesson(member, gymTrainer2, lessonSchedule4, null, LessonStatus.RESERVED, trainer2, member, Role.TRAINER, null)
             )
         );
 
         LocalDate date = LocalDate.of(2024, 10, 7);
 
         // when
-        List<MemberLessonInfoResponse> responses = lessonRepository.getMemberLessonScheduleByDate(member, date);
+        List<Lesson> lessons = lessonRepository.getMemberLessonScheduleByDate(member, date);
 
         // then
-        assertThat(responses).hasSize(2)
-            .extracting("trainer.name", "lesson.schedule.date", "lesson.schedule.time", "lesson.status", "gym.name")
+        assertThat(lessons).hasSize(2)
+            .extracting("requester.name", "schedule.date", "schedule.time", "status", "gymTrainer.gym.name")
             .contains(
                 tuple("트레이너1", LocalDate.of(2024, 10, 7), LocalTime.of(9, 0), LessonStatus.RESERVED, "체육관1"),
                 tuple("트레이너2", LocalDate.of(2024, 10, 7), LocalTime.of(12, 0), LessonStatus.RESERVED, "체육관2")
@@ -549,7 +516,7 @@ class LessonQueryRepositoryImplTest {
             .build();
     }
 
-    public Lesson createLesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonSchedule beforeSchedule, LessonStatus status, String requester, String receiver, Role registeredBy, Role modifiedBy) {
+    public Lesson createLesson(Member member, GymTrainer gymTrainer, LessonSchedule schedule, LessonSchedule beforeSchedule, LessonStatus status, User requester, User receiver, Role registeredBy, Role modifiedBy) {
         return Lesson.builder()
             .member(member)
             .gymTrainer(gymTrainer)
@@ -597,6 +564,7 @@ class LessonQueryRepositoryImplTest {
             .dietType(DietType.Carb_Protein_Fat)
             .exerciseFrequency(ExerciseFrequency.EVERYDAY)
             .targetWeight(65.0)
+            .role(Role.MEMBER)
             .build();
     }
 
@@ -611,6 +579,7 @@ class LessonQueryRepositoryImplTest {
         return Trainer.signUpBuilder()
             .email(name + "@test.com")
             .name(name)
+            .role(Role.TRAINER)
             .build();
     }
 

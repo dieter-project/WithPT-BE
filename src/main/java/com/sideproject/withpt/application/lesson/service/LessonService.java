@@ -7,39 +7,41 @@ import static java.util.stream.Collectors.toList;
 
 import com.sideproject.withpt.application.gym.exception.GymException;
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
+import com.sideproject.withpt.application.gym.service.response.GymResponse;
 import com.sideproject.withpt.application.gymtrainer.exception.GymTrainerException;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
 import com.sideproject.withpt.application.lesson.controller.request.LessonChangeRequest;
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
-import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
-import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse.LessonTime;
+import com.sideproject.withpt.application.lesson.service.response.AvailableLessonScheduleResponse;
+import com.sideproject.withpt.application.lesson.service.response.AvailableLessonScheduleResponse.LessonTime;
 import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
-import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInfoResponse;
+import com.sideproject.withpt.application.lesson.service.response.LessonInfoResponse;
 import com.sideproject.withpt.application.lesson.service.response.LessonResponse;
 import com.sideproject.withpt.application.lesson.service.response.LessonScheduleOfMonthResponse;
-import com.sideproject.withpt.application.lesson.service.response.MemberLessonScheduleResponse;
-import com.sideproject.withpt.application.lesson.service.response.TrainerLessonScheduleResponse;
+import com.sideproject.withpt.application.lesson.service.response.LessonScheduleResponse;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.pt.exception.PTException;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
 import com.sideproject.withpt.application.schedule.exception.ScheduleException;
 import com.sideproject.withpt.application.schedule.repository.WorkScheduleRepository;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
+import com.sideproject.withpt.application.user.UserRepository;
+import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.type.Day;
 import com.sideproject.withpt.common.type.LessonRequestStatus;
 import com.sideproject.withpt.common.type.LessonStatus;
 import com.sideproject.withpt.common.type.PTInfoInputStatus;
 import com.sideproject.withpt.common.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.common.type.Role;
-import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
-import com.sideproject.withpt.domain.user.member.Member;
+import com.sideproject.withpt.domain.gym.WorkSchedule;
 import com.sideproject.withpt.domain.lesson.Lesson;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
+import com.sideproject.withpt.domain.user.User;
+import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.user.trainer.Trainer;
-import com.sideproject.withpt.domain.gym.WorkSchedule;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -64,6 +66,7 @@ public class LessonService {
     private final GymRepository gymRepository;
     private final MemberRepository memberRepository;
     private final TrainerRepository trainerRepository;
+    private final UserRepository userRepository;
 
     private final GymTrainerRepository gymTrainerRepository;
     private final WorkScheduleRepository workScheduleRepository;
@@ -72,12 +75,19 @@ public class LessonService {
     private final LessonRepository lessonRepository;
 
     @Transactional
-    public LessonResponse registrationPTLesson(Long gymId, Role requestByRole, LessonRegistrationRequest request) {
+    public LessonResponse registrationPTLesson(Long gymId, LessonRegistrationRequest request) {
         log.info("=================== 수업 등록 =======================\n");
-        Member member = getMemberBasedOnRole(request, requestByRole);
-        Trainer trainer = getTrainerBasedOnRole(request, requestByRole);
+
+        User requester = userRepository.findById(request.getRegistrationRequestId())
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+        User receiver = userRepository.findById(request.getRegistrationReceiverId())
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+
         Gym gym = gymRepository.findById(gymId)
             .orElseThrow(() -> GymException.GYM_NOT_FOUND);
+
+        Trainer trainer = getTrainer(requester, receiver);
+        Member member = getMember(requester, receiver);
 
         GymTrainer gymTrainer = gymTrainerRepository.findByTrainerAndGym(trainer, gym)
             .orElseThrow(() -> GymTrainerException.GYM_TRAINER_NOT_MAPPING);
@@ -91,14 +101,20 @@ public class LessonService {
         // TODO : 알림 기능 추가
         Lesson lesson = lessonRepository.save(
             Lesson.createNewLessonRegistration(member, gymTrainer,
-                request.getDate(), request.getTime(), request.getWeekday(), requestByRole, request.getRegistrationRequestId(), request.getRegistrationReceiverId())
+                request.getDate(), request.getTime(), request.getWeekday(),
+                requester, receiver)
         );
 
         return LessonResponse.of(lesson);
     }
 
-    public TrainerLessonInfoResponse getLessonSchedule(Long lessonId) {
-        return lessonRepository.findLessonScheduleInfoBy(lessonId);
+    public LessonInfoResponse getLessonSchedule(Long lessonId) {
+        return lessonRepository.findById(lessonId)
+            .map(lesson -> LessonInfoResponse.builder()
+                .lesson(LessonResponse.of(lesson))
+                .gym(GymResponse.of(lesson.getGymTrainer().getGym()))
+                .build())
+            .orElse(null);
     }
 
     @Transactional
@@ -149,7 +165,7 @@ public class LessonService {
      * 트레이너가 모든 수업일정 조회 -> trainer != null, gym == null, member == null
      * 트레이너가 A 체육관 수업일정 조회 -> trainer != null, gym != null, member == null
      */
-    public TrainerLessonScheduleResponse getTrainerLessonScheduleByDate(Long trainerId, Long gymId, LocalDate date) {
+    public LessonScheduleResponse getTrainerLessonScheduleByDate(Long trainerId, Long gymId, LocalDate date) {
         Trainer trainer = trainerRepository.findById(trainerId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
         Gym gym = gymRepository.findById(gymId)
@@ -157,20 +173,35 @@ public class LessonService {
 
         List<GymTrainer> gymTrainers = gymTrainerRepository.findAllTrainerAndGym(trainer, gym);
 
-        return new TrainerLessonScheduleResponse(
-            lessonRepository.getTrainerLessonScheduleByDate(gymTrainers, date)
+        List<Lesson> lessons = lessonRepository.getTrainerLessonScheduleByDate(gymTrainers, date);
+
+        return new LessonScheduleResponse(
+            lessons.stream()
+                .map(lesson ->
+                    LessonInfoResponse.builder()
+                        .lesson(LessonResponse.of(lesson))
+                        .gym(GymResponse.of(lesson.getGymTrainer().getGym()))
+                        .build()
+                ).collect(toList())
         );
     }
 
     /*
      trainer == null, 체육관 == null -> 회원이 조회
      */
-    public MemberLessonScheduleResponse getMemberLessonScheduleByDate(Long memberId, LocalDate date) {
+    public LessonScheduleResponse getMemberLessonScheduleByDate(Long memberId, LocalDate date) {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
-        return new MemberLessonScheduleResponse(
-            lessonRepository.getMemberLessonScheduleByDate(member, date)
+        List<Lesson> lessons = lessonRepository.getMemberLessonScheduleByDate(member, date);
+        return new LessonScheduleResponse(
+            lessons.stream()
+                .map(lesson ->
+                    LessonInfoResponse.builder()
+                        .lesson(LessonResponse.of(lesson))
+                        .gym(GymResponse.of(lesson.getGymTrainer().getGym()))
+                        .build()
+                ).collect(toList())
         );
 
     }
@@ -258,24 +289,12 @@ public class LessonService {
             );
     }
 
-    private Member getMemberBasedOnRole(LessonRegistrationRequest request, Role loginRole) {
-        if (loginRole == Role.TRAINER) {
-            return memberRepository.findById(request.getRegistrationReceiverId())
-                .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-        } else {
-            return memberRepository.findById(request.getRegistrationRequestId())
-                .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-        }
+    private Trainer getTrainer(User requester, User receiver) {
+        return (Trainer) (requester.getRole() == Role.TRAINER ? requester : receiver);
     }
 
-    private Trainer getTrainerBasedOnRole(LessonRegistrationRequest request, Role loginRole) {
-        if (loginRole == Role.TRAINER) {
-            return trainerRepository.findById(request.getRegistrationRequestId())
-                .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-        } else {
-            return trainerRepository.findById(request.getRegistrationReceiverId())
-                .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-        }
+    private Member getMember(User requester, User receiver) {
+        return (Member) (requester.getRole() == Role.MEMBER ? requester : receiver);
     }
 
     private void validationPersonalTraining(Member member, GymTrainer gymTrainer) {
@@ -309,7 +328,6 @@ public class LessonService {
                 }
             });
     }
-
 
     private GymTrainer getGymTrainerBy(Long gymId, Long trainerId) {
         Trainer trainer = trainerRepository.findById(trainerId)

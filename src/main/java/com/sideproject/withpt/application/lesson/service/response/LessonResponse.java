@@ -6,6 +6,7 @@ import com.sideproject.withpt.common.type.LessonStatus;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.lesson.Lesson;
 import com.sideproject.withpt.domain.lesson.LessonSchedule;
+import com.sideproject.withpt.domain.user.User;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,18 +16,18 @@ import lombok.NoArgsConstructor;
 @JsonInclude(Include.NON_NULL)
 public class LessonResponse {
 
-    private Long lessonId;
+    private Long id;
     private LessonSchedule schedule;
     private LessonSchedule beforeSchedule;
     private LessonStatus status;
-    private String requester;
-    private String receiver;
+    private LessonUserResponse requester;
+    private LessonUserResponse receiver;
     private Role registeredBy;
     private Role modifiedBy;
 
     @Builder
-    private LessonResponse(Long lessonId, LessonSchedule schedule, LessonSchedule beforeSchedule, LessonStatus status, String requester, String receiver, Role registeredBy, Role modifiedBy) {
-        this.lessonId = lessonId;
+    private LessonResponse(Long id, LessonSchedule schedule, LessonSchedule beforeSchedule, LessonStatus status, LessonUserResponse requester, LessonUserResponse receiver, Role registeredBy, Role modifiedBy) {
+        this.id = id;
         this.schedule = schedule;
         this.beforeSchedule = beforeSchedule;
         this.status = status;
@@ -36,15 +37,17 @@ public class LessonResponse {
         this.modifiedBy = modifiedBy;
     }
 
-
     public static LessonResponse of(Lesson lesson) {
+        User requester = lesson.getRequester();
+        User receiver = lesson.getReceiver();
+
         return LessonResponse.builder()
-            .lessonId(lesson.getId())
+            .id(lesson.getId())
             .schedule(lesson.getSchedule())
             .beforeSchedule(lesson.getBeforeSchedule())
             .status(lesson.getStatus())
-            .requester(lesson.getRequester())
-            .receiver(lesson.getReceiver())
+            .requester(LessonUserResponse.of(requester))
+            .receiver(LessonUserResponse.of(receiver))
             .registeredBy(lesson.getRegisteredBy())
             .modifiedBy(lesson.getModifiedBy())
             .build();

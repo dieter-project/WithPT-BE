@@ -2,14 +2,13 @@ package com.sideproject.withpt.application.lesson.controller;
 
 import com.sideproject.withpt.application.lesson.controller.request.LessonChangeRequest;
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
-import com.sideproject.withpt.application.lesson.controller.response.AvailableLessonScheduleResponse;
-import com.sideproject.withpt.application.lesson.repository.dto.TrainerLessonInfoResponse;
+import com.sideproject.withpt.application.lesson.service.response.AvailableLessonScheduleResponse;
+import com.sideproject.withpt.application.lesson.service.response.LessonInfoResponse;
 import com.sideproject.withpt.application.lesson.service.LessonLockFacade;
 import com.sideproject.withpt.application.lesson.service.LessonService;
 import com.sideproject.withpt.application.lesson.service.response.LessonResponse;
 import com.sideproject.withpt.application.lesson.service.response.LessonScheduleOfMonthResponse;
-import com.sideproject.withpt.application.lesson.service.response.MemberLessonScheduleResponse;
-import com.sideproject.withpt.application.lesson.service.response.TrainerLessonScheduleResponse;
+import com.sideproject.withpt.application.lesson.service.response.LessonScheduleResponse;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import com.sideproject.withpt.common.type.Day;
 import com.sideproject.withpt.common.type.LessonRequestStatus;
@@ -56,19 +55,16 @@ public class LessonController {
     public ApiSuccessResponse<LessonResponse> registrationPtLesson(@PathVariable Long gymId,
         @Valid @RequestBody LessonRegistrationRequest request) {
 
-        Role registrationRequestByRole = getLoginRole();
-        log.info("로그인 role = {}", registrationRequestByRole);
-
         LessonResponse response = lessonLockFacade.lessonConcurrencyCheck(() ->
-                lessonService.registrationPTLesson(gymId, registrationRequestByRole, request),
+                lessonService.registrationPTLesson(gymId, request),
             lessonLockFacade.generateKey(request.getDate(), request.getTime())
         );
         return ApiSuccessResponse.from(response);
     }
 
-    @Operation(summary = "확정/취소 수업 스케줄 조회 - 수업 스케줄 정보 조회")
+    @Operation(summary = "[확정/취소] 수업 스케줄 정보 조회")
     @GetMapping("/lessons/{lessonId}")
-    public ApiSuccessResponse<TrainerLessonInfoResponse> getLessonSchedule(@PathVariable Long lessonId) {
+    public ApiSuccessResponse<LessonInfoResponse> getLessonSchedule(@PathVariable Long lessonId) {
         return ApiSuccessResponse.from(
             lessonService.getLessonSchedule(lessonId)
         );
@@ -117,7 +113,7 @@ public class LessonController {
 
     @Operation(summary = "트레이너 - 날짜 별 수업 스케줄 조회")
     @GetMapping("/lessons/trainer-schedules")
-    public ApiSuccessResponse<TrainerLessonScheduleResponse> getTrainerLessonScheduleByDate(
+    public ApiSuccessResponse<LessonScheduleResponse> getTrainerLessonScheduleByDate(
         @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId,
         @RequestParam(required = false, defaultValue = "-1") Long gymId,
         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
@@ -128,7 +124,7 @@ public class LessonController {
 
     @Operation(summary = "회원 - 날짜 별 수업 스케줄 조회")
     @GetMapping("/lessons/member-schedules")
-    public ApiSuccessResponse<MemberLessonScheduleResponse> getLessonScheduleMembers(@Parameter(hidden = true) @AuthenticationPrincipal Long memberId, @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
+    public ApiSuccessResponse<LessonScheduleResponse> getLessonScheduleMembers(@Parameter(hidden = true) @AuthenticationPrincipal Long memberId, @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
         return ApiSuccessResponse.from(
             lessonService.getMemberLessonScheduleByDate(memberId, date)
         );
