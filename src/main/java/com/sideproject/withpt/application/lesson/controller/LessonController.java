@@ -2,10 +2,10 @@ package com.sideproject.withpt.application.lesson.controller;
 
 import com.sideproject.withpt.application.lesson.controller.request.LessonChangeRequest;
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
-import com.sideproject.withpt.application.lesson.service.response.AvailableLessonScheduleResponse;
-import com.sideproject.withpt.application.lesson.service.response.LessonInfoResponse;
 import com.sideproject.withpt.application.lesson.service.LessonLockFacade;
 import com.sideproject.withpt.application.lesson.service.LessonService;
+import com.sideproject.withpt.application.lesson.service.response.AvailableLessonScheduleResponse;
+import com.sideproject.withpt.application.lesson.service.response.LessonInfoResponse;
 import com.sideproject.withpt.application.lesson.service.response.LessonResponse;
 import com.sideproject.withpt.application.lesson.service.response.LessonScheduleOfMonthResponse;
 import com.sideproject.withpt.application.lesson.service.response.LessonScheduleResponse;
@@ -13,13 +13,11 @@ import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import com.sideproject.withpt.common.type.Day;
 import com.sideproject.withpt.common.type.LessonRequestStatus;
 import com.sideproject.withpt.common.type.LessonStatus;
-import com.sideproject.withpt.common.type.Role;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -28,9 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -72,13 +68,11 @@ public class LessonController {
 
     @Operation(summary = "수업 스케줄 변경")
     @PatchMapping("/lessons/{lessonId}")
-    public ApiSuccessResponse<LessonResponse> changePtLesson(@PathVariable Long lessonId, @Valid @RequestBody LessonChangeRequest request) {
-
-        Role registrationRequestByRole = getLoginRole();
-        log.info("로그인 role = {}", registrationRequestByRole);
-
+    public ApiSuccessResponse<LessonResponse> changePtLesson(@PathVariable Long lessonId,
+        @Parameter(hidden = true) @AuthenticationPrincipal Long userId,
+        @Valid @RequestBody LessonChangeRequest request) {
         LessonResponse response = lessonLockFacade.lessonConcurrencyCheck(() ->
-                lessonService.changePTLesson(lessonId, registrationRequestByRole, request),
+                lessonService.changePTLesson(lessonId, userId, request),
             lessonLockFacade.generateKey(request.getDate(), request.getTime())
         );
 
@@ -178,16 +172,6 @@ public class LessonController {
     public ApiSuccessResponse<LessonResponse> lessonAccept(@PathVariable Long lessonId) {
         return ApiSuccessResponse.from(
             lessonService.registrationOrScheduleChangeLessonAccept(lessonId)
-        );
-    }
-
-    private Role getLoginRole() {
-        return Role.valueOf(
-            SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .filter(s -> s.contains("TRAINER") || s.contains("MEMBER"))
-                .collect(Collectors.joining())
-                .split("_")[1]
         );
     }
 }

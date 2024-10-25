@@ -83,11 +83,11 @@ public class LessonService {
         User receiver = userRepository.findById(request.getRegistrationReceiverId())
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
+        Member member = getMember(requester, receiver);
         Gym gym = gymRepository.findById(gymId)
             .orElseThrow(() -> GymException.GYM_NOT_FOUND);
 
         Trainer trainer = getTrainer(requester, receiver);
-        Member member = getMember(requester, receiver);
 
         GymTrainer gymTrainer = gymTrainerRepository.findByTrainerAndGym(trainer, gym)
             .orElseThrow(() -> GymTrainerException.GYM_TRAINER_NOT_MAPPING);
@@ -118,7 +118,10 @@ public class LessonService {
     }
 
     @Transactional
-    public LessonResponse changePTLesson(Long lessonId, Role requestByRole, LessonChangeRequest request) {
+    public LessonResponse changePTLesson(Long lessonId, Long userId, LessonChangeRequest request) {
+
+        User lessonChangeRequester = userRepository.findById(userId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         Lesson lesson = lessonRepository.findById(lessonId)
             .orElseThrow(() -> new LessonException(LESSON_NOT_FOUND));
@@ -131,7 +134,7 @@ public class LessonService {
 
         // TODO 예약 시스템이므로 동시성 고려하기
         // TODO : 알림 기능 추가
-        lesson.changeLessonSchedule(request.getDate(), request.getTime(), request.getWeekday(), requestByRole);
+        lesson.changeLessonSchedule(request.getDate(), request.getTime(), request.getWeekday(), lessonChangeRequester);
 
         return LessonResponse.of(lesson);
     }
