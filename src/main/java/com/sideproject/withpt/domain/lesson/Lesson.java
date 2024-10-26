@@ -129,11 +129,4 @@ public class Lesson extends BaseEntity {
         this.status = LessonStatus.RESERVED;
     }
 
-//    public static String getRequester(Long requestId, Role requestByRole) {
-//        return requestByRole == Role.MEMBER ? requestId + "_" + Role.MEMBER : requestId + "_" + Role.TRAINER;
-//    }
-//
-//    public static String getReceiver(Long receiverId, Role requestByRole) {
-//        return requestByRole == Role.MEMBER ? receiverId + "_" + Role.TRAINER : receiverId + "_" + Role.MEMBER;
-//    }
 }

@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.tuple;
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
 import com.sideproject.withpt.application.lesson.controller.request.LessonChangeRequest;
-import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
 import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
 import com.sideproject.withpt.application.lesson.service.response.AvailableLessonScheduleResponse;
@@ -102,18 +101,13 @@ class LessonServiceTest {
                     PtRegistrationAllowedStatus.ALLOWED)
             );
 
-            LessonRegistrationRequest request = LessonRegistrationRequest.builder()
-                .registrationRequestId(trainer.getId())
-                .registrationReceiverId(member.getId())
-                .date(LocalDate.of(2024, 10, 4))
-                .weekday(Day.FRI)
-                .time(LocalTime.of(20, 44))
-                .build();
-
+            LocalDate date = LocalDate.of(2024, 10, 4);
+            LocalTime time = LocalTime.of(20, 44);
+            Day weekday = Day.FRI;
             Long gymId = gym.getId();
 
             // when
-            LessonResponse response = lessonService.registrationPTLesson(gymId, request);
+            LessonResponse response = lessonService.registrationPTLesson(gymId, trainer, member, date, weekday, time);
 
             // then
             assertThat(response)
@@ -139,18 +133,13 @@ class LessonServiceTest {
                     PtRegistrationAllowedStatus.ALLOWED)
             );
 
-            LessonRegistrationRequest request = LessonRegistrationRequest.builder()
-                .registrationRequestId(member.getId())
-                .registrationReceiverId(trainer.getId())
-                .date(LocalDate.of(2024, 10, 4))
-                .weekday(Day.FRI)
-                .time(LocalTime.of(20, 44))
-                .build();
-
+            LocalDate date = LocalDate.of(2024, 10, 4);
+            Day weekday = Day.FRI;
+            LocalTime time = LocalTime.of(20, 44);
             Long gymId = gym.getId();
 
             // when
-            LessonResponse response = lessonService.registrationPTLesson(gymId, request);
+            LessonResponse response = lessonService.registrationPTLesson(gymId, member, trainer, date, weekday, time);
 
             // then
             assertThat(response)
@@ -176,18 +165,13 @@ class LessonServiceTest {
                     PtRegistrationAllowedStatus.WAITING)
             );
 
-            LessonRegistrationRequest request = LessonRegistrationRequest.builder()
-                .registrationRequestId(member.getId())
-                .registrationReceiverId(trainer.getId())
-                .date(LocalDate.of(2024, 10, 4))
-                .weekday(Day.FRI)
-                .time(LocalTime.of(20, 44))
-                .build();
-
+            LocalDate date = LocalDate.of(2024, 10, 4);
+            Day weekday = Day.FRI;
+            LocalTime time = LocalTime.of(20, 44);
             Long gymId = gym.getId();
 
             // when // then
-            assertThatThrownBy(() -> lessonService.registrationPTLesson(gymId, request))
+            assertThatThrownBy(() -> lessonService.registrationPTLesson(gymId, trainer, member, date, weekday, time))
                 .isInstanceOf(PTException.class)
                 .hasMessage("아직 PT 등록을 허용하지 않은 회원입니다.");
         }
@@ -206,18 +190,13 @@ class LessonServiceTest {
                     PtRegistrationAllowedStatus.ALLOWED)
             );
 
-            LessonRegistrationRequest request = LessonRegistrationRequest.builder()
-                .registrationRequestId(member.getId())
-                .registrationReceiverId(trainer.getId())
-                .date(LocalDate.of(2024, 10, 4))
-                .weekday(Day.FRI)
-                .time(LocalTime.of(20, 44))
-                .build();
-
+            LocalDate date = LocalDate.of(2024, 10, 4);
+            Day weekday = Day.FRI;
+            LocalTime time = LocalTime.of(20, 44);
             Long gymId = gym.getId();
 
             // when // then
-            assertThatThrownBy(() -> lessonService.registrationPTLesson(gymId, request))
+            assertThatThrownBy(() -> lessonService.registrationPTLesson(gymId, trainer, member, date, weekday, time))
                 .isInstanceOf(PTException.class)
                 .hasMessage("PT 상세 정보를 입력하지 않으셨습니다.");
         }
@@ -236,18 +215,13 @@ class LessonServiceTest {
                     PtRegistrationAllowedStatus.ALLOWED)
             );
 
-            LessonRegistrationRequest request = LessonRegistrationRequest.builder()
-                .registrationRequestId(member.getId())
-                .registrationReceiverId(trainer.getId())
-                .date(LocalDate.of(2024, 10, 4))
-                .weekday(Day.FRI)
-                .time(LocalTime.of(20, 44))
-                .build();
-
+            LocalDate date = LocalDate.of(2024, 10, 4);
+            Day weekday = Day.FRI;
+            LocalTime time = LocalTime.of(20, 44);
             Long gymId = gym.getId();
 
             // when // then
-            assertThatThrownBy(() -> lessonService.registrationPTLesson(gymId, request))
+            assertThatThrownBy(() -> lessonService.registrationPTLesson(gymId, trainer, member, date, weekday, time))
                 .isInstanceOf(PTException.class)
                 .hasMessage("잔여 PT 횟수가 남아 있지 않습니다.");
         }
@@ -269,28 +243,20 @@ class LessonServiceTest {
             LocalDate requestDate = LocalDate.of(2024, 10, 4);
             LocalTime requestTime = LocalTime.of(20, 44);
 
+            Day weekday = Day.FRI;
             LessonSchedule lessonSchedule = LessonSchedule.builder()
                 .date(requestDate)
                 .time(requestTime)
-                .weekday(Day.FRI)
+                .weekday(weekday)
                 .build();
 
             lessonRepository.save(
                 createLesson(member, gymTrainer, lessonSchedule, null, lessonStatus, trainer, member, Role.TRAINER, null)
             );
-
-            LessonRegistrationRequest request = LessonRegistrationRequest.builder()
-                .registrationRequestId(member.getId())
-                .registrationReceiverId(trainer.getId())
-                .date(requestDate)
-                .weekday(Day.FRI)
-                .time(requestTime)
-                .build();
-
             Long gymId = gym.getId();
 
             // when // then
-            assertThatThrownBy(() -> lessonService.registrationPTLesson(gymId, request))
+            assertThatThrownBy(() -> lessonService.registrationPTLesson(gymId, trainer, member, requestDate, weekday, requestTime))
                 .isInstanceOf(LessonException.class)
                 .hasMessage("이미 예약된 수업입니다.");
         }
@@ -1108,90 +1074,90 @@ class LessonServiceTest {
         ;
     }
 
-    @DisplayName("회원 -> 트레이너, 수업 등록 수락하기 (트레이너가 수락)")
-    @Test
-    void registrationOrScheduleChangeLessonAccept() {
-        Member member = memberRepository.save(createMember("회원"));
-        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
-        Gym gym = gymRepository.save(createGym("체육관"));
-        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer));
-        personalTrainingRepository.save(
-            createPersonalTraining(member, gymTrainer, 30, 10,
-                PTInfoInputStatus.INFO_REGISTERED,
-                PtRegistrationStatus.NEW_REGISTRATION,
-                PtRegistrationAllowedStatus.ALLOWED)
-        );
+    @DisplayName("수업 등록 or 수업 스케줄 변경 수락하기")
+    @Nested
+    class RegistrationOrScheduleChangeLessonAccept {
 
-        LessonSchedule lessonSchedule = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(15, 0), Day.SAT);
-        Lesson savedLesson = lessonRepository.save(createLesson(member, gymTrainer, lessonSchedule, null, LessonStatus.PENDING_APPROVAL, member, trainer, Role.MEMBER, null));
+        @DisplayName("회원 -> 트레이너, 수업 등록 수락하기 (트레이너가 수락)")
+        @Test
+        void registrationOrScheduleChangeLessonAccept() {
+            Member member = memberRepository.save(createMember("회원"));
+            Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+            Gym gym = gymRepository.save(createGym("체육관"));
+            GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer));
+            personalTrainingRepository.save(
+                createPersonalTraining(member, gymTrainer, 30, 10,
+                    PTInfoInputStatus.INFO_REGISTERED,
+                    PtRegistrationStatus.NEW_REGISTRATION,
+                    PtRegistrationAllowedStatus.ALLOWED)
+            );
 
-        final Long lessonId = savedLesson.getId();
+            LessonSchedule lessonSchedule = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(15, 0), Day.SAT);
+            Lesson savedLesson = lessonRepository.save(createLesson(member, gymTrainer, lessonSchedule, null, LessonStatus.PENDING_APPROVAL, member, trainer, Role.MEMBER, null));
 
-        // when
-        LessonResponse response = lessonService.registrationOrScheduleChangeLessonAccept(lessonId);
+            // when
+            LessonResponse response = lessonService.registrationOrScheduleChangeLessonAccept(savedLesson);
 
-        // then
-        assertThat(response)
-            .extracting("schedule.date", "schedule.time", "schedule.weekday", "beforeSchedule", "status", "registeredBy", "modifiedBy")
-            .contains(LocalDate.of(2024, 10, 5), LocalTime.of(15, 0), Day.SAT, null, LessonStatus.RESERVED, Role.MEMBER, null);
-    }
+            // then
+            assertThat(response)
+                .extracting("schedule.date", "schedule.time", "schedule.weekday", "beforeSchedule", "status", "registeredBy", "modifiedBy")
+                .contains(LocalDate.of(2024, 10, 5), LocalTime.of(15, 0), Day.SAT, null, LessonStatus.RESERVED, Role.MEMBER, null);
+        }
 
-    @DisplayName("회원 -> 트레이너 수업 변경 요청 수락하기 (트레이너가 수락)")
-    @Test
-    void registrationOrScheduleChangeLessonAcceptWhenMemberChange() {
-        Member member = memberRepository.save(createMember("회원"));
-        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
-        Gym gym = gymRepository.save(createGym("체육관"));
-        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer));
-        personalTrainingRepository.save(
-            createPersonalTraining(member, gymTrainer, 30, 10,
-                PTInfoInputStatus.INFO_REGISTERED,
-                PtRegistrationStatus.NEW_REGISTRATION,
-                PtRegistrationAllowedStatus.ALLOWED)
-        );
+        @DisplayName("회원 -> 트레이너 수업 변경 요청 수락하기 (트레이너가 수락)")
+        @Test
+        void registrationOrScheduleChangeLessonAcceptWhenMemberChange() {
+            Member member = memberRepository.save(createMember("회원"));
+            Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+            Gym gym = gymRepository.save(createGym("체육관"));
+            GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer));
+            personalTrainingRepository.save(
+                createPersonalTraining(member, gymTrainer, 30, 10,
+                    PTInfoInputStatus.INFO_REGISTERED,
+                    PtRegistrationStatus.NEW_REGISTRATION,
+                    PtRegistrationAllowedStatus.ALLOWED)
+            );
 
-        LessonSchedule boforeLessonSchedule = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(15, 0), Day.SAT);
-        LessonSchedule lessonSchedule = createLessonSchedule(LocalDate.of(2024, 10, 10), LocalTime.of(15, 0), Day.SAT);
-        Lesson savedLesson = lessonRepository.save(createLesson(member, gymTrainer, lessonSchedule, boforeLessonSchedule, LessonStatus.PENDING_APPROVAL, trainer, member, Role.TRAINER, Role.MEMBER));
+            LessonSchedule boforeLessonSchedule = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(15, 0), Day.SAT);
+            LessonSchedule lessonSchedule = createLessonSchedule(LocalDate.of(2024, 10, 10), LocalTime.of(15, 0), Day.SAT);
+            Lesson savedLesson = lessonRepository.save(createLesson(member, gymTrainer, lessonSchedule, boforeLessonSchedule, LessonStatus.PENDING_APPROVAL, trainer, member, Role.TRAINER, Role.MEMBER));
 
-        final Long lessonId = savedLesson.getId();
+            // when
+            LessonResponse response = lessonService.registrationOrScheduleChangeLessonAccept(savedLesson);
 
-        // when
-        LessonResponse response = lessonService.registrationOrScheduleChangeLessonAccept(lessonId);
+            // then
+            assertThat(response)
+                .extracting("schedule.date", "schedule.time", "schedule.weekday", "beforeSchedule", "status", "registeredBy", "modifiedBy")
+                .contains(LocalDate.of(2024, 10, 10), LocalTime.of(15, 0), Day.SAT, boforeLessonSchedule, LessonStatus.RESERVED, Role.TRAINER, Role.MEMBER);
+        }
 
-        // then
-        assertThat(response)
-            .extracting("schedule.date", "schedule.time", "schedule.weekday", "beforeSchedule", "status", "registeredBy", "modifiedBy")
-            .contains(LocalDate.of(2024, 10, 10), LocalTime.of(15, 0), Day.SAT, boforeLessonSchedule, LessonStatus.RESERVED, Role.TRAINER, Role.MEMBER);
-    }
+        @DisplayName("트레이너 -> 회원 수업 변경 요청 수락하기 (회원이 수락)")
+        @Test
+        void registrationOrScheduleChangeLessonAcceptWhenTrainerChange() {
+            Member member = memberRepository.save(createMember("회원"));
+            Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+            Gym gym = gymRepository.save(createGym("체육관"));
+            GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer));
+            personalTrainingRepository.save(
+                createPersonalTraining(member, gymTrainer, 30, 10,
+                    PTInfoInputStatus.INFO_REGISTERED,
+                    PtRegistrationStatus.NEW_REGISTRATION,
+                    PtRegistrationAllowedStatus.ALLOWED)
+            );
 
-    @DisplayName("트레이너 -> 회원 수업 변경 요청 수락하기 (회원이 수락)")
-    @Test
-    void registrationOrScheduleChangeLessonAcceptWhenTrainerChange() {
-        Member member = memberRepository.save(createMember("회원"));
-        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
-        Gym gym = gymRepository.save(createGym("체육관"));
-        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer));
-        personalTrainingRepository.save(
-            createPersonalTraining(member, gymTrainer, 30, 10,
-                PTInfoInputStatus.INFO_REGISTERED,
-                PtRegistrationStatus.NEW_REGISTRATION,
-                PtRegistrationAllowedStatus.ALLOWED)
-        );
+            LessonSchedule boforeLessonSchedule = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(15, 0), Day.SAT);
+            LessonSchedule lessonSchedule = createLessonSchedule(LocalDate.of(2024, 10, 10), LocalTime.of(15, 0), Day.SAT);
+            Lesson savedLesson = lessonRepository.save(createLesson(member, gymTrainer, lessonSchedule, boforeLessonSchedule, LessonStatus.PENDING_APPROVAL, trainer, member, Role.TRAINER, Role.MEMBER));
 
-        LessonSchedule boforeLessonSchedule = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(15, 0), Day.SAT);
-        LessonSchedule lessonSchedule = createLessonSchedule(LocalDate.of(2024, 10, 10), LocalTime.of(15, 0), Day.SAT);
-        Lesson savedLesson = lessonRepository.save(createLesson(member, gymTrainer, lessonSchedule, boforeLessonSchedule, LessonStatus.PENDING_APPROVAL, trainer, member, Role.TRAINER, Role.MEMBER));
+            // when
+            LessonResponse response = lessonService.registrationOrScheduleChangeLessonAccept(savedLesson);
 
-        final Long lessonId = savedLesson.getId();
+            // then
+            assertThat(response)
+                .extracting("schedule.date", "schedule.time", "schedule.weekday", "beforeSchedule", "status", "registeredBy", "modifiedBy")
+                .contains(LocalDate.of(2024, 10, 10), LocalTime.of(15, 0), Day.SAT, boforeLessonSchedule, LessonStatus.RESERVED, Role.TRAINER, Role.MEMBER);
+        }
 
-        // when
-        LessonResponse response = lessonService.registrationOrScheduleChangeLessonAccept(lessonId);
-
-        // then
-        assertThat(response)
-            .extracting("schedule.date", "schedule.time", "schedule.weekday", "beforeSchedule", "status", "registeredBy", "modifiedBy")
-            .contains(LocalDate.of(2024, 10, 10), LocalTime.of(15, 0), Day.SAT, boforeLessonSchedule, LessonStatus.RESERVED, Role.TRAINER, Role.MEMBER);
     }
 
     private LessonSchedule createLessonSchedule(LocalDate date, LocalTime time, Day day) {

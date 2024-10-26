@@ -2,6 +2,7 @@ package com.sideproject.withpt.application.lesson.controller;
 
 import com.sideproject.withpt.application.lesson.controller.request.LessonChangeRequest;
 import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
+import com.sideproject.withpt.application.lesson.service.LessonDelegator;
 import com.sideproject.withpt.application.lesson.service.LessonLockFacade;
 import com.sideproject.withpt.application.lesson.service.LessonService;
 import com.sideproject.withpt.application.lesson.service.response.AvailableLessonScheduleResponse;
@@ -45,17 +46,13 @@ public class LessonController {
 
     private final LessonService lessonService;
     private final LessonLockFacade lessonLockFacade;
+    private final LessonDelegator lessonDelegator;
 
     @Operation(summary = "신규 수업 등록")
     @PostMapping("/lessons/gyms/{gymId}")
     public ApiSuccessResponse<LessonResponse> registrationPtLesson(@PathVariable Long gymId,
         @Valid @RequestBody LessonRegistrationRequest request) {
-
-        LessonResponse response = lessonLockFacade.lessonConcurrencyCheck(() ->
-                lessonService.registrationPTLesson(gymId, request),
-            lessonLockFacade.generateKey(request.getDate(), request.getTime())
-        );
-        return ApiSuccessResponse.from(response);
+        return ApiSuccessResponse.from(lessonDelegator.registrationPTLesson(gymId, request));
     }
 
     @Operation(summary = "[확정/취소] 수업 스케줄 정보 조회")
@@ -169,9 +166,10 @@ public class LessonController {
 
     @Operation(summary = "수업 등록 or 수업 스케줄 변경 수락하기")
     @PostMapping("/lessons/{lessonId}/accept")
-    public ApiSuccessResponse<LessonResponse> lessonAccept(@PathVariable Long lessonId) {
+    public ApiSuccessResponse<LessonResponse> lessonAccept(@PathVariable Long lessonId,
+        @Parameter(hidden = true) @AuthenticationPrincipal Long userId) {
         return ApiSuccessResponse.from(
-            lessonService.registrationOrScheduleChangeLessonAccept(lessonId)
+            lessonDelegator.registrationOrScheduleChangeLessonAccept(userId, lessonId)
         );
     }
 }

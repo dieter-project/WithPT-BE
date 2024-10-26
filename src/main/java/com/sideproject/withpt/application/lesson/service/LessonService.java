@@ -11,11 +11,10 @@ import com.sideproject.withpt.application.gym.service.response.GymResponse;
 import com.sideproject.withpt.application.gymtrainer.exception.GymTrainerException;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
 import com.sideproject.withpt.application.lesson.controller.request.LessonChangeRequest;
-import com.sideproject.withpt.application.lesson.controller.request.LessonRegistrationRequest;
-import com.sideproject.withpt.application.lesson.service.response.AvailableLessonScheduleResponse;
-import com.sideproject.withpt.application.lesson.service.response.AvailableLessonScheduleResponse.LessonTime;
 import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
+import com.sideproject.withpt.application.lesson.service.response.AvailableLessonScheduleResponse;
+import com.sideproject.withpt.application.lesson.service.response.AvailableLessonScheduleResponse.LessonTime;
 import com.sideproject.withpt.application.lesson.service.response.LessonInfoResponse;
 import com.sideproject.withpt.application.lesson.service.response.LessonResponse;
 import com.sideproject.withpt.application.lesson.service.response.LessonScheduleOfMonthResponse;
@@ -75,13 +74,8 @@ public class LessonService {
     private final LessonRepository lessonRepository;
 
     @Transactional
-    public LessonResponse registrationPTLesson(Long gymId, LessonRegistrationRequest request) {
+    public LessonResponse registrationPTLesson(Long gymId, User requester, User receiver, LocalDate date, Day weekday, LocalTime time) {
         log.info("=================== 수업 등록 =======================\n");
-
-        User requester = userRepository.findById(request.getRegistrationRequestId())
-            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-        User receiver = userRepository.findById(request.getRegistrationReceiverId())
-            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
         Member member = getMember(requester, receiver);
         Gym gym = gymRepository.findById(gymId)
@@ -94,14 +88,14 @@ public class LessonService {
 
         validationPersonalTraining(member, gymTrainer);
 
-        validationLessonTime(gymTrainer, request.getDate(), request.getTime());
+        validationLessonTime(gymTrainer, date, time);
 
         // TODO TEST 작성 수업 등록 - 예약 시스템이므로 동시성 고려하기
         // TODO : 회원이 수업 등록 요청을 했을 경우 "대기 중 수업 - 받은 요청" 에 표시
         // TODO : 알림 기능 추가
         Lesson lesson = lessonRepository.save(
             Lesson.createNewLessonRegistration(member, gymTrainer,
-                request.getDate(), request.getTime(), request.getWeekday(),
+                date, time, weekday,
                 requester, receiver)
         );
 
@@ -267,12 +261,9 @@ public class LessonService {
         );
     }
 
-    public LessonResponse registrationOrScheduleChangeLessonAccept(Long lessonId) {
-        Lesson lesson = lessonRepository.findById(lessonId)
-            .orElseThrow(() -> LessonException.LESSON_NOT_FOUND);
-
+    @Transactional
+    public LessonResponse registrationOrScheduleChangeLessonAccept(Lesson lesson) {
         lesson.registrationOrScheduleChangeAccept();
-
         return LessonResponse.of(lesson);
     }
 

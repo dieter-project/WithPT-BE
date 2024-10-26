@@ -1,13 +1,16 @@
 package com.sideproject.withpt.application.lesson.repository;
 
+import static com.sideproject.withpt.application.lesson.exception.LessonErrorCode.LESSON_NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
+import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
-import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
+import com.sideproject.withpt.application.user.UserRepository;
+import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.type.Day;
 import com.sideproject.withpt.common.type.DietType;
 import com.sideproject.withpt.common.type.ExerciseFrequency;
@@ -45,6 +48,8 @@ import org.springframework.transaction.annotation.Transactional;
 class LessonQueryRepositoryImplTest {
 
     @Autowired
+    private UserRepository userRepository;
+    @Autowired
     private MemberRepository memberRepository;
     @Autowired
     private TrainerRepository trainerRepository;
@@ -52,8 +57,6 @@ class LessonQueryRepositoryImplTest {
     private GymRepository gymRepository;
     @Autowired
     private GymTrainerRepository gymTrainerRepository;
-    @Autowired
-    private PersonalTrainingRepository personalTrainingRepository;
 
     @Autowired
     private LessonRepository lessonRepository;
@@ -507,6 +510,40 @@ class LessonQueryRepositoryImplTest {
             );
     }
 
+    @DisplayName("")
+    @Test
+    void test() {
+        // given
+        Member member = memberRepository.save(createMember("회원"));
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+        Gym gym = gymRepository.save(createGym("체육관"));
+
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer));
+        LessonSchedule lessonSchedule = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(9, 0), Day.SAT);
+        Lesson lesson = lessonRepository.save(
+            createLesson(member, gymTrainer, lessonSchedule, null, LessonStatus.RESERVED, member, trainer, Role.TRAINER, null)
+        );
+
+        Long userId = member.getId();
+        Long lessonId = lesson.getId();
+
+        // when
+        User requester = userRepository.findById(userId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+
+        User receiver = lessonRepository.findById(lessonId)
+            .map(findLesson -> {
+                if (findLesson.getRequester().equals(requester)) {
+                    return findLesson.getReceiver();
+                }
+                return findLesson.getRequester();
+            })
+            .orElseThrow(() -> new LessonException(LESSON_NOT_FOUND));
+
+        // then
+        assertThat(requester).isEqualTo(member);
+        assertThat(receiver).isEqualTo(trainer);
+    }
 
     private LessonSchedule createLessonSchedule(LocalDate date, LocalTime time, Day day) {
         return LessonSchedule.builder()
