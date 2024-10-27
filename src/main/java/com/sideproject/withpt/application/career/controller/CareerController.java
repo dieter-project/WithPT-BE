@@ -2,7 +2,7 @@ package com.sideproject.withpt.application.career.controller;
 
 import com.sideproject.withpt.application.career.controller.request.CareerEditRequest;
 import com.sideproject.withpt.application.career.controller.request.CareerSaveRequest;
-import com.sideproject.withpt.application.career.controller.response.CareerResponse;
+import com.sideproject.withpt.application.career.service.response.CareerResponse;
 import com.sideproject.withpt.application.career.service.CareerService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;

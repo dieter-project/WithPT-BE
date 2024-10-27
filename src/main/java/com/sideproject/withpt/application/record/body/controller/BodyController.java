@@ -2,7 +2,7 @@ package com.sideproject.withpt.application.record.body.controller;
 
 import com.sideproject.withpt.application.record.body.controller.request.BodyInfoRequest;
 import com.sideproject.withpt.application.record.body.controller.request.WeightInfoRequest;
-import com.sideproject.withpt.application.record.body.controller.response.WeightInfoResponse;
+import com.sideproject.withpt.application.record.body.service.response.WeightInfoResponse;
 import com.sideproject.withpt.application.record.body.service.BodyService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;

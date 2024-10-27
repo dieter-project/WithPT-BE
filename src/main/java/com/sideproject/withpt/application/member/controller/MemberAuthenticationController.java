@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.member.controller;
 
-import com.sideproject.withpt.application.auth.service.dto.AuthLoginResponse;
+import com.sideproject.withpt.application.auth.service.response.AuthLoginResponse;
 import com.sideproject.withpt.application.member.controller.request.MemberSignUpRequest;
 import com.sideproject.withpt.application.member.service.MemberAuthenticationService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;

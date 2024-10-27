@@ -3,7 +3,7 @@ package com.sideproject.withpt.application.award.service;
 import static com.sideproject.withpt.application.award.exception.AwardErrorCode.AWARD_NOT_FOUND;
 import static com.sideproject.withpt.application.award.exception.AwardErrorCode.DUPLICATE_AWARD;
 
-import com.sideproject.withpt.application.award.controller.reponse.AwardResponse;
+import com.sideproject.withpt.application.award.service.reponse.AwardResponse;
 import com.sideproject.withpt.application.award.controller.request.AwardEditRequest;
 import com.sideproject.withpt.application.award.exception.AwardException;
 import com.sideproject.withpt.application.award.repository.AwardRepository;

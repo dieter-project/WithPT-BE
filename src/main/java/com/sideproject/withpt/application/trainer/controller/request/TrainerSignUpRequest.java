@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.trainer.controller.request;
 
-import com.sideproject.withpt.application.trainer.service.dto.complex.TrainerSignUpDto;
+import com.sideproject.withpt.application.trainer.service.model.complex.TrainerSignUpDto;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.common.type.AuthProvider;
 import com.sideproject.withpt.common.type.Sex;

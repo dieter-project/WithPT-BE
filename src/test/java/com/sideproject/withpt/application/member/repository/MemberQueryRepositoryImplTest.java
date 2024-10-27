@@ -3,7 +3,7 @@ package com.sideproject.withpt.application.member.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
-import com.sideproject.withpt.application.member.controller.response.MemberSearchResponse;
+import com.sideproject.withpt.application.member.service.response.MemberSearchResponse;
 import com.sideproject.withpt.common.type.DietType;
 import com.sideproject.withpt.common.type.ExerciseFrequency;
 import com.sideproject.withpt.common.type.Sex;

@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.trainer.service;
 
 import com.sideproject.withpt.application.trainer.controller.request.InfoEditRequest;
-import com.sideproject.withpt.application.trainer.controller.response.TrainerInfoResponse;
+import com.sideproject.withpt.application.trainer.service.response.TrainerInfoResponse;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.utils.AwsS3Uploader;

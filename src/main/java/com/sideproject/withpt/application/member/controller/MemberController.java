@@ -4,8 +4,8 @@ import com.sideproject.withpt.application.member.controller.request.EditMemberDi
 import com.sideproject.withpt.application.member.controller.request.EditMemberExerciseFrequencyRequest;
 import com.sideproject.withpt.application.member.controller.request.EditMemberInfoRequest;
 import com.sideproject.withpt.application.member.controller.request.EditMemberTargetWeightRequest;
-import com.sideproject.withpt.application.member.controller.response.MemberInfoResponse;
-import com.sideproject.withpt.application.member.controller.response.MemberSearchResponse;
+import com.sideproject.withpt.application.member.service.response.MemberInfoResponse;
+import com.sideproject.withpt.application.member.service.response.MemberSearchResponse;
 import com.sideproject.withpt.application.member.service.MemberService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;

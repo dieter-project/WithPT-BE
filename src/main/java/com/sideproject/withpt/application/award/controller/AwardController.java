@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.award.controller;
 
-import com.sideproject.withpt.application.award.controller.reponse.AwardResponse;
+import com.sideproject.withpt.application.award.service.reponse.AwardResponse;
 import com.sideproject.withpt.application.award.controller.request.AwardEditRequest;
 import com.sideproject.withpt.application.award.controller.request.AwardSaveRequest;
 import com.sideproject.withpt.application.award.service.AwardService;

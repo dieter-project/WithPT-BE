@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.trainer.controller.request;
 
-import com.sideproject.withpt.application.trainer.service.dto.single.CertificateDto;
+import com.sideproject.withpt.application.trainer.service.model.single.CertificateDto;
 import com.sideproject.withpt.common.exception.validator.YearMonthType;
 import java.time.YearMonth;
 import java.util.List;

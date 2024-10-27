@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.trainer.controller.request;
 
-import com.sideproject.withpt.application.trainer.service.dto.single.GymDto;
+import com.sideproject.withpt.application.trainer.service.model.single.GymDto;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;

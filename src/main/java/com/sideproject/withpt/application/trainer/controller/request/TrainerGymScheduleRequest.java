@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.trainer.controller.request;
 
-import com.sideproject.withpt.application.trainer.service.dto.complex.GymScheduleDto;
+import com.sideproject.withpt.application.trainer.service.model.complex.GymScheduleDto;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;

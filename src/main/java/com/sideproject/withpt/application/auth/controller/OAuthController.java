@@ -1,10 +1,9 @@
 package com.sideproject.withpt.application.auth.controller;
 
-import com.sideproject.withpt.application.auth.service.dto.LoginResponse;
-import com.sideproject.withpt.application.auth.service.dto.LogoutResponse;
-import com.sideproject.withpt.application.auth.service.dto.AuthLoginResponse;
-import com.sideproject.withpt.application.auth.controller.dto.ReissueReqeust;
-import com.sideproject.withpt.application.auth.service.dto.ReissueResponse;
+import com.sideproject.withpt.application.auth.service.response.LoginResponse;
+import com.sideproject.withpt.application.auth.service.response.LogoutResponse;
+import com.sideproject.withpt.application.auth.controller.request.ReissueReqeust;
+import com.sideproject.withpt.application.auth.service.response.ReissueResponse;
 import com.sideproject.withpt.application.auth.infra.google.GoogleLoginParams;
 import com.sideproject.withpt.application.auth.infra.kakao.KakaoLoginParams;
 import com.sideproject.withpt.application.auth.infra.password.PasswordLoginParams;

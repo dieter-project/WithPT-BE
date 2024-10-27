@@ -1,6 +1,6 @@
 package com.sideproject.withpt.common.batch;
 
-import com.sideproject.withpt.application.food.dto.FoodDto;
+import com.sideproject.withpt.application.food.model.FoodDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;

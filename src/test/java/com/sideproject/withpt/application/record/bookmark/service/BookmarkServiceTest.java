@@ -11,7 +11,7 @@ import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.record.bookmark.controller.request.BookmarkEditRequest;
 import com.sideproject.withpt.application.record.bookmark.exception.BookmarkException;
 import com.sideproject.withpt.application.record.bookmark.repository.BookmarkRepository;
-import com.sideproject.withpt.application.record.bookmark.service.request.BookmarkSaveDto;
+import com.sideproject.withpt.application.record.bookmark.service.request.BookmarkSaveRequest;
 import com.sideproject.withpt.application.record.bookmark.service.response.BookmarkCheckResponse;
 import com.sideproject.withpt.application.record.bookmark.service.response.BookmarkResponse;
 import com.sideproject.withpt.common.type.BodyPart;
@@ -55,7 +55,7 @@ class BookmarkServiceTest {
             // given
             Member member = memberRepository.save(createMember("회원"));
             LocalDate uploadDate = LocalDate.of(2024, 10, 8);
-            BookmarkSaveDto bookmarkSaveDto = BookmarkSaveDto.builder()
+            BookmarkSaveRequest bookmarkSaveRequest = BookmarkSaveRequest.builder()
                 .uploadDate(uploadDate)
                 .title("유산소")
                 .exerciseType(AEROBIC)
@@ -63,7 +63,7 @@ class BookmarkServiceTest {
                 .build();
 
             // when
-            BookmarkResponse response = bookmarkService.saveBookmark(member.getId(), bookmarkSaveDto);
+            BookmarkResponse response = bookmarkService.saveBookmark(member.getId(), bookmarkSaveRequest);
 
             // then
             assertThat(response)
@@ -77,7 +77,7 @@ class BookmarkServiceTest {
             // given
             Member member = memberRepository.save(createMember("회원"));
             LocalDate uploadDate = LocalDate.of(2024, 10, 8);
-            BookmarkSaveDto bookmarkSaveDto = BookmarkSaveDto.builder()
+            BookmarkSaveRequest bookmarkSaveRequest = BookmarkSaveRequest.builder()
                 .uploadDate(uploadDate)
                 .title("무산소")
                 .exerciseType(ANAEROBIC)
@@ -89,7 +89,7 @@ class BookmarkServiceTest {
                 .build();
 
             // when
-            BookmarkResponse response = bookmarkService.saveBookmark(member.getId(), bookmarkSaveDto);
+            BookmarkResponse response = bookmarkService.saveBookmark(member.getId(), bookmarkSaveRequest);
 
             // then
             assertThat(response)
@@ -106,7 +106,7 @@ class BookmarkServiceTest {
             Member member = memberRepository.save(createMember("회원"));
             LocalDate uploadDate = LocalDate.of(2024, 9, 3);
 
-            BookmarkSaveDto bookmarkSaveDto = BookmarkSaveDto.builder()
+            BookmarkSaveRequest bookmarkSaveRequest = BookmarkSaveRequest.builder()
                 .uploadDate(uploadDate)
                 .title("스트레칭")
                 .exerciseType(STRETCHING)
@@ -115,7 +115,7 @@ class BookmarkServiceTest {
                 .build();
 
             // when
-            BookmarkResponse response = bookmarkService.saveBookmark(member.getId(), bookmarkSaveDto);
+            BookmarkResponse response = bookmarkService.saveBookmark(member.getId(), bookmarkSaveRequest);
 
             // then
             assertThat(response)
@@ -134,7 +134,7 @@ class BookmarkServiceTest {
             BookmarkBodyCategory FULL_BODY = createParentBodyCategory(BodyPart.FULL_BODY, null);
             bookmarkRepository.save(createBookmark(LocalDate.of(2024, 10, 4), "스트레칭", STRETCHING, FULL_BODY, 60, member));
 
-            BookmarkSaveDto bookmarkSaveDto = BookmarkSaveDto.builder()
+            BookmarkSaveRequest bookmarkSaveRequest = BookmarkSaveRequest.builder()
                 .uploadDate(LocalDate.of(2024, 10, 10))
                 .title("스트레칭")
                 .exerciseType(STRETCHING)
@@ -145,7 +145,7 @@ class BookmarkServiceTest {
             final Long memberId = member.getId();
 
             // when
-            BookmarkResponse response = bookmarkService.saveBookmark(memberId, bookmarkSaveDto);
+            BookmarkResponse response = bookmarkService.saveBookmark(memberId, bookmarkSaveRequest);
 
             // then
             assertThat(response)

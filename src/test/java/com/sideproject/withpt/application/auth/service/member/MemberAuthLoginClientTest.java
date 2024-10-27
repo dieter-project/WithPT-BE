@@ -9,7 +9,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.willDoNothing;
 
 import com.sideproject.withpt.application.auth.infra.password.PasswordLoginParams;
-import com.sideproject.withpt.application.auth.service.dto.LoginResponse;
+import com.sideproject.withpt.application.auth.service.client.member.MemberAuthLoginClient;
+import com.sideproject.withpt.application.auth.service.response.LoginResponse;
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;

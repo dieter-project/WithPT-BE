@@ -3,7 +3,7 @@ package com.sideproject.withpt.application.record.body.service;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.record.body.controller.request.BodyInfoRequest;
 import com.sideproject.withpt.application.record.body.controller.request.WeightInfoRequest;
-import com.sideproject.withpt.application.record.body.controller.response.WeightInfoResponse;
+import com.sideproject.withpt.application.record.body.service.response.WeightInfoResponse;
 import com.sideproject.withpt.application.record.body.repository.BodyRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.user.member.Member;

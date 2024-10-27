@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.trainer.controller.request;
 
-import com.sideproject.withpt.application.trainer.service.dto.single.AcademicDto;
+import com.sideproject.withpt.application.trainer.service.model.single.AcademicDto;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.common.exception.validator.YearMonthType;
 import com.sideproject.withpt.common.type.AcademicInstitution;

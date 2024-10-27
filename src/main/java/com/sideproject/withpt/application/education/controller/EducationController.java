@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.education.controller;
 
-import com.sideproject.withpt.application.education.controller.reponse.EducationResponse;
+import com.sideproject.withpt.application.education.service.reponse.EducationResponse;
 import com.sideproject.withpt.application.education.controller.request.EducationEditRequest;
 import com.sideproject.withpt.application.education.controller.request.EducationSaveRequest;
 import com.sideproject.withpt.application.education.service.EducationService;

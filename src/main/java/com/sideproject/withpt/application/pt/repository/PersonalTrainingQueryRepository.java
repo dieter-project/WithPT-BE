@@ -1,11 +1,11 @@
 package com.sideproject.withpt.application.pt.repository;
 
-import com.sideproject.withpt.application.pt.controller.response.AssignedPTInfoResponse;
-import com.sideproject.withpt.application.pt.controller.response.MemberDetailInfoResponse;
-import com.sideproject.withpt.application.pt.controller.response.ReRegistrationHistoryResponse;
-import com.sideproject.withpt.application.pt.repository.dto.EachGymMemberListResponse;
-import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
-import com.sideproject.withpt.application.pt.repository.dto.MonthlyMemberCount;
+import com.sideproject.withpt.application.pt.repository.model.AssignedPTInfoResponse;
+import com.sideproject.withpt.application.pt.repository.model.MemberDetailInfoResponse;
+import com.sideproject.withpt.application.pt.repository.model.ReRegistrationHistoryResponse;
+import com.sideproject.withpt.application.pt.repository.model.EachGymMemberListResponse;
+import com.sideproject.withpt.application.pt.repository.model.GymMemberCountDto;
+import com.sideproject.withpt.application.pt.repository.model.MonthlyMemberCount;
 import com.sideproject.withpt.common.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.common.type.PtRegistrationStatus;
 import com.sideproject.withpt.domain.gym.GymTrainer;

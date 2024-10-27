@@ -2,7 +2,7 @@ package com.sideproject.withpt.application.member.service;
 
 import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.MEMBER_REFRESH_TOKEN_PREFIX;
 
-import com.sideproject.withpt.application.auth.service.dto.AuthLoginResponse;
+import com.sideproject.withpt.application.auth.service.response.AuthLoginResponse;
 import com.sideproject.withpt.application.member.controller.request.MemberSignUpRequest;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.common.type.Role;

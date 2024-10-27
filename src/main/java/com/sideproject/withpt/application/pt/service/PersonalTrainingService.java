@@ -10,34 +10,32 @@ import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.pt.controller.request.ExtendPtRequest;
 import com.sideproject.withpt.application.pt.controller.request.SavePtMemberDetailInfoRequest;
 import com.sideproject.withpt.application.pt.controller.request.UpdatePtMemberDetailInfoRequest;
-import com.sideproject.withpt.application.pt.controller.response.AssignedPTInfoResponse;
-import com.sideproject.withpt.application.pt.controller.response.CountOfMembersAndGymsResponse;
-import com.sideproject.withpt.application.pt.controller.response.GymAndMemberCountResponse;
-import com.sideproject.withpt.application.pt.controller.response.MemberDetailInfoResponse;
-import com.sideproject.withpt.application.pt.controller.response.MonthlyStatisticsResponse;
-import com.sideproject.withpt.application.pt.controller.response.MonthlyStatisticsResponse.MonthStatistic;
-import com.sideproject.withpt.application.pt.controller.response.PersonalTrainingMemberResponse;
-import com.sideproject.withpt.application.pt.controller.response.ReRegistrationHistoryResponse;
-import com.sideproject.withpt.application.pt.controller.response.TotalAndRemainingPtCountResponse;
-import com.sideproject.withpt.application.pt.controller.response.TotalPtsCountResponse;
 import com.sideproject.withpt.application.pt.exception.PTErrorCode;
 import com.sideproject.withpt.application.pt.exception.PTException;
 import com.sideproject.withpt.application.pt.repository.PTCountLogRepository;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingInfoRepository;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
-import com.sideproject.withpt.application.pt.repository.dto.EachGymMemberListResponse;
-import com.sideproject.withpt.application.pt.repository.dto.GymMemberCountDto;
-import com.sideproject.withpt.application.pt.repository.dto.MonthlyMemberCount;
+import com.sideproject.withpt.application.pt.repository.model.AssignedPTInfoResponse;
+import com.sideproject.withpt.application.pt.repository.model.EachGymMemberListResponse;
+import com.sideproject.withpt.application.pt.repository.model.GymMemberCountDto;
+import com.sideproject.withpt.application.pt.repository.model.MemberDetailInfoResponse;
+import com.sideproject.withpt.application.pt.repository.model.MonthlyMemberCount;
+import com.sideproject.withpt.application.pt.repository.model.ReRegistrationHistoryResponse;
+import com.sideproject.withpt.application.pt.service.response.CountOfMembersAndGymsResponse;
+import com.sideproject.withpt.application.pt.service.response.GymAndMemberCountResponse;
+import com.sideproject.withpt.application.pt.service.response.MonthlyStatisticsResponse;
+import com.sideproject.withpt.application.pt.service.response.MonthlyStatisticsResponse.MonthStatistic;
+import com.sideproject.withpt.application.pt.service.response.PersonalTrainingMemberResponse;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
+import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.common.type.PtRegistrationStatus;
-import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
-import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.pt.PTCountLog;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.pt.PersonalTrainingInfo;
+import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -233,18 +231,6 @@ public class PersonalTrainingService {
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
         return personalTrainingRepository.findRegistrationHistory(personalTraining, pageable);
-    }
-
-    public TotalAndRemainingPtCountResponse getPtTotalAndRemainingCount(Long ptId) {
-
-        PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
-            .orElseThrow(() -> PTException.PT_NOT_FOUND);
-
-        return TotalAndRemainingPtCountResponse.of(
-            ptId,
-            personalTraining.getTotalPtCount(),
-            personalTraining.getRemainingPtCount()
-        );
     }
 
     public List<AssignedPTInfoResponse> getPtAssignedTrainerInformation(Long memberId) {

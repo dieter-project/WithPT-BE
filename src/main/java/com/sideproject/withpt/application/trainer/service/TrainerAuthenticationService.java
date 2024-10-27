@@ -2,13 +2,13 @@ package com.sideproject.withpt.application.trainer.service;
 
 import static com.sideproject.withpt.common.jwt.model.constants.JwtConstants.TRAINER_REFRESH_TOKEN_PREFIX;
 
-import com.sideproject.withpt.application.auth.service.dto.AuthLoginResponse;
+import com.sideproject.withpt.application.auth.service.response.AuthLoginResponse;
 import com.sideproject.withpt.application.gym.service.GymService;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
 import com.sideproject.withpt.application.schedule.service.WorkScheduleService;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
-import com.sideproject.withpt.application.trainer.service.dto.TrainerSignUpResponse;
-import com.sideproject.withpt.application.trainer.service.dto.complex.TrainerSignUpDto;
+import com.sideproject.withpt.application.trainer.service.model.TrainerSignUpResponse;
+import com.sideproject.withpt.application.trainer.service.model.complex.TrainerSignUpDto;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.jwt.AuthTokenGenerator;
 import com.sideproject.withpt.common.jwt.model.dto.TokenSetDto;

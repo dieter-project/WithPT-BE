@@ -4,8 +4,8 @@ import com.sideproject.withpt.application.member.controller.request.EditMemberDi
 import com.sideproject.withpt.application.member.controller.request.EditMemberExerciseFrequencyRequest;
 import com.sideproject.withpt.application.member.controller.request.EditMemberInfoRequest;
 import com.sideproject.withpt.application.member.controller.request.EditMemberTargetWeightRequest;
-import com.sideproject.withpt.application.member.controller.response.MemberInfoResponse;
-import com.sideproject.withpt.application.member.controller.response.MemberSearchResponse;
+import com.sideproject.withpt.application.member.service.response.MemberInfoResponse;
+import com.sideproject.withpt.application.member.service.response.MemberSearchResponse;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.user.member.Member;

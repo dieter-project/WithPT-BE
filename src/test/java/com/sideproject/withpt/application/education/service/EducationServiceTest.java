@@ -3,7 +3,7 @@ package com.sideproject.withpt.application.education.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.sideproject.withpt.application.education.controller.reponse.EducationResponse;
+import com.sideproject.withpt.application.education.service.reponse.EducationResponse;
 import com.sideproject.withpt.application.education.controller.request.EducationEditRequest;
 import com.sideproject.withpt.application.education.exception.EducationException;
 import com.sideproject.withpt.application.education.repository.EducationRepository;

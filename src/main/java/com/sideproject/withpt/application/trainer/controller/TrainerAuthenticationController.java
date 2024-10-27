@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.trainer.controller;
 
-import com.sideproject.withpt.application.auth.service.dto.AuthLoginResponse;
+import com.sideproject.withpt.application.auth.service.response.AuthLoginResponse;
 import com.sideproject.withpt.application.trainer.controller.request.TrainerSignUpRequest;
 import com.sideproject.withpt.application.trainer.service.TrainerAuthenticationService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;

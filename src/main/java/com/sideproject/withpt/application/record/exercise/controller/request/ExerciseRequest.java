@@ -1,7 +1,7 @@
 package com.sideproject.withpt.application.record.exercise.controller.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.sideproject.withpt.application.record.bookmark.service.request.BookmarkSaveDto;
+import com.sideproject.withpt.application.record.bookmark.service.request.BookmarkSaveRequest;
 import com.sideproject.withpt.application.record.exercise.exception.validator.ValidExerciseType;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.common.type.BodyPart;
@@ -99,8 +99,8 @@ public class ExerciseRequest {
             ).orElse(null);
     }
 
-    public BookmarkSaveDto toBookmarkSaveDto() {
-        return BookmarkSaveDto.builder()
+    public BookmarkSaveRequest toBookmarkSaveDto() {
+        return BookmarkSaveRequest.builder()
             .uploadDate(uploadDate)
             .title(title)
             .exerciseType(exerciseType)

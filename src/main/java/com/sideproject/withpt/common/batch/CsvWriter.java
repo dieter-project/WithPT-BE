@@ -1,6 +1,6 @@
 package com.sideproject.withpt.common.batch;
 
-import com.sideproject.withpt.application.food.dto.FoodDto;
+import com.sideproject.withpt.application.food.model.FoodDto;
 import com.sideproject.withpt.application.food.repository.FoodRepository;
 import com.sideproject.withpt.domain.record.diet.Food;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package com.sideproject.withpt.application.certificate.controller;
 
-import com.sideproject.withpt.application.certificate.controller.reponse.CertificateResponse;
+import com.sideproject.withpt.application.certificate.service.reponse.CertificateResponse;
 import com.sideproject.withpt.application.certificate.controller.request.CertificateEditRequest;
 import com.sideproject.withpt.application.certificate.controller.request.CertificateSaveRequest;
 import com.sideproject.withpt.application.certificate.service.CertificateService;

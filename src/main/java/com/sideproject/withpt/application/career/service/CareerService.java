@@ -4,7 +4,7 @@ import static com.sideproject.withpt.application.career.exception.CareerErrorCod
 import static com.sideproject.withpt.application.career.exception.CareerErrorCode.DUPLICATE_CAREER;
 
 import com.sideproject.withpt.application.career.controller.request.CareerEditRequest;
-import com.sideproject.withpt.application.career.controller.response.CareerResponse;
+import com.sideproject.withpt.application.career.service.response.CareerResponse;
 import com.sideproject.withpt.application.career.exception.CareerException;
 import com.sideproject.withpt.application.career.repository.CareerRepository;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;

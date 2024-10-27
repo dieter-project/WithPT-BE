@@ -4,7 +4,7 @@ import static com.sideproject.withpt.domain.user.trainer.QEducation.education;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sideproject.withpt.application.education.controller.reponse.EducationResponse;
+import com.sideproject.withpt.application.education.service.reponse.EducationResponse;
 import com.sideproject.withpt.application.education.controller.reponse.QEducationResponse;
 import com.sideproject.withpt.domain.user.trainer.Education;
 import java.time.YearMonth;

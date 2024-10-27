@@ -1,7 +1,6 @@
 package com.sideproject.withpt.application.record.bookmark.controller.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.sideproject.withpt.application.record.bookmark.service.request.BookmarkSaveDto;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.common.type.ExerciseType;
 import java.time.LocalDate;
@@ -40,8 +39,8 @@ public class BookmarkSaveRequest {
 
     private int exerciseTime; // 유산소, 스트레칭
 
-    public BookmarkSaveDto toServiceDto() {
-        return BookmarkSaveDto.builder()
+    public com.sideproject.withpt.application.record.bookmark.service.request.BookmarkSaveRequest toServiceDto() {
+        return com.sideproject.withpt.application.record.bookmark.service.request.BookmarkSaveRequest.builder()
             .uploadDate(uploadDate)
             .title(title)
             .exerciseType(exerciseType)

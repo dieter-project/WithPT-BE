@@ -3,7 +3,7 @@ package com.sideproject.withpt.application.award.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.sideproject.withpt.application.award.controller.reponse.AwardResponse;
+import com.sideproject.withpt.application.award.service.reponse.AwardResponse;
 import com.sideproject.withpt.application.award.controller.request.AwardEditRequest;
 import com.sideproject.withpt.application.award.exception.AwardException;
 import com.sideproject.withpt.application.award.repository.AwardRepository;

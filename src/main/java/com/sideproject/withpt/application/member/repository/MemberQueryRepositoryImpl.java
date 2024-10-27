@@ -4,7 +4,7 @@ import static com.sideproject.withpt.domain.user.member.QMember.member;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sideproject.withpt.application.member.controller.response.MemberSearchResponse;
+import com.sideproject.withpt.application.member.service.response.MemberSearchResponse;
 import com.sideproject.withpt.application.member.controller.response.QMemberSearchResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
