@@ -91,11 +91,7 @@ public class PersonalTrainingService {
     }
 
     @Transactional
-    public PersonalTrainingMemberResponse registerPersonalTraining(Long gymId, Long memberId, Long trainerId, LocalDateTime ptRegistrationRequestDate) {
-        Member member = memberRepository.findById(memberId)
-            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-
-        GymTrainer gymTrainer = getGymTrainerBy(gymId, trainerId);
+    public PersonalTrainingMemberResponse registerPersonalTraining(Member member, GymTrainer gymTrainer, LocalDateTime ptRegistrationRequestDate) {
 
         if (personalTrainingRepository.existsByMemberAndGymTrainer(member, gymTrainer)) {
             throw PTException.AlREADY_REGISTERED_PT_MEMBER;
@@ -108,10 +104,7 @@ public class PersonalTrainingService {
     }
 
     @Transactional
-    public void approvedPersonalTrainingRegistration(Long ptId, LocalDateTime registrationAllowedDate) {
-
-        PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
-            .orElseThrow(() -> PTException.PT_NOT_FOUND);
+    public void approvedPersonalTrainingRegistration(PersonalTraining personalTraining, LocalDateTime registrationAllowedDate) {
 
         // 이미 등록을 허용한 상태면 에러
         if (personalTraining.getRegistrationAllowedStatus() == PtRegistrationAllowedStatus.ALLOWED) {

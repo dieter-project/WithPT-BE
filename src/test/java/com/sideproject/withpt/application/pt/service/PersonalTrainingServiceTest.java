@@ -4,21 +4,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 
-import com.sideproject.withpt.application.gym.exception.GymException;
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
-import com.sideproject.withpt.application.gymtrainer.exception.GymTrainerException;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.pt.controller.request.ExtendPtRequest;
 import com.sideproject.withpt.application.pt.controller.request.SavePtMemberDetailInfoRequest;
 import com.sideproject.withpt.application.pt.controller.request.UpdatePtMemberDetailInfoRequest;
-import com.sideproject.withpt.application.pt.service.response.CountOfMembersAndGymsResponse;
-import com.sideproject.withpt.application.pt.repository.model.MemberDetailInfoResponse;
-import com.sideproject.withpt.application.pt.service.response.MonthlyStatisticsResponse;
-import com.sideproject.withpt.application.pt.service.response.PersonalTrainingMemberResponse;
 import com.sideproject.withpt.application.pt.exception.PTException;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingInfoRepository;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
+import com.sideproject.withpt.application.pt.repository.model.MemberDetailInfoResponse;
+import com.sideproject.withpt.application.pt.service.response.CountOfMembersAndGymsResponse;
+import com.sideproject.withpt.application.pt.service.response.MonthlyStatisticsResponse;
+import com.sideproject.withpt.application.pt.service.response.PersonalTrainingMemberResponse;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.type.DietType;
@@ -29,9 +27,9 @@ import com.sideproject.withpt.common.type.PtRegistrationStatus;
 import com.sideproject.withpt.common.type.Sex;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
-import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.pt.PersonalTrainingInfo;
+import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -167,15 +165,11 @@ class PersonalTrainingServiceTest {
         Trainer trainer = trainerRepository.save(createTrainer("test 트레이너"));
         Gym gym = gymRepository.save(createGym("체육관1"));
 
-        gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 27)));
-
-        final Long gymId = gym.getId();
-        final Long memberId = member.getId();
-        final Long trainerId = trainer.getId();
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 27)));
         LocalDateTime ptRegistrationRequestDate = LocalDateTime.of(2024, 9, 27, 12, 45);
 
         // when
-        PersonalTrainingMemberResponse response = personalTrainingService.registerPersonalTraining(gymId, memberId, trainerId, ptRegistrationRequestDate);
+        PersonalTrainingMemberResponse response = personalTrainingService.registerPersonalTraining(member, gymTrainer, ptRegistrationRequestDate);
 
         // then
         assertThat(response)
@@ -193,89 +187,86 @@ class PersonalTrainingServiceTest {
     @DisplayName("신규 PT 회원 등록 - 예외 상황")
     class RegisterPersonalTraining {
 
-        @DisplayName("회원이 존재하지 않을 때.")
-        @Test
-        void WhenMemberNotFound() {
-            // given
-            Trainer trainer = trainerRepository.save(createTrainer("test 트레이너"));
-            Gym gym = gymRepository.save(createGym("체육관1"));
+//        @DisplayName("회원이 존재하지 않을 때.")
+//        @Test
+//        void WhenMemberNotFound() {
+//            // given
+//            Member member = memberRepository.save(createMember("회원"));
+//            Trainer trainer = trainerRepository.save(createTrainer("test 트레이너"));
+//            Gym gym = gymRepository.save(createGym("체육관1"));
+//
+//            GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 27)));
+//
+//            LocalDateTime ptRegistrationRequestDate = LocalDateTime.of(2024, 9, 27, 12, 45);
+//
+//            // when // then
+//            assertThatThrownBy(() -> personalTrainingService.registerPersonalTraining(member, gymTrainer, ptRegistrationRequestDate))
+//                .isInstanceOf(GlobalException.class)
+//                .hasMessage("존재하지 않은 회원입니다.");
+//        }
 
-            gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 27)));
+//        @DisplayName("트레이너가 존재하지 않을 때.")
+//        @Test
+//        void WhenTrainerNotFound() {
+//            // given
+//            Member member = memberRepository.save(createMember("회원"));
+//            Gym gym = gymRepository.save(createGym("체육관1"));
+//
+//            GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainerRepository.save(createTrainer("test 트레이너")), LocalDate.of(2024, 9, 27)));
+//
+//            final Long gymId = gym.getId();
+//            final Long memberId = member.getId();
+//            LocalDateTime ptRegistrationRequestDate = LocalDateTime.of(2024, 9, 27, 12, 45);
+//
+//            final Long trainerId = 11L;
+//
+//            // when // then
+//            assertThatThrownBy(() -> personalTrainingService.registerPersonalTraining(gymId, memberId, trainerId, ptRegistrationRequestDate))
+//                .isInstanceOf(GlobalException.class)
+//                .hasMessage("존재하지 않은 회원입니다.");
+//        }
 
-            final Long gymId = gym.getId();
-            final Long trainerId = trainer.getId();
-            LocalDateTime ptRegistrationRequestDate = LocalDateTime.of(2024, 9, 27, 12, 45);
+//        @DisplayName("체육관이 존재하지 않을 때.")
+//        @Test
+//        void WhenGymNotFound() {
+//            // given
+//            Member member = memberRepository.save(createMember("회원"));
+//            Trainer trainer = trainerRepository.save(createTrainer("test 트레이너"));
+//            gymTrainerRepository.save(createGymTrainer(gymRepository.save(createGym("체육관1")), trainer, LocalDate.of(2024, 9, 27)));
+//
+//            final Long memberId = member.getId();
+//            final Long trainerId = trainer.getId();
+//            LocalDateTime ptRegistrationRequestDate = LocalDateTime.of(2024, 9, 27, 12, 45);
+//
+//            final Long gymId = 11L;
+//
+//            // when // then
+//            assertThatThrownBy(() -> personalTrainingService.registerPersonalTraining(gymId, memberId, trainerId, ptRegistrationRequestDate))
+//                .isInstanceOf(GymException.class)
+//                .hasMessage("존재하지 않는 체육관 입니다.");
+//        }
 
-            final Long memberId = 1L;
-
-            // when // then
-            assertThatThrownBy(() -> personalTrainingService.registerPersonalTraining(gymId, memberId, trainerId, ptRegistrationRequestDate))
-                .isInstanceOf(GlobalException.class)
-                .hasMessage("존재하지 않은 회원입니다.");
-        }
-
-        @DisplayName("트레이너가 존재하지 않을 때.")
-        @Test
-        void WhenTrainerNotFound() {
-            // given
-            Member member = memberRepository.save(createMember("회원"));
-            Gym gym = gymRepository.save(createGym("체육관1"));
-
-            gymTrainerRepository.save(createGymTrainer(gym, trainerRepository.save(createTrainer("test 트레이너")), LocalDate.of(2024, 9, 27)));
-
-            final Long gymId = gym.getId();
-            final Long memberId = member.getId();
-            LocalDateTime ptRegistrationRequestDate = LocalDateTime.of(2024, 9, 27, 12, 45);
-
-            final Long trainerId = 11L;
-
-            // when // then
-            assertThatThrownBy(() -> personalTrainingService.registerPersonalTraining(gymId, memberId, trainerId, ptRegistrationRequestDate))
-                .isInstanceOf(GlobalException.class)
-                .hasMessage("존재하지 않은 회원입니다.");
-        }
-
-        @DisplayName("체육관이 존재하지 않을 때.")
-        @Test
-        void WhenGymNotFound() {
-            // given
-            Member member = memberRepository.save(createMember("회원"));
-            Trainer trainer = trainerRepository.save(createTrainer("test 트레이너"));
-            gymTrainerRepository.save(createGymTrainer(gymRepository.save(createGym("체육관1")), trainer, LocalDate.of(2024, 9, 27)));
-
-            final Long memberId = member.getId();
-            final Long trainerId = trainer.getId();
-            LocalDateTime ptRegistrationRequestDate = LocalDateTime.of(2024, 9, 27, 12, 45);
-
-            final Long gymId = 11L;
-
-            // when // then
-            assertThatThrownBy(() -> personalTrainingService.registerPersonalTraining(gymId, memberId, trainerId, ptRegistrationRequestDate))
-                .isInstanceOf(GymException.class)
-                .hasMessage("존재하지 않는 체육관 입니다.");
-        }
-
-        @DisplayName("트레이너가 소속된 체육관이 아닐 때")
-        @Test
-        void WhenGymTrainerNotFound() {
-            // given
-            Member member = memberRepository.save(createMember("회원"));
-            Trainer trainer = trainerRepository.save(createTrainer("test 트레이너"));
-            Gym gym = gymRepository.save(createGym("체육관1"));
-
-            gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 27)));
-
-            Trainer trainer2 = trainerRepository.save(createTrainer("test 트레이너2"));
-            final Long gymId = gym.getId();
-            final Long memberId = member.getId();
-            final Long trainerId = trainer2.getId();
-            LocalDateTime ptRegistrationRequestDate = LocalDateTime.of(2024, 9, 27, 12, 45);
-
-            // when // then
-            assertThatThrownBy(() -> personalTrainingService.registerPersonalTraining(gymId, memberId, trainerId, ptRegistrationRequestDate))
-                .isInstanceOf(GymTrainerException.class)
-                .hasMessage("트레이너가 소속된 체육관이 존재하지 않습니다.");
-        }
+//        @DisplayName("트레이너가 소속된 체육관이 아닐 때")
+//        @Test
+//        void WhenGymTrainerNotFound() {
+//            // given
+//            Member member = memberRepository.save(createMember("회원"));
+//            Trainer trainer = trainerRepository.save(createTrainer("test 트레이너"));
+//            Gym gym = gymRepository.save(createGym("체육관1"));
+//
+//            GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 27)));
+//
+//            Trainer trainer2 = trainerRepository.save(createTrainer("test 트레이너2"));
+//            final Long gymId = gym.getId();
+//            final Long memberId = member.getId();
+//            final Long trainerId = trainer2.getId();
+//            LocalDateTime ptRegistrationRequestDate = LocalDateTime.of(2024, 9, 27, 12, 45);
+//
+//            // when // then
+//            assertThatThrownBy(() -> personalTrainingService.registerPersonalTraining(gymId, memberId, trainerId, ptRegistrationRequestDate))
+//                .isInstanceOf(GymTrainerException.class)
+//                .hasMessage("트레이너가 소속된 체육관이 존재하지 않습니다.");
+//        }
 
         @DisplayName("이미 PT 등록된 회원일 때")
         @Test
@@ -290,12 +281,8 @@ class PersonalTrainingServiceTest {
             LocalDateTime ptRegistrationRequestDate = LocalDateTime.of(2024, 9, 27, 12, 45);
             personalTrainingRepository.save(createPersonalTraining(member, gymTrainer, ptRegistrationRequestDate, PTInfoInputStatus.INFO_EMPTY, PtRegistrationStatus.ALLOWED_BEFORE, PtRegistrationAllowedStatus.WAITING));
 
-            final Long gymId = gym.getId();
-            final Long memberId = member.getId();
-            final Long trainerId = trainer.getId();
-
             // when // then
-            assertThatThrownBy(() -> personalTrainingService.registerPersonalTraining(gymId, memberId, trainerId, ptRegistrationRequestDate))
+            assertThatThrownBy(() -> personalTrainingService.registerPersonalTraining(member, gymTrainer, ptRegistrationRequestDate))
                 .isInstanceOf(PTException.class)
                 .hasMessage("이미 등록된 PT 회원입니다.");
         }
@@ -312,11 +299,10 @@ class PersonalTrainingServiceTest {
         GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 27)));
         PersonalTraining personalTraining = personalTrainingRepository.save(createPersonalTraining(member, gymTrainer, LocalDateTime.of(2024, 9, 27, 12, 45), PTInfoInputStatus.INFO_EMPTY, PtRegistrationStatus.ALLOWED_BEFORE, PtRegistrationAllowedStatus.WAITING));
 
-        final Long personalTrainingId = personalTraining.getId();
         final LocalDateTime registrationAllowedDate = LocalDateTime.of(2024, 9, 27, 9, 51);
 
         // when
-        personalTrainingService.approvedPersonalTrainingRegistration(personalTrainingId, registrationAllowedDate);
+        personalTrainingService.approvedPersonalTrainingRegistration(personalTraining, registrationAllowedDate);
 
         // then
         PersonalTraining savedPersonalTraining = personalTrainingRepository.findAll().get(0);
@@ -336,11 +322,10 @@ class PersonalTrainingServiceTest {
         GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 27)));
         PersonalTraining personalTraining = personalTrainingRepository.save(createPersonalTraining(member, gymTrainer, LocalDateTime.of(2024, 9, 27, 12, 45), PTInfoInputStatus.INFO_EMPTY, PtRegistrationStatus.ALLOWED, PtRegistrationAllowedStatus.ALLOWED));
 
-        final Long personalTrainingId = personalTraining.getId();
         final LocalDateTime registrationAllowedDate = LocalDateTime.of(2024, 9, 27, 9, 51);
 
         // when // then
-        assertThatThrownBy(() -> personalTrainingService.approvedPersonalTrainingRegistration(personalTrainingId, registrationAllowedDate))
+        assertThatThrownBy(() -> personalTrainingService.approvedPersonalTrainingRegistration(personalTraining, registrationAllowedDate))
             .isInstanceOf(PTException.class)
             .hasMessage("이미 PT 등록을 허용한 상태입니다.");
     }

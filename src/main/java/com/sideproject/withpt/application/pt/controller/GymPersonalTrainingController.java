@@ -5,13 +5,14 @@ import com.sideproject.withpt.application.pt.controller.request.RemovePtMembersR
 import com.sideproject.withpt.application.pt.controller.request.SavePtMemberDetailInfoRequest;
 import com.sideproject.withpt.application.pt.controller.request.UpdatePtMemberDetailInfoRequest;
 import com.sideproject.withpt.application.pt.repository.model.AssignedPTInfoResponse;
-import com.sideproject.withpt.application.pt.service.response.CountOfMembersAndGymsResponse;
+import com.sideproject.withpt.application.pt.repository.model.EachGymMemberListResponse;
 import com.sideproject.withpt.application.pt.repository.model.MemberDetailInfoResponse;
+import com.sideproject.withpt.application.pt.repository.model.ReRegistrationHistoryResponse;
+import com.sideproject.withpt.application.pt.service.PersonalTrainingManager;
+import com.sideproject.withpt.application.pt.service.PersonalTrainingService;
+import com.sideproject.withpt.application.pt.service.response.CountOfMembersAndGymsResponse;
 import com.sideproject.withpt.application.pt.service.response.MonthlyStatisticsResponse;
 import com.sideproject.withpt.application.pt.service.response.PersonalTrainingMemberResponse;
-import com.sideproject.withpt.application.pt.repository.model.ReRegistrationHistoryResponse;
-import com.sideproject.withpt.application.pt.repository.model.EachGymMemberListResponse;
-import com.sideproject.withpt.application.pt.service.PersonalTrainingService;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import com.sideproject.withpt.common.type.PtRegistrationAllowedStatus;
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,6 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class GymPersonalTrainingController {
 
     private final PersonalTrainingService personalTrainingService;
+    private final PersonalTrainingManager personalTrainingManager;
 
     @Operation(summary = "체육관 목록 및 PT 회원 수 조회", description = "체육관 목록과 각 회원 수 반환")
     @GetMapping("/api/v1/personal-trainings/gyms/members/count")
@@ -65,14 +67,15 @@ public class GymPersonalTrainingController {
     public ApiSuccessResponse<PersonalTrainingMemberResponse> registerPersonalTraining(@PathVariable Long gymId,
         @PathVariable Long memberId, @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId) {
         return ApiSuccessResponse.from(
-            personalTrainingService.registerPersonalTraining(gymId, memberId, trainerId, LocalDateTime.now())
+            personalTrainingManager.registerPersonalTraining(gymId, memberId, trainerId, LocalDateTime.now())
         );
     }
 
     @Operation(summary = "회원 -  PT 등록 승인")
     @PatchMapping("/api/v1/personal-trainings/{ptId}/registration-acceptance")
-    public void allowPtRegistrationNotification(@PathVariable Long ptId) {
-        personalTrainingService.approvedPersonalTrainingRegistration(ptId, LocalDateTime.now());
+    public void allowPtRegistrationNotification(@PathVariable Long ptId,
+        @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
+        personalTrainingManager.approvedPersonalTrainingRegistration(ptId, memberId, LocalDateTime.now());
     }
 
     @Operation(summary = "등록 대기 중 회원 리스트 조회")
