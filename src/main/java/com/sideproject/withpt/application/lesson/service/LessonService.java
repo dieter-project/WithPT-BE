@@ -10,7 +10,6 @@ import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.gym.service.response.GymResponse;
 import com.sideproject.withpt.application.gymtrainer.exception.GymTrainerException;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
-import com.sideproject.withpt.application.lesson.controller.request.LessonChangeRequest;
 import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
 import com.sideproject.withpt.application.lesson.service.response.AvailableLessonScheduleResponse;
@@ -25,7 +24,6 @@ import com.sideproject.withpt.application.pt.repository.PersonalTrainingReposito
 import com.sideproject.withpt.application.schedule.exception.ScheduleException;
 import com.sideproject.withpt.application.schedule.repository.WorkScheduleRepository;
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
-import com.sideproject.withpt.application.user.UserRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.type.Day;
 import com.sideproject.withpt.common.type.LessonRequestStatus;
@@ -65,7 +63,6 @@ public class LessonService {
     private final GymRepository gymRepository;
     private final MemberRepository memberRepository;
     private final TrainerRepository trainerRepository;
-    private final UserRepository userRepository;
 
     private final GymTrainerRepository gymTrainerRepository;
     private final WorkScheduleRepository workScheduleRepository;
@@ -90,9 +87,6 @@ public class LessonService {
 
         validationLessonTime(gymTrainer, date, time);
 
-        // TODO TEST 작성 수업 등록 - 예약 시스템이므로 동시성 고려하기
-        // TODO : 회원이 수업 등록 요청을 했을 경우 "대기 중 수업 - 받은 요청" 에 표시
-        // TODO : 알림 기능 추가
         Lesson lesson = lessonRepository.save(
             Lesson.createNewLessonRegistration(member, gymTrainer,
                 date, time, weekday,
@@ -102,34 +96,23 @@ public class LessonService {
         return LessonResponse.of(lesson);
     }
 
-    public LessonInfoResponse getLessonSchedule(Long lessonId) {
-        return lessonRepository.findById(lessonId)
-            .map(lesson -> LessonInfoResponse.builder()
-                .lesson(LessonResponse.of(lesson))
-                .gym(GymResponse.of(lesson.getGymTrainer().getGym()))
-                .build())
-            .orElse(null);
-    }
-
     @Transactional
-    public LessonResponse changePTLesson(Long lessonId, Long userId, LessonChangeRequest request) {
+    public LessonResponse changePTLesson(Lesson lesson, User requester, LocalDate date, LocalTime time, Day weekday) {
 
-        User lessonChangeRequester = userRepository.findById(userId)
-            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-
-        Lesson lesson = lessonRepository.findById(lessonId)
-            .orElseThrow(() -> new LessonException(LESSON_NOT_FOUND));
-
-        validationLessonTime(lesson.getGymTrainer(), request.getDate(), request.getTime());
+        validationLessonTime(lesson.getGymTrainer(), date, time);
 
         if (LessonStatus.isScheduleChangeNotAllowed(lesson.getStatus())) {
             throw LessonException.NON_BOOKED_SESSION;
         }
 
-        // TODO 예약 시스템이므로 동시성 고려하기
-        // TODO : 알림 기능 추가
-        lesson.changeLessonSchedule(request.getDate(), request.getTime(), request.getWeekday(), lessonChangeRequester);
+        lesson.changeLessonSchedule(date, time, weekday, requester);
 
+        return LessonResponse.of(lesson);
+    }
+
+    @Transactional
+    public LessonResponse registrationOrScheduleChangeLessonAccept(Lesson lesson) {
+        lesson.registrationOrScheduleChangeAccept();
         return LessonResponse.of(lesson);
     }
 
@@ -146,6 +129,31 @@ public class LessonService {
         lesson.cancel(status);
 
         return LessonResponse.of(lesson);
+    }
+
+    @Transactional
+    public void deleteLesson(Long lessonId) {
+        lessonRepository.findById(lessonId)
+            .ifPresentOrElse(
+                lesson -> {
+                    if (!LessonStatus.isCanceled(lesson)) {
+                        throw new LessonException(ONLY_CANCELLED_OR_AUTO_CANCELLED);
+                    }
+                    lessonRepository.delete(lesson);
+                },
+                () -> {
+                    throw new LessonException(LESSON_NOT_FOUND);
+                }
+            );
+    }
+
+    public LessonInfoResponse getLessonSchedule(Long lessonId) {
+        return lessonRepository.findById(lessonId)
+            .map(lesson -> LessonInfoResponse.builder()
+                .lesson(LessonResponse.of(lesson))
+                .gym(GymResponse.of(lesson.getGymTrainer().getGym()))
+                .build())
+            .orElse(null);
     }
 
     public AvailableLessonScheduleResponse getTrainerAvailableLessonSchedule(Long gymId, Long trainerId, Day weekday, LocalDate date) {
@@ -259,28 +267,6 @@ public class LessonService {
         return convertToLessonResponses(
             lessonRepository.findAllModifiedByAndLessonStatus(Role.TRAINER, LessonStatus.PENDING_APPROVAL, gymTrainers, pageable)
         );
-    }
-
-    @Transactional
-    public LessonResponse registrationOrScheduleChangeLessonAccept(Lesson lesson) {
-        lesson.registrationOrScheduleChangeAccept();
-        return LessonResponse.of(lesson);
-    }
-
-    @Transactional
-    public void deleteLesson(Long lessonId) {
-        lessonRepository.findById(lessonId)
-            .ifPresentOrElse(
-                lesson -> {
-                    if (!LessonStatus.isCanceled(lesson)) {
-                        throw new LessonException(ONLY_CANCELLED_OR_AUTO_CANCELLED);
-                    }
-                    lessonRepository.delete(lesson);
-                },
-                () -> {
-                    throw new LessonException(LESSON_NOT_FOUND);
-                }
-            );
     }
 
     private Trainer getTrainer(User requester, User receiver) {

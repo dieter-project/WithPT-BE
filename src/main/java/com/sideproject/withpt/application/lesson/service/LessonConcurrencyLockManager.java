@@ -11,45 +11,9 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class LessonLockFacade {
+public class LessonConcurrencyLockManager {
 
     private final RedisClient redisClient;
-
-//    public void registrationPtLesson(Long gymId, Long loginId, String loginRole, LessonRegistrationRequest request) {
-//
-//        String key = generateKey(request);
-//
-//        while(!redisClient.lock(key)) {
-//            try {
-//                Thread.sleep(100);
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
-//
-//        try {
-//            lessonService.registrationPtLesson(gymId, loginId, loginRole, request);
-//            // TODO : 채팅 노티 및 알림 추가
-//        } finally {
-//            redisClient.unlock(key);
-//        }
-//    }
-
-    public void lessonConcurrencyCheck(Runnable runnable, String key) {
-
-        log.info("사용된 키 {} ", key);
-
-        while (!redisClient.lock(key)) {
-            sleep(100);
-        }
-
-        try {
-            runnable.run();
-            // TODO : 채팅 노티 및 알림 추가
-        } finally {
-            redisClient.unlock(key);
-        }
-    }
 
     public <T> T lessonConcurrencyCheck(Callable<T> callable, String key) {
 
@@ -81,4 +45,36 @@ public class LessonLockFacade {
         }
     }
 
+    /*
+lesson
+-controller(pakage)
+--request(pakage)
+---LessonChangeRequest
+---LessonRegistrationRequest
+--LessonController
+-event(pakage)
+--listener(pakage)
+---LessonEventListener
+--model(pakage)
+---LessonNotificationEvent
+---LessonRegistrationNotificationEvent
+-exception(pakage)
+--LessonErrorCode
+--LessonException
+-repository(pakage)
+--LessonQueryRepository
+--LessonQueryRepositoryImpl
+--LessonRepository
+-service(pakage)
+--response(pakage)
+---AvailableLessonScheduleResponse
+---LessonInfoResponse
+---LessonResponse
+---LessonScheduleOfMonthResponse
+---LessonScheduleResponse
+---LessonUserResponse
+--LessonConcurrencyLockManager
+--LessonManager
+--LessonService
+     */
 }

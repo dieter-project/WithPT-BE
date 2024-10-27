@@ -298,7 +298,7 @@ class LessonServiceTest {
                 .build();
 
             // when
-            LessonResponse response = lessonService.changePTLesson(lesson.getId(), member.getId(), request);
+            LessonResponse response = lessonService.changePTLesson(lesson, member, request.getDate(), request.getTime(), request.getWeekday());
 
             // then
             assertThat(response)
@@ -346,7 +346,7 @@ class LessonServiceTest {
                 .build();
 
             // when // then
-            assertThatThrownBy(() -> lessonService.changePTLesson(lesson.getId(), member.getId(), request))
+            assertThatThrownBy(() -> lessonService.changePTLesson(lesson, member, request.getDate(), request.getTime(), request.getWeekday()))
                 .isInstanceOf(LessonException.class)
                 .hasMessage("예약 상태가 아닌 수업은 스케줄 변경이 불가능합니다.");
         }
