@@ -139,7 +139,7 @@ public class LessonService {
                     if (!LessonStatus.isCanceled(lesson)) {
                         throw new LessonException(ONLY_CANCELLED_OR_AUTO_CANCELLED);
                     }
-                    lessonRepository.delete(lesson);
+                    lessonRepository.deleteLessonById(lesson.getId());
                 },
                 () -> {
                     throw new LessonException(LESSON_NOT_FOUND);

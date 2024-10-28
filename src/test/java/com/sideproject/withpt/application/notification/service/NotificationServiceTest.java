@@ -205,33 +205,4 @@ class NotificationServiceTest {
             .build();
     }
 
-    public Notification createDietNotification(User sender, User receiver, NotificationType type, String text, Diets diets) {
-        return DietNotification.builder()
-            .sender(sender)
-            .receiver(receiver)
-            .type(type)
-            .text(text)
-            .relatedDiet(diets)
-            .build();
-    }
-
-    public Notification createLessonNotification(User sender, User receiver, NotificationType type, String text, Lesson lesson) {
-        return LessonNotification.builder()
-            .sender(sender)
-            .receiver(receiver)
-            .type(type)
-            .text(text)
-            .relatedLesson(lesson)
-            .build();
-    }
-
-    public Notification createPersonalTrainingNotification(User sender, User receiver, NotificationType type, String text, PersonalTraining personalTraining) {
-        return PersonalTrainingNotification.builder()
-            .sender(sender)
-            .receiver(receiver)
-            .type(type)
-            .text(text)
-            .relatedPersonalTraining(personalTraining)
-            .build();
-    }
 }

@@ -1023,16 +1023,16 @@ class LessonServiceTest {
         Trainer trainer = trainerRepository.save(createTrainer("트레이너1"));
         Gym gym = gymRepository.save(createGym("체육관1"));
 
-        GymTrainer gymTrainer1 = gymTrainerRepository.save(createGymTrainer(gym, trainer));
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer));
         LessonSchedule lessonSchedule1 = createLessonSchedule(LocalDate.of(2024, 10, 5), LocalTime.of(9, 0), Day.SAT);
         LessonSchedule lessonSchedule2 = createLessonSchedule(LocalDate.of(2024, 10, 6), LocalTime.of(11, 0), Day.SAT);
         LessonSchedule lessonSchedule3 = createLessonSchedule(LocalDate.of(2024, 10, 7), LocalTime.of(12, 0), Day.SAT);
         LessonSchedule lessonSchedule4 = createLessonSchedule(LocalDate.of(2024, 10, 8), LocalTime.of(14, 0), Day.SAT);
 
-        lessonRepository.save(createLesson(member, gymTrainer1, lessonSchedule1, null, LessonStatus.PENDING_APPROVAL, trainer, member, Role.TRAINER, Role.MEMBER)); // 변경
-        lessonRepository.save(createLesson(member, gymTrainer1, lessonSchedule2, null, LessonStatus.CANCELED, member, trainer, Role.MEMBER, null)); // 등록
-        lessonRepository.save(createLesson(member, gymTrainer1, lessonSchedule3, null, LessonStatus.RESERVED, trainer, member, Role.TRAINER, Role.MEMBER)); // 트레이너가 등록 후 회원이 변경 요청 후 트레이너가 수락
-        Lesson savedLesson = lessonRepository.save(createLesson(member, gymTrainer1, lessonSchedule4, null, LessonStatus.TIME_OUT_CANCELED, member, trainer, Role.MEMBER, Role.TRAINER));// 회원이 등록 트레이너가 변경
+        lessonRepository.save(createLesson(member, gymTrainer, lessonSchedule1, null, LessonStatus.PENDING_APPROVAL, trainer, member, Role.TRAINER, Role.MEMBER)); // 변경
+        lessonRepository.save(createLesson(member, gymTrainer, lessonSchedule2, null, LessonStatus.CANCELED, member, trainer, Role.MEMBER, null)); // 등록
+        lessonRepository.save(createLesson(member, gymTrainer, lessonSchedule3, null, LessonStatus.RESERVED, trainer, member, Role.TRAINER, Role.MEMBER)); // 트레이너가 등록 후 회원이 변경 요청 후 트레이너가 수락
+        Lesson savedLesson = lessonRepository.save(createLesson(member, gymTrainer, lessonSchedule4, null, LessonStatus.TIME_OUT_CANCELED, member, trainer, Role.MEMBER, Role.TRAINER));// 회원이 등록 트레이너가 변경
 
         final Long lessonId = savedLesson.getId();
 

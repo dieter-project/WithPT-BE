@@ -49,12 +49,16 @@ class LessonQueryRepositoryImplTest {
 
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private MemberRepository memberRepository;
+
     @Autowired
     private TrainerRepository trainerRepository;
+
     @Autowired
     private GymRepository gymRepository;
+
     @Autowired
     private GymTrainerRepository gymTrainerRepository;
 

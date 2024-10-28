@@ -1,10 +1,7 @@
 package com.sideproject.withpt.application.lesson.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
@@ -21,6 +18,7 @@ import com.sideproject.withpt.common.type.Day;
 import com.sideproject.withpt.common.type.DietType;
 import com.sideproject.withpt.common.type.ExerciseFrequency;
 import com.sideproject.withpt.common.type.LessonStatus;
+import com.sideproject.withpt.common.type.NotificationType;
 import com.sideproject.withpt.common.type.PTInfoInputStatus;
 import com.sideproject.withpt.common.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.common.type.PtRegistrationStatus;
@@ -36,25 +34,20 @@ import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
+@RecordApplicationEvents
 @ActiveProfiles("test")
 @SpringBootTest
-@AutoConfigureMockMvc
 class LessonManagerTest {
 
     @Autowired
@@ -79,12 +72,9 @@ class LessonManagerTest {
     private LessonManager lessonManager;
 
     @Autowired
-    private ApplicationEventPublisher eventPublisher;
+    private ApplicationEvents applicationEvents;
 
-    @AfterEach
-    void resetMocks() {
-        Mockito.reset(eventPublisher);
-    }
+    private static final String MEMBER_REGISTRATION_REQUEST_MSG = "%s 회원 님으로부터 수업 등록 요청이 왔어요.";
 
     @DisplayName("수업 등록 알림 이벤트")
     @Nested
@@ -128,8 +118,18 @@ class LessonManagerTest {
                 .contains(LocalDate.of(2024, 10, 4), LocalTime.of(20, 44), Day.FRI, null, LessonStatus.RESERVED);
 
             // 이벤트가 발생여부 확인
-            verify(eventPublisher, times(1))
-                .publishEvent(any(LessonRegistrationNotificationEvent.class));
+            assertThat(applicationEvents.stream(LessonRegistrationNotificationEvent.class))
+                .hasSize(1)
+                .anySatisfy(event -> {
+                    assertAll(
+                        () -> assertThat(event.getRequester()).isEqualTo(trainer),
+                        () -> assertThat(event.getReceiver()).isEqualTo(member),
+                        () -> assertThat(event.getMessage()).isEqualTo(String.format(MEMBER_REGISTRATION_REQUEST_MSG, trainer.getName())),
+                        () -> assertThat(event.getGymId()).isEqualTo(gymId),
+                        () -> assertThat(event.getDate()).isEqualTo(LocalDate.of(2024, 10, 4)),
+                        () -> assertThat(event.getTime()).isEqualTo(LocalTime.of(20, 44))
+                    );
+                });
         }
 
         @DisplayName("회원이 수업 등록 요청을 하면 \"승인 대기 중\" 상태로 등록된다.")
@@ -170,10 +170,22 @@ class LessonManagerTest {
                 .contains(LocalDate.of(2024, 10, 4), LocalTime.of(20, 44), Day.FRI, null, LessonStatus.PENDING_APPROVAL);
 
             // 이벤트가 발행되었는지 확인
-            verify(eventPublisher, times(1))
-                .publishEvent(any(LessonRegistrationNotificationEvent.class));
+            assertThat(applicationEvents.stream(LessonRegistrationNotificationEvent.class))
+                .hasSize(1)
+                .anySatisfy(event -> {
+                    assertAll(
+                        () -> assertThat(event.getRequester()).isEqualTo(member),
+                        () -> assertThat(event.getReceiver()).isEqualTo(trainer),
+                        () -> assertThat(event.getMessage()).isEqualTo(String.format(MEMBER_REGISTRATION_REQUEST_MSG, member.getName())),
+                        () -> assertThat(event.getGymId()).isEqualTo(gymId),
+                        () -> assertThat(event.getDate()).isEqualTo(LocalDate.of(2024, 10, 4)),
+                        () -> assertThat(event.getTime()).isEqualTo(LocalTime.of(20, 44))
+                    );
+                });
         }
     }
+
+    private static final String LESSON_CHANGE_REQUEST_MSG = "%s 님으로부터 수업 변경 요청이 도착했어요.";
 
     @DisplayName("수업 스케줄 변경 이벤트 발행 여부")
     @Test
@@ -223,8 +235,28 @@ class LessonManagerTest {
             .contains(request.getDate(), request.getTime(), request.getWeekday());
 
         // 이벤트가 발생여부 확인
-        verify(eventPublisher, times(1))
-            .publishEvent(any(LessonNotificationEvent.class));
+        assertThat(applicationEvents.stream(LessonNotificationEvent.class))
+            .hasSize(1)
+            .anySatisfy(event -> {
+                assertAll(
+                    () -> assertThat(event.getRequester()).isEqualTo(member),
+                    () -> assertThat(event.getReceiver()).isEqualTo(trainer),
+                    () -> assertThat(event.getMessage()).isEqualTo(String.format(LESSON_CHANGE_REQUEST_MSG, member.getName())),
+                    () -> assertThat(event.getNotificationType()).isEqualTo(NotificationType.LESSON_CHANGE_REQUEST),
+                    () -> assertThat(event.getLesson()).isEqualTo(lesson)
+                );
+            });
+    }
+
+    private String createAcceptanceMessage(Lesson lesson) {
+        LessonSchedule schedule = lesson.getSchedule();
+        LocalDate date = schedule.getDate();
+        LocalTime time = schedule.getTime();
+
+        return String.format("%s 회원님의 %d년 %d월 %d일 %d시 %d분 수업이 예약되었습니다.",
+            lesson.getMember().getName(),
+            date.getYear(), date.getMonthValue(), date.getDayOfMonth(),
+            time.getHour(), time.getMinute());
     }
 
     @DisplayName("수업 등록 or 수업 스케줄 변경 수락하기")
@@ -257,9 +289,17 @@ class LessonManagerTest {
                 .extracting("schedule.date", "schedule.time", "schedule.weekday", "beforeSchedule", "status", "registeredBy", "modifiedBy")
                 .contains(LocalDate.of(2024, 10, 5), LocalTime.of(15, 0), Day.SAT, null, LessonStatus.RESERVED, Role.MEMBER, null);
 
-            verify(eventPublisher, times(1))
-                .publishEvent(any(LessonNotificationEvent.class));
-
+            assertThat(applicationEvents.stream(LessonNotificationEvent.class))
+                .hasSize(1)
+                .anySatisfy(event -> {
+                    assertAll(
+                        () -> assertThat(event.getRequester()).isEqualTo(member),
+                        () -> assertThat(event.getReceiver()).isEqualTo(trainer),
+                        () -> assertThat(event.getMessage()).isEqualTo(createAcceptanceMessage(savedLesson)),
+                        () -> assertThat(event.getNotificationType()).isEqualTo(NotificationType.LESSON_REGISTRATION_COMPLETION),
+                        () -> assertThat(event.getLesson()).isEqualTo(savedLesson)
+                    );
+                });
         }
 
         @DisplayName("회원 -> 트레이너 수업 변경 요청 수락하기 (트레이너가 수락)")
@@ -295,8 +335,17 @@ class LessonManagerTest {
                     LocalDate.of(2024, 10, 5), LocalTime.of(15, 0), Day.SAT,
                     LessonStatus.RESERVED, Role.TRAINER, Role.MEMBER);
 
-            verify(eventPublisher, times(1))
-                .publishEvent(any(LessonNotificationEvent.class));
+            assertThat(applicationEvents.stream(LessonNotificationEvent.class))
+                .hasSize(1)
+                .anySatisfy(event -> {
+                    assertAll(
+                        () -> assertThat(event.getRequester()).isEqualTo(member),
+                        () -> assertThat(event.getReceiver()).isEqualTo(trainer),
+                        () -> assertThat(event.getMessage()).isEqualTo(createAcceptanceMessage(savedLesson)),
+                        () -> assertThat(event.getNotificationType()).isEqualTo(NotificationType.LESSON_REGISTRATION_COMPLETION),
+                        () -> assertThat(event.getLesson()).isEqualTo(savedLesson)
+                    );
+                });
         }
 
         @DisplayName("트레이너 -> 회원 수업 변경 요청 수락하기 (회원이 수락)")
@@ -332,19 +381,17 @@ class LessonManagerTest {
                     LocalDate.of(2024, 10, 5), LocalTime.of(15, 0), Day.SAT,
                     LessonStatus.RESERVED, Role.TRAINER, Role.MEMBER);
 
-            verify(eventPublisher, times(1))
-                .publishEvent(any(LessonNotificationEvent.class));
-        }
-
-    }
-
-    @TestConfiguration
-    static class MockitoPublisherConfiguration {
-
-        @Bean
-        @Primary
-        ApplicationEventPublisher publisher() {
-            return mock(ApplicationEventPublisher.class);
+            assertThat(applicationEvents.stream(LessonNotificationEvent.class))
+                .hasSize(1)
+                .anySatisfy(event -> {
+                    assertAll(
+                        () -> assertThat(event.getRequester()).isEqualTo(trainer),
+                        () -> assertThat(event.getReceiver()).isEqualTo(member),
+                        () -> assertThat(event.getMessage()).isEqualTo(createAcceptanceMessage(savedLesson)),
+                        () -> assertThat(event.getNotificationType()).isEqualTo(NotificationType.LESSON_REGISTRATION_COMPLETION),
+                        () -> assertThat(event.getLesson()).isEqualTo(savedLesson)
+                    );
+                });
         }
 
     }

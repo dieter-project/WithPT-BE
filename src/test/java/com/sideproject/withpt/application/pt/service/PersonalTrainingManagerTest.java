@@ -1,10 +1,7 @@
 package com.sideproject.withpt.application.pt.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
@@ -16,6 +13,7 @@ import com.sideproject.withpt.application.pt.service.response.PersonalTrainingMe
 import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
 import com.sideproject.withpt.common.type.DietType;
 import com.sideproject.withpt.common.type.ExerciseFrequency;
+import com.sideproject.withpt.common.type.NotificationType;
 import com.sideproject.withpt.common.type.PTInfoInputStatus;
 import com.sideproject.withpt.common.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.common.type.PtRegistrationStatus;
@@ -27,20 +25,17 @@ import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
+@RecordApplicationEvents
 @ActiveProfiles("test")
 @SpringBootTest
 class PersonalTrainingManagerTest {
@@ -64,12 +59,10 @@ class PersonalTrainingManagerTest {
     private PersonalTrainingManager personalTrainingManager;
 
     @Autowired
-    private ApplicationEventPublisher eventPublisher;
+    private ApplicationEvents applicationEvents;
 
-    @AfterEach
-    void resetMocks() {
-        Mockito.reset(eventPublisher);
-    }
+    private static final String PT_REGISTRATION_REQUEST_MSG = "%s 트레이너/%s 피트니스 PT 등록 요청이 도착했습니다.";
+    private static final String PT_REGISTRATION_ACCEPTED_MSG = "%s 회원님이 PT 등록을 수락하였습니다.";
 
     @DisplayName("체육관에 신규 PT 회원을 등록할 때 이벤트 발생")
     @Test
@@ -79,7 +72,7 @@ class PersonalTrainingManagerTest {
         Trainer trainer = trainerRepository.save(createTrainer("test 트레이너"));
         Gym gym = gymRepository.save(createGym("체육관1"));
 
-        gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 27)));
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 27)));
         LocalDateTime ptRegistrationRequestDate = LocalDateTime.of(2024, 9, 27, 12, 45);
 
         // when
@@ -92,9 +85,19 @@ class PersonalTrainingManagerTest {
         assertThat(response.getMember()).isEqualTo("회원");
         assertThat(response.getTrainer()).isEqualTo("test 트레이너");
 
-        // 이벤트가 발행되었는지 확인
-        verify(eventPublisher, times(1))
-            .publishEvent(any(PersonalTrainingRegistrationNotificationEvent.class));
+        // 이벤트가 발생여부 확인
+        assertThat(applicationEvents.stream(PersonalTrainingRegistrationNotificationEvent.class))
+            .hasSize(1)
+            .anySatisfy(event -> {
+                assertAll(
+                    () -> assertThat(event.getRequester()).isEqualTo(trainer),
+                    () -> assertThat(event.getReceiver()).isEqualTo(member),
+                    () -> assertThat(event.getMessage()).isEqualTo(String.format(PT_REGISTRATION_REQUEST_MSG, trainer.getName(), gym.getName())),
+                    () -> assertThat(event.getNotificationType()).isEqualTo(NotificationType.PT_REGISTRATION_REQUEST),
+                    () -> assertThat(event.getMember()).isEqualTo(member),
+                    () -> assertThat(event.getGymTrainer()).isEqualTo(gymTrainer)
+                );
+            });
     }
 
     @DisplayName("회원 측에서 PT 등록을 허용할 때 이벤트 발생")
@@ -119,25 +122,16 @@ class PersonalTrainingManagerTest {
             .extracting("registrationAllowedStatus", "registrationStatus", "registrationAllowedDate")
             .contains(PtRegistrationAllowedStatus.ALLOWED, PtRegistrationStatus.ALLOWED, registrationAllowedDate);
 
-        verify(eventPublisher, times(1))
-            .publishEvent(any(PersonalTrainingApproveNotificationEvent.class));
-    }
-
-    /**
-     * 공식 문서에서는 @TestConfiguration을 아래와 같이 설명하고 있다.
-     * <p>
-     * 1. 테스트에 대한 추가적인 빈이나 커스텀을 정의하는 데 사용할 수 있는 @Configuration이다.
-     * <p>
-     * 2. @Configuration 클래스와 달리 @TestConfiguration을 사용해도 @SpringBootConfiguration의 자동 감지를 방지하지 않는다.
-     */
-    @TestConfiguration
-    static class MockitoPublisherConfiguration {
-
-        @Bean
-        @Primary
-        ApplicationEventPublisher publisher() {
-            return mock(ApplicationEventPublisher.class);
-        }
+        assertThat(applicationEvents.stream(PersonalTrainingApproveNotificationEvent.class))
+            .hasSize(1)
+            .anySatisfy(event -> {
+                assertAll(
+                    () -> assertThat(event.getRequester()).isEqualTo(member),
+                    () -> assertThat(event.getMessage()).isEqualTo(String.format(PT_REGISTRATION_ACCEPTED_MSG, member.getName())),
+                    () -> assertThat(event.getNotificationType()).isEqualTo(NotificationType.PT_REGISTRATION_REQUEST),
+                    () -> assertThat(event.getPersonalTraining()).isEqualTo(personalTraining)
+                );
+            });
     }
 
     public PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, String note, int totalPtCount, int remainingPtCount, LocalDateTime registrationRequestDate, PTInfoInputStatus infoInputStatus, PtRegistrationStatus registrationStatus, PtRegistrationAllowedStatus registrationAllowedStatus, LocalDateTime centerFirstRegistrationMonth, LocalDateTime centerLastReRegistrationMonth, LocalDateTime registrationAllowedDate) {
