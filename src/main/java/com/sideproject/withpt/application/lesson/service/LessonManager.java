@@ -45,7 +45,7 @@ public class LessonManager {
         User receiver = findUserById(request.getRegistrationReceiverId());
 
         eventPublisher.publishEvent(
-            new LessonRegistrationNotificationEvent(
+            LessonRegistrationNotificationEvent.create(
                 requester, receiver,
                 String.format(MEMBER_REGISTRATION_REQUEST_MSG, requester.getName()),
                 NotificationType.LESSON_REGISTRATION_REQUEST,

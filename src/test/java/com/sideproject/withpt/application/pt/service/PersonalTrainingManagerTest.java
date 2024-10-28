@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
-import com.sideproject.withpt.application.notification.repository.NotificationRepository;
 import com.sideproject.withpt.application.pt.event.model.PersonalTrainingApproveNotificationEvent;
 import com.sideproject.withpt.application.pt.event.model.PersonalTrainingRegistrationNotificationEvent;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
@@ -24,17 +23,14 @@ import com.sideproject.withpt.common.type.Sex;
 import com.sideproject.withpt.domain.gym.Gym;
 import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
-import com.sideproject.withpt.domain.pt.PersonalTrainingInfo;
 import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.YearMonth;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -46,7 +42,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @ActiveProfiles("test")
-@ExtendWith(MockitoExtension.class)
 @SpringBootTest
 class PersonalTrainingManagerTest {
 
@@ -69,10 +64,12 @@ class PersonalTrainingManagerTest {
     private PersonalTrainingManager personalTrainingManager;
 
     @Autowired
-    private NotificationRepository notificationRepository;
-
-    @Autowired
     private ApplicationEventPublisher eventPublisher;
+
+    @AfterEach
+    void resetMocks() {
+        Mockito.reset(eventPublisher);
+    }
 
     @DisplayName("체육관에 신규 PT 회원을 등록할 때 이벤트 발생")
     @Test

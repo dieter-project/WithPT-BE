@@ -13,6 +13,7 @@ import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.user.trainer.Trainer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,7 @@ public class PersonalTrainingEventListener {
     private final NotificationService notificationService;
     private final PersonalTrainingRepository personalTrainingRepository;
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void personalTrainingRegistrationNotification(PersonalTrainingRegistrationNotificationEvent event) {
@@ -36,6 +38,7 @@ public class PersonalTrainingEventListener {
         createNotification(event.getRequester(), event.getReceiver(), event.getMessage(), event.getNotificationType(), personalTraining);
     }
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void approvedPersonalTrainingRegistrationNotification(PersonalTrainingApproveNotificationEvent event) {
