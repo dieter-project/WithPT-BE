@@ -3,17 +3,31 @@ package com.sideproject.withpt.application.member.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
+import com.sideproject.withpt.application.gym.repositoy.GymRepository;
+import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
 import com.sideproject.withpt.application.member.controller.request.EditMemberDietTypeRequest;
 import com.sideproject.withpt.application.member.controller.request.EditMemberExerciseFrequencyRequest;
 import com.sideproject.withpt.application.member.controller.request.EditMemberInfoRequest;
 import com.sideproject.withpt.application.member.controller.request.EditMemberTargetWeightRequest;
-import com.sideproject.withpt.application.member.service.response.MemberSearchResponse;
 import com.sideproject.withpt.application.member.repository.MemberRepository;
+import com.sideproject.withpt.application.member.service.response.MemberAndPTInfoResponse;
+import com.sideproject.withpt.application.member.service.response.MemberSearchResponse;
+import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
+import com.sideproject.withpt.application.trainer.repository.TrainerRepository;
+import com.sideproject.withpt.common.type.AuthProvider;
 import com.sideproject.withpt.common.type.DietType;
 import com.sideproject.withpt.common.type.ExerciseFrequency;
+import com.sideproject.withpt.common.type.PTInfoInputStatus;
+import com.sideproject.withpt.common.type.PtRegistrationAllowedStatus;
+import com.sideproject.withpt.common.type.PtRegistrationStatus;
 import com.sideproject.withpt.common.type.Sex;
+import com.sideproject.withpt.domain.gym.Gym;
+import com.sideproject.withpt.domain.gym.GymTrainer;
+import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.user.member.Member;
+import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,7 +49,19 @@ class MemberServiceTest {
     MemberRepository memberRepository;
 
     @Autowired
-    MemberService memberService;
+    private TrainerRepository trainerRepository;
+
+    @Autowired
+    private GymRepository gymRepository;
+
+    @Autowired
+    private GymTrainerRepository gymTrainerRepository;
+
+    @Autowired
+    private PersonalTrainingRepository personalTrainingRepository;
+
+    @Autowired
+    private MemberService memberService;
 
     @Test
     @DisplayName("회원 정보 수정")
@@ -148,10 +174,74 @@ class MemberServiceTest {
 
     }
 
+    @DisplayName("회원 정보 조회 - PT 정보 없을 때")
+    @Test
+    void getMemberInfo() {
+        // given
+        Member member = memberRepository.save(createMember("회원", "member@test.com"));
+//        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+//        Gym gym = gymRepository.save(createGym("체육관"));
+//
+//        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 27)));
+//        PersonalTraining personalTraining = personalTrainingRepository.save(
+//            createPersonalTraining(
+//                member, gymTrainer,
+//                LocalDateTime.of(2024, 10, 27, 12, 45),
+//                PTInfoInputStatus.INFO_EMPTY,
+//                PtRegistrationStatus.ALLOWED_BEFORE,
+//                PtRegistrationAllowedStatus.WAITING)
+//        );
+
+        // when
+        MemberAndPTInfoResponse response = memberService.getMemberInfo(member.getId());
+
+        // then
+        assertThat(response.getMemberInfo())
+            .extracting("name", "email")
+            .contains("회원", "member@test.com");
+
+        assertThat(response.getPtInfos()).isEmpty();
+    }
+
+    @DisplayName("회원 정보 조회 - PT 정보 있을 때")
+    @Test
+    void getMemberInfoWithPTInfo() {
+        // given
+        Member member = memberRepository.save(createMember("회원", "member@test.com"));
+        Trainer trainer = trainerRepository.save(createTrainer("트레이너"));
+        Gym gym = gymRepository.save(createGym("체육관"));
+
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer, LocalDate.of(2024, 9, 27)));
+        personalTrainingRepository.save(
+            createPersonalTraining(
+                member, gymTrainer,
+                LocalDateTime.of(2024, 10, 27, 12, 45),
+                PTInfoInputStatus.INFO_EMPTY,
+                PtRegistrationStatus.ALLOWED_BEFORE,
+                PtRegistrationAllowedStatus.WAITING)
+        );
+
+        // when
+        MemberAndPTInfoResponse response = memberService.getMemberInfo(member.getId());
+
+        // then
+        assertThat(response.getMemberInfo())
+            .extracting("name", "email")
+            .contains("회원", "member@test.com");
+
+        assertThat(response.getPtInfos()).hasSize(1)
+            .extracting("pt.infoInputStatus", "pt.registrationStatus", "pt.registrationAllowedStatus")
+            .contains(
+                tuple(PTInfoInputStatus.INFO_EMPTY, PtRegistrationStatus.ALLOWED_BEFORE, PtRegistrationAllowedStatus.WAITING)
+            )
+        ;
+    }
+
     private Member createMember(String name, String email) {
         return Member.builder()
             .name(name)
             .email(email)
+            .authProvider(AuthProvider.KAKAO)
             .birth(LocalDate.parse("1994-07-19"))
             .sex(Sex.MAN)
             .height(173.0)
@@ -159,6 +249,49 @@ class MemberServiceTest {
             .dietType(DietType.Carb_Protein_Fat)
             .exerciseFrequency(ExerciseFrequency.EVERYDAY)
             .targetWeight(65.0)
+            .build();
+    }
+
+    public PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, String note, int totalPtCount, int remainingPtCount, LocalDateTime registrationRequestDate, PTInfoInputStatus infoInputStatus, PtRegistrationStatus registrationStatus, PtRegistrationAllowedStatus registrationAllowedStatus, LocalDateTime centerFirstRegistrationMonth, LocalDateTime centerLastReRegistrationMonth, LocalDateTime registrationAllowedDate) {
+        return PersonalTraining.builder()
+            .member(member)
+            .gymTrainer(gymTrainer)
+            .totalPtCount(totalPtCount)
+            .remainingPtCount(remainingPtCount)
+            .note(note)
+            .centerFirstRegistrationMonth(centerFirstRegistrationMonth)
+            .centerLastReRegistrationMonth(centerLastReRegistrationMonth)
+            .registrationRequestDate(registrationRequestDate)
+            .registrationAllowedDate(registrationAllowedDate)
+            .registrationStatus(registrationStatus)
+            .infoInputStatus(infoInputStatus)
+            .registrationAllowedStatus(registrationAllowedStatus)
+            .build();
+    }
+
+    private PersonalTraining createPersonalTraining(Member member, GymTrainer gymTrainer, LocalDateTime registrationRequestDate, PTInfoInputStatus infoInputStatus, PtRegistrationStatus registrationStatus, PtRegistrationAllowedStatus registrationAllowedStatus) {
+        return createPersonalTraining(member, gymTrainer, null, 0, 0, registrationRequestDate, infoInputStatus, registrationStatus, registrationAllowedStatus, null, null, null);
+    }
+
+    private Gym createGym(String name) {
+        return Gym.builder()
+            .name(name)
+            .address("주소 123-123")
+            .build();
+    }
+
+    private Trainer createTrainer(String name) {
+        return Trainer.signUpBuilder()
+            .email(name + "@test.com")
+            .name(name)
+            .build();
+    }
+
+    private GymTrainer createGymTrainer(Gym gym, Trainer trainer, LocalDate hireDate) {
+        return GymTrainer.builder()
+            .gym(gym)
+            .trainer(trainer)
+            .hireDate(hireDate)
             .build();
     }
 }
