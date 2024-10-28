@@ -127,6 +127,7 @@ class PersonalTrainingManagerTest {
             .anySatisfy(event -> {
                 assertAll(
                     () -> assertThat(event.getRequester()).isEqualTo(member),
+                    () -> assertThat(event.getReceiver()).isEqualTo(trainer),
                     () -> assertThat(event.getMessage()).isEqualTo(String.format(PT_REGISTRATION_ACCEPTED_MSG, member.getName())),
                     () -> assertThat(event.getNotificationType()).isEqualTo(NotificationType.PT_REGISTRATION_REQUEST),
                     () -> assertThat(event.getPersonalTraining()).isEqualTo(personalTraining)
