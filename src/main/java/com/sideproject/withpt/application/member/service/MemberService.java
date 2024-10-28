@@ -4,9 +4,11 @@ import com.sideproject.withpt.application.member.controller.request.EditMemberDi
 import com.sideproject.withpt.application.member.controller.request.EditMemberExerciseFrequencyRequest;
 import com.sideproject.withpt.application.member.controller.request.EditMemberInfoRequest;
 import com.sideproject.withpt.application.member.controller.request.EditMemberTargetWeightRequest;
+import com.sideproject.withpt.application.member.repository.MemberRepository;
+import com.sideproject.withpt.application.member.service.response.MemberAndPTInfoResponse;
 import com.sideproject.withpt.application.member.service.response.MemberInfoResponse;
 import com.sideproject.withpt.application.member.service.response.MemberSearchResponse;
-import com.sideproject.withpt.application.member.repository.MemberRepository;
+import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.domain.user.member.Member;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final PersonalTrainingRepository personalTrainingRepository;
 
     public Member getMemberById(Long memberId) {
         return memberRepository.findById(memberId)
@@ -33,10 +36,14 @@ public class MemberService {
         return memberRepository.findBySearchOption(pageable, name);
     }
 
-    public MemberInfoResponse getMemberInfo(Long memberId) {
-        Member findMember = memberRepository.findById(memberId)
+    public MemberAndPTInfoResponse getMemberInfo(Long memberId) {
+        Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-        return MemberInfoResponse.of(findMember);
+
+        return MemberAndPTInfoResponse.of(
+            MemberInfoResponse.of(member),
+            personalTrainingRepository.findPtAssignedTrainerInformation(member)
+        );
     }
 
     @Transactional

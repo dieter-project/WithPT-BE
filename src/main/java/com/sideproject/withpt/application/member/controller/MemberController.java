@@ -4,9 +4,9 @@ import com.sideproject.withpt.application.member.controller.request.EditMemberDi
 import com.sideproject.withpt.application.member.controller.request.EditMemberExerciseFrequencyRequest;
 import com.sideproject.withpt.application.member.controller.request.EditMemberInfoRequest;
 import com.sideproject.withpt.application.member.controller.request.EditMemberTargetWeightRequest;
-import com.sideproject.withpt.application.member.service.response.MemberInfoResponse;
-import com.sideproject.withpt.application.member.service.response.MemberSearchResponse;
 import com.sideproject.withpt.application.member.service.MemberService;
+import com.sideproject.withpt.application.member.service.response.MemberAndPTInfoResponse;
+import com.sideproject.withpt.application.member.service.response.MemberSearchResponse;
 import com.sideproject.withpt.common.response.ApiSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -44,7 +44,7 @@ public class MemberController {
 
     @Operation(summary = "회원 정보 조회")
     @GetMapping("/info")
-    public ApiSuccessResponse<MemberInfoResponse> getMemberInfo(@Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
+    public ApiSuccessResponse<MemberAndPTInfoResponse> getMemberInfo(@Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
         return ApiSuccessResponse.from(
             memberService.getMemberInfo(memberId)
         );

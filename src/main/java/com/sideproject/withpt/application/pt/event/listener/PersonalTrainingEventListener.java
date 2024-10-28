@@ -43,10 +43,7 @@ public class PersonalTrainingEventListener {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void approvedPersonalTrainingRegistrationNotification(PersonalTrainingApproveNotificationEvent event) {
         log.info("[PersonalTrainingEventListener.approvedPersonalTrainingRegistrationNotification()]");
-
-        PersonalTraining personalTraining = event.getPersonalTraining();
-        Trainer receiver = personalTraining.getGymTrainer().getTrainer();
-        createNotification(event.getRequester(), receiver, event.getMessage(), event.getNotificationType(), personalTraining);
+        createNotification(event.getRequester(), event.getReceiver(), event.getMessage(), event.getNotificationType(), event.getPersonalTraining());
     }
 
     private PersonalTraining findPersonalTraining(Member member, GymTrainer gymTrainer) {

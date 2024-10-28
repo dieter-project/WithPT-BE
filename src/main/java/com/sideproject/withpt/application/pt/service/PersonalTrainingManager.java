@@ -71,9 +71,12 @@ public class PersonalTrainingManager {
         PersonalTraining personalTraining = personalTrainingRepository.findById(ptId)
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
 
+        Trainer receiver = personalTraining.getGymTrainer().getTrainer();
+
         eventPublisher.publishEvent(
             PersonalTrainingApproveNotificationEvent.create(
                 requester,
+                receiver,
                 String.format(PT_REGISTRATION_ACCEPTED_MSG, requester.getName()),
                 NotificationType.PT_REGISTRATION_REQUEST,
                 personalTraining

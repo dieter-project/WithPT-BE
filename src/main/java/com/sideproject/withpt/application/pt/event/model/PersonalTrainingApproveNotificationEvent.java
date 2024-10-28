@@ -10,21 +10,24 @@ import lombok.Getter;
 public class PersonalTrainingApproveNotificationEvent {
 
     private final User requester;
+    private final User receiver;
     private final String message;
     private final NotificationType notificationType;
     private final PersonalTraining personalTraining;
 
     @Builder
-    private PersonalTrainingApproveNotificationEvent(User requester, String message, NotificationType notificationType, PersonalTraining personalTraining) {
+    private PersonalTrainingApproveNotificationEvent(User requester, User receiver, String message, NotificationType notificationType, PersonalTraining personalTraining) {
         this.requester = requester;
+        this.receiver = receiver;
         this.message = message;
         this.notificationType = notificationType;
         this.personalTraining = personalTraining;
     }
 
-    public static PersonalTrainingApproveNotificationEvent create(User requester, String message, NotificationType notificationType, PersonalTraining personalTraining) {
+    public static PersonalTrainingApproveNotificationEvent create(User requester, User receiver, String message, NotificationType notificationType, PersonalTraining personalTraining) {
         return PersonalTrainingApproveNotificationEvent.builder()
             .requester(requester)
+            .receiver(receiver)
             .message(message)
             .notificationType(notificationType)
             .personalTraining(personalTraining)
