@@ -3,10 +3,7 @@ package com.sideproject.withpt.application.pt.repository.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.querydsl.core.annotations.QueryProjection;
-import com.sideproject.withpt.common.type.PTInfoInputStatus;
-import com.sideproject.withpt.common.type.PtRegistrationAllowedStatus;
-import com.sideproject.withpt.common.type.PtRegistrationStatus;
-import java.time.LocalDateTime;
+import com.sideproject.withpt.application.pt.service.response.PersonalTrainingResponse;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,10 +18,10 @@ public class AssignedPTInfoResponse {
 
     private TrainerInfo trainer;
     private GymInfo gym;
-    private PtInfo pt;
+    private PersonalTrainingResponse pt;
 
     @QueryProjection
-    public AssignedPTInfoResponse(TrainerInfo trainer, GymInfo gym, PtInfo pt) {
+    public AssignedPTInfoResponse(TrainerInfo trainer, GymInfo gym, PersonalTrainingResponse pt) {
         this.trainer = trainer;
         this.gym = gym;
         this.pt = pt;
@@ -59,38 +56,6 @@ public class AssignedPTInfoResponse {
         public GymInfo(Long id, String name) {
             this.id = id;
             this.name = name;
-        }
-    }
-
-    @Getter
-    @ToString
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    @JsonInclude(Include.NON_NULL)
-    public static class PtInfo {
-
-        private Long id;
-        private int totalPtCount;
-        private int remainingPtCount;
-        private PtRegistrationStatus registrationStatus;
-        private PtRegistrationAllowedStatus registrationAllowedStatus;
-        private PTInfoInputStatus infoInputStatus;
-        private LocalDateTime centerFirstRegistrationMonth;
-        private LocalDateTime centerLastReRegistrationMonth;
-
-        @QueryProjection
-        public PtInfo(Long id, int totalPtCount, int remainingPtCount,
-            PtRegistrationStatus registrationStatus,
-            PtRegistrationAllowedStatus registrationAllowedStatus,
-            PTInfoInputStatus infoInputStatus,
-            LocalDateTime centerFirstRegistrationMonth, LocalDateTime centerLastReRegistrationMonth) {
-            this.id = id;
-            this.totalPtCount = totalPtCount;
-            this.remainingPtCount = remainingPtCount;
-            this.registrationStatus = registrationStatus;
-            this.registrationAllowedStatus = registrationAllowedStatus;
-            this.infoInputStatus = infoInputStatus;
-            this.centerFirstRegistrationMonth = centerFirstRegistrationMonth;
-            this.centerLastReRegistrationMonth = centerLastReRegistrationMonth;
         }
     }
 }

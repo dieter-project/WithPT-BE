@@ -14,26 +14,25 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.pt.repository.model.AssignedPTInfoResponse;
-import com.sideproject.withpt.application.pt.repository.model.MemberDetailInfoResponse;
-import com.sideproject.withpt.application.pt.controller.response.QAssignedPTInfoResponse;
-import com.sideproject.withpt.application.pt.controller.response.QAssignedPTInfoResponse_GymInfo;
-import com.sideproject.withpt.application.pt.controller.response.QAssignedPTInfoResponse_PtInfo;
-import com.sideproject.withpt.application.pt.controller.response.QAssignedPTInfoResponse_TrainerInfo;
-import com.sideproject.withpt.application.pt.controller.response.QMemberDetailInfoResponse;
-import com.sideproject.withpt.application.pt.controller.response.QMemberDetailInfoResponse_GymInfo;
-import com.sideproject.withpt.application.pt.controller.response.QMemberDetailInfoResponse_MemberInfo;
-import com.sideproject.withpt.application.pt.controller.response.QMemberDetailInfoResponse_PtInfo;
-import com.sideproject.withpt.application.pt.controller.response.QReRegistrationHistoryResponse;
-import com.sideproject.withpt.application.pt.repository.model.ReRegistrationHistoryResponse;
 import com.sideproject.withpt.application.pt.repository.model.EachGymMemberListResponse;
 import com.sideproject.withpt.application.pt.repository.model.GymMemberCountDto;
+import com.sideproject.withpt.application.pt.repository.model.MemberDetailInfoResponse;
 import com.sideproject.withpt.application.pt.repository.model.MonthlyMemberCount;
 import com.sideproject.withpt.application.pt.repository.model.PtMemberListDto;
+import com.sideproject.withpt.application.pt.repository.model.QAssignedPTInfoResponse;
+import com.sideproject.withpt.application.pt.repository.model.QAssignedPTInfoResponse_GymInfo;
+import com.sideproject.withpt.application.pt.repository.model.QAssignedPTInfoResponse_TrainerInfo;
 import com.sideproject.withpt.application.pt.repository.model.QGymMemberCountDto;
+import com.sideproject.withpt.application.pt.repository.model.QMemberDetailInfoResponse;
+import com.sideproject.withpt.application.pt.repository.model.QMemberDetailInfoResponse_GymInfo;
+import com.sideproject.withpt.application.pt.repository.model.QMemberDetailInfoResponse_MemberInfo;
 import com.sideproject.withpt.application.pt.repository.model.QMonthlyMemberCount;
 import com.sideproject.withpt.application.pt.repository.model.QPtMemberListDto;
 import com.sideproject.withpt.application.pt.repository.model.QPtMemberListDto_MemberInfo;
 import com.sideproject.withpt.application.pt.repository.model.QPtMemberListDto_PtInfo;
+import com.sideproject.withpt.application.pt.repository.model.QReRegistrationHistoryResponse;
+import com.sideproject.withpt.application.pt.repository.model.ReRegistrationHistoryResponse;
+import com.sideproject.withpt.application.pt.service.response.QPersonalTrainingResponse;
 import com.sideproject.withpt.common.type.PtRegistrationAllowedStatus;
 import com.sideproject.withpt.common.type.PtRegistrationStatus;
 import com.sideproject.withpt.domain.gym.GymTrainer;
@@ -155,13 +154,14 @@ public class PersonalTrainingQueryRepositoryImpl implements PersonalTrainingQuer
                         gym.id,
                         gym.name
                     ),
-                    new QMemberDetailInfoResponse_PtInfo(
+                    new QPersonalTrainingResponse(
                         personalTraining.id,
-                        personalTraining.registrationStatus,
-                        personalTraining.infoInputStatus,
                         personalTraining.totalPtCount,
                         personalTraining.remainingPtCount,
                         personalTraining.note,
+                        personalTraining.registrationStatus,
+                        personalTraining.registrationAllowedStatus,
+                        personalTraining.infoInputStatus,
                         personalTraining.centerFirstRegistrationMonth,
                         personalTraining.centerLastReRegistrationMonth
                     )
@@ -221,10 +221,11 @@ public class PersonalTrainingQueryRepositoryImpl implements PersonalTrainingQuer
                         gym.id,
                         gym.name
                     ),
-                    new QAssignedPTInfoResponse_PtInfo(
+                    new QPersonalTrainingResponse(
                         personalTraining.id,
                         personalTraining.totalPtCount,
                         personalTraining.remainingPtCount,
+                        personalTraining.note,
                         personalTraining.registrationStatus,
                         personalTraining.registrationAllowedStatus,
                         personalTraining.infoInputStatus,
@@ -259,13 +260,14 @@ public class PersonalTrainingQueryRepositoryImpl implements PersonalTrainingQuer
                         gym.id,
                         gym.name
                     ),
-                    new QMemberDetailInfoResponse_PtInfo(
+                    new QPersonalTrainingResponse(
                         personalTraining.id,
-                        personalTraining.registrationStatus,
-                        personalTraining.infoInputStatus,
                         personalTraining.totalPtCount,
                         personalTraining.remainingPtCount,
                         personalTraining.note,
+                        personalTraining.registrationStatus,
+                        personalTraining.registrationAllowedStatus,
+                        personalTraining.infoInputStatus,
                         personalTraining.centerFirstRegistrationMonth,
                         personalTraining.centerLastReRegistrationMonth
                     )

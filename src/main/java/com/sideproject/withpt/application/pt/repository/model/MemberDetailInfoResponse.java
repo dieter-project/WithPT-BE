@@ -1,12 +1,10 @@
 package com.sideproject.withpt.application.pt.repository.model;
 
 import com.querydsl.core.annotations.QueryProjection;
+import com.sideproject.withpt.application.pt.service.response.PersonalTrainingResponse;
 import com.sideproject.withpt.common.type.DietType;
-import com.sideproject.withpt.common.type.PTInfoInputStatus;
-import com.sideproject.withpt.common.type.PtRegistrationStatus;
 import com.sideproject.withpt.common.type.Sex;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,10 +16,10 @@ public class MemberDetailInfoResponse {
 
     private MemberInfo member;
     private GymInfo gym;
-    private PtInfo pt;
+    private PersonalTrainingResponse pt;
 
     @QueryProjection
-    public MemberDetailInfoResponse(MemberInfo member, GymInfo gym, PtInfo pt) {
+    public MemberDetailInfoResponse(MemberInfo member, GymInfo gym, PersonalTrainingResponse pt) {
         this.member = member;
         this.gym = gym;
         this.pt = pt;
@@ -31,6 +29,7 @@ public class MemberDetailInfoResponse {
     @ToString
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class MemberInfo {
+
         private Long id;
         private String name;
         private String imageUrl;
@@ -58,6 +57,7 @@ public class MemberDetailInfoResponse {
     @ToString
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class GymInfo {
+
         private Long id;
         private String name;
 
@@ -67,33 +67,4 @@ public class MemberDetailInfoResponse {
             this.name = name;
         }
     }
-
-    @Getter
-    @ToString
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    public static class PtInfo {
-        private Long id;
-        private int totalPtCount;
-        private int remainingPtCount;
-        private String note;
-        private PtRegistrationStatus registrationStatus;
-        private PTInfoInputStatus infoInputStatus;
-        private LocalDateTime centerFirstRegistrationMonth;
-        private LocalDateTime centerLastReRegistrationMonth;
-
-        @QueryProjection
-        public PtInfo(Long id, PtRegistrationStatus registrationStatus, PTInfoInputStatus infoInputStatus, int totalPtCount, int remainingPtCount,
-            String note,
-            LocalDateTime centerFirstRegistrationMonth, LocalDateTime centerLastReRegistrationMonth) {
-            this.id = id;
-            this.totalPtCount = totalPtCount;
-            this.remainingPtCount = remainingPtCount;
-            this.note = note;
-            this.registrationStatus = registrationStatus;
-            this.infoInputStatus = infoInputStatus;
-            this.centerFirstRegistrationMonth = centerFirstRegistrationMonth;
-            this.centerLastReRegistrationMonth = centerLastReRegistrationMonth;
-        }
-    }
-
 }
