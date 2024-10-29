@@ -5,7 +5,7 @@ import static com.sideproject.withpt.domain.user.trainer.QCareer.career;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.application.career.service.response.CareerResponse;
-import com.sideproject.withpt.application.career.controller.response.QCareerResponse;
+import com.sideproject.withpt.application.career.service.response.QCareerResponse;
 import com.sideproject.withpt.common.type.EmploymentStatus;
 import com.sideproject.withpt.domain.user.trainer.Career;
 import java.time.YearMonth;
