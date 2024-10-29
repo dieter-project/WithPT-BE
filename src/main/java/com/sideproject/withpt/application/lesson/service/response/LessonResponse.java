@@ -2,6 +2,7 @@ package com.sideproject.withpt.application.lesson.service.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.sideproject.withpt.application.user.response.UserResponse;
 import com.sideproject.withpt.common.type.LessonStatus;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.lesson.Lesson;
@@ -20,13 +21,13 @@ public class LessonResponse {
     private LessonSchedule schedule;
     private LessonSchedule beforeSchedule;
     private LessonStatus status;
-    private LessonUserResponse requester;
-    private LessonUserResponse receiver;
+    private UserResponse requester;
+    private UserResponse receiver;
     private Role registeredBy;
     private Role modifiedBy;
 
     @Builder
-    private LessonResponse(Long id, LessonSchedule schedule, LessonSchedule beforeSchedule, LessonStatus status, LessonUserResponse requester, LessonUserResponse receiver, Role registeredBy, Role modifiedBy) {
+    private LessonResponse(Long id, LessonSchedule schedule, LessonSchedule beforeSchedule, LessonStatus status, UserResponse requester, UserResponse receiver, Role registeredBy, Role modifiedBy) {
         this.id = id;
         this.schedule = schedule;
         this.beforeSchedule = beforeSchedule;
@@ -46,8 +47,8 @@ public class LessonResponse {
             .schedule(lesson.getSchedule())
             .beforeSchedule(lesson.getBeforeSchedule())
             .status(lesson.getStatus())
-            .requester(LessonUserResponse.of(requester))
-            .receiver(LessonUserResponse.of(receiver))
+            .requester(UserResponse.of(requester))
+            .receiver(UserResponse.of(receiver))
             .registeredBy(lesson.getRegisteredBy())
             .modifiedBy(lesson.getModifiedBy())
             .build();
