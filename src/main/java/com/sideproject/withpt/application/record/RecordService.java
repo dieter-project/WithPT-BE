@@ -2,7 +2,7 @@ package com.sideproject.withpt.application.record;
 
 import com.sideproject.withpt.application.member.repository.MemberRepository;
 import com.sideproject.withpt.application.record.AllDatesRecordResponse.BodyInfoResponse;
-import com.sideproject.withpt.application.record.AllDatesRecordResponse.DietResponse;
+import com.sideproject.withpt.application.record.AllDatesRecordResponse.DietIsRecordResponse;
 import com.sideproject.withpt.application.record.AllDatesRecordResponse.ExerciseResponse;
 import com.sideproject.withpt.application.record.body.repository.BodyRepository;
 import com.sideproject.withpt.application.record.diet.repository.DietQueryRepositoryImpl;
@@ -54,7 +54,7 @@ public class RecordService {
 
                     // AllDatesRecordResponse 객체 생성
                     return AllDatesRecordResponse.builder()
-                        .diet(DietResponse.convertToDietResponse(diet))
+                        .diet(DietIsRecordResponse.convertToDietResponse(diet))
                         .exercise(ExerciseResponse.convertToExerciseResponse(exercise))
                         .bodyInfo(BodyInfoResponse.convertToBodyInfoResponse(body))
                         .build();

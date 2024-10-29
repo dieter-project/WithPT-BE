@@ -15,23 +15,23 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AllDatesRecordResponse {
 
-    private DietResponse diet;
+    private DietIsRecordResponse diet;
     private ExerciseResponse exercise;
     private BodyInfoResponse bodyInfo;
 
     @Getter
     @AllArgsConstructor
-    public static class DietResponse {
+    public static class DietIsRecordResponse {
 
         private boolean isRecord;
         private double totalCalorie;
         private int targetCalorie;
 
-        public static DietResponse convertToDietResponse(Diets diet) {
+        public static DietIsRecordResponse convertToDietResponse(Diets diet) {
             if (diet == null) {
-                return new DietResponse(false, 0, 1500);
+                return new DietIsRecordResponse(false, 0, 1500);
             }
-            return new DietResponse(
+            return new DietIsRecordResponse(
                 true,
                 diet.getTotalCalorie(),
                 1500

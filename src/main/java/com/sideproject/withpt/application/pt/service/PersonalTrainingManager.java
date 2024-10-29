@@ -39,7 +39,7 @@ public class PersonalTrainingManager {
 
     private final ApplicationEventPublisher eventPublisher;
 
-    private static final String PT_REGISTRATION_REQUEST_MSG = "%s 트레이너/%s 피트니스 PT 등록 요청이 도착했습니다.";
+    private static final String PT_REGISTRATION_REQUEST_MSG = "%s / %s 트레이너 PT 등록 요청이 도착했습니다.";
     private static final String PT_REGISTRATION_ACCEPTED_MSG = "%s 회원님이 PT 등록을 수락하였습니다.";
 
     @Transactional
@@ -54,7 +54,7 @@ public class PersonalTrainingManager {
             PersonalTrainingRegistrationNotificationEvent.create(
                 requester,
                 receiver,
-                String.format(PT_REGISTRATION_REQUEST_MSG, requester.getName(), gym.getName()),
+                String.format(PT_REGISTRATION_REQUEST_MSG, gym.getName(), requester.getName()),
                 NotificationType.PT_REGISTRATION_REQUEST,
                 notificationCreatedAt,
                 (Member) receiver,

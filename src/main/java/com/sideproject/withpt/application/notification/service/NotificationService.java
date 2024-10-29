@@ -1,16 +1,25 @@
 package com.sideproject.withpt.application.notification.service;
 
 import com.sideproject.withpt.application.notification.repository.NotificationRepository;
+import com.sideproject.withpt.application.notification.service.response.NotificationInfoResponse;
 import com.sideproject.withpt.application.notification.service.response.NotificationResponse;
+import com.sideproject.withpt.application.notification.service.response.mapper.NotificationMapper;
+import com.sideproject.withpt.application.notification.service.response.mapper.NotificationMapperFactory;
 import com.sideproject.withpt.application.notification.strategy.NotificationStrategy;
 import com.sideproject.withpt.application.notification.strategy.NotificationStrategyFactory;
+import com.sideproject.withpt.application.user.UserRepository;
+import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.type.NotificationType;
 import com.sideproject.withpt.domain.notification.Notification;
 import com.sideproject.withpt.domain.user.User;
-import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,8 +27,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class NotificationService {
 
+    private final UserRepository userRepository;
     private final NotificationRepository notificationRepository;
+
     private final NotificationStrategyFactory strategyFactory;
+    private final NotificationMapperFactory notificationMapperFactory;
 
     @Transactional
     public <T> Notification createNotification(User sender, User receiver, String text, NotificationType type, LocalDateTime createdAt, T relatedEntity) {
@@ -28,7 +40,31 @@ public class NotificationService {
         return notificationRepository.save(notification);
     }
 
-    public NotificationResponse getNotificationList(Trainer trainer, Pageable pageable) {
-        throw new UnsupportedOperationException("Unsupported getNotificationList");
+    public NotificationResponse getNotificationList(Long receiverId, Pageable pageable) {
+        User receiver = userRepository.findById(receiverId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+        Slice<Notification> notifications = notificationRepository.findAllByReceiverOrderByCreatedAtDescIdDesc(receiver, pageable);
+
+        List<NotificationInfoResponse<?>> notificationInfoResponse = mapNotificationsToResponses(notifications);
+
+        if (notifications.isEmpty()) {
+            return NotificationResponse.of(null, receiver, new SliceImpl<>(Collections.emptyList(), pageable, false));
+        }
+
+        User sender = notifications.getContent().get(0).getSender();
+
+        SliceImpl<NotificationInfoResponse<?>> notificationInfoResponses = new SliceImpl<>(notificationInfoResponse, pageable, notifications.hasNext());
+        return NotificationResponse.of(sender, receiver, notificationInfoResponses);
+    }
+
+    private List<NotificationInfoResponse<?>> mapNotificationsToResponses(Slice<Notification> notifications) {
+        return notifications.stream()
+            .map(this::mapNotificationToResponse)
+            .collect(Collectors.toList());
+    }
+
+    private NotificationInfoResponse<?> mapNotificationToResponse(Notification notification) {
+        NotificationMapper<Notification> mapper = (NotificationMapper<Notification>) notificationMapperFactory.getMapper(notification.getClass());
+        return mapper.toResponse(notification);
     }
 }
