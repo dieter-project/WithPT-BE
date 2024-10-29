@@ -6,6 +6,7 @@ import com.sideproject.withpt.domain.notification.DietNotification;
 import com.sideproject.withpt.domain.notification.Notification;
 import com.sideproject.withpt.domain.record.diet.Diets;
 import com.sideproject.withpt.domain.user.User;
+import java.time.LocalDateTime;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,12 +18,13 @@ public class DietNotificationStrategy implements NotificationStrategy<Diets> {
     }
 
     @Override
-    public Notification createNotification(User sender, User receiver, String text, NotificationType type, Diets relatedEntity) {
+    public Notification createNotification(User sender, User receiver, String text, NotificationType type, LocalDateTime createdAt, Diets relatedEntity) {
         return DietNotification.builder()
             .sender(sender)
             .receiver(receiver)
             .text(text)
             .type(type)
+            .createdAt(createdAt)
             .relatedDiet(relatedEntity)
             .build();
     }

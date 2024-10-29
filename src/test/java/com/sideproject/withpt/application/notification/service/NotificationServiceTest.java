@@ -6,6 +6,7 @@ import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
 import com.sideproject.withpt.application.notification.repository.NotificationRepository;
+import com.sideproject.withpt.application.notification.service.response.NotificationResponse;
 import com.sideproject.withpt.application.pt.repository.PersonalTrainingRepository;
 import com.sideproject.withpt.application.record.diet.repository.DietRepository;
 import com.sideproject.withpt.application.user.UserRepository;
@@ -23,11 +24,15 @@ import com.sideproject.withpt.domain.record.diet.Diets;
 import com.sideproject.withpt.domain.user.User;
 import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.user.trainer.Trainer;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,6 +80,7 @@ class NotificationServiceTest {
             trainer,   // receiver: 트레이너
             "000 회원님으로부터 식단 피드백 요청이 도착했어요.",  // 알림 내용
             NotificationType.DIET_FEEDBACK,  // 알림 종류
+            LocalDateTime.of(2024, 10, 29, 3, 22),
             diets  // 관련된 식단 ID
         );
 
@@ -113,6 +119,7 @@ class NotificationServiceTest {
             trainer,   // receiver: 트레이너
             "000 회원 님으로부터 수업 등록 요청이 왔어요.",  // 알림 내용
             NotificationType.LESSON_REGISTRATION_REQUEST,  // 알림 종류
+            LocalDateTime.of(2024, 10, 29, 3, 22),
             lesson  // 관련된 수업 ID
         );
 
@@ -143,6 +150,7 @@ class NotificationServiceTest {
             "000트레이너/000 피트니스\n"
                 + "등록 요청을 수락하시겠습니까?",  // 알림 내용
             NotificationType.PT_REGISTRATION_REQUEST,  // 알림 종류
+            LocalDateTime.of(2024, 10, 29, 3, 22),
             personalTraining  // 관련된 수업 ID
         );
 
@@ -152,6 +160,67 @@ class NotificationServiceTest {
 
         PersonalTrainingNotification personalTrainingNotification = (PersonalTrainingNotification) optionalNotification.get();
         assertThat(personalTrainingNotification).isNotNull();
+    }
+
+    @DisplayName("트레이너를 대상으로 한 알림 목록 조회")
+    @Test
+    void getNotification() {
+        // given
+        Member member = userRepository.save(createMember("회원"));
+
+        Trainer trainer = userRepository.save(createTrainer("트레이너"));
+        Gym gym = gymRepository.save(createGym("체육관"));
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer));
+
+        Lesson lesson = lessonRepository.save(createLesson(member, gymTrainer));
+        PersonalTraining personalTraining = personalTrainingRepository.save(createPersonalTraining(member, gymTrainer));
+        Diets diets = dietRepository.save(createDiets(member));
+
+        notificationRepository.saveAll(List.of(
+            personalTrainingNotification(member, trainer, NotificationType.PT_REGISTRATION_REQUEST, "PT등록", personalTraining),
+            lessonNotification(member, trainer, NotificationType.LESSON_REGISTRATION_REQUEST, "text", lesson),
+            dietNotification(member, trainer, NotificationType.DIET_FEEDBACK, "식단 피드백", diets))
+        );
+
+        Pageable pageable = PageRequest.of(0, 10);
+        User receiver = trainer;
+
+        // when
+
+        NotificationResponse<?> response = notificationService.getNotificationList(trainer, pageable);
+
+        // then
+
+    }
+
+    private Notification personalTrainingNotification(User sender, User receiver, NotificationType type, String text, PersonalTraining relatedEntity) {
+        return PersonalTrainingNotification.builder()
+            .sender(sender)
+            .receiver(receiver)
+            .type(type)
+            .text(text)
+            .relatedPersonalTraining(relatedEntity)
+            .build();
+    }
+
+    private Notification lessonNotification(User sender, User receiver, NotificationType type, String text, Lesson relatedEntity) {
+        return LessonNotification.builder()
+            .sender(sender)
+            .receiver(receiver)
+            .type(type)
+            .text(text)
+            .relatedLesson(relatedEntity)
+            .build();
+    }
+
+    private Notification dietNotification(User sender, User receiver, NotificationType type, String text, Diets relatedEntity) {
+        return DietNotification.builder()
+            .sender(sender)
+            .receiver(receiver)
+            .text(text)
+            .type(type)
+            .relatedDiet(relatedEntity)
+            .build();
     }
 
     private Member createMember(String name) {

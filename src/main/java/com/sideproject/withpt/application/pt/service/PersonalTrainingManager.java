@@ -43,7 +43,7 @@ public class PersonalTrainingManager {
     private static final String PT_REGISTRATION_ACCEPTED_MSG = "%s 회원님이 PT 등록을 수락하였습니다.";
 
     @Transactional
-    public PersonalTrainingMemberResponse registerPersonalTraining(Long gymId, Long memberId, Long trainerId, LocalDateTime ptRegistrationRequestDate) {
+    public PersonalTrainingMemberResponse registerPersonalTraining(Long gymId, Long memberId, Long trainerId, LocalDateTime ptRegistrationRequestDate, LocalDateTime notificationCreatedAt) {
         User requester = findUserById(trainerId);
         User receiver = findUserById(memberId);
         Gym gym = findGymById(gymId);
@@ -56,6 +56,7 @@ public class PersonalTrainingManager {
                 receiver,
                 String.format(PT_REGISTRATION_REQUEST_MSG, requester.getName(), gym.getName()),
                 NotificationType.PT_REGISTRATION_REQUEST,
+                notificationCreatedAt,
                 (Member) receiver,
                 gymTrainer
             )
@@ -64,7 +65,7 @@ public class PersonalTrainingManager {
     }
 
     @Transactional
-    public void approvedPersonalTrainingRegistration(Long ptId, Long memberId, LocalDateTime registrationAllowedDate) {
+    public void approvedPersonalTrainingRegistration(Long ptId, Long memberId, LocalDateTime registrationAllowedDate, LocalDateTime notificationCreatedAt) {
 
         User requester = findUserById(memberId);
 
@@ -79,6 +80,7 @@ public class PersonalTrainingManager {
                 receiver,
                 String.format(PT_REGISTRATION_ACCEPTED_MSG, requester.getName()),
                 NotificationType.PT_REGISTRATION_REQUEST,
+                notificationCreatedAt,
                 personalTraining
             )
         );

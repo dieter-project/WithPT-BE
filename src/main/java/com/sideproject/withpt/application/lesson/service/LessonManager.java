@@ -14,6 +14,7 @@ import com.sideproject.withpt.domain.lesson.Lesson;
 import com.sideproject.withpt.domain.lesson.LessonSchedule;
 import com.sideproject.withpt.domain.user.User;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +38,7 @@ public class LessonManager {
     private static final String LESSON_CHANGE_REQUEST_MSG = "%s 님으로부터 수업 변경 요청이 도착했어요.";
 
     @Transactional
-    public LessonResponse registrationPTLesson(Long gymId, LessonRegistrationRequest request) {
+    public LessonResponse registrationPTLesson(Long gymId, LessonRegistrationRequest request, LocalDateTime notificationCreatedAt) {
         log.info("[LessonDelegator.registrationPTLesson()]");
         log.info("Registering PT lesson for gym ID: {}", gymId);
 
@@ -49,6 +50,7 @@ public class LessonManager {
                 requester, receiver,
                 String.format(MEMBER_REGISTRATION_REQUEST_MSG, requester.getName()),
                 NotificationType.LESSON_REGISTRATION_REQUEST,
+                notificationCreatedAt,
                 gymId,
                 request.getDate(),
                 request.getTime()
@@ -59,7 +61,7 @@ public class LessonManager {
     }
 
     @Transactional
-    public LessonResponse changePTLesson(Long lessonId, Long userId, LessonChangeRequest request) {
+    public LessonResponse changePTLesson(Long lessonId, Long userId, LessonChangeRequest request, LocalDateTime notificationCreatedAt) {
         log.info("[LessonDelegator.changePTLesson()]");
         log.info("Changing PT lesson with lesson ID: {}", lessonId);
 
@@ -73,6 +75,7 @@ public class LessonManager {
                 receiver,
                 String.format(LESSON_CHANGE_REQUEST_MSG, requester.getName()),
                 NotificationType.LESSON_CHANGE_REQUEST,
+                notificationCreatedAt,
                 lesson
             )
         );
@@ -81,7 +84,7 @@ public class LessonManager {
     }
 
     @Transactional
-    public LessonResponse registrationOrScheduleChangeLessonAccept(Long userId, Long lessonId) {
+    public LessonResponse registrationOrScheduleChangeLessonAccept(Long userId, Long lessonId, LocalDateTime notificationCreatedAt) {
         log.info("[LessonDelegator.registrationOrScheduleChangeLessonAccept()]");
         log.info("Accepting lesson change or registration for lesson ID: {}", lessonId);
 
@@ -104,6 +107,7 @@ public class LessonManager {
                 receiver,
                 createAcceptanceMessage(lesson),
                 NotificationType.LESSON_REGISTRATION_COMPLETION,
+                notificationCreatedAt,
                 lesson
             )
         );

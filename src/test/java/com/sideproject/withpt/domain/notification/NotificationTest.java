@@ -19,6 +19,7 @@ import com.sideproject.withpt.domain.record.diet.Diets;
 import com.sideproject.withpt.domain.user.User;
 import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.user.trainer.Trainer;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -68,6 +69,7 @@ class NotificationTest {
             trainer,   // receiver: 트레이너
             NotificationType.DIET_FEEDBACK,  // 알림 종류
             "000 회원님으로부터 식단 피드백 요청이 도착했어요.",  // 알림 내용
+            LocalDateTime.of(2024, 10, 29, 3, 22),
             diets  // 관련된 식단 ID
         ));
 
@@ -106,6 +108,7 @@ class NotificationTest {
             trainer,   // receiver: 트레이너
             NotificationType.LESSON_REGISTRATION_REQUEST,  // 알림 종류
             "000 회원 님으로부터 수업 등록 요청이 왔어요.",  // 알림 내용
+            LocalDateTime.of(2024, 10, 29, 3, 22),
             lesson  // 관련된 수업 ID
         ));
 
@@ -136,6 +139,7 @@ class NotificationTest {
             NotificationType.PT_REGISTRATION_REQUEST,  // 알림 종류
             "000트레이너/000 피트니스\n"
                 + "등록 요청을 수락하시겠습니까?",  // 알림 내용
+            LocalDateTime.of(2024, 10, 29, 3, 22),
             personalTraining  // 관련된 수업 ID
         ));
 
@@ -198,32 +202,35 @@ class NotificationTest {
             .build();
     }
 
-    public Notification createDietNotification(User sender, User receiver, NotificationType type, String text, Diets diets) {
+    public Notification createDietNotification(User sender, User receiver, NotificationType type, String text, LocalDateTime createdAt, Diets diets) {
         return DietNotification.builder()
             .sender(sender)
             .receiver(receiver)
             .type(type)
             .text(text)
+            .createdAt(createdAt)
             .relatedDiet(diets)
             .build();
     }
 
-    public Notification createLessonNotification(User sender, User receiver, NotificationType type, String text, Lesson lesson) {
+    public Notification createLessonNotification(User sender, User receiver, NotificationType type, String text, LocalDateTime createdAt, Lesson lesson) {
         return LessonNotification.builder()
             .sender(sender)
             .receiver(receiver)
             .type(type)
             .text(text)
+            .createdAt(createdAt)
             .relatedLesson(lesson)
             .build();
     }
 
-    public Notification createPersonalTrainingNotification(User sender, User receiver, NotificationType type, String text, PersonalTraining personalTraining) {
+    public Notification createPersonalTrainingNotification(User sender, User receiver, NotificationType type, String text, LocalDateTime createdAt, PersonalTraining personalTraining) {
         return PersonalTrainingNotification.builder()
             .sender(sender)
             .receiver(receiver)
-            .type(type)
             .text(text)
+            .type(type)
+            .createdAt(createdAt)
             .relatedPersonalTraining(personalTraining)
             .build();
     }

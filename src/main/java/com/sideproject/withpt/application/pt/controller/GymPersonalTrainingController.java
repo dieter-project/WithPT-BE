@@ -67,7 +67,7 @@ public class GymPersonalTrainingController {
     public ApiSuccessResponse<PersonalTrainingMemberResponse> registerPersonalTraining(@PathVariable Long gymId,
         @PathVariable Long memberId, @Parameter(hidden = true) @AuthenticationPrincipal Long trainerId) {
         return ApiSuccessResponse.from(
-            personalTrainingManager.registerPersonalTraining(gymId, memberId, trainerId, LocalDateTime.now())
+            personalTrainingManager.registerPersonalTraining(gymId, memberId, trainerId, LocalDateTime.now(), LocalDateTime.now())
         );
     }
 
@@ -75,7 +75,7 @@ public class GymPersonalTrainingController {
     @PatchMapping("/api/v1/personal-trainings/{ptId}/registration-acceptance")
     public void allowPtRegistrationNotification(@PathVariable Long ptId,
         @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-        personalTrainingManager.approvedPersonalTrainingRegistration(ptId, memberId, LocalDateTime.now());
+        personalTrainingManager.approvedPersonalTrainingRegistration(ptId, memberId, LocalDateTime.now(), LocalDateTime.now());
     }
 
     @Operation(summary = "등록 대기 중 회원 리스트 조회")

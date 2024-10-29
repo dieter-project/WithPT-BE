@@ -16,6 +16,7 @@ import com.sideproject.withpt.common.type.LessonStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.Map;
 import javax.validation.Valid;
@@ -50,7 +51,7 @@ public class LessonController {
     @PostMapping("/lessons/gyms/{gymId}")
     public ApiSuccessResponse<LessonResponse> registrationPtLesson(@PathVariable Long gymId,
         @Valid @RequestBody LessonRegistrationRequest request) {
-        return ApiSuccessResponse.from(lessonManager.registrationPTLesson(gymId, request));
+        return ApiSuccessResponse.from(lessonManager.registrationPTLesson(gymId, request, LocalDateTime.now()));
     }
 
     @Operation(summary = "[확정/취소] 수업 스케줄 정보 조회")
@@ -68,7 +69,7 @@ public class LessonController {
         @Valid @RequestBody LessonChangeRequest request) {
 
         return ApiSuccessResponse.from(
-            lessonManager.changePTLesson(lessonId, userId, request)
+            lessonManager.changePTLesson(lessonId, userId, request, LocalDateTime.now())
         );
     }
 
@@ -165,7 +166,7 @@ public class LessonController {
     public ApiSuccessResponse<LessonResponse> lessonAccept(@PathVariable Long lessonId,
         @Parameter(hidden = true) @AuthenticationPrincipal Long userId) {
         return ApiSuccessResponse.from(
-            lessonManager.registrationOrScheduleChangeLessonAccept(userId, lessonId)
+            lessonManager.registrationOrScheduleChangeLessonAccept(userId, lessonId, LocalDateTime.now())
         );
     }
 }

@@ -77,7 +77,7 @@ class PersonalTrainingManagerTest {
 
         // when
         PersonalTrainingMemberResponse response = personalTrainingManager.registerPersonalTraining(
-            gym.getId(), member.getId(), trainer.getId(), ptRegistrationRequestDate
+            gym.getId(), member.getId(), trainer.getId(), ptRegistrationRequestDate, LocalDateTime.of(2024, 10, 29, 3, 22)
         );
 
         // then
@@ -114,7 +114,7 @@ class PersonalTrainingManagerTest {
         final LocalDateTime registrationAllowedDate = LocalDateTime.of(2024, 9, 27, 9, 51);
 
         // when
-        personalTrainingManager.approvedPersonalTrainingRegistration(personalTraining.getId(), member.getId(), registrationAllowedDate);
+        personalTrainingManager.approvedPersonalTrainingRegistration(personalTraining.getId(), member.getId(), registrationAllowedDate, LocalDateTime.of(2024, 10, 29, 3, 22));
 
         // then
         PersonalTraining savedPersonalTraining = personalTrainingRepository.findAll().get(0);

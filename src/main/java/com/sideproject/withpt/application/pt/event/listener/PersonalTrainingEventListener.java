@@ -10,7 +10,7 @@ import com.sideproject.withpt.domain.gym.GymTrainer;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.user.User;
 import com.sideproject.withpt.domain.user.member.Member;
-import com.sideproject.withpt.domain.user.trainer.Trainer;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -35,7 +35,7 @@ public class PersonalTrainingEventListener {
         log.info("[PersonalTrainingEventListener.personalTrainingRegistrationNotification]");
 
         PersonalTraining personalTraining = findPersonalTraining(event.getMember(), event.getGymTrainer());
-        createNotification(event.getRequester(), event.getReceiver(), event.getMessage(), event.getNotificationType(), personalTraining);
+        createNotification(event.getRequester(), event.getReceiver(), event.getMessage(), event.getNotificationType(), event.getCreatedAt(), personalTraining);
     }
 
     @Async
@@ -43,7 +43,7 @@ public class PersonalTrainingEventListener {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void approvedPersonalTrainingRegistrationNotification(PersonalTrainingApproveNotificationEvent event) {
         log.info("[PersonalTrainingEventListener.approvedPersonalTrainingRegistrationNotification()]");
-        createNotification(event.getRequester(), event.getReceiver(), event.getMessage(), event.getNotificationType(), event.getPersonalTraining());
+        createNotification(event.getRequester(), event.getReceiver(), event.getMessage(), event.getNotificationType(), event.getCreatedAt(), event.getPersonalTraining());
     }
 
     private PersonalTraining findPersonalTraining(Member member, GymTrainer gymTrainer) {
@@ -51,12 +51,13 @@ public class PersonalTrainingEventListener {
             .orElseThrow(() -> PTException.PT_NOT_FOUND);
     }
 
-    private void createNotification(User requester, User receiver, String message, NotificationType notificationType, PersonalTraining personalTraining) {
+    private void createNotification(User requester, User receiver, String message, NotificationType notificationType, LocalDateTime createdAt, PersonalTraining personalTraining) {
         notificationService.createNotification(
             requester,
             receiver,
             message,
             notificationType,
+            createdAt,
             personalTraining
         );
     }

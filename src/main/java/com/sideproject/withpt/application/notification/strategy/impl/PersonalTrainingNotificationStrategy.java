@@ -6,6 +6,7 @@ import com.sideproject.withpt.domain.notification.Notification;
 import com.sideproject.withpt.domain.notification.PersonalTrainingNotification;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.user.User;
+import java.time.LocalDateTime;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,12 +18,13 @@ public class PersonalTrainingNotificationStrategy implements NotificationStrateg
     }
 
     @Override
-    public Notification createNotification(User sender, User receiver, String text, NotificationType type, PersonalTraining relatedEntity) {
+    public Notification createNotification(User sender, User receiver, String text, NotificationType type, LocalDateTime createdAt, PersonalTraining relatedEntity) {
         return PersonalTrainingNotification.builder()
             .sender(sender)
             .receiver(receiver)
             .type(type)
             .text(text)
+            .createdAt(createdAt)
             .relatedPersonalTraining(relatedEntity)
             .build();
     }

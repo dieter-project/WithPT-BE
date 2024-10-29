@@ -3,6 +3,7 @@ package com.sideproject.withpt.domain.notification;
 import com.sideproject.withpt.common.type.NotificationType;
 import com.sideproject.withpt.domain.pt.PersonalTraining;
 import com.sideproject.withpt.domain.user.User;
+import java.time.LocalDateTime;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -24,8 +25,8 @@ public class PersonalTrainingNotification extends Notification {
     private PersonalTraining relatedPersonalTraining;
 
     @Builder
-    private PersonalTrainingNotification(NotificationType type, String text, User sender, User receiver, PersonalTraining relatedPersonalTraining) {
-        super(type, text, sender, receiver);
+    private PersonalTrainingNotification(NotificationType type, String text, User sender, User receiver, LocalDateTime createdAt, PersonalTraining relatedPersonalTraining) {
+        super(type, text, sender, receiver, createdAt);
         this.relatedPersonalTraining = relatedPersonalTraining;
     }
 }

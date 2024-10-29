@@ -33,6 +33,7 @@ import com.sideproject.withpt.domain.user.User;
 import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -106,7 +107,7 @@ class LessonManagerTest {
             Long gymId = gym.getId();
 
             // when
-            LessonResponse response = lessonManager.registrationPTLesson(gymId, request);
+            LessonResponse response = lessonManager.registrationPTLesson(gymId, request, LocalDateTime.of(2024, 10, 29, 3, 22));
 
             // then
             assertThat(response)
@@ -158,7 +159,7 @@ class LessonManagerTest {
             Long gymId = gym.getId();
 
             // when
-            LessonResponse response = lessonManager.registrationPTLesson(gymId, request);
+            LessonResponse response = lessonManager.registrationPTLesson(gymId, request, LocalDateTime.of(2024, 10, 29, 3, 22));
 
             // then
             assertThat(response)
@@ -219,7 +220,7 @@ class LessonManagerTest {
             .build();
 
         // when
-        LessonResponse response = lessonManager.changePTLesson(lesson.getId(), member.getId(), request);
+        LessonResponse response = lessonManager.changePTLesson(lesson.getId(), member.getId(), request, LocalDateTime.of(2024, 10, 29, 3, 22));
 
         // then
         assertThat(response)
@@ -282,7 +283,7 @@ class LessonManagerTest {
             Lesson savedLesson = lessonRepository.save(createLesson(member, gymTrainer, lessonSchedule, null, LessonStatus.PENDING_APPROVAL, member, trainer, Role.MEMBER, null));
 
             // when
-            LessonResponse response = lessonManager.registrationOrScheduleChangeLessonAccept(member.getId(), savedLesson.getId());
+            LessonResponse response = lessonManager.registrationOrScheduleChangeLessonAccept(member.getId(), savedLesson.getId(), LocalDateTime.of(2024, 10, 29, 3, 22));
 
             // then
             assertThat(response)
@@ -322,7 +323,7 @@ class LessonManagerTest {
             Lesson savedLesson = lessonRepository.save(createLesson(member, gymTrainer, lessonSchedule, boforeLessonSchedule, LessonStatus.PENDING_APPROVAL, trainer, member, Role.TRAINER, Role.MEMBER));
 
             // when
-            LessonResponse response = lessonManager.registrationOrScheduleChangeLessonAccept(member.getId(), savedLesson.getId());
+            LessonResponse response = lessonManager.registrationOrScheduleChangeLessonAccept(member.getId(), savedLesson.getId(), LocalDateTime.of(2024, 10, 29, 3, 22));
 
             // then
             assertThat(response)
@@ -368,7 +369,7 @@ class LessonManagerTest {
             Lesson savedLesson = lessonRepository.save(createLesson(member, gymTrainer, lessonSchedule, boforeLessonSchedule, LessonStatus.PENDING_APPROVAL, trainer, member, Role.TRAINER, Role.MEMBER));
 
             // when
-            LessonResponse response = lessonManager.registrationOrScheduleChangeLessonAccept(trainer.getId(), savedLesson.getId());
+            LessonResponse response = lessonManager.registrationOrScheduleChangeLessonAccept(trainer.getId(), savedLesson.getId(), LocalDateTime.of(2024, 10, 29, 3, 22));
 
             // then
             assertThat(response)

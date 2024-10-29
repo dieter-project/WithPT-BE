@@ -56,14 +56,14 @@ public abstract class Notification extends BaseEntity {
 
     @PrePersist
     public void prePersist() {
-        this.createdAt = LocalDateTime.now();
         this.isRead = false;  // 알림 생성 시 기본적으로 읽지 않은 상태로 설정
     }
 
-    protected Notification(NotificationType type, String text, User sender, User receiver) {
+    protected Notification(NotificationType type, String text, User sender, User receiver, LocalDateTime createdAt) {
         this.type = type;
         this.text = text;
         this.sender = sender;
         this.receiver = receiver;
+        this.createdAt = createdAt;
     }
 }

@@ -3,6 +3,7 @@ package com.sideproject.withpt.domain.notification;
 import com.sideproject.withpt.common.type.NotificationType;
 import com.sideproject.withpt.domain.record.diet.Diets;
 import com.sideproject.withpt.domain.user.User;
+import java.time.LocalDateTime;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -24,8 +25,8 @@ public class DietNotification extends Notification {
     private Diets relatedDiet;
 
     @Builder
-    private DietNotification(NotificationType type, String text, User sender, User receiver, Diets relatedDiet) {
-        super(type, text, sender, receiver);
+    private DietNotification(NotificationType type, String text, User sender, User receiver, LocalDateTime createdAt, Diets relatedDiet) {
+        super(type, text, sender, receiver, createdAt);
         this.relatedDiet = relatedDiet;
     }
 }

@@ -17,6 +17,7 @@ import com.sideproject.withpt.domain.lesson.Lesson;
 import com.sideproject.withpt.domain.user.User;
 import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +49,7 @@ public class LessonEventListener {
             Trainer trainer = getTrainer(event.getRequester(), event.getReceiver());
             Lesson lesson = findLesson(gym, trainer, event.getDate(), event.getTime());
 
-            createNotification(event.getRequester(), event.getReceiver(), event.getMessage(), event.getNotificationType(), lesson);
+            createNotification(event.getRequester(), event.getReceiver(), event.getMessage(), event.getNotificationType(), event.getCreatedAt(), lesson);
         }
     }
 
@@ -57,7 +58,7 @@ public class LessonEventListener {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveNotificationLog(LessonNotificationEvent event) {
         log.info("[LessonEventListener.saveNotificationLog()]");
-        createNotification(event.getRequester(), event.getReceiver(), event.getMessage(), event.getNotificationType(), event.getLesson());
+        createNotification(event.getRequester(), event.getReceiver(), event.getMessage(), event.getNotificationType(), event.getCreatedAt(), event.getLesson());
     }
 
     private Gym findGym(LessonRegistrationNotificationEvent event) {
@@ -77,12 +78,13 @@ public class LessonEventListener {
         return (Trainer) (requester.getRole() == Role.TRAINER ? requester : receiver);
     }
 
-    private void createNotification(User requester, User receiver, String message, NotificationType notificationType, Lesson lesson) {
+    private void createNotification(User requester, User receiver, String message, NotificationType notificationType, LocalDateTime createdAt, Lesson lesson) {
         notificationService.createNotification(
             requester,
             receiver,
             message,
             notificationType,
+            createdAt,
             lesson
         );
     }
