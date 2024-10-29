@@ -25,6 +25,8 @@ import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +34,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 
 @Transactional
-//@ActiveProfiles("test")
+@ActiveProfiles("test")
 @SpringBootTest
 class NotificationRepositoryTest {
 
@@ -62,9 +64,10 @@ class NotificationRepositoryTest {
     @Autowired
     private NotificationRepository notificationRepository;
 
+    @Autowired
+    private EntityManager em;
 
     @DisplayName("Receiver 대상 알림 리스트 조회")
-    @Rollback(value = false)
     @Test
     void findAllByReceiver() {
         // given
@@ -104,6 +107,48 @@ class NotificationRepositoryTest {
             );
 
         assertThat(result.hasNext()).isFalse();
+    }
+
+    @DisplayName("알림 읽기 체크")
+    @Test
+    void markNotificationsAsRead() {
+        // given
+        Member member = userRepository.save(createMember("회원"));
+
+        Trainer trainer = userRepository.save(createTrainer("트레이너"));
+        Trainer trainer2 = userRepository.save(createTrainer("트레이너2"));
+        Gym gym = gymRepository.save(createGym("체육관"));
+        GymTrainer gymTrainer = gymTrainerRepository.save(createGymTrainer(gym, trainer));
+
+        Lesson lesson = lessonRepository.save(createLesson(member, gymTrainer));
+        PersonalTraining personalTraining = personalTrainingRepository.save(createPersonalTraining(member, gymTrainer));
+        Diets diets = dietRepository.save(createDiets(member));
+
+        Notification notification1 = notificationRepository.save(personalTrainingNotification(member, trainer, NotificationType.PT_REGISTRATION_REQUEST, "PT 등록", LocalDateTime.of(2024, 10, 29, 3, 20), personalTraining));
+        Notification notification2 = notificationRepository.save(lessonNotification(member, trainer, NotificationType.LESSON_REGISTRATION_REQUEST, "수업 변경", LocalDateTime.of(2024, 10, 29, 3, 28), lesson));
+        Notification notification3 = notificationRepository.save(lessonNotification(member, trainer2, NotificationType.LESSON_REGISTRATION_REQUEST, "수업 변경", LocalDateTime.of(2024, 10, 29, 3, 28), lesson));
+        Notification notification4 = notificationRepository.save(dietNotification(member, trainer, NotificationType.DIET_FEEDBACK, "식단 피드백1", LocalDateTime.of(2024, 10, 29, 3, 28), diets));
+        Notification notification5 = notificationRepository.save(dietNotification(member, trainer, NotificationType.DIET_FEEDBACK, "식단 피드백2", LocalDateTime.of(2024, 10, 29, 3, 29), diets));
+        Notification notification6 = notificationRepository.save(dietNotification(member, trainer, NotificationType.DIET_FEEDBACK, "식단 피드백3", LocalDateTime.of(2024, 10, 29, 3, 31), diets));
+        Notification notification7 = notificationRepository.save(dietNotification(trainer, member, NotificationType.DIET_FEEDBACK, "식단 피드백4", LocalDateTime.of(2024, 10, 29, 3, 55), diets));
+
+        User receiver = trainer;
+        List<Long> notificationIds = List.of(notification1.getId(), notification2.getId(), notification4.getId());
+
+        // when
+        notificationRepository.markNotificationsAsRead(receiver, notificationIds);
+
+        // then
+        em.flush();
+        em.clear();
+
+        List<Notification> result = notificationRepository.findAllByReceiver(receiver);
+
+        List<Notification> collect = result.stream()
+            .filter(Notification::isRead)
+            .collect(Collectors.toList());
+
+        assertThat(collect).hasSize(3);
     }
 
     private Notification personalTrainingNotification(User sender, User receiver, NotificationType type, String text, LocalDateTime createdAt, PersonalTraining relatedEntity) {

@@ -15,20 +15,17 @@ import org.springframework.data.domain.Slice;
 @JsonInclude(Include.NON_NULL)
 public class NotificationResponse {
 
-    private UserResponse sender;
-    private UserResponse receiver;
+    private UserResponse notificationReceiver;
     private Slice<NotificationInfoResponse<?>> notifications;
 
     @Builder
-    private NotificationResponse(UserResponse sender, UserResponse receiver, Slice<NotificationInfoResponse<?>> notifications) {
-        this.sender = sender;
-        this.receiver = receiver;
+    private NotificationResponse(UserResponse receiver, Slice<NotificationInfoResponse<?>> notifications) {
+        this.notificationReceiver = receiver;
         this.notifications = notifications;
     }
 
-    public static NotificationResponse of(User sender, User receiver, Slice<NotificationInfoResponse<?>> notifications) {
+    public static NotificationResponse of(User receiver, Slice<NotificationInfoResponse<?>> notifications) {
         return NotificationResponse.builder()
-            .sender(sender != null ? UserResponse.of(sender) : null)
             .receiver(UserResponse.of(receiver))
             .notifications(notifications)
             .build();

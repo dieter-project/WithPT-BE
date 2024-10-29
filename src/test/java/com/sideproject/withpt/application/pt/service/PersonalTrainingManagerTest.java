@@ -61,7 +61,7 @@ class PersonalTrainingManagerTest {
     @Autowired
     private ApplicationEvents applicationEvents;
 
-    private static final String PT_REGISTRATION_REQUEST_MSG = "%s 트레이너/%s 피트니스 PT 등록 요청이 도착했습니다.";
+    private static final String PT_REGISTRATION_REQUEST_MSG = "%s / %s 트레이너 PT 등록 요청이 도착했습니다.";
     private static final String PT_REGISTRATION_ACCEPTED_MSG = "%s 회원님이 PT 등록을 수락하였습니다.";
 
     @DisplayName("체육관에 신규 PT 회원을 등록할 때 이벤트 발생")
@@ -92,7 +92,7 @@ class PersonalTrainingManagerTest {
                 assertAll(
                     () -> assertThat(event.getRequester()).isEqualTo(trainer),
                     () -> assertThat(event.getReceiver()).isEqualTo(member),
-                    () -> assertThat(event.getMessage()).isEqualTo(String.format(PT_REGISTRATION_REQUEST_MSG, trainer.getName(), gym.getName())),
+                    () -> assertThat(event.getMessage()).isEqualTo(String.format(PT_REGISTRATION_REQUEST_MSG, gym.getName(), trainer.getName())),
                     () -> assertThat(event.getNotificationType()).isEqualTo(NotificationType.PT_REGISTRATION_REQUEST),
                     () -> assertThat(event.getMember()).isEqualTo(member),
                     () -> assertThat(event.getGymTrainer()).isEqualTo(gymTrainer)

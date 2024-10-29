@@ -1,5 +1,6 @@
 package com.sideproject.withpt.application.notification.service;
 
+import com.sideproject.withpt.application.notification.controller.request.NotificationReadRequest;
 import com.sideproject.withpt.application.notification.repository.NotificationRepository;
 import com.sideproject.withpt.application.notification.service.response.NotificationInfoResponse;
 import com.sideproject.withpt.application.notification.service.response.NotificationResponse;
@@ -13,7 +14,6 @@ import com.sideproject.withpt.common.type.NotificationType;
 import com.sideproject.withpt.domain.notification.Notification;
 import com.sideproject.withpt.domain.user.User;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -47,14 +47,16 @@ public class NotificationService {
 
         List<NotificationInfoResponse<?>> notificationInfoResponse = mapNotificationsToResponses(notifications);
 
-        if (notifications.isEmpty()) {
-            return NotificationResponse.of(null, receiver, new SliceImpl<>(Collections.emptyList(), pageable, false));
-        }
-
-        User sender = notifications.getContent().get(0).getSender();
-
         SliceImpl<NotificationInfoResponse<?>> notificationInfoResponses = new SliceImpl<>(notificationInfoResponse, pageable, notifications.hasNext());
-        return NotificationResponse.of(sender, receiver, notificationInfoResponses);
+        return NotificationResponse.of(receiver, notificationInfoResponses);
+    }
+
+    @Transactional
+    public void readNotifications(Long receiverId, NotificationReadRequest request) {
+        User receiver = userRepository.findById(receiverId)
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+
+        notificationRepository.markNotificationsAsRead(receiver, request.getNotificationIds());
     }
 
     private List<NotificationInfoResponse<?>> mapNotificationsToResponses(Slice<Notification> notifications) {

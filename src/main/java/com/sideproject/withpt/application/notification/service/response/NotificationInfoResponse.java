@@ -1,5 +1,6 @@
 package com.sideproject.withpt.application.notification.service.response;
 
+import com.sideproject.withpt.application.user.response.UserResponse;
 import com.sideproject.withpt.common.type.NotificationType;
 import com.sideproject.withpt.domain.notification.Notification;
 import java.time.LocalDateTime;
@@ -15,16 +16,18 @@ public class NotificationInfoResponse<T> {
     private Long id;
     private NotificationType type;
     private T relatedData;
+    private UserResponse notificationSender;
     private String message;
     private boolean isRead;
     private LocalDateTime createdAt;
 
 
     @Builder
-    private NotificationInfoResponse(Long id, NotificationType type, T relatedData, String message, boolean isRead, LocalDateTime createdAt) {
+    private NotificationInfoResponse(Long id, NotificationType type, T relatedData, UserResponse sender, String message, boolean isRead, LocalDateTime createdAt) {
         this.id = id;
         this.type = type;
         this.relatedData = relatedData;
+        this.notificationSender = sender;
         this.message = message;
         this.isRead = isRead;
         this.createdAt = createdAt;
@@ -35,6 +38,7 @@ public class NotificationInfoResponse<T> {
             .id(notification.getId())
             .type(notification.getType())
             .relatedData(relatedData)
+            .sender(UserResponse.of(notification.getSender()))
             .message(notification.getText())
             .isRead(notification.isRead())
             .createdAt(notification.getCreatedAt())
