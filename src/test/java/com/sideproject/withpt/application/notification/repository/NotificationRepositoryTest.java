@@ -1,6 +1,7 @@
 package com.sideproject.withpt.application.notification.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 
 import com.sideproject.withpt.application.gym.repositoy.GymRepository;
 import com.sideproject.withpt.application.gymtrainer.repository.GymTrainerRepository;
@@ -24,13 +25,13 @@ import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.time.LocalDateTime;
 import java.util.List;
-import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,23 +84,26 @@ class NotificationRepositoryTest {
             lessonNotification(member, trainer, NotificationType.LESSON_REGISTRATION_REQUEST, "수업 변경", LocalDateTime.of(2024, 10, 29, 3, 28), lesson),
             lessonNotification(member, trainer2, NotificationType.LESSON_REGISTRATION_REQUEST, "수업 변경", LocalDateTime.of(2024, 10, 29, 3, 28), lesson),
             dietNotification(member, trainer, NotificationType.DIET_FEEDBACK, "식단 피드백1", LocalDateTime.of(2024, 10, 29, 3, 28), diets),
-            dietNotification(trainer, member, NotificationType.DIET_FEEDBACK, "식단 피드백2", LocalDateTime.of(2024, 10, 29, 3, 0), diets))
+            dietNotification(member, trainer, NotificationType.DIET_FEEDBACK, "식단 피드백2", LocalDateTime.of(2024, 10, 29, 3, 29), diets),
+            dietNotification(member, trainer, NotificationType.DIET_FEEDBACK, "식단 피드백3", LocalDateTime.of(2024, 10, 29, 3, 31), diets),
+            dietNotification(trainer, member, NotificationType.DIET_FEEDBACK, "식단 피드백4", LocalDateTime.of(2024, 10, 29, 3, 55), diets))
         );
 
-        Pageable pageable = PageRequest.of(0, 4);
+        Pageable pageable = PageRequest.of(1, 3);
         User receiver = trainer;
 
         // when
-        List<Notification> result = notificationRepository.findAllByReceiverOrderByCreatedAtDescIdDesc(receiver, pageable);
+        Slice<Notification> result = notificationRepository.findAllByReceiverOrderByCreatedAtDescIdDesc(receiver, pageable);
 
         // then
-        assertThat(result).hasSize(3)
+        assertThat(result.getContent()).hasSize(2)
             .extracting("type", "text", "receiver")
             .containsExactly(
-                Tuple.tuple(NotificationType.DIET_FEEDBACK, "식단 피드백1", trainer),
-                Tuple.tuple(NotificationType.LESSON_REGISTRATION_REQUEST, "수업 변경", trainer),
-                Tuple.tuple(NotificationType.PT_REGISTRATION_REQUEST, "PT 등록", trainer)
+                tuple(NotificationType.LESSON_REGISTRATION_REQUEST, "수업 변경", trainer),
+                tuple(NotificationType.PT_REGISTRATION_REQUEST, "PT 등록", trainer)
             );
+
+        assertThat(result.hasNext()).isFalse();
     }
 
     private Notification personalTrainingNotification(User sender, User receiver, NotificationType type, String text, LocalDateTime createdAt, PersonalTraining relatedEntity) {
