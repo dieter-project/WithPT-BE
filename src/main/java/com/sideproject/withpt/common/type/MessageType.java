@@ -9,7 +9,8 @@ public enum MessageType {
     LEAVE("퇴장"),
     TALK("채팅"),
     DIET("식단"),
-    LESSON("수업");
+    LESSON("수업"),
+    IMAGE("이미지 전송");
 
     private final String description;
 

@@ -34,7 +34,7 @@ public class Room extends BaseEntity {
 
     private String lastChat;
 
-    public static Room createRoom(String identifier) {
+    public static Room create(String identifier) {
         return Room.builder()
             .identifier(identifier)
             .type(RoomType.INDIVIDUAL)
