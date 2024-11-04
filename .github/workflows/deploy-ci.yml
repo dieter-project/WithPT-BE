@@ -89,4 +89,4 @@ jobs:
         run: aws s3 cp --region ap-northeast-2 ./spring-build.zip s3://$S3_BUCKET_NAME/$PROJECT_NAME/spring-build.zip
 
       - name: Code Deploy
-        run: aws deploy create-deployment --application-name WithPT-CodeDeploy --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name WithPT-Deploy-Group --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$PROJECT_NAME/spring-build.zip
+        run: aws deploy create-deployment --application-name withpt-codedeploy --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name WithPT-Deploy-Group --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$PROJECT_NAME/spring-build.zip
