@@ -1,4 +1,4 @@
-package com.sideproject.withpt.application.chat.repository;
+package com.sideproject.withpt.application.chat.repository.participant;
 
 import com.sideproject.withpt.domain.chat.Participant;
 import com.sideproject.withpt.domain.chat.Room;

@@ -24,7 +24,7 @@ public class Participant extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "participant_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user; // 참가자 (User)
 
     @ManyToOne(fetch = FetchType.LAZY)

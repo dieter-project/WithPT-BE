@@ -53,9 +53,8 @@ public class ChatController {
     @Operation(summary = "채팅방 리스트 조회")
     @GetMapping("/chat/rooms")
     public ApiSuccessResponse<RoomListResponse> getRoomList(@Parameter(hidden = true) @AuthenticationPrincipal Long loginId) {
-
         return ApiSuccessResponse.from(
-            chatService.getRoomList(loginId, getLoginRole())
+            chatService.getRoomList(loginId)
         );
     }
 

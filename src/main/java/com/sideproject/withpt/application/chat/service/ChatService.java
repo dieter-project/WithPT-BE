@@ -1,6 +1,5 @@
 package com.sideproject.withpt.application.chat.service;
 
-import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.CHAT_LIST_LOAD_ERROR_MESSAGE;
 import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.CHAT_LIST_REQUEST_ERROR;
 import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.CHAT_ROOM_ALREADY_EXISTS;
 import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.CHAT_ROOM_CREATION_ERROR;
@@ -11,10 +10,9 @@ import com.sideproject.withpt.application.chat.contoller.request.CreateRoomReque
 import com.sideproject.withpt.application.chat.contoller.request.MessageRequest;
 import com.sideproject.withpt.application.chat.contoller.request.ReadMessageRequest;
 import com.sideproject.withpt.application.chat.exception.ChatException;
-import com.sideproject.withpt.application.chat.repository.ChatQueryRepository;
-import com.sideproject.withpt.application.chat.repository.ChatRoomRepository;
-import com.sideproject.withpt.application.chat.repository.MessageRepository;
-import com.sideproject.withpt.application.chat.repository.ParticipantRepository;
+import com.sideproject.withpt.application.chat.repository.message.MessageRepository;
+import com.sideproject.withpt.application.chat.repository.participant.ParticipantRepository;
+import com.sideproject.withpt.application.chat.repository.room.ChatRoomRepository;
 import com.sideproject.withpt.application.chat.service.response.CreateRoomResponse;
 import com.sideproject.withpt.application.chat.service.response.MessageResponse;
 import com.sideproject.withpt.application.chat.service.response.ReadMessageResponse;
@@ -24,12 +22,9 @@ import com.sideproject.withpt.application.member.service.MemberService;
 import com.sideproject.withpt.application.trainer.service.TrainerService;
 import com.sideproject.withpt.application.user.UserRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
-import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.domain.chat.Participant;
 import com.sideproject.withpt.domain.chat.Room;
 import com.sideproject.withpt.domain.user.User;
-import com.sideproject.withpt.domain.user.member.Member;
-import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -46,7 +41,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChatService {
 
     private final ChatRoomRepository chatRoomRepository;
-    private final ChatQueryRepository chatQueryRepository;
     private final ParticipantRepository participantRepository;
     private final MessageRepository messageRepository;
 
@@ -73,7 +67,7 @@ public class ChatService {
                             .orElseThrow(() -> new ChatException(PARTICIPANT_NOT_FOUND));
 
                         return new CreateRoomResponse(
-                            RoomInfoResponse.from(existingRoom, participant),
+                            RoomInfoResponse.from(existingRoom, participant, partnerUser),
                             CHAT_ROOM_ALREADY_EXISTS.getMessage()
                         );
                     }
@@ -86,7 +80,7 @@ public class ChatService {
                     Participant savedParticipant = participantRepository.save(Participant.create(initiator, room, partnerUser.getName()));
 
                     return new CreateRoomResponse(
-                        RoomInfoResponse.from(room, savedParticipant),
+                        RoomInfoResponse.from(room, savedParticipant, partnerUser),
                         "채팅방이 생성되었습니다"
                     );
                 });
@@ -96,13 +90,14 @@ public class ChatService {
         }
     }
 
-    public RoomListResponse getRoomList(Long loginId, Role loginRole) {
+    public RoomListResponse getRoomList(Long loginId) {
         try {
-            Trainer trainer = loginRole.equals(Role.TRAINER) ? trainerService.getTrainerById(loginId) : null;
-            Member member = loginRole.equals(Role.MEMBER) ? memberService.getMemberById(loginId) : null;
+
+            User user = userRepository.findById(loginId)
+                .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
             return new RoomListResponse(
-                chatQueryRepository.findAllRoomInfo(trainer, member, loginRole),
+                chatRoomRepository.findAllRoomInfoBy(user),
                 "채팅방 리스트 조회"
             );
         } catch (Exception e) {
@@ -112,11 +107,12 @@ public class ChatService {
     }
 
     public List<MessageResponse> getChattingList(Long roomId, Long cursor) {
-        try {
-            return chatQueryRepository.findAllChattingList(roomId, cursor);
-        } catch (Exception e) {
-            throw new ChatException(CHAT_LIST_LOAD_ERROR_MESSAGE);
-        }
+//        try {
+//            return chatRoomQueryRepository.findAllChattingList(roomId, cursor);
+//        } catch (Exception e) {
+//            throw new ChatException(CHAT_LIST_LOAD_ERROR_MESSAGE);
+//        }
+        return null;
     }
 
     @Transactional

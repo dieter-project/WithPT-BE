@@ -2,6 +2,7 @@ package com.sideproject.withpt.application.user.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.querydsl.core.annotations.QueryProjection;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.type.Sex;
 import com.sideproject.withpt.domain.user.User;
@@ -24,7 +25,8 @@ public class UserResponse {
     private Sex sex;
 
     @Builder
-    private UserResponse(Long id, String name, String email, Role role, String imageUrl, LocalDate birth, Sex sex) {
+    @QueryProjection
+    public UserResponse(Long id, String name, String email, Role role, String imageUrl, LocalDate birth, Sex sex) {
         this.id = id;
         this.name = name;
         this.email = email;

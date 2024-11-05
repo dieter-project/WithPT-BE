@@ -7,10 +7,12 @@ import static org.assertj.core.groups.Tuple.tuple;
 
 import com.sideproject.withpt.application.chat.contoller.request.CreateRoomRequest;
 import com.sideproject.withpt.application.chat.exception.ChatException;
-import com.sideproject.withpt.application.chat.repository.ChatRoomRepository;
-import com.sideproject.withpt.application.chat.repository.MessageRepository;
-import com.sideproject.withpt.application.chat.repository.ParticipantRepository;
+import com.sideproject.withpt.application.chat.repository.room.ChatRoomRepository;
+import com.sideproject.withpt.application.chat.repository.message.MessageRepository;
+import com.sideproject.withpt.application.chat.repository.participant.ParticipantRepository;
 import com.sideproject.withpt.application.chat.service.response.CreateRoomResponse;
+import com.sideproject.withpt.application.chat.service.response.RoomInfoResponse;
+import com.sideproject.withpt.application.chat.service.response.RoomListResponse;
 import com.sideproject.withpt.application.user.UserRepository;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.type.RoomType;
@@ -23,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -74,6 +77,10 @@ class ChatServiceTest {
             assertThat(response.getRoom())
                 .extracting("roomType", "roomName", "unreadMessageCount", "lastReadMessageId", "lastChat", "lastModifiedDate")
                 .contains(RoomType.INDIVIDUAL, partner.getName(), 0, null, "", null);
+
+            assertThat(response.getRoom().getPartner())
+                .extracting("name", "role")
+                .contains("트레이너", Role.TRAINER);
 
             List<Participant> participants = participantRepository.findAll();
             assertThat(participants).hasSize(2)
@@ -170,7 +177,50 @@ class ChatServiceTest {
         }
     }
 
+    @DisplayName("조회 유저의 모든 채팅방 리스트 조회")
+    @Test
+    void getRoomList() {
+        // given
+        User user = userRepository.save(createMember("회원"));
+        User partner1 = userRepository.save(createTrainer("트레이너1"));
+        User partner2 = userRepository.save(createTrainer("트레이너2"));
+        User partner3 = userRepository.save(createTrainer("트레이너3"));
 
+        String identifier1 = generateIdentifierBySHA256(user, partner1);
+        String identifier2 = generateIdentifierBySHA256(user, partner2);
+        String identifier3 = generateIdentifierBySHA256(user, partner3);
+        Room room1 = chatRoomRepository.save(Room.create(identifier1));
+        Room room2 = chatRoomRepository.save(Room.create(identifier2));
+        Room room3 = chatRoomRepository.save(Room.create(identifier3));
+
+        participantRepository.saveAll(List.of(
+            Participant.create(user, room1, partner1.getName()),
+            Participant.create(partner1, room1, user.getName()))
+        );
+
+        participantRepository.saveAll(List.of(
+            Participant.create(user, room2, partner2.getName()),
+            Participant.create(partner2, room2, user.getName()))
+        );
+
+        participantRepository.saveAll(List.of(
+            Participant.create(user, room3, partner3.getName()),
+            Participant.create(partner3, room3, user.getName()))
+        );
+
+        // when
+        RoomListResponse response = chatService.getRoomList(user.getId());
+
+        // then
+        assertThat(response.getRoomList()).hasSize(3)
+            .extracting("roomName", "partner.name")
+            .contains(
+                Tuple.tuple("트레이너1", "트레이너1"),
+                Tuple.tuple("트레이너2", "트레이너2"),
+                Tuple.tuple("트레이너3", "트레이너3")
+            );
+
+    }
     private Member createMember(String name) {
         return Member.builder()
             .email("test@test.com")
