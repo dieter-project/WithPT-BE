@@ -84,6 +84,35 @@ class ChatServiceTest {
                 );
         }
 
+        @DisplayName("신규 채팅방 2개 생성")
+        @Test
+        void createRoom2() {
+            // given
+            User initiator = userRepository.save(createMember("회원"));
+            User partner1 = userRepository.save(createTrainer("트레이너1"));
+            User partner2 = userRepository.save(createTrainer("트레이너2"));
+
+            CreateRoomRequest request1 = CreateRoomRequest.builder()
+                .id(partner1.getId())
+                .build();
+
+            CreateRoomRequest request2 = CreateRoomRequest.builder()
+                .id(partner2.getId())
+                .build();
+
+            // when
+            chatService.createRoom(initiator.getId(), request1);
+            chatService.createRoom(initiator.getId(), request2);
+
+            // then
+            List<Participant> participants = participantRepository.findAll();
+            assertThat(participants).hasSize(4)
+                .extracting("user")
+                .contains(
+                    initiator, initiator, partner1, partner2
+                );
+        }
+
         @DisplayName("채팅방이 이미 존재할 때")
         @Test
         void roomAlreadyExist() {
