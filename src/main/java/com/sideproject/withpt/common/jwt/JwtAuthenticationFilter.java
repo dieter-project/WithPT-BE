@@ -97,6 +97,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/v1/members/nickname/check",
             "/api/v1/oauth/google",
             "/api/v1/oauth/kakao",
+            "/api/v1/auth/login",
             "/ws-stomp", "/pub","/exchange"};
 
         return Arrays.stream(excludePath).anyMatch(request.getRequestURI()::startsWith);
