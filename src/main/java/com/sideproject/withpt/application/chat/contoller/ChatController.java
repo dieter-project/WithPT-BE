@@ -3,9 +3,9 @@ package com.sideproject.withpt.application.chat.contoller;
 import com.sideproject.withpt.application.chat.contoller.request.CreateRoomRequest;
 import com.sideproject.withpt.application.chat.contoller.request.MessageRequest;
 import com.sideproject.withpt.application.chat.contoller.request.ReadMessageRequest;
-import com.sideproject.withpt.application.chat.contoller.response.CreateRoomResponse;
-import com.sideproject.withpt.application.chat.contoller.response.MessageResponse;
-import com.sideproject.withpt.application.chat.contoller.response.RoomListResponse;
+import com.sideproject.withpt.application.chat.service.response.CreateRoomResponse;
+import com.sideproject.withpt.application.chat.service.response.MessageResponse;
+import com.sideproject.withpt.application.chat.service.response.RoomListResponse;
 import com.sideproject.withpt.application.chat.facade.ChatFacade;
 import com.sideproject.withpt.application.chat.service.ChatService;
 import com.sideproject.withpt.common.type.Role;
@@ -43,17 +43,10 @@ public class ChatController {
     @Operation(summary = "채팅방 생성")
     @PostMapping("/chat/room/create")
     public ApiSuccessResponse<CreateRoomResponse> createRoom(
-        @Parameter(hidden = true) @AuthenticationPrincipal Long loginId,
+        @Parameter(hidden = true) @AuthenticationPrincipal Long userId,
         @Valid @RequestBody CreateRoomRequest request) {
-
-        Role loginRole = getLoginRole();
-        log.info("채팅을 시작하는 유저 정보 {} {}", loginId, loginRole);
-        log.info("채팅을 요청 받은 유저 정보 {}", request);
-
-        request.validationIdentifier(loginId, loginRole);
-
         return ApiSuccessResponse.from(
-            chatService.createRoom(loginId, loginRole, request)
+            chatService.createRoom(userId, request)
         );
     }
 

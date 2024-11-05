@@ -13,6 +13,7 @@ public enum ChatErrorCode implements ErrorCode {
     CHAT_ROOM_CREATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "채팅방 생성 중 오류가 발생했습니다"),
     CHAT_LIST_LOAD_ERROR_MESSAGE(HttpStatus.INTERNAL_SERVER_ERROR, "채팅 목록을 불러오지 못했습니다"),
 
+    PARTICIPANT_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당 방에 참가자가 존재하지 않습니다."),
     INVALID_USER_IDENTIFIER(HttpStatus.BAD_REQUEST, "로그인한 유저의 식별자 값이 잘못되었습니다"),
     INVALID_REQUESTED_CHAT_IDENTIFIER(HttpStatus.BAD_REQUEST, "채팅을 요청받은 유저의 식별자 값이 잘못되었습니다"),
     CHAT_ROOM_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당 채팅방이 존재하지 않습니다."),
