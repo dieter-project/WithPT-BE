@@ -8,9 +8,9 @@ import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.IN
 import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.PARTICIPANT_NOT_FOUND;
 
 import com.sideproject.withpt.application.chat.contoller.request.CreateRoomRequest;
-import com.sideproject.withpt.application.chat.contoller.request.MessageRequest;
 import com.sideproject.withpt.application.chat.contoller.request.ReadMessageRequest;
 import com.sideproject.withpt.application.chat.exception.ChatException;
+import com.sideproject.withpt.application.chat.facade.request.MessageDto;
 import com.sideproject.withpt.application.chat.repository.message.MessageRepository;
 import com.sideproject.withpt.application.chat.repository.participant.ParticipantRepository;
 import com.sideproject.withpt.application.chat.repository.room.ChatRoomRepository;
@@ -131,7 +131,7 @@ public class ChatService {
     }
 
     @Transactional
-    public MessageResponse saveMessage(MessageRequest request, LocalDateTime sentAt) {
+    public MessageResponse saveMessage(MessageDto request, LocalDateTime sentAt) {
         User sender = userRepository.findById(request.getSender())
             .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
 
@@ -147,26 +147,28 @@ public class ChatService {
 
     @Transactional
     public ReadMessageResponse readMessage(ReadMessageRequest request) {
-//        return chatRoomRepository.findById(request.getRoomId())
-//            .map(exisginRoom -> {
-//                    messageRepository.decrementNotRead(
-//                        exisginRoom,
-//                        request.getStartLastReadMessageId(),
-//                        request.getEndLastReadMessageId()
-//                    );
-//
-//                    participantRepository.findByRoomAndRole(exisginRoom, request.getLoginUserRole())
-//                        .updateLastChatAndNotReadChat(request.getEndLastReadMessageId());
-//
-//                    return new ReadMessageResponse(
-//                        exisginRoom.getId(),
-//                        request.getLastReadMessageIdRange()
-//                    );
-//                }
-//            )
-//            .orElseThrow(() -> new ChatException(CHAT_ROOM_NOT_FOUND));
-        return null;
+        User user = userRepository.findById(request.getUserId())
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+        Room room = chatRoomRepository.findById(request.getRoomId())
+            .orElseThrow(() -> new ChatException(CHAT_ROOM_NOT_FOUND));
+
+        messageRepository.decrementNotRead(
+            room,
+            request.getStartLastReadMessageId(),
+            request.getEndLastReadMessageId()
+        );
+
+        participantRepository.findByRoomAndUser(room, user)
+            .ifPresent(participant ->
+                participant.updateLastChatAndNotReadChat(request.getEndLastReadMessageId()));
+
+        return new ReadMessageResponse(
+            room.getId(),
+            request.getLastReadMessageIdRange()
+        );
+
     }
+
     private String generateIdentifierBySHA256(User user1, User user2) {
         String rawIdentifier = user1.getId() + "_" + user2.getId();
         try {
@@ -186,7 +188,7 @@ public class ChatService {
         }
     }
 
-    private Message saveMessageByType(MessageRequest request, LocalDateTime sentAt, User sender, User receiver, Room room) {
+    private Message saveMessageByType(MessageDto request, LocalDateTime sentAt, User sender, User receiver, Room room) {
 
         MessageType messageType = request.getMessageType();
 

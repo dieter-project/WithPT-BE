@@ -1,20 +1,13 @@
 package com.sideproject.withpt.application.chat.contoller.request;
 
+import com.sideproject.withpt.application.chat.facade.request.MessageDto;
 import com.sideproject.withpt.common.exception.validator.ValidEnum;
 import com.sideproject.withpt.common.type.MessageType;
-import com.sideproject.withpt.domain.chat.Message;
-import com.sideproject.withpt.domain.chat.Room;
-import com.sideproject.withpt.domain.lesson.Lesson;
-import com.sideproject.withpt.domain.record.diet.Diets;
-import com.sideproject.withpt.domain.user.User;
-import java.time.LocalDateTime;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
 @Getter
@@ -74,17 +67,15 @@ public class MessageRequest {
         }
     }
 
-    public Message toEntity(Room room, User sender, User receiver, LocalDateTime sentAt, Diets diets, Lesson lesson) {
-        return Message.builder()
-            .room(room)
+    public MessageDto toDto() {
+        return MessageDto.builder()
+            .roomId(roomId)
             .sender(sender)
             .receiver(receiver)
-            .type(messageType)
+            .messageType(messageType)
             .message(message)
             .notRead(notRead)
-            .sentAt(sentAt)
-            .lesson(lesson)
-            .diets(diets)
+            .relatedEntityId(relatedEntityId)
             .s3DataUrl(s3DataUrl)
             .fileName(fileName)
             .fileDir(fileDir)

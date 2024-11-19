@@ -19,7 +19,7 @@ public class ChatFacade {
 
     public void sendMessage(MessageRequest request, LocalDateTime sentAt) {
         messageComponent.sendMessage(
-            chatService.saveMessage(request, sentAt), request.getRoomId()
+            chatService.saveMessage(request.toDto(), sentAt), request.getRoomId()
         );
     }
 

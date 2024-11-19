@@ -6,13 +6,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 
 import com.sideproject.withpt.application.chat.contoller.request.CreateRoomRequest;
-import com.sideproject.withpt.application.chat.contoller.request.MessageRequest;
+import com.sideproject.withpt.application.chat.contoller.request.ReadMessageRequest;
 import com.sideproject.withpt.application.chat.exception.ChatException;
+import com.sideproject.withpt.application.chat.facade.request.MessageDto;
 import com.sideproject.withpt.application.chat.repository.message.MessageRepository;
 import com.sideproject.withpt.application.chat.repository.participant.ParticipantRepository;
 import com.sideproject.withpt.application.chat.repository.room.ChatRoomRepository;
 import com.sideproject.withpt.application.chat.service.response.CreateRoomResponse;
 import com.sideproject.withpt.application.chat.service.response.MessageResponse;
+import com.sideproject.withpt.application.chat.service.response.ReadMessageResponse;
 import com.sideproject.withpt.application.chat.service.response.RoomListResponse;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
 import com.sideproject.withpt.application.record.diet.repository.DietRepository;
@@ -21,6 +23,7 @@ import com.sideproject.withpt.common.type.DietType;
 import com.sideproject.withpt.common.type.MessageType;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.type.RoomType;
+import com.sideproject.withpt.domain.chat.Message;
 import com.sideproject.withpt.domain.chat.Participant;
 import com.sideproject.withpt.domain.chat.Room;
 import com.sideproject.withpt.domain.record.diet.Diets;
@@ -255,7 +258,7 @@ class ChatServiceTest {
                 createParticipant(receiver, room, sender.getName()))
             );
 
-            MessageRequest request = MessageRequest.builder()
+            MessageDto request = MessageDto.builder()
                 .roomId(room.getId())
                 .messageType(MessageType.TALK)
                 .sender(sender.getId())
@@ -296,7 +299,7 @@ class ChatServiceTest {
             LocalDateTime sentAt = LocalDateTime.of(2024, 11, 19, 16, 24);
 
             String message = sender.getName() + " 회원님\n" + String.format("%d월 %d일 %s 식단", sentAt.getMonthValue(), sentAt.getDayOfMonth(), sentAt.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.KOREAN));
-            MessageRequest request = MessageRequest.builder()
+            MessageDto request = MessageDto.builder()
                 .roomId(room.getId())
                 .messageType(MessageType.DIET)
                 .sender(sender.getId())
@@ -318,6 +321,58 @@ class ChatServiceTest {
                 .extracting("message", "messageType", "notRead", "sentAt")
                 .contains(message, MessageType.DIET, 1, sentAt);
         }
+    }
+
+    @DisplayName("메세지 읽기")
+    @Rollback(value = false)
+    @Test
+    void readMessage() {
+        // given
+        User sender1 = userRepository.save(createMember("회원1"));
+        User sender2 = userRepository.save(createMember("회원2"));
+        User receiver = userRepository.save(createTrainer("트레이너"));
+        Room room1 = chatRoomRepository.save(createRoom());
+        Room room2 = chatRoomRepository.save(createRoom());
+
+        participantRepository.saveAll(List.of(
+            createParticipant(sender1, room1, receiver.getName()),
+            createParticipant(receiver, room1, sender1.getName()))
+        );
+        participantRepository.saveAll(List.of(
+            createParticipant(sender2, room2, receiver.getName()),
+            createParticipant(receiver, room2, sender2.getName()))
+        );
+
+        messageRepository.save(createMessage(room1, sender1, receiver, MessageType.TALK, "메세지1", 1));
+        messageRepository.save(createMessage(room1, sender1, receiver, MessageType.TALK, "메세지2", 1));
+        Message start = messageRepository.save(createMessage(room2, sender2, receiver, MessageType.TALK, "메세지3", 1));
+        messageRepository.save(createMessage(room1, sender1, receiver, MessageType.TALK, "메세지4", 1));
+        messageRepository.save(createMessage(room1, sender1, receiver, MessageType.TALK, "메세지5", 1));
+        messageRepository.save(createMessage(room2, sender2, receiver, MessageType.TALK, "메세지6", 1));
+        Message end = messageRepository.save(createMessage(room2, sender2, receiver, MessageType.TALK, "메세지7", 1));
+
+        ReadMessageRequest request = ReadMessageRequest.builder()
+            .userId(sender2.getId())
+            .roomId(room2.getId())
+            .lastReadMessageIdRange(List.of(start.getId() - 1, end.getId()))
+            .build();
+
+        // when
+        ReadMessageResponse response = chatService.readMessage(request);
+
+        // then
+    }
+
+    private Message createMessage(Room room, User sender, User receiver, MessageType messageType, String message, int notRead) {
+        return Message.builder()
+            .room(room)
+            .sender(sender)
+            .receiver(receiver)
+            .type(messageType)
+            .message(message)
+            .notRead(notRead)
+            .sentAt(LocalDateTime.now())
+            .build();
     }
 
     public Participant createParticipant(User user, Room room, String roomName) {
