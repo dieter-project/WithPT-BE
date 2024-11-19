@@ -4,6 +4,7 @@ import com.sideproject.withpt.application.chat.contoller.request.MessageRequest;
 import com.sideproject.withpt.application.chat.contoller.request.ReadMessageRequest;
 import com.sideproject.withpt.application.chat.service.ChatService;
 import com.sideproject.withpt.application.chat.service.MessageComponent;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,9 +17,9 @@ public class ChatFacade {
     private final ChatService chatService;
     private final MessageComponent messageComponent;
 
-    public void sendMessage(MessageRequest request) {
+    public void sendMessage(MessageRequest request, LocalDateTime sentAt) {
         messageComponent.sendMessage(
-            chatService.saveMessage(request), request.getRoomId()
+            chatService.saveMessage(request, sentAt), request.getRoomId()
         );
     }
 

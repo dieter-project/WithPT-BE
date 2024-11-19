@@ -3,6 +3,7 @@ package com.sideproject.withpt.application.chat.service;
 import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.CHAT_LIST_REQUEST_ERROR;
 import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.CHAT_ROOM_ALREADY_EXISTS;
 import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.CHAT_ROOM_CREATION_ERROR;
+import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.CHAT_ROOM_NOT_FOUND;
 import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.INVALID_REQUESTED_CHAT_IDENTIFIER;
 import static com.sideproject.withpt.application.chat.exception.ChatErrorCode.PARTICIPANT_NOT_FOUND;
 
@@ -18,16 +19,26 @@ import com.sideproject.withpt.application.chat.service.response.MessageResponse;
 import com.sideproject.withpt.application.chat.service.response.ReadMessageResponse;
 import com.sideproject.withpt.application.chat.service.response.RoomInfoResponse;
 import com.sideproject.withpt.application.chat.service.response.RoomListResponse;
+import com.sideproject.withpt.application.image.ImageUploader;
+import com.sideproject.withpt.application.lesson.exception.LessonException;
+import com.sideproject.withpt.application.lesson.repository.LessonRepository;
 import com.sideproject.withpt.application.member.service.MemberService;
+import com.sideproject.withpt.application.record.diet.exception.DietException;
+import com.sideproject.withpt.application.record.diet.repository.DietRepository;
 import com.sideproject.withpt.application.trainer.service.TrainerService;
 import com.sideproject.withpt.application.user.UserRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
+import com.sideproject.withpt.common.type.MessageType;
+import com.sideproject.withpt.domain.chat.Message;
 import com.sideproject.withpt.domain.chat.Participant;
 import com.sideproject.withpt.domain.chat.Room;
+import com.sideproject.withpt.domain.lesson.Lesson;
+import com.sideproject.withpt.domain.record.diet.Diets;
 import com.sideproject.withpt.domain.user.User;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +58,10 @@ public class ChatService {
     private final TrainerService trainerService;
     private final MemberService memberService;
     private final UserRepository userRepository;
+
+    private final LessonRepository lessonRepository;
+    private final DietRepository dietRepository;
+    private final ImageUploader imageUploader;
 
     @Transactional
     public CreateRoomResponse createRoom(Long initiatorId, CreateRoomRequest request) {
@@ -116,24 +131,18 @@ public class ChatService {
     }
 
     @Transactional
-    public MessageResponse saveMessage(MessageRequest messageRequest) {
-//        return chatRoomRepository.findById(messageRequest.getRoomId())
-//            .map(exisginRoom -> {
-//                    exisginRoom.updateLastChat(messageRequest.getMessage());
-//                    Message savedMessage = messageRepository.save(messageRequest.toEntity(exisginRoom));
-//
-//                    participantRepository.findByRoomAndRole(exisginRoom, messageRequest.getReceiverRole())
-//                        .incrementUnreadMessages();
-//
-//                    participantRepository.findByRoomAndRole(exisginRoom, messageRequest.getSenderRole())
-//                        .updateLastChatAndNotReadChat(savedMessage.getId());
-//
-//                    // TODO : 식단, 운동에 따른 로직 변경 or 추가
-//                    return MessageResponse.from(savedMessage, exisginRoom);
-//                }
-//            )
-//            .orElseThrow(() -> new ChatException(CHAT_ROOM_NOT_FOUND));
-        return null;
+    public MessageResponse saveMessage(MessageRequest request, LocalDateTime sentAt) {
+        User sender = userRepository.findById(request.getSender())
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+
+        User receiver = userRepository.findById(request.getReceiver())
+            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
+
+        Room room = chatRoomRepository.findById(request.getRoomId())
+            .orElseThrow(() -> new ChatException(CHAT_ROOM_NOT_FOUND));
+        Message savedMessage = saveMessageByType(request, sentAt, sender, receiver, room);
+        updateParticipantStates(room, sender, receiver, savedMessage);
+        return MessageResponse.from(savedMessage, room);
     }
 
     @Transactional
@@ -158,7 +167,6 @@ public class ChatService {
 //            .orElseThrow(() -> new ChatException(CHAT_ROOM_NOT_FOUND));
         return null;
     }
-
     private String generateIdentifierBySHA256(User user1, User user2) {
         String rawIdentifier = user1.getId() + "_" + user2.getId();
         try {
@@ -176,5 +184,40 @@ public class ChatService {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("SHA-256 algorithm not found", e);
         }
+    }
+
+    private Message saveMessageByType(MessageRequest request, LocalDateTime sentAt, User sender, User receiver, Room room) {
+
+        MessageType messageType = request.getMessageType();
+
+        switch (messageType) {
+            case DIET:
+                Diets diets = dietRepository.findById(request.getRelatedEntityId())
+                    .orElseThrow(() -> DietException.DIET_NOT_EXIST);
+                return saveMessage(request.toEntity(room, sender, receiver, sentAt, diets, null));
+            case LESSON:
+                Lesson lesson = lessonRepository.findById(request.getRelatedEntityId())
+                    .orElseThrow(() -> LessonException.LESSON_NOT_FOUND);
+                return saveMessage(request.toEntity(room, sender, receiver, sentAt, null, lesson));
+            case IMAGE:
+            case TALK:
+                return saveMessage(request.toEntity(room, sender, receiver, sentAt, null, null));
+            default:
+                throw new IllegalArgumentException("Invalid message type: " + messageType);
+        }
+    }
+
+    private void updateParticipantStates(Room room, User sender, User receiver, Message savedMessage) {
+        participantRepository.findByRoomAndUser(room, receiver)
+            .ifPresent(Participant::incrementUnreadMessages);
+
+        participantRepository.findByRoomAndUser(room, sender)
+            .ifPresent(participant -> participant.updateLastChatAndNotReadChat(savedMessage.getId()));
+
+        room.updateLastChat(savedMessage.getMessage());
+    }
+
+    private Message saveMessage(Message message) {
+        return messageRepository.save(message);
     }
 }

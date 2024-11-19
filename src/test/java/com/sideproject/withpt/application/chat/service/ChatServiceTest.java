@@ -6,36 +6,46 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 
 import com.sideproject.withpt.application.chat.contoller.request.CreateRoomRequest;
+import com.sideproject.withpt.application.chat.contoller.request.MessageRequest;
 import com.sideproject.withpt.application.chat.exception.ChatException;
-import com.sideproject.withpt.application.chat.repository.room.ChatRoomRepository;
 import com.sideproject.withpt.application.chat.repository.message.MessageRepository;
 import com.sideproject.withpt.application.chat.repository.participant.ParticipantRepository;
+import com.sideproject.withpt.application.chat.repository.room.ChatRoomRepository;
 import com.sideproject.withpt.application.chat.service.response.CreateRoomResponse;
-import com.sideproject.withpt.application.chat.service.response.RoomInfoResponse;
+import com.sideproject.withpt.application.chat.service.response.MessageResponse;
 import com.sideproject.withpt.application.chat.service.response.RoomListResponse;
+import com.sideproject.withpt.application.lesson.repository.LessonRepository;
+import com.sideproject.withpt.application.record.diet.repository.DietRepository;
 import com.sideproject.withpt.application.user.UserRepository;
+import com.sideproject.withpt.common.type.DietType;
+import com.sideproject.withpt.common.type.MessageType;
 import com.sideproject.withpt.common.type.Role;
 import com.sideproject.withpt.common.type.RoomType;
 import com.sideproject.withpt.domain.chat.Participant;
 import com.sideproject.withpt.domain.chat.Room;
+import com.sideproject.withpt.domain.record.diet.Diets;
 import com.sideproject.withpt.domain.user.User;
 import com.sideproject.withpt.domain.user.member.Member;
 import com.sideproject.withpt.domain.user.trainer.Trainer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.TextStyle;
 import java.util.List;
+import java.util.Locale;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-@ActiveProfiles("test")
+//@ActiveProfiles("test")
 @SpringBootTest
 class ChatServiceTest {
 
@@ -50,6 +60,12 @@ class ChatServiceTest {
 
     @Autowired
     private MessageRepository messageRepository;
+
+    @Autowired
+    private LessonRepository lessonRepository;
+
+    @Autowired
+    private DietRepository dietRepository;
 
     @Autowired
     private ChatService chatService;
@@ -221,6 +237,106 @@ class ChatServiceTest {
             );
 
     }
+
+    @DisplayName("유형별 메세지 저장")
+    @Nested
+    class SaveMessage {
+
+        @DisplayName("일반 메세지 저장")
+        @Test
+        void saveGeneralMessage() {
+            // given
+            User sender = userRepository.save(createMember("회원"));
+            User receiver = userRepository.save(createTrainer("트레이너"));
+            Room room = chatRoomRepository.save(createRoom());
+
+            participantRepository.saveAll(List.of(
+                createParticipant(sender, room, receiver.getName()),
+                createParticipant(receiver, room, sender.getName()))
+            );
+
+            MessageRequest request = MessageRequest.builder()
+                .roomId(room.getId())
+                .messageType(MessageType.TALK)
+                .sender(sender.getId())
+                .receiver(receiver.getId())
+                .message("안녕하세요")
+                .notRead(1)
+                .build();
+            LocalDateTime sentAt = LocalDateTime.of(2024, 11, 19, 16, 24);
+
+            // when
+            MessageResponse response = chatService.saveMessage(request, sentAt);
+
+            // then
+            assertThat(response)
+                .extracting("roomId", "sender.name", "receiver.name")
+                .contains(room.getId(), sender.getName(), receiver.getName());
+
+            assertThat(response)
+                .extracting("message", "messageType", "notRead", "sentAt")
+                .contains("안녕하세요", MessageType.TALK, 1, sentAt);
+        }
+
+        @DisplayName("식단 공유 메세지 저장")
+        @Test
+        void saveDietMessage() {
+            // given
+            User sender = userRepository.save(createMember("회원"));
+            User receiver = userRepository.save(createTrainer("트레이너"));
+            Room room = chatRoomRepository.save(createRoom());
+
+            participantRepository.saveAll(List.of(
+                createParticipant(sender, room, receiver.getName()),
+                createParticipant(receiver, room, sender.getName()))
+            );
+
+            Diets diets = dietRepository.save(createDiets(DietType.DIET, (Member) sender, LocalDate.now()));
+
+            LocalDateTime sentAt = LocalDateTime.of(2024, 11, 19, 16, 24);
+
+            String message = sender.getName() + " 회원님\n" + String.format("%d월 %d일 %s 식단", sentAt.getMonthValue(), sentAt.getDayOfMonth(), sentAt.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.KOREAN));
+            MessageRequest request = MessageRequest.builder()
+                .roomId(room.getId())
+                .messageType(MessageType.DIET)
+                .sender(sender.getId())
+                .receiver(receiver.getId())
+                .relatedEntityId(diets.getId())
+                .message(message)
+                .notRead(1)
+                .build();
+
+            // when
+            MessageResponse response = chatService.saveMessage(request, sentAt);
+
+            // then
+            assertThat(response)
+                .extracting("roomId", "sender.name", "receiver.name")
+                .contains(room.getId(), sender.getName(), receiver.getName());
+
+            assertThat(response)
+                .extracting("message", "messageType", "notRead", "sentAt")
+                .contains(message, MessageType.DIET, 1, sentAt);
+        }
+    }
+
+    public Participant createParticipant(User user, Room room, String roomName) {
+        return Participant.builder()
+            .user(user)
+            .room(room)
+            .roomName(roomName)
+            .unreadMessageCount(0)
+            .lastReadMessageId(null)
+            .build();
+    }
+
+    public Room createRoom() {
+        return Room.builder()
+            .type(RoomType.INDIVIDUAL)
+            .lastChat("")
+            .build();
+    }
+
     private Member createMember(String name) {
         return Member.builder()
             .email("test@test.com")
@@ -235,6 +351,18 @@ class ChatServiceTest {
             .email("test@test.com")
             .role(Role.TRAINER)
             .name(name)
+            .build();
+    }
+
+    private Diets createDiets(DietType dietType, Member member, LocalDate uploadDate) {
+        return Diets.builder()
+            .member(member)
+            .uploadDate(uploadDate)
+            .totalCalorie(1200)
+            .totalProtein(200)
+            .totalCarbohydrate(300)
+            .totalFat(400)
+            .targetDietType(dietType)
             .build();
     }
 

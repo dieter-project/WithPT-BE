@@ -2,6 +2,8 @@ package com.sideproject.withpt.domain.chat;
 
 import com.sideproject.withpt.common.type.MessageType;
 import com.sideproject.withpt.domain.BaseEntity;
+import com.sideproject.withpt.domain.lesson.Lesson;
+import com.sideproject.withpt.domain.record.diet.Diets;
 import com.sideproject.withpt.domain.user.User;
 import java.time.LocalDateTime;
 import javax.persistence.Entity;
@@ -39,7 +41,7 @@ public class Message extends BaseEntity {
     @JoinColumn(name = "receiver_id", nullable = false)
     private User receiver; // 수신자
 
-    private String content;
+    private String message;
 
     @Enumerated(EnumType.STRING)
     private MessageType type;
@@ -48,20 +50,30 @@ public class Message extends BaseEntity {
 
     private LocalDateTime sentAt; // 전송 시간
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lesson_id")
+    private Lesson lesson;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "diet_id")
+    private Diets diets;
+
     /* 파일 업로드 관련 변수 */
     private String s3DataUrl; // 파일 업로드 url
     private String fileName; // 파일이름
     private String fileDir; // s3 파일 경로
 
     @Builder
-    private Message(Room room, User sender, User receiver, String content, MessageType type, int notRead, LocalDateTime sentAt, String s3DataUrl, String fileName, String fileDir) {
+    public Message(Room room, User sender, User receiver, String message, MessageType type, int notRead, LocalDateTime sentAt, Lesson lesson, Diets diets, String s3DataUrl, String fileName, String fileDir) {
         this.room = room;
         this.sender = sender;
         this.receiver = receiver;
-        this.content = content;
+        this.message = message;
         this.type = type;
         this.notRead = notRead;
         this.sentAt = sentAt;
+        this.lesson = lesson;
+        this.diets = diets;
         this.s3DataUrl = s3DataUrl;
         this.fileName = fileName;
         this.fileDir = fileDir;
