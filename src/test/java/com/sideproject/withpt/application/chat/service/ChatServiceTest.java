@@ -38,6 +38,8 @@ import java.time.LocalDateTime;
 import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -45,10 +47,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-//@ActiveProfiles("test")
+@ActiveProfiles("test")
 @SpringBootTest
 class ChatServiceTest {
 
@@ -323,8 +326,11 @@ class ChatServiceTest {
         }
     }
 
+    @Autowired
+    private EntityManager em;
+
     @DisplayName("메세지 읽기")
-    @Rollback(value = false)
+//    @Rollback(value = false)
     @Test
     void readMessage() {
         // given
@@ -354,13 +360,27 @@ class ChatServiceTest {
         ReadMessageRequest request = ReadMessageRequest.builder()
             .userId(sender2.getId())
             .roomId(room2.getId())
-            .lastReadMessageIdRange(List.of(start.getId() - 1, end.getId()))
+            .startLastReadMessageId(start.getId() - 1)
+            .endLastReadMessageId(end.getId())
             .build();
 
         // when
-        ReadMessageResponse response = chatService.readMessage(request);
+        chatService.readMessage(request);
 
         // then
+        em.flush();
+        em.clear();
+        List<Message> messages = messageRepository.findAll().stream()
+            .filter(message -> message.getSender().getName().equals(sender2.getName()))
+            .collect(Collectors.toList());
+
+        assertThat(messages)
+            .extracting("message", "notRead")
+            .contains(
+                tuple("메세지3", 0),
+                tuple("메세지6", 0),
+                tuple("메세지7", 0)
+            );
     }
 
     private Message createMessage(Room room, User sender, User receiver, MessageType messageType, String message, int notRead) {

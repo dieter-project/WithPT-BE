@@ -164,7 +164,8 @@ public class ChatService {
 
         return new ReadMessageResponse(
             room.getId(),
-            request.getLastReadMessageIdRange()
+            request.getStartLastReadMessageId(),
+            request.getEndLastReadMessageId()
         );
 
     }

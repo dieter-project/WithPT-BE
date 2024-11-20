@@ -11,20 +11,14 @@ public class ReadMessageRequest {
 
     private Long userId;
     private Long roomId;
-    private List<Long> lastReadMessageIdRange;
+    private Long startLastReadMessageId;
+    private Long endLastReadMessageId;
 
     @Builder
-    public ReadMessageRequest(Long userId, Long roomId, List<Long> lastReadMessageIdRange) {
+    public ReadMessageRequest(Long userId, Long roomId, Long startLastReadMessageId, Long endLastReadMessageId) {
         this.userId = userId;
         this.roomId = roomId;
-        this.lastReadMessageIdRange = lastReadMessageIdRange;
-    }
-
-    public Long getStartLastReadMessageId() {
-        return lastReadMessageIdRange.get(0);
-    }
-
-    public Long getEndLastReadMessageId() {
-        return lastReadMessageIdRange.get(1);
+        this.startLastReadMessageId = startLastReadMessageId;
+        this.endLastReadMessageId = endLastReadMessageId;
     }
 }

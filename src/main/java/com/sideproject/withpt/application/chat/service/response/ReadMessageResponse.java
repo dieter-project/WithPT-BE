@@ -1,6 +1,5 @@
 package com.sideproject.withpt.application.chat.service.response;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,5 +10,6 @@ import lombok.NoArgsConstructor;
 public class ReadMessageResponse {
 
     private Long roomId;
-    private List<Long> lastReadMessageIdRange;
+    private Long startLastReadMessageId;
+    private Long endLastReadMessageId;
 }
