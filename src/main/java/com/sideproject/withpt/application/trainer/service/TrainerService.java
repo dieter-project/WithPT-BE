@@ -22,11 +22,6 @@ public class TrainerService {
     private final TrainerRepository trainerRepository;
     private final AwsS3Uploader awsS3Uploader;
 
-    public Trainer getTrainerById(Long trainerId) {
-        return trainerRepository.findById(trainerId)
-            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-    }
-
     public TrainerInfoResponse getTrainerInfo(Long trainerId) {
         return TrainerInfoResponse.of(
             trainerRepository.findById(trainerId)

@@ -22,10 +22,8 @@ import com.sideproject.withpt.application.chat.service.response.RoomListResponse
 import com.sideproject.withpt.application.image.ImageUploader;
 import com.sideproject.withpt.application.lesson.exception.LessonException;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
-import com.sideproject.withpt.application.member.service.MemberService;
 import com.sideproject.withpt.application.record.diet.exception.DietException;
 import com.sideproject.withpt.application.record.diet.repository.DietRepository;
-import com.sideproject.withpt.application.trainer.service.TrainerService;
 import com.sideproject.withpt.application.user.UserRepository;
 import com.sideproject.withpt.common.exception.GlobalException;
 import com.sideproject.withpt.common.type.MessageType;
@@ -59,8 +57,6 @@ public class ChatService {
     private final ParticipantRepository participantRepository;
     private final MessageRepository messageRepository;
 
-    private final TrainerService trainerService;
-    private final MemberService memberService;
     private final UserRepository userRepository;
 
     private final LessonRepository lessonRepository;

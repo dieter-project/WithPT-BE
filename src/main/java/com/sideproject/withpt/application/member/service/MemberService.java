@@ -27,11 +27,6 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PersonalTrainingRepository personalTrainingRepository;
 
-    public Member getMemberById(Long memberId) {
-        return memberRepository.findById(memberId)
-            .orElseThrow(() -> GlobalException.USER_NOT_FOUND);
-    }
-
     public Slice<MemberSearchResponse> searchMembers(Pageable pageable, String name) {
         return memberRepository.findBySearchOption(pageable, name);
     }

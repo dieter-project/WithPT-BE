@@ -28,6 +28,8 @@ public class MessageResponse {
     private String message;
     private MessageType messageType; // 메시지 타입
     private int notRead;
+    private Long lessonId;
+    private Long dietId;
     private String s3DataUrl; // 파일 업로드 url
     private String fileName; // 파일이름
     private String fileDir; // s3 파일 경로
@@ -42,6 +44,8 @@ public class MessageResponse {
             .message(message.getMessage())
             .messageType(message.getType())
             .notRead(message.getNotRead())
+            .lessonId(message.getLesson().getId())
+            .dietId(message.getDiets().getId())
             .s3DataUrl(message.getS3DataUrl())
             .fileName(message.getFileName())
             .fileDir(message.getFileDir())
