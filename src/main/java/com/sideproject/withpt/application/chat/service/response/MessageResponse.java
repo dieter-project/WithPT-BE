@@ -44,12 +44,20 @@ public class MessageResponse {
             .message(message.getMessage())
             .messageType(message.getType())
             .notRead(message.getNotRead())
-            .lessonId(message.getLesson().getId())
-            .dietId(message.getDiets().getId())
+            .lessonId(extractLessonId(message))
+            .dietId(extractDietId(message))
             .s3DataUrl(message.getS3DataUrl())
             .fileName(message.getFileName())
             .fileDir(message.getFileDir())
             .sentAt(message.getSentAt())
             .build();
+    }
+
+    private static Long extractLessonId(Message message) {
+        return message.getLesson() != null ? message.getLesson().getId() : null;
+    }
+
+    private static Long extractDietId(Message message) {
+        return message.getDiets() != null ? message.getDiets().getId() : null;
     }
 }
