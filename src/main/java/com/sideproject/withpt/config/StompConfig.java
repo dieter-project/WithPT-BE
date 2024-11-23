@@ -37,8 +37,8 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
         // stomp 접속 주소 url => /ws-stomp
         registry.addEndpoint("/ws-stomp") // 연결될 엔드포인트
 //            .setAllowedOrigins("*")
-            .setAllowedOriginPatterns("*");
-//            .withSockJS(); // SocketJS 를 연결한다는 설정
+            .setAllowedOriginPatterns("*")
+            .withSockJS(); // SocketJS 를 연결한다는 설정
     }
 
     @Override
@@ -50,14 +50,14 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
 
         // 메시지를 구독하는 요청 url => 메시지 받을 때
 //        registry.enableSimpleBroker("/sub");
-        registry.enableStompBrokerRelay("/topic", "/exchange")
-            .setRelayHost(host)
-            .setRelayPort(61613) // RabbitMQ STOMP 기본 포트
-            .setSystemLogin(username)
-            .setSystemPasscode(password)
-            .setClientLogin(username)
-            .setClientPasscode(password)
-            .setVirtualHost(virtualHost);
+        registry.enableStompBrokerRelay("/topic", "/exchange");
+//            .setRelayHost(host)
+//            .setRelayPort(61613) // RabbitMQ STOMP 기본 포트
+//            .setSystemLogin(username)
+//            .setSystemPasscode(password)
+//            .setClientLogin(username)
+//            .setClientPasscode(password)
+//            .setVirtualHost(virtualHost);
     }
 
 //    @Override
