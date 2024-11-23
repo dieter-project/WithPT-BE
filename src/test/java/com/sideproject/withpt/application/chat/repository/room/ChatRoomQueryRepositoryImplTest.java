@@ -2,7 +2,6 @@ package com.sideproject.withpt.application.chat.repository.room;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.sideproject.withpt.application.chat.repository.message.MessageRepository;
 import com.sideproject.withpt.application.chat.repository.participant.ParticipantRepository;
 import com.sideproject.withpt.application.chat.service.response.RoomInfoResponse;
 import com.sideproject.withpt.application.user.UserRepository;
@@ -37,10 +36,6 @@ class ChatRoomQueryRepositoryImplTest {
 
     @Autowired
     private ParticipantRepository participantRepository;
-
-    @Autowired
-    private MessageRepository messageRepository;
-
 
     @DisplayName("조회 유저의 모든 채팅방 리스트 조회")
     @Test

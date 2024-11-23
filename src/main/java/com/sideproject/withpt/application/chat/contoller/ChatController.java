@@ -17,6 +17,8 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,7 +27,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -57,19 +58,16 @@ public class ChatController {
 
     @Operation(summary = "채팅 내역 조회")
     @GetMapping("/chat/rooms/{roomId}")
-    public ApiSuccessResponse<List<MessageResponse>> getChattingList(@PathVariable Long roomId,
-        @RequestParam(required = false, defaultValue = "9999999999") Long cursor) {
-        log.info("room {}, cursor {}", roomId, cursor);
-
+    public ApiSuccessResponse<Slice<MessageResponse>> getChattingList(@PathVariable Long roomId, Pageable pageable) {
         return ApiSuccessResponse.from(
-            chatService.getChattingList(roomId, cursor)
+            chatService.getChattingList(roomId, pageable)
         );
     }
 
     @Operation(summary = "메세지 전송")
     @MessageMapping("chat/sendMessage")
     public void sendMessage(
-      @Valid @Payload MessageRequest request
+        @Valid @Payload MessageRequest request
     ) {
         log.info("CHAT {}", request);
         chatFacade.sendMessage(request, LocalDateTime.now());

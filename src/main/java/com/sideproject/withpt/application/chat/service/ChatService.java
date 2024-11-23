@@ -40,8 +40,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -121,13 +125,14 @@ public class ChatService {
         }
     }
 
-    public List<MessageResponse> getChattingList(Long roomId, Long cursor) {
-//        try {
-//            return chatRoomQueryRepository.findAllChattingList(roomId, cursor);
-//        } catch (Exception e) {
-//            throw new ChatException(CHAT_LIST_LOAD_ERROR_MESSAGE);
-//        }
-        return null;
+    public Slice<MessageResponse> getChattingList(Long roomId, Pageable pageable) {
+        Room room = chatRoomRepository.findById(roomId)
+            .orElseThrow(() -> new ChatException(CHAT_ROOM_NOT_FOUND));
+
+        Slice<Message> messages = messageRepository.findAllMessageBy(room, pageable);
+        List<MessageResponse> responses = convertMessagesToResponses(messages);
+
+        return new SliceImpl<>(responses, pageable, messages.hasNext());
     }
 
     @Transactional
@@ -187,6 +192,12 @@ public class ChatService {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("SHA-256 algorithm not found", e);
         }
+    }
+
+    private List<MessageResponse> convertMessagesToResponses(Slice<Message> messages) {
+        return messages.getContent().stream()
+            .map(message -> MessageResponse.from(message, message.getRoom()))
+            .collect(Collectors.toList());
     }
 
     private Message saveMessageByType(MessageDto request, LocalDateTime sentAt, User sender, User receiver, Room room) {

@@ -1,7 +1,6 @@
 package com.sideproject.withpt.application.chat.repository.room;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sideproject.withpt.application.chat.service.response.MessageResponse;
 import com.sideproject.withpt.application.chat.service.response.QRoomInfoResponse;
 import com.sideproject.withpt.application.chat.service.response.RoomInfoResponse;
 import com.sideproject.withpt.application.user.response.QUserResponse;
@@ -49,33 +48,4 @@ public class ChatRoomQueryRepositoryImpl implements ChatRoomQueryRepository {
                 .and(p2.user.ne(user))) // p2의 participant_id가 1이 아닌 경우만 필터링
             .fetch();
     }
-
-    public List<MessageResponse> findAllChattingList(Long roomId, Long cursor) {
-
-//        List<Message> result = jpaQueryFactory
-//            .selectFrom(message1)
-//            .where(
-//                message1.room.id.eq(roomId),
-//                message1.id.lt(cursor)
-//            )
-//            .orderBy(
-//                message1.id.desc()
-//            )
-//            .limit(50)
-//            .fetch();
-
-//        return result.stream()
-//            .sorted(Comparator.comparingLong(Message::getId))
-//            .map(message -> MessageResponse.from(message, message.getRoom()))
-//            .collect(toList());
-        return null;
-    }
-
-//    private BooleanExpression trainerEq(Trainer trainer) {
-//        return ObjectUtils.isEmpty(trainer) ? null : participant.trainer.eq(trainer);
-//    }
-//
-//    private BooleanExpression memberEq(Member member) {
-//        return ObjectUtils.isEmpty(member) ? null : participant.member.eq(member);
-//    }
 }

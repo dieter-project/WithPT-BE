@@ -2,13 +2,12 @@ package com.sideproject.withpt.application.chat.repository.message;
 
 import com.sideproject.withpt.domain.chat.Message;
 import com.sideproject.withpt.domain.chat.Room;
-import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface MessageRepository extends JpaRepository<Message, Long> {
+public interface MessageRepository extends JpaRepository<Message, Long>, MessageQueryRepository {
 
     @Modifying
     @Query("UPDATE Message c " +

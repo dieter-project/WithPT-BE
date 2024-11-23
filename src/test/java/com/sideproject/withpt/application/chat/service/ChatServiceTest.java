@@ -14,7 +14,6 @@ import com.sideproject.withpt.application.chat.repository.participant.Participan
 import com.sideproject.withpt.application.chat.repository.room.ChatRoomRepository;
 import com.sideproject.withpt.application.chat.service.response.CreateRoomResponse;
 import com.sideproject.withpt.application.chat.service.response.MessageResponse;
-import com.sideproject.withpt.application.chat.service.response.ReadMessageResponse;
 import com.sideproject.withpt.application.chat.service.response.RoomListResponse;
 import com.sideproject.withpt.application.lesson.repository.LessonRepository;
 import com.sideproject.withpt.application.record.diet.repository.DietRepository;
@@ -46,7 +45,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -330,7 +328,6 @@ class ChatServiceTest {
     private EntityManager em;
 
     @DisplayName("메세지 읽기")
-//    @Rollback(value = false)
     @Test
     void readMessage() {
         // given
