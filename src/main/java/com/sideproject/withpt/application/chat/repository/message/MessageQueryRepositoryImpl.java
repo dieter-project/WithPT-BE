@@ -1,6 +1,7 @@
 package com.sideproject.withpt.application.chat.repository.message;
 
-import static com.sideproject.withpt.domain.chat.QMessage.message;
+
+import static com.sideproject.withpt.domain.chat.QMessage.message1;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sideproject.withpt.domain.chat.Message;
@@ -22,10 +23,11 @@ public class MessageQueryRepositoryImpl implements MessageQueryRepository {
 
     @Override
     public Slice<Message> findAllMessageBy(Room room, Pageable pageable) {
+
         List<Message> messages = jpaQueryFactory
-            .selectFrom(message)
-            .where(message.room.eq(room))
-            .orderBy(message.id.desc())
+            .selectFrom(message1)
+            .where(message1.room.eq(room))
+            .orderBy(message1.id.desc())
             .offset(pageable.getOffset()) // Pageable의 offset
             .limit(pageable.getPageSize() + 1) // 다음 페이지 여부 확인을 위해 +1
             .fetch();
