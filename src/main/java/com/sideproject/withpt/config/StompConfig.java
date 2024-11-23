@@ -50,14 +50,14 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
 
         // 메시지를 구독하는 요청 url => 메시지 받을 때
 //        registry.enableSimpleBroker("/sub");
-        registry.enableStompBrokerRelay("/topic", "/exchange");
-//            .setRelayHost(host)
-//            .setRelayPort(61613) // RabbitMQ STOMP 기본 포트
-//            .setSystemLogin(username)
-//            .setSystemPasscode(password)
-//            .setClientLogin(username)
-//            .setClientPasscode(password)
-//            .setVirtualHost(virtualHost);
+        registry.enableStompBrokerRelay("/topic", "/exchange")
+            .setRelayHost(host)
+            .setRelayPort(61613) // RabbitMQ STOMP 기본 포트
+            .setSystemLogin(username)
+            .setSystemPasscode(password)
+            .setClientLogin(username)
+            .setClientPasscode(password)
+            .setVirtualHost(virtualHost);
     }
 
 //    @Override
