@@ -37,8 +37,8 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
         // stomp 접속 주소 url => /ws-stomp
         registry.addEndpoint("/ws-stomp") // 연결될 엔드포인트
 //            .setAllowedOrigins("*") // 정확한 도메인만 허용, 와일드카드(*) 사용 가능 여부 X
-            .setAllowedOriginPatterns("*") // 패턴(와일드카드)으로 도메인 허용, Spring Boot 2.4 이상
-            .withSockJS(); // SocketJS 를 연결한다는 설정
+            .setAllowedOriginPatterns("*"); // 패턴(와일드카드)으로 도메인 허용, Spring Boot 2.4 이상
+//            .withSockJS(); // SocketJS 를 연결한다는 설정
     }
 
     @Override
